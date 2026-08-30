@@ -157,6 +157,10 @@ USERS=$(sudo -u postgres psql -tAd "${DB_NAME}" -c "SELECT count(*) FROM users" 
 if [ "${USERS:-0}" = "0" ]; then
   say "База пуста — наполняю начальными данными"
   pnpm --filter @astir/api db:seed
+  # Seeded accounts belong to the studio itself, so the verification gate has
+  # nothing to prove about them; leaving them unverified would produce a fully
+  # deployed system nobody can sign into.
+  sudo -u postgres psql -qd "${DB_NAME}" -c "UPDATE users SET \"emailVerifiedAt\" = now() WHERE \"emailVerifiedAt\" IS NULL"
 else
   echo "в базе уже ${USERS} пользовател(ей) — наполнение пропущено"
 fi
