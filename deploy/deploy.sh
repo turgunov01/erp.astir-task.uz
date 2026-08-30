@@ -31,28 +31,23 @@ command -v psql >/dev/null || fail "psql не установлен"
 command -v pnpm >/dev/null || npm install -g pnpm@9.15.0
 echo "node $(node -v), pnpm $(pnpm -v)"
 
-# A busy port would give a process that dies on boot with a confusing error,
-# so it is caught before anything is written. A port held by this deployment`s
-# own processes is fine — that is what a redeploy looks like.
-OWN_PIDS="$(pm2 jlist 2>/dev/null | node -e "
-let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{
-  try {
-    console.log(JSON.parse(d).filter(a=>a.name.startsWith('erp-astir-task-'))
-      .map(a=>a.pid).filter(Boolean).join(' '))
-  } catch { console.log('') }
-})" || echo "")"
+# A busy port would give a process that dies on boot with a confusing error, so
+# it is caught before anything is written. A port held by this deployment own
+# processes is fine — that is what a redeploy looks like.
+OWN_PIDS="$(pm2 pid erp-astir-task-api 2>/dev/null || true) $(pm2 pid erp-astir-task-web 2>/dev/null || true)"
 
 for port in "$API_PORT" "$WEB_PORT"; do
-  holder="$(ss -lntp 2>/dev/null | grep ":${port} " | grep -oP 'pid=K[0-9]+' | head -1)"
-  [ -z "$holder" ] && continue
-  if ! echo " $OWN_PIDS " | grep -q " $holder "; then
-    fail "порт ${port} занят чужим процессом ${holder} — задайте другой: API_PORT=... WEB_PORT=..."
+  holder="$(ss -lntp 2>/dev/null | grep ":${port} " | grep -o "pid=[0-9]*" | head -1 | cut -d= -f2)"
+  if [ -n "$holder" ]; then
+    if echo " $OWN_PIDS " | grep -q " $holder "; then
+      echo "порт ${port} держит наш процесс ${holder} — это перевыкладка"
+    else
+      fail "порт ${port} занят чужим процессом ${holder}"
+    fi
   fi
-  echo "порт ${port} держит наш же процесс ${holder} — это перевыкладка"
 done
 
-# Source comes from git when the repository is available, and from an uploaded
-# tarball otherwise, so the same script serves both routes.
+# Source comes from git when available, from an uploaded tarball otherwise.
 REPO="${REPO:-https://github.com/turgunov01/erp.astir-task.uz.git}"
 USE_GIT=0
 if [ -z "${FORCE_TARBALL:-}" ] && command -v git >/dev/null; then USE_GIT=1; fi
