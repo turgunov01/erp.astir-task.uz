@@ -11,7 +11,7 @@
 const APP_DIR = process.env.APP_DIR || '/var/www/erp.astir-task.uz'
 const RELEASE = APP_DIR + '/current'
 const API_PORT = process.env.API_PORT || '4100'
-const WEB_PORT = process.env.WEB_PORT || '3100'
+const WEB_PORT = process.env.WEB_PORT || '9990'
 
 /** Restart on a crash, but give up on a boot loop instead of thrashing. */
 const common = {
