@@ -37,7 +37,9 @@ echo "node $(node -v), pnpm $(pnpm -v)"
 OWN_PIDS="$(pm2 pid erp-astir-task-api 2>/dev/null || true) $(pm2 pid erp-astir-task-web 2>/dev/null || true)"
 
 for port in "$API_PORT" "$WEB_PORT"; do
-  holder="$(ss -lntp 2>/dev/null | grep ":${port} " | grep -o "pid=[0-9]*" | head -1 | cut -d= -f2)"
+  # An unmatched grep exits 1, and under pipefail that would kill the script
+  # before it ever reported anything.
+  holder="$(ss -lntp 2>/dev/null | grep ":${port} " | grep -o "pid=[0-9]*" | head -1 | cut -d= -f2 || true)"
   if [ -n "$holder" ]; then
     if echo " $OWN_PIDS " | grep -q " $holder "; then
       echo "порт ${port} держит наш процесс ${holder} — это перевыкладка"
