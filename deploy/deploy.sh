@@ -70,6 +70,17 @@ cd "${APP_DIR}/current"
 say "Конфигурация"
 ENV_FILE="${APP_DIR}/env.production"
 
+# Before certbot runs the site is plain HTTP, and a Secure cookie would never
+# reach the browser — login would fail with nothing on screen to explain it.
+# The scheme is therefore taken from the certificate and re-applied on every
+# deploy, so the switch after certbot needs no manual edit.
+if [ -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]; then
+  SCHEME=https; COOKIE_SECURE=true
+else
+  SCHEME=http;  COOKIE_SECURE=false
+fi
+echo "схема: ${SCHEME}, Secure-cookie: ${COOKIE_SECURE}"
+
 if [ ! -f "$ENV_FILE" ]; then
   # Secrets are generated once and live outside the release directory, so a
   # redeploy never rotates them and they never travel in the tarball.
@@ -94,9 +105,9 @@ JWT_REFRESH_SECRET=$(openssl rand -hex 32)
 ACCESS_TOKEN_TTL=15m
 REFRESH_TOKEN_TTL_DAYS=30
 
-APP_URL=https://${DOMAIN}
-API_URL=https://${DOMAIN}/api
-COOKIE_SECURE=true
+APP_URL=${SCHEME}://${DOMAIN}
+API_URL=${SCHEME}://${DOMAIN}/api
+COOKIE_SECURE=${COOKIE_SECURE}
 
 STORAGE_PROVIDER=local
 STORAGE_PATH=${APP_DIR}/storage
@@ -114,6 +125,11 @@ else
   echo "используется существующий ${ENV_FILE}"
 fi
 
+# Re-applied on every run, including deploys that reuse an existing env file.
+sed -i "s|^APP_URL=.*|APP_URL=${SCHEME}://${DOMAIN}|" "$ENV_FILE"
+sed -i "s|^API_URL=.*|API_URL=${SCHEME}://${DOMAIN}/api|" "$ENV_FILE"
+sed -i "s|^COOKIE_SECURE=.*|COOKIE_SECURE=${COOKIE_SECURE}|" "$ENV_FILE"
+
 mkdir -p "${APP_DIR}/storage"
 cp "$ENV_FILE" apps/api/.env
 
@@ -125,6 +141,16 @@ pnpm install --frozen-lockfile
 say "Схема базы"
 pnpm --filter @astir/api exec prisma generate
 pnpm --filter @astir/api exec prisma migrate deploy
+
+# A migrated but empty database has no accounts, so the first deploy would
+# otherwise finish with a working site nobody can log into.
+USERS=$(sudo -u postgres psql -tAd "${DB_NAME}" -c "SELECT count(*) FROM users" 2>/dev/null || echo 0)
+if [ "${USERS:-0}" = "0" ]; then
+  say "База пуста — наполняю начальными данными"
+  pnpm --filter @astir/api db:seed
+else
+  echo "в базе уже ${USERS} пользовател(ей) — наполнение пропущено"
+fi
 
 say "Сборка веб-приложения"
 # NUXT_API_ORIGIN is read when routeRules are compiled, not at runtime, so the
@@ -157,6 +183,9 @@ systemctl reload nginx
 say "Готово"
 echo "Адрес:  http://${DOMAIN}"
 echo "Логи:   pm2 logs erp-astir-task-api    pm2 logs erp-astir-task-web"
-echo "HTTPS:  certbot --nginx -d ${DOMAIN}"
+if [ "$SCHEME" = "http" ]; then
+  echo "HTTPS:  certbot --nginx -d ${DOMAIN}, затем повторите деплой —"
+  echo "        схема и Secure-cookie переключатся сами"
+fi
 echo
 pm2 list
