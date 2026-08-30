@@ -39,7 +39,14 @@ for port in "$API_PORT" "$WEB_PORT"; do
   fi
 done
 
-[ -f "$TARBALL" ] || fail "архив ${TARBALL} не найден — сначала загрузите исходники"
+# Source comes from git when the repository is available, and from an uploaded
+# tarball otherwise, so the same script serves both routes.
+REPO="${REPO:-https://github.com/turgunov01/erp.astir-task.uz.git}"
+USE_GIT=0
+if [ -z "${FORCE_TARBALL:-}" ] && command -v git >/dev/null; then USE_GIT=1; fi
+if [ "$USE_GIT" = 0 ] && [ ! -f "$TARBALL" ]; then
+  fail "нет ни git, ни архива ${TARBALL}"
+fi
 
 # ---------------------------------------------------------------- source
 
@@ -50,8 +57,12 @@ if [ -d "${APP_DIR}/current" ]; then
   rm -rf "${APP_DIR}/previous"
   mv "${APP_DIR}/current" "${APP_DIR}/previous"
 fi
-mkdir -p "${APP_DIR}/current"
-tar -xzf "$TARBALL" -C "${APP_DIR}/current"
+if [ "$USE_GIT" = 1 ]; then
+  git clone --depth 1 "$REPO" "${APP_DIR}/current"
+else
+  mkdir -p "${APP_DIR}/current"
+  tar -xzf "$TARBALL" -C "${APP_DIR}/current"
+fi
 cd "${APP_DIR}/current"
 
 # ---------------------------------------------------------------- secrets
