@@ -1,0 +1,9 @@
+{
+  "pid": 15460,
+  "startedAt": 1787827654064,
+  "command": "dev",
+  "cwd": "D:/projects/astir/astir-erp/apps/web",
+  "port": 9990,
+  "hostname": "127.0.0.1",
+  "url": "http://127.0.0.1:9990"
+}

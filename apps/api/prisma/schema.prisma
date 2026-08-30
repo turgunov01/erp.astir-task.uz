@@ -1,0 +1,1328 @@
+// Aster Animation Studio ERP — data model.
+//
+// Hierarchy that everything else hangs off (spec 55, 103):
+//   Client > Project > Episode > Scene > Shot > ShotStage
+//                                 Shot > Task > Version > Review > Revision
+//
+// Conventions: UUID primary keys, createdAt/updatedAt everywhere,
+// deletedAt where soft delete is meaningful (spec 54).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------- enums
+
+enum Role {
+  OWNER
+  ADMIN
+  PRODUCER
+  PROJECT_MANAGER
+  ART_DIRECTOR
+  ARTIST
+  CLIENT
+  FINANCE
+}
+
+enum ProjectType {
+  ANIMATION_2D  @map("2D_ANIMATION")
+  ANIMATION_3D  @map("3D_ANIMATION")
+  MOTION_DESIGN
+  COMMERCIAL
+  SHORT_FILM
+  SERIES
+  FEATURE_FILM
+  OTHER
+}
+
+enum ProjectStatus {
+  DRAFT
+  PLANNING
+  PRE_PRODUCTION
+  PRODUCTION
+  POST_PRODUCTION
+  CLIENT_REVIEW
+  DELIVERY
+  COMPLETED
+  ON_HOLD
+  CANCELLED
+  ARCHIVED
+}
+
+enum Priority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum StageStatus {
+  NOT_STARTED
+  READY
+  IN_PROGRESS
+  REVIEW
+  BLOCKED
+  DONE
+}
+
+enum TaskStatus {
+  BACKLOG
+  READY
+  IN_PROGRESS
+  REVIEW
+  REVISION
+  APPROVED
+  DONE
+  BLOCKED
+}
+
+enum ProductionStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  REVIEW
+  REVISION
+  APPROVED
+  COMPLETED
+  ON_HOLD
+}
+
+enum VersionStatus {
+  WORKING
+  SUBMITTED
+  IN_REVIEW
+  CHANGES_REQUESTED
+  APPROVED
+  REJECTED
+  SUPERSEDED
+}
+
+enum ReviewType {
+  INTERNAL
+  ART_DIRECTOR
+  CLIENT
+  FINAL
+}
+
+enum ReviewStatus {
+  PENDING
+  IN_REVIEW
+  CHANGES_REQUESTED
+  APPROVED
+  REJECTED
+  /// Deadline passed with no decision: the discussion window closed.
+  EXPIRED
+}
+
+enum RevisionStatus {
+  OPEN
+  IN_PROGRESS
+  READY_FOR_REVIEW
+  COMPLETED
+  CANCELLED
+}
+
+enum AssetType {
+  CHARACTER
+  ENVIRONMENT
+  PROP
+  MODEL
+  RIG
+  TEXTURE
+  ANIMATION
+  AUDIO
+  REFERENCE
+  TEMPLATE
+  OTHER
+}
+
+enum RenderStatus {
+  QUEUED
+  RENDERING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PARTIALLY_PAID
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum ExpenseCategory {
+  EMPLOYEE
+  FREELANCER
+  RENDER
+  SOFTWARE
+  HARDWARE
+  AUDIO
+  PRODUCTION
+  OTHER
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  FREELANCE
+  INTERN
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  ON_LEAVE
+  INACTIVE
+}
+
+enum ClientStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum DocumentType {
+  CONTRACT
+  BRIEF
+  SPECIFICATION
+  INVOICE
+  ACT
+  NDA
+  OTHER
+}
+
+enum NotificationType {
+  TASK_ASSIGNED
+  TASK_OVERDUE
+  TASK_REVIEW
+  VERSION_SUBMITTED
+  VERSION_APPROVED
+  CHANGES_REQUESTED
+  REVISION_CREATED
+  PROJECT_DEADLINE
+  SHOT_DEADLINE
+  RENDER_FAILED
+  COMMENT_MENTION
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  TELEGRAM
+}
+
+// ---------------------------------------------------------------- identity
+
+model User {
+  id           String    @id @default(uuid()) @db.Uuid
+  email        String    @unique
+  passwordHash String
+  firstName    String
+  lastName     String
+  role         Role      @default(ARTIST)
+  avatarUrl    String?
+  phone        String?
+  isActive     Boolean   @default(true)
+  /// Set when the address was proven by entering an emailed code.
+  emailVerifiedAt DateTime?
+  lastLoginAt  DateTime?
+
+  // Set only for Role.CLIENT — scopes the client portal to one client (spec 36).
+  clientId String? @db.Uuid
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  employee Employee?
+
+  emailCodes          EmailCode[]
+  refreshTokens       RefreshToken[]
+  notificationPrefs   NotificationPreference[]
+  notifications       Notification[]
+  activityLogs        ActivityLog[]
+  auditLogs           AuditLog[]
+  comments            Comment[]
+  uploadedVersions    Version[]                @relation("VersionUploader")
+  reviewsGiven        Review[]                 @relation("Reviewer")
+  revisionsRequested  Revision[]               @relation("RevisionRequester")
+  revisionsAssigned   Revision[]               @relation("RevisionAssignee")
+  tasksAssigned       Task[]                   @relation("TaskAssignee")
+  tasksReviewing      Task[]                   @relation("TaskReviewer")
+  tasksCreated        Task[]                   @relation("TaskCreator")
+  shotsAssigned       Shot[]                   @relation("ShotAssignee")
+  stagesAssigned      ProjectStage[]           @relation("StageAssignee")
+  shotStagesAssigned  ShotStage[]              @relation("ShotStageAssignee")
+  projectsManaged     Project[]                @relation("ProjectManager")
+  projectsProduced    Project[]                @relation("ProjectProducer")
+  projectMemberships  ProjectMember[]
+  assetsOwned         Asset[]
+  expensesCreated     Expense[]
+  documentsUploaded   Document[]
+  renderJobsSubmitted RenderJob[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([role])
+  @@index([clientId])
+  @@index([createdAt])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // SHA-256 of the token — the raw value never touches the database.
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  userAgent String?
+  ipAddress String?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+// ---------------------------------------------------------------- team
+
+model Department {
+  id          String         @id @default(uuid()) @db.Uuid
+  name        String         @unique
+  description String?
+  employees   Employee[]
+  stages      ProjectStage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deletedAt  DateTime?
+  archivedAt DateTime?
+
+  /// Files attached to this record.
+  documents Document[]
+
+  @@index([archivedAt])
+  @@map("departments")
+}
+
+model Employee {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @unique @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  departmentId String?     @db.Uuid
+  department   Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+
+  position            String
+  employmentType      EmploymentType @default(FULL_TIME)
+  // Cost basis for project profitability (spec 43). Null for salaried staff.
+  hourlyRate          Decimal?       @db.Decimal(12, 2)
+  // Drives utilisation percentage on /team/workload (spec 32).
+  weeklyCapacityHours Int            @default(40)
+  status              EmployeeStatus @default(ACTIVE)
+  hiredAt             DateTime?
+
+  timesheetEntries TimesheetEntry[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  archivedAt DateTime?
+
+  /// Files attached to this record.
+  documents Document[]
+
+  @@index([departmentId])
+  @@index([status])
+  @@index([archivedAt])
+  @@map("employees")
+}
+
+// ---------------------------------------------------------------- clients
+
+model Client {
+  id          String       @id @default(uuid()) @db.Uuid
+  name        String
+  companyName String?
+  email       String?
+  phone       String?
+  country     String?
+  status      ClientStatus @default(ACTIVE)
+  notes       String?
+
+  contacts    ClientContact[]
+  projects    Project[]
+  payments    Payment[]
+  documents   Document[]
+  portalUsers User[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  archivedAt DateTime?
+  invoices   Invoice[]
+
+  @@index([status])
+  @@index([name])
+  @@index([archivedAt])
+  @@map("clients")
+}
+
+model ClientContact {
+  id        String  @id @default(uuid()) @db.Uuid
+  clientId  String  @db.Uuid
+  client    Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  name      String
+  position  String?
+  email     String?
+  phone     String?
+  isPrimary Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@map("client_contacts")
+}
+
+// ---------------------------------------------------------------- projects
+
+model Project {
+  id          String  @id @default(uuid()) @db.Uuid
+  // Human-facing identifier, e.g. AST-001 (spec 74).
+  code        String  @unique
+  name        String
+  description String?
+
+  clientId String @db.Uuid
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Restrict)
+
+  projectManagerId String? @db.Uuid
+  projectManager   User?   @relation("ProjectManager", fields: [projectManagerId], references: [id], onDelete: SetNull)
+
+  producerId String? @db.Uuid
+  producer   User?   @relation("ProjectProducer", fields: [producerId], references: [id], onDelete: SetNull)
+
+  projectType ProjectType   @default(OTHER)
+  status      ProjectStatus @default(DRAFT)
+  priority    Priority      @default(NORMAL)
+
+  startDate DateTime?
+  deadline  DateTime?
+
+  // Derived from stage completion — never user-editable (spec 56).
+  progress Int       @default(0)
+  risk     RiskLevel @default(LOW)
+
+  budget   Decimal? @db.Decimal(14, 2)
+  currency String   @default("USD")
+
+  members          ProjectMember[]
+  stages           ProjectStage[]
+  episodes         Episode[]
+  scenes           Scene[]
+  shots            Shot[]
+  tasks            Task[]
+  assets           Asset[]
+  versions         Version[]
+  revisions        Revision[]
+  milestones       Milestone[]
+  timesheetEntries TimesheetEntry[]
+  expenses         Expense[]
+  payments         Payment[]
+  documents        Document[]
+  renderJobs       RenderJob[]
+  budgetRecord     ProjectBudget?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  archivedAt DateTime?
+  invoices   Invoice[]
+
+  @@index([clientId])
+  @@index([status])
+  @@index([deadline])
+  @@index([projectManagerId])
+  @@index([createdAt])
+  @@index([archivedAt])
+  @@map("projects")
+}
+
+model ProjectMember {
+  id        String  @id @default(uuid()) @db.Uuid
+  projectId String  @db.Uuid
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String  @db.Uuid
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roleLabel String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([projectId, userId])
+  @@index([userId])
+  @@map("project_members")
+}
+
+/// One configurable pipeline step on a project (spec 11).
+model ProjectStage {
+  id        String  @id @default(uuid()) @db.Uuid
+  projectId String  @db.Uuid
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  name  String
+  order Int
+
+  status   StageStatus @default(NOT_STARTED)
+  progress Int         @default(0)
+  /// Relative contribution to project progress (spec 56 custom stage weights).
+  weight   Int         @default(1)
+
+  startDate DateTime?
+  deadline  DateTime?
+
+  assigneeId String? @db.Uuid
+  assignee   User?   @relation("StageAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+
+  departmentId String?     @db.Uuid
+  department   Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+
+  /// Self-relation: this stage cannot start until the dependency is DONE.
+  dependencyStageId String?        @db.Uuid
+  dependencyStage   ProjectStage?  @relation("StageDependency", fields: [dependencyStageId], references: [id], onDelete: SetNull)
+  dependents        ProjectStage[] @relation("StageDependency")
+
+  tasks      Task[]
+  shotStages ShotStage[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([projectId, order])
+  @@index([projectId])
+  @@index([status])
+  @@index([deadline])
+  @@map("project_stages")
+}
+
+model Milestone {
+  id        String  @id @default(uuid()) @db.Uuid
+  projectId String  @db.Uuid
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+  dueDate     DateTime?
+  completedAt DateTime?
+  order       Int       @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+  @@map("milestones")
+}
+
+// ---------------------------------------------------------------- production
+
+model Episode {
+  id        String  @id @default(uuid()) @db.Uuid
+  projectId String  @db.Uuid
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  number      Int
+  title       String
+  description String?
+  /// Seconds.
+  duration    Int?
+
+  status   ProductionStatus @default(NOT_STARTED)
+  progress Int              @default(0)
+
+  startDate DateTime?
+  deadline  DateTime?
+
+  scenes Scene[]
+  shots  Shot[]
+  tasks  Task[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  archivedAt DateTime?
+
+  /// Files attached to this record.
+  documents Document[]
+
+  @@unique([projectId, number])
+  @@index([projectId])
+  @@index([status])
+  @@index([archivedAt])
+  @@map("episodes")
+}
+
+model Scene {
+  id        String  @id @default(uuid()) @db.Uuid
+  projectId String  @db.Uuid
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  episodeId String?  @db.Uuid
+  episode   Episode? @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+
+  sceneNumber Int
+  name        String
+  description String?
+  duration    Int?
+
+  status   ProductionStatus @default(NOT_STARTED)
+  progress Int              @default(0)
+
+  shots Shot[]
+  tasks Task[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  archivedAt DateTime?
+
+  /// Files attached to this record.
+  documents Document[]
+
+  @@unique([episodeId, sceneNumber])
+  @@index([projectId])
+  @@index([episodeId])
+  @@index([status])
+  @@index([archivedAt])
+  @@map("scenes")
+}
+
+/// The core production unit (spec 14).
+model Shot {
+  id        String  @id @default(uuid()) @db.Uuid
+  projectId String  @db.Uuid
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  episodeId String?  @db.Uuid
+  episode   Episode? @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+
+  sceneId String? @db.Uuid
+  scene   Scene?  @relation(fields: [sceneId], references: [id], onDelete: Cascade)
+
+  shotNumber  Int
+  /// Denormalised display code, e.g. EP01_SC03_SH014 (spec 14).
+  code        String
+  name        String?
+  description String?
+
+  duration   Int?
+  fps        Int  @default(24)
+  startFrame Int?
+  endFrame   Int?
+
+  status   ProductionStatus @default(NOT_STARTED)
+  progress Int              @default(0)
+
+  assigneeId String? @db.Uuid
+  assignee   User?   @relation("ShotAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+
+  deadline DateTime?
+
+  stages     ShotStage[]
+  tasks      Task[]
+  versions   Version[]
+  revisions  Revision[]
+  renderJobs RenderJob[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  archivedAt DateTime?
+
+  /// Files attached to this record.
+  documents        Document[]
+  timesheetEntries TimesheetEntry[]
+
+  @@unique([projectId, code])
+  @@index([projectId])
+  @@index([episodeId])
+  @@index([sceneId])
+  @@index([status])
+  @@index([assigneeId])
+  @@index([deadline])
+  @@index([archivedAt])
+  @@map("shots")
+}
+
+/// Per-shot state of one pipeline stage (spec 15).
+model ShotStage {
+  id      String       @id @default(uuid()) @db.Uuid
+  shotId  String       @db.Uuid
+  shot    Shot         @relation(fields: [shotId], references: [id], onDelete: Cascade)
+  stageId String       @db.Uuid
+  stage   ProjectStage @relation(fields: [stageId], references: [id], onDelete: Cascade)
+
+  status   StageStatus @default(NOT_STARTED)
+  progress Int         @default(0)
+
+  assigneeId String? @db.Uuid
+  assignee   User?   @relation("ShotStageAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+
+  startedAt   DateTime?
+  completedAt DateTime?
+  deadline    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([shotId, stageId])
+  @@index([shotId])
+  @@index([stageId])
+  @@index([status])
+  @@map("shot_stages")
+}
+
+// ---------------------------------------------------------------- tasks
+
+model Task {
+  id        String  @id @default(uuid()) @db.Uuid
+  projectId String  @db.Uuid
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  episodeId String?       @db.Uuid
+  episode   Episode?      @relation(fields: [episodeId], references: [id], onDelete: SetNull)
+  sceneId   String?       @db.Uuid
+  scene     Scene?        @relation(fields: [sceneId], references: [id], onDelete: SetNull)
+  shotId    String?       @db.Uuid
+  shot      Shot?         @relation(fields: [shotId], references: [id], onDelete: SetNull)
+  stageId   String?       @db.Uuid
+  stage     ProjectStage? @relation(fields: [stageId], references: [id], onDelete: SetNull)
+
+  title       String
+  description String?
+
+  status   TaskStatus @default(BACKLOG)
+  priority Priority   @default(NORMAL)
+
+  assigneeId String? @db.Uuid
+  assignee   User?   @relation("TaskAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  reviewerId String? @db.Uuid
+  reviewer   User?   @relation("TaskReviewer", fields: [reviewerId], references: [id], onDelete: SetNull)
+
+  estimatedHours Decimal? @db.Decimal(8, 2)
+  actualHours    Decimal? @db.Decimal(8, 2)
+
+  startDate DateTime?
+  deadline  DateTime?
+
+  createdById String? @db.Uuid
+  createdBy   User?   @relation("TaskCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  /// Archived tasks stay fully intact but drop out of active lists.
+  /// Distinct from deletedAt: archiving is a workflow state a user can undo,
+  /// deletion is removal.
+  archivedAt DateTime?
+
+  /// Tasks this one waits on (spec 18).
+  dependencies TaskDependency[] @relation("DependentTask")
+  dependents   TaskDependency[] @relation("PrerequisiteTask")
+
+  versions         Version[]
+  revisions        Revision[]
+  timesheetEntries TimesheetEntry[]
+  documents        Document[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([projectId])
+  @@index([shotId])
+  @@index([assigneeId])
+  @@index([status])
+  @@index([deadline])
+  @@index([createdAt])
+  @@index([archivedAt])
+  @@map("tasks")
+}
+
+model TaskDependency {
+  id String @id @default(uuid()) @db.Uuid
+
+  /// The task that is blocked.
+  taskId String @db.Uuid
+  task   Task   @relation("DependentTask", fields: [taskId], references: [id], onDelete: Cascade)
+
+  /// The task that must finish first.
+  dependsOnTaskId String @db.Uuid
+  dependsOnTask   Task   @relation("PrerequisiteTask", fields: [dependsOnTaskId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([taskId, dependsOnTaskId])
+  @@index([dependsOnTaskId])
+  @@map("task_dependencies")
+}
+
+// ---------------------------------------------------------------- assets & versions
+
+model Asset {
+  id        String   @id @default(uuid()) @db.Uuid
+  projectId String?  @db.Uuid
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  type         AssetType
+  name         String
+  description  String?
+  thumbnailUrl String?
+  status       ProductionStatus @default(NOT_STARTED)
+
+  ownerId String? @db.Uuid
+  owner   User?   @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+
+  versions  Version[]
+  documents Document[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  archivedAt DateTime?
+
+  @@index([projectId])
+  @@index([type])
+  @@index([status])
+  @@index([archivedAt])
+  @@map("assets")
+}
+
+/// Immutable-ish work product. Approved versions are protected from artist deletion (spec 19).
+model Version {
+  id        String  @id @default(uuid()) @db.Uuid
+  projectId String  @db.Uuid
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  taskId  String? @db.Uuid
+  task    Task?   @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  shotId  String? @db.Uuid
+  shot    Shot?   @relation(fields: [shotId], references: [id], onDelete: SetNull)
+  assetId String? @db.Uuid
+  asset   Asset?  @relation(fields: [assetId], references: [id], onDelete: SetNull)
+
+  versionNumber Int
+  /// Display name, e.g. SH014_animation_v003 (spec 19).
+  label         String
+
+  fileUrl    String?
+  previewUrl String?
+  fileName   String?
+  fileSize   BigInt?
+  mimeType   String?
+
+  notes  String?
+  status VersionStatus @default(WORKING)
+
+  uploadedById String? @db.Uuid
+  uploadedBy   User?   @relation("VersionUploader", fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  reviews   Review[]
+  revisions Revision[]
+
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  renderJobs RenderJob[]
+
+  @@index([projectId])
+  @@index([shotId, versionNumber])
+  @@index([taskId])
+  @@index([assetId])
+  @@index([status])
+  @@map("versions")
+}
+
+model Review {
+  id        String  @id @default(uuid()) @db.Uuid
+  versionId String  @db.Uuid
+  version   Version @relation(fields: [versionId], references: [id], onDelete: Cascade)
+
+  reviewType ReviewType   @default(INTERNAL)
+  status     ReviewStatus @default(PENDING)
+
+  reviewerId String? @db.Uuid
+  reviewer   User?   @relation("Reviewer", fields: [reviewerId], references: [id], onDelete: SetNull)
+
+  comment String?
+
+  /// Discussion window. Passing it without a decision closes the review.
+  deadline DateTime?
+
+  /// Reference material attached to the discussion.
+  documents Document[]
+
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  deletedAt  DateTime?
+  archivedAt DateTime?
+
+  @@index([versionId])
+  @@index([reviewerId])
+  @@index([status])
+  @@index([archivedAt])
+  @@map("reviews")
+}
+
+model Revision {
+  id        String  @id @default(uuid()) @db.Uuid
+  projectId String  @db.Uuid
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  shotId    String?  @db.Uuid
+  shot      Shot?    @relation(fields: [shotId], references: [id], onDelete: SetNull)
+  taskId    String?  @db.Uuid
+  task      Task?    @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  versionId String?  @db.Uuid
+  version   Version? @relation(fields: [versionId], references: [id], onDelete: SetNull)
+
+  /// Revision round number, reported per project (spec 24).
+  round       Int     @default(1)
+  title       String
+  description String?
+
+  requestedById String? @db.Uuid
+  requestedBy   User?   @relation("RevisionRequester", fields: [requestedById], references: [id], onDelete: SetNull)
+  assignedToId  String? @db.Uuid
+  assignedTo    User?   @relation("RevisionAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  priority Priority       @default(NORMAL)
+  status   RevisionStatus @default(OPEN)
+  deadline DateTime?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
+
+  deletedAt  DateTime?
+  archivedAt DateTime?
+
+  /// Files attached to this record.
+  documents Document[]
+
+  @@index([projectId])
+  @@index([shotId])
+  @@index([status])
+  @@index([archivedAt])
+  @@map("revisions")
+}
+
+/// Polymorphic comment thread, attachable to task / shot / version / review / revision (spec 58).
+model Comment {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  entityType String
+  entityId   String @db.Uuid
+
+  message String
+
+  parentId String?   @db.Uuid
+  parent   Comment?  @relation("CommentThread", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentThread")
+
+  /// User ids extracted from @mentions at write time.
+  mentionedUserIds String[] @db.Uuid
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@map("comments")
+}
+
+// ---------------------------------------------------------------- time & money
+
+model TimesheetEntry {
+  id         String   @id @default(uuid()) @db.Uuid
+  employeeId String   @db.Uuid
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  projectId String  @db.Uuid
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  taskId    String? @db.Uuid
+  task      Task?   @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  shotId    String? @db.Uuid
+  shot      Shot?   @relation(fields: [shotId], references: [id], onDelete: SetNull)
+
+  date        DateTime @db.Date
+  hours       Decimal  @db.Decimal(6, 2)
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([employeeId, date])
+  @@index([projectId])
+  @@index([taskId])
+  @@map("timesheet_entries")
+}
+
+model ProjectBudget {
+  id        String  @id @default(uuid()) @db.Uuid
+  projectId String  @unique @db.Uuid
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  revenue     Decimal @default(0) @db.Decimal(14, 2)
+  plannedCost Decimal @default(0) @db.Decimal(14, 2)
+  /// Recomputed from expenses plus timesheet cost (spec 43).
+  actualCost  Decimal @default(0) @db.Decimal(14, 2)
+  currency    String  @default("USD")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("project_budgets")
+}
+
+model Expense {
+  id        String  @id @default(uuid()) @db.Uuid
+  projectId String  @db.Uuid
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  category    ExpenseCategory
+  description String?
+  amount      Decimal         @db.Decimal(14, 2)
+  currency    String          @default("USD")
+  date        DateTime        @db.Date
+
+  createdById String? @db.Uuid
+  createdBy   User?   @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([category])
+  @@index([date])
+  @@map("expenses")
+}
+
+model Payment {
+  id        String   @id @default(uuid()) @db.Uuid
+  clientId  String   @db.Uuid
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  projectId String?  @db.Uuid
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  amount   Decimal       @db.Decimal(14, 2)
+  currency String        @default("USD")
+  status   PaymentStatus @default(PENDING)
+
+  dueDate  DateTime?
+  paidDate DateTime?
+  method   String?
+
+  invoiceId String?  @db.Uuid
+  invoice   Invoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([projectId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("payments")
+}
+
+model Invoice {
+  id        String   @id @default(uuid()) @db.Uuid
+  number    String   @unique
+  clientId  String   @db.Uuid
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  projectId String?  @db.Uuid
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  amount   Decimal       @db.Decimal(14, 2)
+  currency String        @default("USD")
+  status   PaymentStatus @default(PENDING)
+
+  issuedAt DateTime  @default(now())
+  dueDate  DateTime?
+
+  payments Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([clientId])
+  @@index([status])
+  @@map("invoices")
+}
+
+model Document {
+  id        String   @id @default(uuid()) @db.Uuid
+  projectId String?  @db.Uuid
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  clientId  String?  @db.Uuid
+  client    Client?  @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  /// Attachments made from a task page (photo, video, audio, documents).
+  taskId String? @db.Uuid
+  task   Task?   @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  /// Material attached to a review, so the discussion has something to look at.
+  reviewId String? @db.Uuid
+  review   Review? @relation(fields: [reviewId], references: [id], onDelete: SetNull)
+
+  /// Source files and references filed under a library asset.
+  assetId String? @db.Uuid
+  asset   Asset?  @relation(fields: [assetId], references: [id], onDelete: SetNull)
+
+  /// Reference boards and briefs filed under an episode.
+  episodeId String?  @db.Uuid
+  episode   Episode? @relation(fields: [episodeId], references: [id], onDelete: SetNull)
+
+  /// Reference material filed under a scene.
+  sceneId String? @db.Uuid
+  scene   Scene?  @relation(fields: [sceneId], references: [id], onDelete: SetNull)
+
+  /// Plates, references and notes filed under a shot.
+  shotId String? @db.Uuid
+  shot   Shot?   @relation(fields: [shotId], references: [id], onDelete: SetNull)
+
+  /// Material showing what the revision is about.
+  revisionId String?   @db.Uuid
+  revision   Revision? @relation(fields: [revisionId], references: [id], onDelete: SetNull)
+
+  /// Documents belonging to a department.
+  departmentId String?     @db.Uuid
+  department   Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+
+  /// Personnel documents for an employee.
+  employeeId String?   @db.Uuid
+  employee   Employee? @relation(fields: [employeeId], references: [id], onDelete: SetNull)
+
+  /// Scene files or logs attached to a render job.
+  renderJobId String?    @db.Uuid
+  renderJob   RenderJob? @relation(fields: [renderJobId], references: [id], onDelete: SetNull)
+
+  type     DocumentType
+  name     String
+  fileUrl  String
+  fileSize BigInt?
+  mimeType String?
+
+  uploadedById String? @db.Uuid
+  uploadedBy   User?   @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  archivedAt DateTime?
+
+  @@index([projectId])
+  @@index([clientId])
+  @@index([taskId])
+  @@index([reviewId])
+  @@index([assetId])
+  @@index([renderJobId])
+  @@index([episodeId])
+  @@index([sceneId])
+  @@index([shotId])
+  @@index([revisionId])
+  @@index([departmentId])
+  @@index([employeeId])
+  @@index([type])
+  @@index([archivedAt])
+  @@map("documents")
+}
+
+// ---------------------------------------------------------------- render
+
+model RenderNode {
+  id         String    @id @default(uuid()) @db.Uuid
+  name       String    @unique
+  hostname   String?
+  isOnline   Boolean   @default(false)
+  lastSeenAt DateTime?
+
+  jobs RenderJob[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("render_nodes")
+}
+
+model RenderJob {
+  id        String   @id @default(uuid()) @db.Uuid
+  projectId String   @db.Uuid
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  shotId    String?  @db.Uuid
+  shot      Shot?    @relation(fields: [shotId], references: [id], onDelete: SetNull)
+  versionId String?  @db.Uuid
+  version   Version? @relation(fields: [versionId], references: [id], onDelete: SetNull)
+
+  nodeId String?     @db.Uuid
+  node   RenderNode? @relation(fields: [nodeId], references: [id], onDelete: SetNull)
+
+  startFrame Int?
+  endFrame   Int?
+
+  status   RenderStatus @default(QUEUED)
+  progress Int          @default(0)
+  priority Priority     @default(NORMAL)
+
+  submittedById String? @db.Uuid
+  submittedBy   User?   @relation(fields: [submittedById], references: [id], onDelete: SetNull)
+
+  startedAt    DateTime?
+  completedAt  DateTime?
+  errorMessage String?
+
+  /// Scene files and logs attached to this job.
+  documents Document[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deletedAt  DateTime?
+  archivedAt DateTime?
+
+  @@index([projectId])
+  @@index([status])
+  @@index([shotId])
+  @@index([archivedAt])
+  @@map("render_jobs")
+}
+
+// ---------------------------------------------------------------- notifications & audit
+
+model Notification {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type    NotificationType
+  title   String
+  body    String?
+  /// Deep link to the originating entity.
+  linkUrl String?
+
+  entityType String?
+  entityId   String? @db.Uuid
+
+  readAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, readAt])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model NotificationPreference {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type    NotificationType
+  channel NotificationChannel
+  enabled Boolean             @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, type, channel])
+  @@map("notification_preferences")
+}
+
+/// Business-visible feed shown on project pages (spec 49).
+model ActivityLog {
+  id      String  @id @default(uuid()) @db.Uuid
+  actorId String? @db.Uuid
+  actor   User?   @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  entityType String
+  entityId   String @db.Uuid
+  action     String
+
+  /// Free-form payload, e.g. { from: "IN_PROGRESS", to: "REVIEW" }.
+  metadata Json?
+
+  /// Denormalised so the project feed is a single indexed read.
+  projectId String? @db.Uuid
+
+  createdAt DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([projectId, createdAt])
+  @@index([actorId])
+  @@map("activity_logs")
+}
+
+/// Security-relevant trail: logins, permission changes, deletions (spec 50).
+model AuditLog {
+  id      String  @id @default(uuid()) @db.Uuid
+  actorId String? @db.Uuid
+  actor   User?   @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  action     String
+  entityType String?
+  entityId   String? @db.Uuid
+
+  ipAddress String?
+  userAgent String?
+  metadata  Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([actorId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+/// One-time code emailed to prove an address (login confirmation).
+model EmailCode {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// SHA-256 of the code: a leaked table must not hand out working codes.
+  codeHash String
+  purpose  String @default("LOGIN")
+
+  expiresAt  DateTime
+  consumedAt DateTime?
+  /// Wrong guesses so far; the code dies before brute force pays off.
+  attempts   Int       @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, purpose])
+  @@index([expiresAt])
+  @@map("email_codes")
+}

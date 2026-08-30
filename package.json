@@ -1,0 +1,26 @@
+{
+  "name": "astir-erp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --filter \"./apps/*\" dev",
+    "dev:api": "pnpm --filter @astir/api dev",
+    "dev:web": "pnpm --filter @astir/web dev",
+    "build": "pnpm --filter @astir/api build && pnpm --filter @astir/web build",
+    "db:generate": "pnpm --filter @astir/api db:generate",
+    "db:migrate": "pnpm --filter @astir/api db:migrate",
+    "db:seed": "pnpm --filter @astir/api db:seed",
+    "db:studio": "pnpm --filter @astir/api db:studio",
+    "db:tunnel": "ssh -N -L 5433:127.0.0.1:5432 root@95.46.96.48",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "check:routes": "node scripts/check-routes.mjs",
+    "test:api": "node scripts/smoke-api.mjs"
+  }
+}

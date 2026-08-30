@@ -1,0 +1,144 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "@unhead/vue": [
+        "../../../node_modules/.pnpm/@unhead+vue@3.4.0_@oxc-project+types@0.147.0_esbuild@0.28.2_lightningcss@1.33.0_rolldown@1.2._ojao6gt5gtn5pf2pbdqwmc4we4/node_modules/@unhead/vue"
+      ],
+      "@nuxt/devtools": [
+        "../../../node_modules/.pnpm/@nuxt+devtools@3.4.2_aws4fetch@1.0.20_db0@0.3.4_@electric-sql+pglite@0.4.3_@libsql+client@0.1_xrdzyupse7beoou7dbpplvnq6y/node_modules/@nuxt/devtools"
+      ],
+      "@vue/runtime-core": [
+        "../../../node_modules/.pnpm/@vue+runtime-core@3.5.42/node_modules/@vue/runtime-core"
+      ],
+      "@vue/compiler-sfc": [
+        "../../../node_modules/.pnpm/@vue+compiler-sfc@3.5.42/node_modules/@vue/compiler-sfc"
+      ],
+      "@nuxt/schema": [
+        "../../../node_modules/.pnpm/@nuxt+schema@4.5.2/node_modules/@nuxt/schema"
+      ],
+      "nuxt": [
+        "../../../node_modules/.pnpm/nuxt@4.5.2_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7__@babel+plugin-syntax-typescrip_7egrjuranef5r4yvh4yql7zrle/node_modules/nuxt"
+      ],
+      "vite/client": [
+        "../../../node_modules/.pnpm/vite@8.2.2_@types+node@26.4.0_esbuild@0.28.2_jiti@2.7.0_terser@5.51.1_tsx@4.23.12_yaml@2.9.0/node_modules/vite/client"
+      ],
+      "nitropack/types": [
+        "../../../node_modules/.pnpm/nitropack@2.13.4_@electric-sql+pglite@0.4.3_@libsql+client@0.17.4_aws4fetch@1.0.20_mysql2@3.1_qn7tdop5v3nwuc2noqpk3oka7i/node_modules/nitropack/types"
+      ],
+      "nitropack/runtime": [
+        "../../../node_modules/.pnpm/nitropack@2.13.4_@electric-sql+pglite@0.4.3_@libsql+client@0.17.4_aws4fetch@1.0.20_mysql2@3.1_qn7tdop5v3nwuc2noqpk3oka7i/node_modules/nitropack/runtime"
+      ],
+      "nitropack": [
+        "../../../node_modules/.pnpm/nitropack@2.13.4_@electric-sql+pglite@0.4.3_@libsql+client@0.17.4_aws4fetch@1.0.20_mysql2@3.1_qn7tdop5v3nwuc2noqpk3oka7i/node_modules/nitropack"
+      ],
+      "defu": [
+        "../../../node_modules/.pnpm/defu@6.1.7/node_modules/defu"
+      ],
+      "h3": [
+        "../../../node_modules/.pnpm/h3@1.15.11/node_modules/h3"
+      ],
+      "consola": [
+        "../../../node_modules/.pnpm/consola@3.4.2/node_modules/consola"
+      ],
+      "ofetch": [
+        "../../../node_modules/.pnpm/ofetch@1.5.1/node_modules/ofetch"
+      ],
+      "crossws": [
+        "../../../node_modules/.pnpm/crossws@0.3.5/node_modules/crossws"
+      ],
+      "~": [
+        "../app"
+      ],
+      "~/*": [
+        "../app/*"
+      ],
+      "@": [
+        "../app"
+      ],
+      "@/*": [
+        "../app/*"
+      ],
+      "~~": [
+        ".."
+      ],
+      "~~/*": [
+        "../*"
+      ],
+      "@@": [
+        ".."
+      ],
+      "@@/*": [
+        "../*"
+      ],
+      "#shared": [
+        "../shared"
+      ],
+      "#shared/*": [
+        "../shared/*"
+      ],
+      "#server": [
+        "../server"
+      ],
+      "#server/*": [
+        "../server/*"
+      ],
+      "#app": [
+        "../../../node_modules/.pnpm/nuxt@4.5.2_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7__@babel+plugin-syntax-typescrip_7egrjuranef5r4yvh4yql7zrle/node_modules/nuxt/dist/app"
+      ],
+      "#app/*": [
+        "../../../node_modules/.pnpm/nuxt@4.5.2_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7__@babel+plugin-syntax-typescrip_7egrjuranef5r4yvh4yql7zrle/node_modules/nuxt/dist/app/*"
+      ],
+      "vue-demi": [
+        "../../../node_modules/.pnpm/nuxt@4.5.2_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7__@babel+plugin-syntax-typescrip_7egrjuranef5r4yvh4yql7zrle/node_modules/nuxt/dist/app/compat/vue-demi"
+      ],
+      "#vue-router": [
+        "../../../node_modules/.pnpm/vue-router@5.2.0_@vue+compiler-sfc@3.5.42_esbuild@0.28.2_pinia@4.0.3_@vue+devtools-api@8.2.1__qrionuh43qanuivdma5aj5twnm/node_modules/vue-router"
+      ],
+      "#unhead/composables": [
+        "../../../node_modules/.pnpm/nuxt@4.5.2_@babel+plugin-syntax-jsx@7.29.7_@babel+core@7.29.7__@babel+plugin-syntax-typescrip_7egrjuranef5r4yvh4yql7zrle/node_modules/nuxt/dist/head/runtime/composables"
+      ],
+      "#imports": [
+        "./imports"
+      ],
+      "#app-manifest": [
+        "./manifest/meta/4e0c62d9-4c4e-42b9-b752-0fcd0beb03d0.json"
+      ],
+      "#build": [
+        "."
+      ],
+      "#build/*": [
+        "./*"
+      ]
+    },
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "target": "ESNext",
+    "allowJs": true,
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "allowArbitraryExtensions": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitOverride": true,
+    "module": "preserve",
+    "noEmit": true,
+    "types": [],
+    "moduleResolution": "Bundler",
+    "useDefineForClassFields": true,
+    "noImplicitThis": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": [
+    "./nuxt.shared.d.ts",
+    "../shared/**/*",
+    "../modules/*/shared/**/*",
+    "../layers/*/shared/**/*",
+    "../*.d.ts",
+    "../layers/*/*.d.ts"
+  ],
+  "exclude": []
+}

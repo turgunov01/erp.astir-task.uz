@@ -1,0 +1,14 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+
+allowBuilds:
+  '@parcel/watcher': false
+  '@tailwindcss/oxide': true
+  esbuild: true
+  unrs-resolver: false
+  vue-demi: false
+  '@prisma/engines': true
+  prisma: true
+  '@prisma/client': true
+  bcrypt: true

@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+/*
+ * Explicit source globs.
+ *
+ * Auto-detection missed newly added pages in this monorepo, so utilities
+ * used only by a new file were silently absent from the build. Declaring
+ * the globs makes the scan deterministic.
+ */
+@source "../../**/*.vue";
+@source "../../**/*.ts";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ---------------------------------------------------------------------------
+   Aster Animation Studio ERP — design tokens.
+   Neutral base + a single amber accent reserved for production signal
+   (at-risk, pending review). Status colours are semantic, never decorative.
+--------------------------------------------------------------------------- */
+:root {
+  --radius: 0.625rem;
+
+  --background: oklch(99% 0 0);
+  --foreground: oklch(18% 0.005 285);
+
+  --card: oklch(100% 0 0);
+  --card-foreground: oklch(18% 0.005 285);
+
+  --popover: oklch(100% 0 0);
+  --popover-foreground: oklch(18% 0.005 285);
+
+  --primary: oklch(22% 0.006 285);
+  --primary-foreground: oklch(98% 0 0);
+
+  --secondary: oklch(96.5% 0.002 285);
+  --secondary-foreground: oklch(22% 0.006 285);
+
+  --muted: oklch(96.5% 0.002 285);
+  --muted-foreground: oklch(55% 0.012 285);
+
+  --accent: oklch(96.5% 0.002 285);
+  --accent-foreground: oklch(22% 0.006 285);
+
+  --destructive: oklch(58% 0.223 27);
+  --destructive-foreground: oklch(98% 0 0);
+
+  --border: oklch(92% 0.003 285);
+  --input: oklch(92% 0.003 285);
+  --ring: oklch(70% 0.015 285);
+
+  /* production signal */
+  --signal: oklch(76% 0.16 70);
+  --signal-foreground: oklch(20% 0.03 70);
+}
+
+.dark {
+  --background: oklch(14% 0.005 285);
+  --foreground: oklch(98% 0 0);
+
+  --card: oklch(18% 0.006 285);
+  --card-foreground: oklch(98% 0 0);
+
+  --popover: oklch(18% 0.006 285);
+  --popover-foreground: oklch(98% 0 0);
+
+  --primary: oklch(92% 0.003 285);
+  --primary-foreground: oklch(20% 0.006 285);
+
+  --secondary: oklch(24% 0.006 285);
+  --secondary-foreground: oklch(98% 0 0);
+
+  --muted: oklch(24% 0.006 285);
+  --muted-foreground: oklch(66% 0.012 285);
+
+  --accent: oklch(26% 0.006 285);
+  --accent-foreground: oklch(98% 0 0);
+
+  --destructive: oklch(65% 0.19 25);
+  --destructive-foreground: oklch(98% 0 0);
+
+  --border: oklch(100% 0 0 / 10%);
+  --input: oklch(100% 0 0 / 14%);
+  --ring: oklch(52% 0.014 285);
+
+  --signal: oklch(78% 0.15 70);
+  --signal-foreground: oklch(18% 0.03 70);
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-signal: var(--signal);
+  --color-signal-foreground: var(--signal-foreground);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/*
+ * Right-hand panels.
+ *
+ * Every drawer keeps its own max-width for the content it holds, but none may
+ * be narrower than about a third of the viewport: a detail view squeezed into
+ * a 28rem column wraps every label onto two lines. On a phone the panel takes
+ * the full screen instead of overflowing it.
+ */
+.drawer-panel {
+  min-width: min(100vw, max(32rem, 34vw));
+}
