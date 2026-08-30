@@ -31,10 +31,10 @@ module.exports = {
       ...common,
       name: 'erp-astir-task-api',
       cwd: RELEASE + '/apps/api',
-      // tsx runs the TypeScript sources directly, the same way the API starts in
-      // development — one less build step that can diverge between the two.
-      script: RELEASE + '/node_modules/.bin/tsx',
-      args: 'src/server.ts',
+      // The compiled server, not the sources: pnpm keeps a workspace package
+      // binary inside that package, so a root-level tsx path does not exist,
+      // and production has no reason to compile on every restart.
+      script: RELEASE + '/apps/api/dist/server.js',
       env: {
         NODE_ENV: 'production',
         PORT: API_PORT

@@ -152,6 +152,9 @@ else
   echo "в базе уже ${USERS} пользовател(ей) — наполнение пропущено"
 fi
 
+say "Сборка API"
+pnpm --filter @astir/api build
+
 say "Сборка веб-приложения"
 # NUXT_API_ORIGIN is read when routeRules are compiled, not at runtime, so the
 # API port has to be known here — setting it only in PM2 would leave the built
