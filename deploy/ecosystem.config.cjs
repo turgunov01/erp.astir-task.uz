@@ -31,10 +31,16 @@ module.exports = {
       ...common,
       name: 'erp-astir-task-api',
       cwd: RELEASE + '/apps/api',
-      // The compiled server, not the sources: pnpm keeps a workspace package
-      // binary inside that package, so a root-level tsx path does not exist,
-      // and production has no reason to compile on every restart.
-      script: RELEASE + '/apps/api/dist/server.js',
+      /*
+       * Sources through tsx, not the tsc output.
+       *
+       * The package is ESM and TypeScript does not rewrite import specifiers,
+       * so the compiled files import "./app" — which Node`s ESM loader refuses.
+       * tsx resolves them the same way the dev server does.
+       */
+      script: RELEASE + '/apps/api/node_modules/.bin/tsx',
+      args: 'src/server.ts',
+      interpreter: 'none',
       env: {
         NODE_ENV: 'production',
         PORT: API_PORT

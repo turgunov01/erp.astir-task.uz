@@ -161,8 +161,8 @@ else
   echo "в базе уже ${USERS} пользовател(ей) — наполнение пропущено"
 fi
 
-say "Сборка API"
-pnpm --filter @astir/api build
+# The API is not compiled: its ESM output needs import specifiers TypeScript
+# does not write, and tsx runs the sources directly instead.
 
 say "Сборка веб-приложения"
 # NUXT_API_ORIGIN is read when routeRules are compiled, not at runtime, so the
