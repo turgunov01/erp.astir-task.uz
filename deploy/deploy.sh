@@ -32,11 +32,23 @@ command -v pnpm >/dev/null || npm install -g pnpm@9.15.0
 echo "node $(node -v), pnpm $(pnpm -v)"
 
 # A busy port would give a process that dies on boot with a confusing error,
-# so it is caught before anything is written.
+# so it is caught before anything is written. A port held by this deployment`s
+# own processes is fine — that is what a redeploy looks like.
+OWN_PIDS="$(pm2 jlist 2>/dev/null | node -e "
+let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{
+  try {
+    console.log(JSON.parse(d).filter(a=>a.name.startsWith('erp-astir-task-'))
+      .map(a=>a.pid).filter(Boolean).join(' '))
+  } catch { console.log('') }
+})" || echo "")"
+
 for port in "$API_PORT" "$WEB_PORT"; do
-  if ss -lntp 2>/dev/null | grep -q ":${port} "; then
-    fail "порт ${port} занят — задайте другой: API_PORT=... WEB_PORT=... bash deploy.sh"
+  holder="$(ss -lntp 2>/dev/null | grep ":${port} " | grep -oP 'pid=K[0-9]+' | head -1)"
+  [ -z "$holder" ] && continue
+  if ! echo " $OWN_PIDS " | grep -q " $holder "; then
+    fail "порт ${port} занят чужим процессом ${holder} — задайте другой: API_PORT=... WEB_PORT=..."
   fi
+  echo "порт ${port} держит наш же процесс ${holder} — это перевыкладка"
 done
 
 # Source comes from git when the repository is available, and from an uploaded
