@@ -136,3 +136,27 @@
 .drawer-panel {
   min-width: min(100vw, max(32rem, 34vw));
 }
+
+/*
+ * Scrolling without the scrollbar.
+ *
+ * For panels whose scrollbar is noise rather than information — the navigation
+ * sidebar, whose length the user already knows. Only the bar is hidden: wheel,
+ * touch, keyboard and the focus-follows-Tab scroll all still work, so nothing
+ * becomes unreachable.
+ *
+ * Tailwind ships a scrollbar-none of its own, but it sets only scrollbar-width,
+ * which Safari understood no earlier than 18.2 and Chromium no earlier than 121.
+ * This adds the older WebKit and Edge spellings on top.
+ *
+ * Both rules end up in the compiled CSS under the same name. They do not fight:
+ * each sets scrollbar-width to none, and Tailwind declares neither of the two
+ * properties added here.
+ */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

@@ -33,7 +33,7 @@ function isActive(path?: string) {
 </script>
 
 <template>
-  <div class="flex min-h-svh bg-background text-foreground">
+  <div class="flex h-svh overflow-hidden bg-background text-foreground">
     <aside
       class="hidden shrink-0 border-r bg-card lg:flex lg:flex-col"
       :class="collapsed ? 'w-16' : 'w-64'"
@@ -50,7 +50,7 @@ function isActive(path?: string) {
 
       <Separator />
 
-      <nav class="flex-1 space-y-0.5 overflow-y-auto p-2" aria-label="Основная навигация">
+      <nav class="scrollbar-none flex-1 space-y-0.5 overflow-y-auto p-2" aria-label="Основная навигация">
         <template v-for="item in navigation" :key="item.label">
           <NuxtLink
             v-if="item.to"
