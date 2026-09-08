@@ -17,7 +17,7 @@ import { randomInt } from 'node:crypto'
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
 const prisma = new PrismaClient({ adapter })
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? 'admin@aster.studio'
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? 'admin@astir.uz'
 const PASSWORD_LENGTH = 20
 // No look-alike characters: someone will read this out loud or retype it, and
 // confusing O with 0 turns into a support request.
