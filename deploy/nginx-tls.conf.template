@@ -1,0 +1,57 @@
+# Aster ERP — __DOMAIN__, once certbot has issued a certificate.
+#
+# deploy.sh rewrites the vhost on every run, and certbot --nginx puts its TLS
+# server block into that same file. Left to itself the next deploy would drop
+# the block and take the site back to plain HTTP — while the app, seeing the
+# certificate on disk, would keep issuing Secure cookies that a plain-HTTP page
+# never receives. So the TLS vhost is generated from this template instead, and
+# a redeploy reproduces it exactly. certbot still owns the certificate itself
+# and its renewal; only the server block is ours.
+#
+# Placeholders __DOMAIN__ and __WEB_PORT__ are filled in by deploy.sh.
+
+# See nginx.conf.template for why this map exists.
+map $http_upgrade $erp_connection_upgrade {
+    default upgrade;
+    ""      "";
+}
+
+upstream erp_astir_task_web {
+    server 127.0.0.1:__WEB_PORT__;
+    keepalive 32;
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name __DOMAIN__;
+
+    # Renewal must reach the challenge before the redirect applies, or certbot
+    # would follow itself to a port it is not answering on.
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name __DOMAIN__;
+
+    ssl_certificate     /etc/letsencrypt/live/__DOMAIN__/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/__DOMAIN__/privkey.pem;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+    # The cache name is per-site: a shared zone name reused by another vhost on
+    # this box would collide.
+    ssl_session_cache shared:erp_astir_task_ssl:10m;
+    ssl_session_timeout 1d;
+    ssl_session_tickets off;
+
+    include /etc/nginx/snippets/__DOMAIN__.proxy.conf;
+}

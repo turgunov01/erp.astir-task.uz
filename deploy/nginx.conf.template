@@ -1,10 +1,24 @@
-# Aster ERP — __DOMAIN__
+# Aster ERP — __DOMAIN__, before a certificate exists.
 #
 # Everything goes to the Nuxt server, which already proxies /api and /uploads to
 # the Express API on this same machine. Splitting those out here would duplicate
 # routing the application owns, and would drift the moment it changes.
 #
 # Placeholders __DOMAIN__ and __WEB_PORT__ are filled in by deploy.sh.
+
+# A WebSocket upgrade must not leak into ordinary requests. A literal
+# "Connection: upgrade" on every proxied request makes Node treat the connection
+# as non-keep-alive and close it once the response is written, while nginx keeps
+# that same socket in the keepalive pool below and hands it to the next request.
+# Reusing an already-closed socket is what reaches the browser as a sporadic 502
+# on one asset while the rest of the page loads. An empty Upgrade must therefore
+# map to an empty Connection, which is also what the keepalive pool requires.
+# The name is prefixed because this box hosts other sites that may define their
+# own $connection_upgrade, and a duplicate map name fails `nginx -t` for all.
+map $http_upgrade $erp_connection_upgrade {
+    default upgrade;
+    ""      "";
+}
 
 upstream erp_astir_task_web {
     server 127.0.0.1:__WEB_PORT__;
@@ -21,28 +35,5 @@ server {
         root /var/www/certbot;
     }
 
-    location / {
-        proxy_pass http://erp_astir_task_web;
-        proxy_http_version 1.1;
-
-        proxy_set_header Host              $host;
-        proxy_set_header X-Real-IP         $remote_addr;
-        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_set_header X-Forwarded-Host  $host;
-
-        # Nuxt streams its server-rendered response; buffering would delay first
-        # paint for no benefit.
-        proxy_buffering off;
-        proxy_read_timeout 120s;
-
-        proxy_set_header Upgrade    $http_upgrade;
-        proxy_set_header Connection "upgrade";
-    }
-
-    # Uploaded media can be large; the API enforces its own limit above this one.
-    client_max_body_size 64m;
-
-    access_log /var/log/nginx/__DOMAIN__.access.log;
-    error_log  /var/log/nginx/__DOMAIN__.error.log;
+    include /etc/nginx/snippets/__DOMAIN__.proxy.conf;
 }

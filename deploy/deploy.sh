@@ -157,10 +157,6 @@ USERS=$(sudo -u postgres psql -tAd "${DB_NAME}" -c "SELECT count(*) FROM users" 
 if [ "${USERS:-0}" = "0" ]; then
   say "База пуста — наполняю начальными данными"
   pnpm --filter @astir/api db:seed
-  # Seeded accounts belong to the studio itself, so the verification gate has
-  # nothing to prove about them; leaving them unverified would produce a fully
-  # deployed system nobody can sign into.
-  sudo -u postgres psql -qd "${DB_NAME}" -c "UPDATE users SET \"emailVerifiedAt\" = now() WHERE \"emailVerifiedAt\" IS NULL"
 else
   echo "в базе уже ${USERS} пользовател(ей) — наполнение пропущено"
 fi
@@ -187,17 +183,58 @@ pm2 save
 
 say "Настройка nginx"
 VHOST="/etc/nginx/sites-available/${DOMAIN}.conf"
-sed -e "s|__DOMAIN__|${DOMAIN}|g" -e "s|__WEB_PORT__|${WEB_PORT}|g" \
-  "${APP_DIR}/current/deploy/nginx.conf.template" > "$VHOST"
+SNIPPET="/etc/nginx/snippets/${DOMAIN}.proxy.conf"
+TEMPLATES="${APP_DIR}/current/deploy"
+
+render() { sed -e "s|__DOMAIN__|${DOMAIN}|g" -e "s|__WEB_PORT__|${WEB_PORT}|g" "$1"; }
+
+install -d /etc/nginx/snippets
+
+# Both files are replaced in place, so a config nginx rejects would otherwise
+# leave a broken vhost on disk for whoever reloads next — including certbot's
+# renewal timer, hours later, with no one watching. Keep the previous pair and
+# put them back if the new one fails to parse.
+STAMP="$(date +%Y%m%d-%H%M%S)"
+VHOST_BACKUP=""; SNIPPET_BACKUP=""
+[ -f "$VHOST" ]   && { VHOST_BACKUP="${VHOST}.bak-${STAMP}";     cp -a "$VHOST" "$VHOST_BACKUP"; }
+[ -f "$SNIPPET" ] && { SNIPPET_BACKUP="${SNIPPET}.bak-${STAMP}"; cp -a "$SNIPPET" "$SNIPPET_BACKUP"; }
+
+render "${TEMPLATES}/nginx.proxy.conf.template" > "$SNIPPET"
+
+# The vhost is rewritten on every run, and certbot --nginx puts its TLS server
+# block into that same file — so once a certificate exists the TLS vhost has to
+# be generated here too. Regenerating the plain-HTTP one instead would drop the
+# site back to port 80 while the app, seeing the certificate, kept issuing
+# Secure cookies that never arrive: a login that fails with nothing on screen.
+if [ "$SCHEME" = "https" ]; then
+  render "${TEMPLATES}/nginx-tls.conf.template" > "$VHOST"
+else
+  render "${TEMPLATES}/nginx.conf.template" > "$VHOST"
+fi
 ln -sfn "$VHOST" "/etc/nginx/sites-enabled/${DOMAIN}.conf"
 
 # Reload only once the whole config parses: a broken file here would take down
 # every other site on this machine.
-nginx -t
+if ! nginx -t; then
+  # On a first deploy there is nothing to restore, and leaving the rejected
+  # files behind would break the next reload by anyone else — so they go.
+  if [ -n "$VHOST_BACKUP" ]; then
+    cp -a "$VHOST_BACKUP" "$VHOST"
+  else
+    rm -f "$VHOST" "/etc/nginx/sites-enabled/${DOMAIN}.conf"
+  fi
+  if [ -n "$SNIPPET_BACKUP" ]; then
+    cp -a "$SNIPPET_BACKUP" "$SNIPPET"
+  else
+    rm -f "$SNIPPET"
+  fi
+  nginx -t >/dev/null 2>&1 || echo "внимание: nginx -t не проходит и без наших файлов" >&2
+  fail "nginx отклонил конфигурацию — прежняя восстановлена, nginx не тронут"
+fi
 systemctl reload nginx
 
 say "Готово"
-echo "Адрес:  http://${DOMAIN}"
+echo "Адрес:  ${SCHEME}://${DOMAIN}"
 echo "Логи:   pm2 logs erp-astir-task-api    pm2 logs erp-astir-task-web"
 if [ "$SCHEME" = "http" ]; then
   echo "HTTPS:  certbot --nginx -d ${DOMAIN}, затем повторите деплой —"
