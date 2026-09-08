@@ -37,17 +37,36 @@ echo "node $(node -v), pnpm $(pnpm -v)"
 # A busy port would give a process that dies on boot with a confusing error, so
 # it is caught before anything is written. A port held by this deployment own
 # processes is fine — that is what a redeploy looks like.
-OWN_PIDS="$(pm2 pid erp-astir-task-api 2>/dev/null || true) $(pm2 pid erp-astir-task-web 2>/dev/null || true)"
+OWN_PIDS=" $(pm2 pid erp-astir-task-api 2>/dev/null || true) $(pm2 pid erp-astir-task-web 2>/dev/null || true) "
+
+# The socket is not necessarily held by the pid PM2 reports. The API runs under
+# tsx, which spawns a child, and that child is what binds the port — so a
+# redeploy comparing only against `pm2 pid` calls its own API a stranger and
+# refuses to proceed. Walk up from the holder instead.
+#
+# PPid comes from /proc/PID/status, not /proc/PID/stat: a process whose name
+# contains spaces or parentheses — "PM2 v6.0.14: God Daemon" is one, and it is
+# in this very chain — shifts every positional field in stat.
+owned_by_us() {
+  pid="$1"
+  for _ in 1 2 3 4 5 6 7 8; do
+    case "$OWN_PIDS" in *" $pid "*) return 0 ;; esac
+    [ -r "/proc/${pid}/status" ] || return 1
+    pid="$(awk '/^PPid:/ { print $2 }' "/proc/${pid}/status")"
+    [ -n "$pid" ] && [ "$pid" != 0 ] && [ "$pid" != 1 ] || return 1
+  done
+  return 1
+}
 
 for port in "$API_PORT" "$WEB_PORT"; do
   # An unmatched grep exits 1, and under pipefail that would kill the script
   # before it ever reported anything.
   holder="$(ss -lntp 2>/dev/null | grep ":${port} " | grep -o "pid=[0-9]*" | head -1 | cut -d= -f2 || true)"
   if [ -n "$holder" ]; then
-    if echo " $OWN_PIDS " | grep -q " $holder "; then
+    if owned_by_us "$holder"; then
       echo "порт ${port} держит наш процесс ${holder} — это перевыкладка"
     else
-      fail "порт ${port} занят чужим процессом ${holder}"
+      fail "порт ${port} занят чужим процессом ${holder} ($(cat /proc/${holder}/comm 2>/dev/null || echo '?'))"
     fi
   fi
 done
