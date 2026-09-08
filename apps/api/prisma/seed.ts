@@ -82,7 +82,8 @@ async function main() {
         passwordHash,
         firstName: seed.firstName,
         lastName: seed.lastName,
-        role: seed.role
+        role: seed.role,
+        emailVerifiedAt: new Date()
       }
     })
 
@@ -115,10 +116,22 @@ async function main() {
         firstName: 'Otabek',
         lastName: 'Rahimov',
         role: 'CLIENT',
-        clientId: portalClient.id
+        clientId: portalClient.id,
+        emailVerifiedAt: new Date()
       }
     })
     console.log('  client portal user: client@nurmedia.uz')
+  }
+
+  // Seeded accounts belong to the studio itself, so the verification gate has
+  // nothing to prove about them. Re-seeding a database created before this was
+  // part of the seed would otherwise leave those rows unsignable-into.
+  const verified = await prisma.user.updateMany({
+    where: { emailVerifiedAt: null },
+    data: { emailVerifiedAt: new Date() }
+  })
+  if (verified.count > 0) {
+    console.log('  marked verified: ' + verified.count)
   }
 
   console.log('seed complete. Password for every account: ' + DEV_PASSWORD)
