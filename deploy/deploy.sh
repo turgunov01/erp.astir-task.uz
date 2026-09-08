@@ -14,8 +14,11 @@ set -euo pipefail
 DOMAIN="erp.astir-task.uz"
 APP_DIR="/var/www/${DOMAIN}"
 TARBALL="/tmp/astir-erp.tar.gz"
+# 9991, not 9990: this box is shared, and 9990 belongs to another project that
+# has held it for months. A default that cannot actually be used turns the first
+# redeploy anyone runs without the override into an abort.
 API_PORT="${API_PORT:-4100}"
-WEB_PORT="${WEB_PORT:-9990}"
+WEB_PORT="${WEB_PORT:-9991}"
 DB_NAME="astir_erp_prod"
 DB_USER="astir_erp"
 

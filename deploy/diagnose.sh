@@ -18,8 +18,10 @@ set -uo pipefail
 
 DOMAIN="${DOMAIN:-erp.astir-task.uz}"
 APP_DIR="/var/www/${DOMAIN}"
+# Must match deploy.sh, and for the same reason: 9990 belongs to another
+# project on this box. Probing it reports that stranger as healthy.
 API_PORT="${API_PORT:-4100}"
-WEB_PORT="${WEB_PORT:-9990}"
+WEB_PORT="${WEB_PORT:-9991}"
 API_PROC="erp-astir-task-api"
 WEB_PROC="erp-astir-task-web"
 VHOST="/etc/nginx/sites-available/${DOMAIN}.conf"
@@ -86,12 +88,23 @@ probe() { # url, label, extra curl args
   esac
 }
 
+# --resolve keeps the request on this machine. Sent to the public address it
+# leaves the box and comes back through NAT, which many hosts do not hairpin —
+# the timeout that produces looks exactly like nginx being down when it is not.
 if [ -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]; then
-  probe "https://${DOMAIN}/" "через nginx (https)"
+  probe "https://${DOMAIN}/" "через nginx (https, локально)" --resolve "${DOMAIN}:443:127.0.0.1"
 else
-  probe "http://${DOMAIN}/" "через nginx (http)"
+  probe "http://${DOMAIN}/" "через nginx (http, локально)" --resolve "${DOMAIN}:80:127.0.0.1"
 fi
-probe "http://127.0.0.1:${WEB_PORT}/" "Nuxt напрямую"
+probe "http://127.0.0.1:${WEB_PORT}/" "Nuxt напрямую (порт ${WEB_PORT})"
+
+# The vhost naming a port nothing of ours listens on is its own outage, and a
+# shared box makes it likely: the neighbouring project holds the port this
+# deployment used to default to.
+upstream_port="$(grep -oE "server 127.0.0.1:[0-9]+" "$VHOST" 2>/dev/null | grep -oE "[0-9]+$" | head -1)"
+if [ -n "$upstream_port" ] && [ "$upstream_port" != "$WEB_PORT" ]; then
+  bad "nginx проксирует на ${upstream_port}, а проверяли ${WEB_PORT} — запустите с WEB_PORT=${upstream_port}"
+fi
 
 api_health="$(curl -sS --max-time 10 "http://127.0.0.1:${API_PORT}/api/health" 2>&1)"
 case "$api_health" in
