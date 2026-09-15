@@ -160,3 +160,64 @@
     display: none;
   }
 }
+
+/*
+ * Print.
+ *
+ * On paper a report is the table and nothing else: the sidebar and top bar are
+ * navigation the reader cannot use, and they are hidden with print:hidden where
+ * they are declared. What cannot be done with a utility is releasing the app
+ * shell — it is a fixed-height flex column with its own scroll container, and a
+ * printer given that emits the first page and silently drops the rest.
+ */
+@media print {
+  html,
+  body {
+    height: auto;
+    background: #fff;
+  }
+
+  body > div,
+  main {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* Table rows are the one thing that must never be split across a page. */
+  tr,
+  thead {
+    break-inside: avoid;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+}
+
+/*
+ * Phone shell.
+ *
+ * The application is a fixed-height column that scrolls only on the inside, so
+ * the page itself must never scroll or bounce: on iOS the rubber-band would
+ * drag the whole interface away from the top bar, and on Android pull-to-
+ * refresh would reload an application that has no reason to reload. Inner
+ * panes keep their own scrolling through overscroll-contain.
+ */
+html,
+body {
+  overscroll-behavior: none;
+}
+
+body {
+  /* A wide table scrolls inside its own container; the page never does. */
+  overflow: hidden;
+  /* No grey flash on tap, and no 300ms wait before a tap counts. */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+@media print {
+  body {
+    overflow: visible;
+  }
+}
