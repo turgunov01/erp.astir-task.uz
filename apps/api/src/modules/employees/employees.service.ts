@@ -166,40 +166,50 @@ export async function remove(id: string, actorId: string | undefined) {
     throw badRequest('Нельзя удалить собственную учётную запись')
   }
 
-  const work = await prisma.user.findUniqueOrThrow({
-    where: { id: employee.userId },
-    select: {
-      email: true,
-      _count: { select: { comments: true } },
-      employee: { select: { _count: { select: { timesheetEntries: true } } } }
+  return prisma.$transaction(async tx => {
+    /*
+     * Decide and act under one lock. A comment or timesheet entry references
+     * these rows, so FOR UPDATE also holds back any insert that lands between
+     * the count and the delete — without it the cascade could take work the
+     * count never saw.
+     */
+    await tx.$queryRaw`SELECT id FROM users WHERE id = ${employee.userId}::uuid FOR UPDATE`
+    await tx.$queryRaw`SELECT id FROM employees WHERE id = ${id}::uuid FOR UPDATE`
+
+    const work = await tx.user.findUniqueOrThrow({
+      where: { id: employee.userId },
+      select: {
+        email: true,
+        // Comments are soft-deleted one by one; those no longer count as work.
+        _count: { select: { comments: { where: { deletedAt: null } } } },
+        employee: { select: { _count: { select: { timesheetEntries: true } } } }
+      }
+    })
+    const hasOwnWork =
+      work._count.comments > 0 || (work.employee?._count.timesheetEntries ?? 0) > 0
+
+    if (!hasOwnWork) {
+      await tx.user.delete({ where: { id: employee.userId } })
+      return { erased: true }
     }
-  })
-  const hasOwnWork =
-    work._count.comments > 0 || (work.employee?._count.timesheetEntries ?? 0) > 0
 
-  if (!hasOwnWork) {
-    await prisma.user.delete({ where: { id: employee.userId } })
-    return { erased: true }
-  }
-
-  const now = new Date()
-  await prisma.$transaction([
-    prisma.user.update({
+    const now = new Date()
+    await tx.user.update({
       where: { id: employee.userId },
       data: {
         isActive: false,
         deletedAt: now,
         email: work.email + '.deleted.' + now.getTime()
       }
-    }),
-    prisma.refreshToken.updateMany({
+    })
+    await tx.refreshToken.updateMany({
       where: { userId: employee.userId, revokedAt: null },
       data: { revokedAt: now }
-    }),
-    prisma.employee.update({
+    })
+    await tx.employee.update({
       where: { id },
       data: { status: 'INACTIVE', deletedAt: now }
     })
-  ])
-  return { erased: false }
+    return { erased: false }
+  })
 }
