@@ -1,9 +1,10 @@
 /**
  * One-off: empty the production database and leave a single administrator.
  *
- * Everything but the migration history is truncated, so the schema and Prisma's
- * record of which migrations have run both survive — the application keeps
- * working without a redeploy.
+ * Everything but the migration history and the studio's own configuration is
+ * truncated, so the schema, Prisma's record of which migrations have run and
+ * the SMTP settings all survive — the application keeps working without a
+ * redeploy or a trip back to the mail settings.
  *
  * The password is generated here and printed once. It is never written to a
  * file, and only its bcrypt hash reaches the database.
@@ -42,9 +43,16 @@ async function main() {
   const url = process.env.DATABASE_URL ?? ''
   console.log('база: ' + (url.split('@')[1] ?? '(DATABASE_URL не задан)'))
 
+  /*
+   * Studio settings and pipeline templates are configuration, not data: the
+   * SMTP credentials in particular exist nowhere else, and losing them would
+   * silently stop the first-login codes from being mailed. Neither table is
+   * referenced by a foreign key, so CASCADE leaves them alone.
+   */
   const tables = await prisma.$queryRaw<Array<{ tablename: string }>>`
     SELECT tablename FROM pg_tables
-    WHERE schemaname = 'public' AND tablename <> '_prisma_migrations'
+    WHERE schemaname = 'public'
+      AND tablename NOT IN ('_prisma_migrations', 'studio_settings', 'pipeline_templates')
   `
   if (tables.length === 0) throw new Error('в схеме public не найдено ни одной таблицы — прерываю')
 
