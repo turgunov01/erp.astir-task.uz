@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { listQuerySchema, uuidSchema } from './common'
+import { listQuerySchema, uuidSchema, partialUpdate } from './common'
 
 const PRODUCTION_STATUS = [
   'NOT_STARTED', 'IN_PROGRESS', 'REVIEW', 'REVISION',
@@ -32,7 +32,7 @@ export const createEpisodeSchema = z.object({
 })
 export type CreateEpisodeInput = z.infer<typeof createEpisodeSchema>
 
-export const updateEpisodeSchema = createEpisodeSchema.partial().omit({ projectId: true })
+export const updateEpisodeSchema = partialUpdate(createEpisodeSchema).omit({ projectId: true })
 
 export const episodeListQuerySchema = listQuerySchema.extend({
   projectId: uuidSchema.optional(),
@@ -53,7 +53,7 @@ export const createSceneSchema = z.object({
 })
 export type CreateSceneInput = z.infer<typeof createSceneSchema>
 
-export const updateSceneSchema = createSceneSchema.partial().omit({ projectId: true })
+export const updateSceneSchema = partialUpdate(createSceneSchema).omit({ projectId: true })
 
 export const sceneListQuerySchema = listQuerySchema.extend({
   projectId: uuidSchema.optional(),
@@ -80,7 +80,7 @@ export const createShotSchema = z.object({
 })
 export type CreateShotInput = z.infer<typeof createShotSchema>
 
-export const updateShotSchema = createShotSchema.partial().omit({ projectId: true })
+export const updateShotSchema = partialUpdate(createShotSchema).omit({ projectId: true })
 
 export const shotListQuerySchema = listQuerySchema.extend({
   projectId: uuidSchema.optional(),

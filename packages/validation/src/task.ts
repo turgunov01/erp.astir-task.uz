@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { listQuerySchema, uuidSchema } from './common'
+import { listQuerySchema, uuidSchema, partialUpdate } from './common'
 
 const TASK_STATUS = [
   'BACKLOG', 'READY', 'IN_PROGRESS', 'REVIEW',
@@ -39,8 +39,7 @@ export const createTaskSchema = z.object({
 })
 export type CreateTaskInput = z.infer<typeof createTaskSchema>
 
-export const updateTaskSchema = createTaskSchema
-  .partial()
+export const updateTaskSchema = partialUpdate(createTaskSchema)
   .omit({ projectId: true, dependsOnTaskIds: true })
   .extend({
     actualHours: z.coerce.number().min(0).max(10000).optional().nullable(),

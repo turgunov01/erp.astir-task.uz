@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { listQuerySchema } from './common'
+import { listQuerySchema, partialUpdate } from './common'
 
 export const createDepartmentSchema = z.object({
   name: z.string().trim().min(2, 'Name must be at least 2 characters').max(80),
@@ -7,6 +7,6 @@ export const createDepartmentSchema = z.object({
 })
 export type CreateDepartmentInput = z.infer<typeof createDepartmentSchema>
 
-export const updateDepartmentSchema = createDepartmentSchema.partial()
+export const updateDepartmentSchema = partialUpdate(createDepartmentSchema)
 
 export const departmentListQuerySchema = listQuerySchema

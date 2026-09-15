@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import type { Prisma } from '@prisma/client'
-import { idParamSchema, listQuerySchema, uuidSchema } from '@astir/validation'
+import { idParamSchema, listQuerySchema, partialUpdate, uuidSchema } from '@astir/validation'
 import { PERMISSION } from '@astir/types'
 import { authenticate, requirePermission } from '../../middleware/auth'
 import { validate, validatedQuery } from '../../middleware/validate'
@@ -31,7 +31,7 @@ const createExpenseSchema = z.object({
   currency: z.string().trim().length(3).toUpperCase().default('USD'),
   date: z.string().refine(value => !Number.isNaN(Date.parse(value)), 'Invalid date')
 })
-const updateExpenseSchema = createExpenseSchema.partial()
+const updateExpenseSchema = partialUpdate(createExpenseSchema)
 
 const moneyAmount = z.coerce.number().min(0).max(100000000)
 const currencyCode = z.string().trim().length(3).toUpperCase().default('USD')
@@ -52,7 +52,7 @@ const createPaymentSchema = z.object({
   paidDate: optionalDate,
   method: z.string().trim().max(60).optional().nullable()
 })
-const updatePaymentSchema = createPaymentSchema.partial()
+const updatePaymentSchema = partialUpdate(createPaymentSchema)
 
 const createInvoiceSchema = z.object({
   // Left blank the service derives the next INV-nnnn number.
@@ -65,7 +65,7 @@ const createInvoiceSchema = z.object({
   issuedAt: optionalDate,
   dueDate: optionalDate
 })
-const updateInvoiceSchema = createInvoiceSchema.partial()
+const updateInvoiceSchema = partialUpdate(createInvoiceSchema)
 
 /*
  * actualCost is deliberately absent: profitability() derives it from expenses
@@ -78,7 +78,7 @@ const createBudgetSchema = z.object({
   plannedCost: moneyAmount.default(0),
   currency: currencyCode
 })
-const updateBudgetSchema = createBudgetSchema.omit({ projectId: true }).partial()
+const updateBudgetSchema = partialUpdate(createBudgetSchema.omit({ projectId: true }))
 
 /** Body dates arrive as ISO strings; Prisma wants Date, and null clears one. */
 function toDate(value: unknown): Date | null {

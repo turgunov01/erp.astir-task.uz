@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { listQuerySchema, uuidSchema } from './common'
+import { listQuerySchema, uuidSchema, partialUpdate } from './common'
 
 const ASSET_TYPE = [
   'CHARACTER', 'ENVIRONMENT', 'PROP', 'MODEL', 'RIG', 'TEXTURE',
@@ -20,7 +20,7 @@ export const createAssetSchema = z.object({
   status: z.enum(PRODUCTION_STATUS).default('NOT_STARTED')
 })
 
-export const updateAssetSchema = createAssetSchema.partial()
+export const updateAssetSchema = partialUpdate(createAssetSchema)
 
 export const assetListQuerySchema = listQuerySchema.extend({
   type: z.enum(ASSET_TYPE).optional(),

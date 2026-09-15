@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { listQuerySchema, uuidSchema } from './common'
+import { listQuerySchema, uuidSchema, partialUpdate } from './common'
 
 const REVISION_STATUS = ['OPEN', 'IN_PROGRESS', 'READY_FOR_REVIEW', 'COMPLETED', 'CANCELLED'] as const
 const PRIORITY = ['LOW', 'NORMAL', 'HIGH', 'URGENT'] as const
@@ -22,8 +22,7 @@ export const createRevisionSchema = z.object({
   deadline: optionalDate
 })
 
-export const updateRevisionSchema = createRevisionSchema
-  .partial()
+export const updateRevisionSchema = partialUpdate(createRevisionSchema)
   .omit({ projectId: true })
   .extend({ status: z.enum(REVISION_STATUS).optional() })
 

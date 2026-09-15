@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { listQuerySchema } from './common'
+import { listQuerySchema, partialUpdate } from './common'
 
 const CLIENT_STATUS = ['ACTIVE', 'INACTIVE', 'ARCHIVED'] as const
 
@@ -14,7 +14,7 @@ export const createClientSchema = z.object({
 })
 export type CreateClientInput = z.infer<typeof createClientSchema>
 
-export const updateClientSchema = createClientSchema.partial()
+export const updateClientSchema = partialUpdate(createClientSchema)
 export type UpdateClientInput = z.infer<typeof updateClientSchema>
 
 export const clientListQuerySchema = listQuerySchema.extend({
