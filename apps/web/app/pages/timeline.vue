@@ -51,10 +51,17 @@ interface TimelinePayload {
   tasks: TimelineTask[]
 }
 
+/**
+ * The endpoint is a single-project view and rejects an empty projectId, so a
+ * workspace with no projects yet would report a load failure for what is really
+ * an empty state. Skip that first request; the reactive query still fetches as
+ * soon as a project exists or is picked.
+ */
 const { data, pending, error, refresh } = await useFetch<{ data: TimelinePayload }>(
   '/api/dashboard/timeline',
   {
     query: computed(() => ({ projectId: projectId.value })),
+    immediate: Boolean(projectId.value),
     credentials: 'include'
   }
 )
@@ -203,6 +210,7 @@ function barTitle(task: TimelineTask) {
         </div>
 
         <select
+          v-if="projects.length > 0"
           v-model="projectId"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
           aria-label="Проект"
@@ -214,8 +222,18 @@ function barTitle(task: TimelineTask) {
       </div>
     </header>
 
+    <p
+      v-if="projects.length === 0"
+      class="rounded-xl border bg-card px-6 py-16 text-center text-sm text-muted-foreground"
+    >
+      Ни одного проекта ещё нет — размещать на шкале нечего.
+      <NuxtLink to="/projects/create" class="text-foreground underline underline-offset-4">
+        Создать проект
+      </NuxtLink>
+    </p>
+
     <div
-      v-if="error"
+      v-else-if="error"
       class="grid place-items-center rounded-xl border bg-card px-6 py-16 text-center"
     >
       <Icon name="lucide:triangle-alert" class="size-7 text-destructive" />

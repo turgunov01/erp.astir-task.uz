@@ -54,7 +54,10 @@ async function main() {
   await prisma.$executeRawUnsafe(`TRUNCATE TABLE ${list} RESTART IDENTITY CASCADE`)
   console.log(`очищено таблиц: ${tables.length}`)
 
-  const password = generatePassword()
+  // A generated password is right for production, where nobody should be able
+  // to predict it. A local reset needs the opposite — a password the developer
+  // already knows — so ADMIN_PASSWORD overrides the generator when it is set.
+  const password = process.env.ADMIN_PASSWORD ?? generatePassword()
   const admin = await prisma.user.create({
     data: {
       email: ADMIN_EMAIL,
