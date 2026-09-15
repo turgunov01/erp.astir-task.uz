@@ -97,18 +97,18 @@ function formatDate(value: string | null) {
     <template v-else>
       <section
         aria-label="Ключевые показатели"
-        class="grid gap-px overflow-hidden rounded-xl border bg-border sm:grid-cols-2 lg:grid-cols-3"
+        class="grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border lg:grid-cols-3"
       >
         <NuxtLink
           v-for="kpi in kpis"
           :key="kpi.label"
           :to="kpi.to"
-          class="bg-card px-5 py-4 hover:bg-secondary/40"
+          class="bg-card px-4 py-3 hover:bg-secondary/40 sm:px-5 sm:py-4"
         >
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
-              <p class="truncate text-sm text-muted-foreground">{{ kpi.label }}</p>
-              <p class="mt-1.5 text-3xl font-semibold tabular-nums tracking-tight">
+              <p class="text-sm leading-snug text-muted-foreground sm:truncate">{{ kpi.label }}</p>
+              <p class="mt-1.5 text-2xl font-semibold tabular-nums tracking-tight sm:text-3xl">
                 <span v-if="pending" class="inline-block h-8 w-10 rounded bg-muted" />
                 <template v-else>{{ kpi.value }}</template>
               </p>

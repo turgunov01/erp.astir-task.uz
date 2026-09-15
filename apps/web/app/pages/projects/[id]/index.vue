@@ -62,6 +62,7 @@ const activeTab = computed(() => {
   const requested = String(route.query.tab ?? 'overview')
   return TABS.some(tab => tab.key === requested) ? requested : 'overview'
 })
+const tabStrip = useTabStrip(activeTab)
 
 function selectTab(key: string) {
   router.replace({ query: key === 'overview' ? {} : { tab: key } })
@@ -147,7 +148,7 @@ function onPanelChanged() {
         </div>
       </header>
 
-      <section class="mt-6 grid gap-px overflow-hidden rounded-xl border bg-border sm:grid-cols-2 lg:grid-cols-4">
+      <section class="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border lg:grid-cols-4">
         <div class="bg-card px-5 py-4">
           <p class="text-xs uppercase tracking-wider text-muted-foreground">Прогресс</p>
           <p class="mt-1.5 text-2xl font-semibold tabular-nums">{{ project.progress }}%</p>
@@ -177,12 +178,12 @@ function onPanelChanged() {
         </div>
       </section>
 
-      <nav class="mt-8 flex flex-wrap gap-1 border-b" aria-label="Разделы проекта">
+      <nav ref="tabStrip" class="scrollbar-none -mx-6 mt-8 flex gap-1 overflow-x-auto border-b px-6 sm:mx-0 sm:px-0" aria-label="Разделы проекта">
         <button
           v-for="tab in TABS"
           :key="tab.key"
           type="button"
-          class="-mb-px inline-flex items-center gap-2 border-b-2 px-3.5 py-2.5 text-sm"
+          class="-mb-px inline-flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-3.5 py-2.5 text-sm"
           :class="activeTab === tab.key ? 'border-primary font-medium text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'"
           :aria-current="activeTab === tab.key ? 'page' : undefined"
           @click="selectTab(tab.key)"

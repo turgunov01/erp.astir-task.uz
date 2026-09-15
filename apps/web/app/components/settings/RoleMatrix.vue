@@ -199,7 +199,7 @@ async function resetRole(role: string) {
       <table class="w-full min-w-[56rem] text-sm">
         <thead class="sticky top-0 z-10 bg-card text-left text-xs text-muted-foreground">
           <tr class="border-b">
-            <th class="px-4 py-2.5 font-medium">Право</th>
+            <th class="sticky left-0 z-20 bg-card px-4 py-2.5 font-medium">Право</th>
             <th v-for="role in ROLES" :key="role" class="px-2 py-2.5 text-center font-medium">
               <div>{{ enumLabel(ROLE_LABEL, role) }}</div>
               <button
@@ -222,8 +222,8 @@ async function resetRole(role: string) {
 
         <tbody v-else>
           <template v-for="group in PERMISSION_GROUPS" :key="group.label">
-            <tr class="border-t bg-muted/30">
-              <th scope="rowgroup" class="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <tr class="border-t bg-muted">
+              <th scope="rowgroup" class="sticky left-0 z-[1] bg-muted px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 {{ group.label }}
               </th>
               <td v-for="role in ROLES" :key="role" class="px-2 py-1.5 text-center">
@@ -244,9 +244,9 @@ async function resetRole(role: string) {
             </tr>
 
             <tr v-for="permission in group.permissions" :key="permission.key" class="border-t hover:bg-secondary/30">
-              <td class="px-4 py-1.5">
+              <td class="sticky left-0 z-[1] w-44 bg-card px-4 py-1.5 sm:w-auto">
                 <span>{{ permission.label }}</span>
-                <span class="ml-2 font-mono text-[11px] text-muted-foreground/70">{{ permission.key }}</span>
+                <span class="ml-2 hidden font-mono text-[11px] text-muted-foreground/70 sm:inline">{{ permission.key }}</span>
               </td>
               <td v-for="role in ROLES" :key="role" class="px-2 py-1.5 text-center">
                 <button

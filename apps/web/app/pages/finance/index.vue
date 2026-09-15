@@ -57,7 +57,7 @@ function marginTone(margin: number) {
     </div>
 
     <template v-else>
-      <section class="grid gap-px overflow-hidden rounded-xl border bg-border sm:grid-cols-2 lg:grid-cols-4">
+      <section class="grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border lg:grid-cols-4">
         <div class="bg-card px-5 py-4">
           <p class="text-xs uppercase tracking-wider text-muted-foreground">Выручка</p>
           <p class="mt-1.5 text-2xl font-semibold tabular-nums">

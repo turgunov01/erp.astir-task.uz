@@ -256,7 +256,7 @@ function openEvent(event: DayEvent) {
         <div
           v-for="cell in weeks"
           :key="cell.key"
-          class="min-h-28 border-b border-r p-1.5"
+          class="min-h-16 border-b border-r p-1 sm:min-h-28 sm:p-1.5"
           :class="[
             cell.inMonth ? '' : 'bg-muted/20',
             cell.isToday ? 'ring-1 ring-inset ring-ring' : ''

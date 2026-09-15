@@ -133,7 +133,7 @@ function frames(row: JobRow) {
       </p>
     </header>
 
-    <section class="mb-6 grid gap-px overflow-hidden rounded-xl border bg-border sm:grid-cols-2 lg:grid-cols-4">
+    <section class="mb-6 grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border lg:grid-cols-4">
       <div v-for="node in nodes" :key="node.id" class="bg-card px-4 py-3">
         <div class="flex items-center justify-between gap-2">
           <p class="truncate text-sm font-medium">{{ node.name }}</p>

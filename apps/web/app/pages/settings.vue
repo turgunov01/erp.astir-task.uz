@@ -39,6 +39,7 @@ const tab = computed({
   },
   set: value => router.replace({ query: { ...route.query, tab: value } })
 })
+const tabStrip = useTabStrip(tab)
 
 /* ----------------------------------------------------------------- studio */
 
@@ -270,15 +271,16 @@ const isSelf = (row: Account) => row.id === auth.user?.id
         У вас доступ на просмотр: поля видны, но сохранить изменения нельзя.
       </p>
 
-      <nav class="mt-4 flex flex-wrap gap-1 border-b">
+      <nav ref="tabStrip" class="scrollbar-none -mx-6 mt-4 flex gap-1 overflow-x-auto border-b px-6 sm:mx-0 sm:px-0">
         <button
           v-for="entry in visibleTabs"
           :key="entry.key"
           type="button"
-          class="-mb-px border-b-2 px-3 py-2 text-sm"
+          class="-mb-px shrink-0 whitespace-nowrap border-b-2 px-3 py-2 text-sm"
           :class="tab === entry.key
             ? 'border-primary font-medium text-foreground'
             : 'border-transparent text-muted-foreground hover:text-foreground'"
+          :aria-current="tab === entry.key ? 'page' : undefined"
           @click="tab = entry.key"
         >
           {{ entry.label }}
