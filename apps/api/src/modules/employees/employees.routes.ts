@@ -56,7 +56,7 @@ employeesRouter.delete(
   '/:id',
   requirePermission(PERMISSION.TEAM_MANAGE),
   validate(idParamSchema, 'params'),
-  controller.deactivateHandler
+  controller.removeHandler
 )
 
 // Archiving hides a row from the working set; deleting is the separate,

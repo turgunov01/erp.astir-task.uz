@@ -1,6 +1,6 @@
 import type { CreateEmployeeInput } from '@astir/validation'
 import { prisma } from '../../lib/prisma'
-import { conflict, notFound } from '../../lib/errors'
+import { badRequest, conflict, notFound } from '../../lib/errors'
 import { buildMeta, toSkipTake } from '../../lib/http'
 import { hashPassword } from '../auth/auth.service'
 import * as repo from './employees.repository'
@@ -147,20 +147,59 @@ export async function update(id: string, input: Record<string, unknown>) {
 }
 
 /**
- * Deactivate rather than delete: timesheets, versions and activity entries all
- * reference this person and must stay attributable.
+ * Delete an employee together with the login.
+ *
+ * The schema is built for the account to go: sessions, codes, notifications
+ * and project memberships cascade, while tasks, versions and reviews keep
+ * their rows and only drop the reference. Two cascades are different —
+ * timesheet entries and comments are the person's own work — so an employee
+ * who has any is kept as a soft-deleted row instead and merely loses access.
+ *
+ * Either way the address is released. The email column is unique, and a
+ * studio that removes a test account expects to create it again with the same
+ * one; a retained row gets a tombstone address that can no longer be logged
+ * in with or collide.
  */
-export async function deactivate(id: string) {
+export async function remove(id: string, actorId: string | undefined) {
   const employee = await getById(id)
-  return prisma.$transaction(async tx => {
-    await tx.user.update({ where: { id: employee.userId }, data: { isActive: false } })
-    await tx.refreshToken.updateMany({
-      where: { userId: employee.userId, revokedAt: null },
-      data: { revokedAt: new Date() }
-    })
-    return tx.employee.update({
-      where: { id },
-      data: { status: 'INACTIVE', deletedAt: new Date() }
-    })
+  if (employee.userId === actorId) {
+    throw badRequest('Нельзя удалить собственную учётную запись')
+  }
+
+  const work = await prisma.user.findUniqueOrThrow({
+    where: { id: employee.userId },
+    select: {
+      email: true,
+      _count: { select: { comments: true } },
+      employee: { select: { _count: { select: { timesheetEntries: true } } } }
+    }
   })
+  const hasOwnWork =
+    work._count.comments > 0 || (work.employee?._count.timesheetEntries ?? 0) > 0
+
+  if (!hasOwnWork) {
+    await prisma.user.delete({ where: { id: employee.userId } })
+    return { erased: true }
+  }
+
+  const now = new Date()
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: employee.userId },
+      data: {
+        isActive: false,
+        deletedAt: now,
+        email: work.email + '.deleted.' + now.getTime()
+      }
+    }),
+    prisma.refreshToken.updateMany({
+      where: { userId: employee.userId, revokedAt: null },
+      data: { revokedAt: now }
+    }),
+    prisma.employee.update({
+      where: { id },
+      data: { status: 'INACTIVE', deletedAt: now }
+    })
+  ])
+  return { erased: false }
 }

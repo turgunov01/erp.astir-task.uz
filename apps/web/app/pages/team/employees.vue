@@ -158,6 +158,10 @@ function initials(row: EmployeeRow) {
       </template>
     </DataTable>
 
-    <EntityCrudHost :crud="crud" :config="EMPLOYEE_FORM" />
+    <EntityCrudHost
+      :crud="crud"
+      :config="EMPLOYEE_FORM"
+      delete-detail="Учётная запись и доступ удаляются, почта освобождается. Задачи и версии останутся без исполнителя; если у сотрудника есть табели или комментарии, его запись сохранится в базе без доступа."
+    />
   </div>
 </template>

@@ -65,17 +65,19 @@ export async function updateHandler(req: Request, res: Response, next: NextFunct
   }
 }
 
-export async function deactivateHandler(req: Request, res: Response, next: NextFunction) {
+export async function removeHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const id = req.params.id as string
-    await service.deactivate(id)
+    const { erased } = await service.remove(id, req.user?.id)
     await recordAudit({
       actorId: req.user?.id,
-      action: 'user.deactivated',
+      action: 'employee.deleted',
       entityType: 'Employee',
       entityId: id,
       ipAddress: req.ip,
-      userAgent: req.headers['user-agent']
+      userAgent: req.headers['user-agent'],
+      // Whether the rows are gone or the person is kept for their timesheets.
+      metadata: { erased }
     })
     return sendNoContent(res)
   } catch (err) {
