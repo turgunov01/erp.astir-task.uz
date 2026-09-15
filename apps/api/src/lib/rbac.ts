@@ -5,6 +5,7 @@ import {
   type Permission,
   type Role
 } from '@astir/types'
+import type { Prisma } from '@prisma/client'
 import { prisma } from './prisma'
 
 /**
@@ -67,17 +68,29 @@ export async function customisedRoles(): Promise<Role[]> {
   return [...stored.keys()]
 }
 
-export async function saveRolePermissions(role: Role, permissions: Permission[]): Promise<void> {
+type Writer = Prisma.TransactionClient | typeof prisma
+
+/**
+ * Writes take the caller's transaction so the audit row lands with them or
+ * not at all; the caller drops the cache once the transaction has committed.
+ */
+export function saveRolePermissions(
+  role: Role,
+  permissions: Permission[],
+  tx: Writer = prisma
+) {
   const list = [...new Set(permissions)]
-  await prisma.rolePermission.upsert({
+  return tx.rolePermission.upsert({
     where: { role },
     create: { role, permissions: list },
     update: { permissions: list }
   })
-  matrix = null
 }
 
-export async function resetRolePermissions(role: Role): Promise<void> {
-  await prisma.rolePermission.deleteMany({ where: { role } })
+export function resetRolePermissions(role: Role, tx: Writer = prisma) {
+  return tx.rolePermission.deleteMany({ where: { role } })
+}
+
+export function forgetPermissionMatrix() {
   matrix = null
 }

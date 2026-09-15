@@ -174,7 +174,20 @@ export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
   ]
 }
 
-/** True when the role carries the permission. Used by API guards and the sidebar. */
+/**
+ * The most a role may ever be given from Settings.
+ *
+ * Client accounts belong to customers, and the modules that are open to them
+ * scope every query to the caller's own client. Finance, users and settings
+ * do no such scoping because they were never meant to be reachable from the
+ * portal — so the editor must not be able to open them to it, whatever the
+ * administrator ticks. Roles absent here may be given anything.
+ */
+export const ROLE_CEILING: Readonly<Partial<Record<Role, readonly Permission[]>>> = {
+  [ROLE.CLIENT]: ROLE_PERMISSIONS[ROLE.CLIENT]
+}
+
+/** Compiled default only; the API answers from the editable matrix instead. */
 export function roleHasPermission(role: Role, permission: Permission): boolean {
   return ROLE_PERMISSIONS[role].includes(permission)
 }

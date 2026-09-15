@@ -20,6 +20,8 @@ const props = defineProps<{
 interface MatrixPayload {
   roles: Record<Role, string[]>
   defaults: Record<Role, string[]>
+  /** Roles that may never be given more than this list, e.g. client accounts. */
+  ceiling: Partial<Record<Role, string[]>>
   customised: Role[]
 }
 
@@ -62,8 +64,25 @@ function has(role: string, permission: string) {
   return role === ROLE.OWNER || Boolean(draft.value[role]?.has(permission))
 }
 
+/**
+ * Why a cell cannot be switched on, or '' when it can.
+ *
+ * Mirrors the API's two rules: nobody grants a right they do not hold, and a
+ * capped role (the client portal) never gets internal rights. Switching a
+ * right *off* stays possible either way.
+ */
+function blocked(role: string, permission: string): string {
+  if (role === ROLE.OWNER) return 'Владелец всегда может всё'
+  const ceiling = data.value?.data.ceiling[role as Role]
+  if (ceiling && !ceiling.includes(permission)) return 'Этой роли такое право выдать нельзя'
+  if (!auth.can(permission as never) && !has(role, permission)) {
+    return 'У вашей роли нет этого права, поэтому выдать его нельзя'
+  }
+  return ''
+}
+
 function toggle(role: string, permission: string) {
-  if (!props.canEdit || role === ROLE.OWNER) return
+  if (!props.canEdit || blocked(role, permission)) return
   const set = draft.value[role]
   if (!set) return
   if (set.has(permission)) set.delete(permission)
@@ -83,8 +102,10 @@ function toggleGroup(role: string, keys: readonly string[]) {
   if (!props.canEdit || role === ROLE.OWNER) return
   const set = draft.value[role]
   if (!set) return
-  const turnOn = groupState(role, keys) !== 'all'
-  for (const key of keys) {
+  // Only the grantable rights count, so a capped role's header flips what it can.
+  const grantable = keys.filter(key => !blocked(role, key))
+  const turnOn = grantable.some(key => !set.has(key))
+  for (const key of grantable) {
     if (turnOn) set.add(key)
     else set.delete(key)
   }
@@ -145,7 +166,8 @@ async function resetRole(role: string) {
         <h2 class="text-sm font-medium">Кто что видит и может</h2>
         <p class="mt-1 max-w-2xl text-sm text-muted-foreground">
           Первая строка каждого раздела открывает его страницу; остальные — действия внутри.
-          Владелец всегда может всё. Изменения вступают в силу при следующей загрузке страницы у пользователя.
+          Владелец всегда может всё; выдать можно только то, что есть у вашей роли; клиентам —
+          только клиентский набор. Изменения вступают в силу при следующей загрузке страницы у пользователя.
         </p>
       </div>
       <div v-if="props.canEdit" class="flex items-center gap-2">
@@ -232,8 +254,9 @@ async function resetRole(role: string) {
                   class="inline-grid size-5 place-items-center rounded border text-[11px] leading-none disabled:cursor-default"
                   :class="has(role, permission.key)
                     ? (role === ROLE.OWNER ? 'border-muted-foreground/40 bg-muted text-muted-foreground' : 'border-primary bg-primary text-primary-foreground')
-                    : 'border-input text-transparent hover:border-ring'"
-                  :disabled="!props.canEdit || role === ROLE.OWNER"
+                    : (blocked(role, permission.key) ? 'border-dashed border-input/60 text-transparent' : 'border-input text-transparent hover:border-ring')"
+                  :disabled="!props.canEdit || Boolean(blocked(role, permission.key))"
+                  :title="blocked(role, permission.key) || undefined"
                   :aria-pressed="has(role, permission.key)"
                   :aria-label="permission.label + ' — ' + enumLabel(ROLE_LABEL, role)"
                   @click="toggle(role, permission.key)"

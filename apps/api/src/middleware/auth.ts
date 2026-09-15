@@ -78,12 +78,3 @@ export function requirePermission(permission: Permission) {
     }
   }
 }
-
-/** Guard a route behind an explicit role list. */
-export function requireRole(...roles: string[]) {
-  return (req: Request, _res: Response, next: NextFunction) => {
-    if (!req.user) return next(unauthenticated())
-    if (!roles.includes(req.user.role)) return next(forbidden())
-    next()
-  }
-}

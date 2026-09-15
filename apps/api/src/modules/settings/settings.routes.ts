@@ -1,7 +1,15 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import { idParamSchema } from '@astir/validation'
-import { ALL_PERMISSIONS, PERMISSION, ROLE, ROLE_PERMISSIONS, type Permission, type Role } from '@astir/types'
+import {
+  ALL_PERMISSIONS,
+  PERMISSION,
+  ROLE,
+  ROLE_CEILING,
+  ROLE_PERMISSIONS,
+  type Permission,
+  type Role
+} from '@astir/types'
 import { authenticate, requirePermission } from '../../middleware/auth'
 import { validate } from '../../middleware/validate'
 import { badRequest, notFound } from '../../lib/errors'
@@ -12,6 +20,8 @@ import { sendMail } from '../../lib/mailer'
 import { publicStudioSettings, saveStudioSettings, studioSettings } from '../../lib/settings'
 import {
   customisedRoles,
+  effectivePermissions,
+  forgetPermissionMatrix,
   permissionMatrix,
   resetRolePermissions,
   saveRolePermissions
@@ -282,6 +292,7 @@ settingsRouter.get(
       return sendItem(res, {
         roles: await permissionMatrix(),
         defaults: ROLE_PERMISSIONS,
+        ceiling: ROLE_CEILING,
         customised: await customisedRoles(),
         catalogue: ALL_PERMISSIONS
       })
@@ -300,23 +311,47 @@ settingsRouter.put(
     try {
       const role = req.params.role as Role
       const permissions = req.body.permissions as Permission[]
+      if (!req.user) throw badRequest('No session')
 
-      if (req.user?.role === role) {
+      if (req.user.role === role) {
         const missing = SELF_LOCKOUT_GUARD.filter(p => !permissions.includes(p))
         if (missing.length > 0) {
           throw badRequest('Нельзя лишить собственную роль доступа к настройкам и управлению правами')
         }
       }
 
-      await saveRolePermissions(role, permissions)
-      await recordAudit({
-        actorId: req.user?.id,
-        action: 'settings.permissions_updated',
-        entityType: 'Role',
-        ipAddress: req.ip,
-        // Roles are enum members, not rows, so the name travels in metadata.
-        metadata: { role, permissions }
+      /*
+       * Nobody hands out more than they hold. The owner holds everything and
+       * can delegate anything; an administrator can only pass on rights the
+       * administrator role already has, so the editor is never a way up.
+       */
+      const own = await effectivePermissions(req.user.role)
+      const beyond = permissions.filter(p => !own.includes(p))
+      if (beyond.length > 0) {
+        throw badRequest('Нельзя выдать права, которых нет у вашей роли: ' + beyond.join(', '))
+      }
+
+      const ceiling = ROLE_CEILING[role]
+      if (ceiling) {
+        const over = permissions.filter(p => !ceiling.includes(p))
+        if (over.length > 0) {
+          throw badRequest('Этой роли нельзя выдать: ' + over.join(', '))
+        }
+      }
+
+      const before = await effectivePermissions(role)
+      await prisma.$transaction(async tx => {
+        await saveRolePermissions(role, permissions, tx)
+        await recordAudit({
+          actorId: req.user?.id,
+          action: 'settings.permissions_updated',
+          entityType: 'Role',
+          ipAddress: req.ip,
+          // Roles are enum members, not rows, so the name travels in metadata.
+          metadata: { role, before: [...before], after: permissions }
+        }, tx)
       })
+      forgetPermissionMatrix()
 
       return sendItem(res, { role, permissions: (await permissionMatrix())[role] })
     } catch (err) {
@@ -332,14 +367,18 @@ settingsRouter.delete(
   async (req, res, next) => {
     try {
       const role = req.params.role as Role
-      await resetRolePermissions(role)
-      await recordAudit({
-        actorId: req.user?.id,
-        action: 'settings.permissions_reset',
-        entityType: 'Role',
-        ipAddress: req.ip,
-        metadata: { role }
+      const before = await effectivePermissions(role)
+      await prisma.$transaction(async tx => {
+        await resetRolePermissions(role, tx)
+        await recordAudit({
+          actorId: req.user?.id,
+          action: 'settings.permissions_reset',
+          entityType: 'Role',
+          ipAddress: req.ip,
+          metadata: { role, before: [...before], after: [...ROLE_PERMISSIONS[role]] }
+        }, tx)
       })
+      forgetPermissionMatrix()
       return sendItem(res, { role, permissions: ROLE_PERMISSIONS[role] })
     } catch (err) {
       next(err)
