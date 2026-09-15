@@ -15,6 +15,8 @@ export function dayOnly(offset) {
 }
 
 export const DEPARTMENTS = [
+  // The studio's own files (the logo, policies) hang off this one.
+  ['Management', 'Руководство студии'],
   ['Production', 'Продюсеры и проектные менеджеры'], ['2D', 'Раскадровка, концепт, дизайн'], ['3D', 'Лейаут и FX'],
   ['Animation', 'Аниматоры'], ['Modeling', 'Моделинг и текстуры'], ['Rigging', 'Риггеры'], ['Lighting', 'Свет и шейдинг'],
   ['Rendering', 'Рендер-ферма'], ['Compositing', 'Композитинг'], ['Sound', 'Звук и озвучка'], ['Editing', 'Монтаж'],
