@@ -1,6 +1,6 @@
 import { createTransport, type Transporter } from 'nodemailer'
-import { env } from '../config/env'
 import { logger } from './logger'
+import { mailConfig } from './settings'
 
 /**
  * Outgoing email.
@@ -20,33 +20,45 @@ export interface Mail {
 }
 
 let transporter: Transporter | null = null
-let checked = false
+/** The configuration the current transport was built from, to detect a change. */
+let builtFrom = ''
 
-function transport(): Transporter | null {
-  if (checked) return transporter
-  checked = true
+/**
+ * The transport for the SMTP settings in force right now.
+ *
+ * Settings are editable at runtime, so this can no longer be decided once at
+ * startup: the fingerprint is compared on every send and the transport rebuilt
+ * when somebody saves different credentials. Nodemailer pools connections, so
+ * keeping one instance per configuration still matters.
+ */
+async function transport(): Promise<Transporter | null> {
+  const config = await mailConfig()
 
-  if (!env.SMTP_HOST || !env.SMTP_USER || !env.SMTP_PASSWORD) {
-    logger.warn(
-      'SMTP is not configured; verification emails will be written to the log only'
-    )
+  if (!config) {
+    transporter = null
+    builtFrom = ''
     return null
   }
 
+  const fingerprint = [config.host, config.port, config.user, config.password].join('|')
+  if (transporter && builtFrom === fingerprint) return transporter
+
   transporter = createTransport({
-    host: env.SMTP_HOST,
-    port: env.SMTP_PORT,
+    host: config.host,
+    port: config.port,
     // 465 is implicit TLS; anything else negotiates STARTTLS.
-    secure: env.SMTP_PORT === 465,
-    auth: { user: env.SMTP_USER, pass: env.SMTP_PASSWORD }
+    secure: config.port === 465,
+    auth: { user: config.user, pass: config.password }
   })
+  builtFrom = fingerprint
   return transporter
 }
 
 export async function sendMail(mail: Mail): Promise<{ delivered: boolean }> {
-  const sender = transport()
+  const config = await mailConfig()
+  const sender = await transport()
 
-  if (!sender) {
+  if (!sender || !config) {
     logger.warn(
       { to: mail.to, subject: mail.subject, body: mail.text },
       'email not sent (SMTP unconfigured) — contents logged for local use'
@@ -56,7 +68,7 @@ export async function sendMail(mail: Mail): Promise<{ delivered: boolean }> {
 
   try {
     await sender.sendMail({
-      from: env.SMTP_FROM || env.SMTP_USER,
+      from: config.from,
       to: mail.to,
       subject: mail.subject,
       text: mail.text
@@ -71,6 +83,6 @@ export async function sendMail(mail: Mail): Promise<{ delivered: boolean }> {
 }
 
 /** Whether real delivery is possible, so callers can say what to expect. */
-export function mailIsConfigured(): boolean {
-  return Boolean(env.SMTP_HOST && env.SMTP_USER && env.SMTP_PASSWORD)
+export async function mailIsConfigured(): Promise<boolean> {
+  return Boolean(await mailConfig())
 }

@@ -1326,3 +1326,65 @@ model EmailCode {
   @@index([expiresAt])
   @@map("email_codes")
 }
+
+/// Studio-wide configuration (spec 6).
+///
+/// Exactly one row, keyed by a constant id: the application serves one studio,
+/// and a table that can hold two of these invites the question of which one is
+/// in force. Everything here is optional so a fresh install has a working
+/// settings page before anybody has filled anything in.
+model StudioSettings {
+  id String @id @default("studio")
+
+  name      String  @default("Aster Studio")
+  legalName String?
+  email     String?
+  phone     String?
+  website   String?
+  address   String?
+  logoUrl   String?
+
+  /// Defaults offered when a new project, invoice or expense is created.
+  currency String @default("USD")
+  timezone String @default("Asia/Tashkent")
+
+  /// Prefix for derived invoice numbers, e.g. INV- in INV-0001.
+  invoicePrefix String @default("INV-")
+
+  /// SMTP. Empty values fall back to the environment, so a deployment that
+  /// configures mail through env keeps working with no row here at all.
+  smtpHost     String?
+  smtpPort     Int?
+  smtpUser     String?
+  /// Never returned by the API: it goes in, it does not come back out.
+  smtpPassword String?
+  smtpFrom     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("studio_settings")
+}
+
+/// A named list of stages a new project can be seeded with (spec 84).
+///
+/// These used to live in packages/config as a constant, which meant a studio
+/// could not add its own pipeline without a deploy.
+model PipelineTemplate {
+  id          String  @id @default(uuid()) @db.Uuid
+  name        String  @unique
+  description String?
+
+  /// Stage names in order. A plain array: stages carry no data of their own
+  /// until a project instantiates them.
+  stages String[]
+
+  /// Offered first in the project form. Enforced by the service, not the
+  /// database, because "at most one" is not a constraint Postgres expresses.
+  isDefault Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("pipeline_templates")
+}

@@ -115,6 +115,24 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  /**
+   * Re-read the session after the account itself changed.
+   *
+   * init() deliberately runs once per page load; this is the other case — the
+   * user edited their own name, and the header is still showing the old one.
+   */
+  async function refresh() {
+    try {
+      const response = await $fetch<{ data: SessionPayload }>('/api/auth/me', {
+        credentials: 'include'
+      })
+      apply(response.data)
+    } catch {
+      // A failed refresh leaves the previous session in place: the account is
+      // still valid, the header is merely a few seconds stale.
+    }
+  }
+
   async function login(email: string, password: string) {
     pending.value = true
     try {
@@ -149,6 +167,7 @@ export const useAuthStore = defineStore('auth', () => {
     initials,
     can,
     init,
+    refresh,
     login,
     logout
   }

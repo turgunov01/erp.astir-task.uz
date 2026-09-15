@@ -1,0 +1,247 @@
+import { Router } from 'express'
+import { z } from 'zod'
+import { idParamSchema } from '@astir/validation'
+import { PERMISSION } from '@astir/types'
+import { authenticate, requirePermission } from '../../middleware/auth'
+import { validate } from '../../middleware/validate'
+import { badRequest, notFound } from '../../lib/errors'
+import { sendItem, sendList, sendNoContent } from '../../lib/http'
+import { prisma } from '../../lib/prisma'
+import { recordAudit } from '../../lib/activity'
+import { sendMail } from '../../lib/mailer'
+import { publicStudioSettings, saveStudioSettings, studioSettings } from '../../lib/settings'
+
+export const settingsRouter = Router()
+
+settingsRouter.use(authenticate)
+
+const optionalText = (max: number) => z.string().trim().max(max).optional().nullable()
+
+const updateSettingsSchema = z.object({
+  name: z.string().trim().min(1).max(120).optional(),
+  legalName: optionalText(200),
+  email: optionalText(200),
+  phone: optionalText(40),
+  website: optionalText(200),
+  address: optionalText(400),
+  logoUrl: optionalText(500),
+
+  currency: z.string().trim().length(3).toUpperCase().optional(),
+  timezone: z.string().trim().max(60).optional(),
+  invoicePrefix: z.string().trim().max(10).optional(),
+
+  smtpHost: optionalText(200),
+  smtpPort: z.coerce.number().int().min(1).max(65535).optional().nullable(),
+  smtpUser: optionalText(200),
+  /*
+   * Write-only. An empty string means "clear it"; omitting the field entirely
+   * leaves the stored password alone, so saving the rest of the form does not
+   * silently wipe credentials the user cannot see in order to retype them.
+   */
+  smtpPassword: z.string().max(200).optional(),
+  smtpFrom: optionalText(200)
+})
+
+settingsRouter.get(
+  '/',
+  requirePermission(PERMISSION.SETTINGS_VIEW),
+  async (_req, res, next) => {
+    try {
+      return sendItem(res, publicStudioSettings(await studioSettings()))
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+settingsRouter.patch(
+  '/',
+  requirePermission(PERMISSION.SETTINGS_MANAGE),
+  validate(updateSettingsSchema),
+  async (req, res, next) => {
+    try {
+      const patch = { ...req.body }
+      // An absent password keeps the stored one; a blank one clears it.
+      if (patch.smtpPassword === undefined) delete patch.smtpPassword
+      else if (patch.smtpPassword === '') patch.smtpPassword = null
+
+      const saved = await saveStudioSettings(patch)
+
+      await recordAudit({
+        actorId: req.user?.id,
+        action: 'settings.updated',
+        entityType: 'StudioSettings',
+        // No entityId: the column is a uuid and there is only ever one row,
+        // which the entity type already identifies.
+        ipAddress: req.ip,
+        // Which keys changed, never their values: this row holds credentials.
+        metadata: { fields: Object.keys(patch).join(', ') }
+      })
+
+      return sendItem(res, publicStudioSettings(saved))
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+/**
+ * Prove the SMTP settings actually work.
+ *
+ * Sent to whoever pressed the button rather than to an address they type in: a
+ * test that mails somebody else tells you nothing you can check, and it would
+ * turn the settings page into a way to send mail from the studio's address.
+ */
+settingsRouter.post(
+  '/mail/test',
+  requirePermission(PERMISSION.SETTINGS_MANAGE),
+  async (req, res, next) => {
+    try {
+      const to = req.user?.email
+      if (!to) throw badRequest('Current account has no email address')
+
+      const result = await sendMail({
+        to,
+        subject: 'Aster ERP — проверка почты',
+        text: 'Если вы читаете это письмо, отправка почты из Aster ERP настроена верно.'
+      })
+
+      await recordAudit({
+        actorId: req.user?.id,
+        action: 'settings.mail_tested',
+        entityType: 'StudioSettings',
+        ipAddress: req.ip,
+        metadata: { delivered: String(result.delivered) }
+      })
+
+      return sendItem(res, {
+        delivered: result.delivered,
+        to,
+        // Not an error: without SMTP the message goes to the log on purpose.
+        message: result.delivered
+          ? 'Письмо отправлено на ' + to
+          : 'SMTP не настроен — письмо записано в лог сервера, а не отправлено'
+      })
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+/* ------------------------------------------------------ pipeline templates */
+
+const templateSchema = z.object({
+  name: z.string().trim().min(2).max(80),
+  description: z.string().trim().max(400).optional().nullable(),
+  stages: z.array(z.string().trim().min(1).max(80)).min(1, 'Нужен хотя бы один этап').max(40),
+  isDefault: z.boolean().optional()
+})
+
+settingsRouter.get(
+  '/templates',
+  requirePermission(PERMISSION.SETTINGS_VIEW),
+  async (_req, res, next) => {
+    try {
+      const templates = await prisma.pipelineTemplate.findMany({
+        orderBy: [{ isDefault: 'desc' }, { name: 'asc' }]
+      })
+      return sendList(res, templates, {
+        page: 1, limit: templates.length, total: templates.length, pages: 1
+      })
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+/**
+ * At most one default.
+ *
+ * Postgres cannot express "only one row may carry this flag", so it is enforced
+ * here: setting it clears the flag everywhere else.
+ */
+async function clearOtherDefaults(id: string) {
+  await prisma.pipelineTemplate.updateMany({
+    where: { id: { not: id }, isDefault: true },
+    data: { isDefault: false }
+  })
+}
+
+settingsRouter.post(
+  '/templates',
+  requirePermission(PERMISSION.SETTINGS_MANAGE),
+  validate(templateSchema),
+  async (req, res, next) => {
+    try {
+      const template = await prisma.pipelineTemplate.create({ data: req.body })
+      if (template.isDefault) await clearOtherDefaults(template.id)
+
+      await recordAudit({
+        actorId: req.user?.id,
+        action: 'settings.template_created',
+        entityType: 'PipelineTemplate',
+        entityId: template.id,
+        ipAddress: req.ip,
+        metadata: { name: template.name, stages: String(template.stages.length) }
+      })
+
+      return sendItem(res, template, 201)
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+settingsRouter.patch(
+  '/templates/:id',
+  requirePermission(PERMISSION.SETTINGS_MANAGE),
+  validate(idParamSchema, 'params'),
+  validate(templateSchema.partial()),
+  async (req, res, next) => {
+    try {
+      const id = req.params.id as string
+      const template = await prisma.pipelineTemplate.update({ where: { id }, data: req.body })
+      if (template.isDefault) await clearOtherDefaults(id)
+
+      await recordAudit({
+        actorId: req.user?.id,
+        action: 'settings.template_updated',
+        entityType: 'PipelineTemplate',
+        entityId: id,
+        ipAddress: req.ip,
+        metadata: { name: template.name }
+      })
+
+      return sendItem(res, template)
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+settingsRouter.delete(
+  '/templates/:id',
+  requirePermission(PERMISSION.SETTINGS_MANAGE),
+  validate(idParamSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const id = req.params.id as string
+      const template = await prisma.pipelineTemplate.findUnique({ where: { id } })
+      if (!template) throw notFound('PipelineTemplate')
+
+      await prisma.pipelineTemplate.delete({ where: { id } })
+      await recordAudit({
+        actorId: req.user?.id,
+        action: 'settings.template_deleted',
+        entityType: 'PipelineTemplate',
+        entityId: id,
+        ipAddress: req.ip,
+        metadata: { name: template.name }
+      })
+
+      return sendNoContent(res)
+    } catch (err) {
+      next(err)
+    }
+  }
+)

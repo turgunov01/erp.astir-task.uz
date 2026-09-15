@@ -29,6 +29,10 @@ import { assetsRouter } from './modules/assets/assets.routes'
 import { renderRouter } from './modules/render/render.routes'
 import { commentsRouter } from './modules/comments/comments.routes'
 import { financeRouter } from './modules/finance/finance.routes'
+import { reportsRouter } from './modules/reports/reports.routes'
+import { activityRouter } from './modules/activity/activity.routes'
+import { settingsRouter } from './modules/settings/settings.routes'
+import { usersRouter } from './modules/users/users.routes'
 import { runWithRequestContext } from './lib/request-context'
 import { timesheetsRouter } from './modules/timesheets/timesheets.routes'
 
@@ -105,6 +109,10 @@ export function createApp() {
   app.use('/api/render', renderRouter)
   app.use('/api/comments', commentsRouter)
   app.use('/api/finance', financeRouter)
+  app.use('/api/reports', reportsRouter)
+  app.use('/api/activity', activityRouter)
+  app.use('/api/settings', settingsRouter)
+  app.use('/api/users', usersRouter)
 
   app.use(notFoundHandler)
   app.use(errorHandler)

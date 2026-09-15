@@ -1,5 +1,5 @@
 import type { Prisma } from '@prisma/client'
-import { DEFAULT_PIPELINE, PROJECT_TEMPLATES } from '@astir/config'
+import { DEFAULT_PIPELINE, PROJECT_TEMPLATES, type PipelineStageTemplate } from '@astir/config'
 import type { CreateProjectInput } from '@astir/validation'
 import { prisma } from '../../lib/prisma'
 import { badRequest, conflict, notFound } from '../../lib/errors'
@@ -16,6 +16,29 @@ const CODE_PREFIX = 'AST-'
 async function nextProjectCode(): Promise<string> {
   const highest = await repo.highestCodeNumber(CODE_PREFIX)
   return CODE_PREFIX + String(highest + 1).padStart(3, '0')
+}
+
+/**
+ * The stages a named template seeds a project with.
+ *
+ * A studio-defined template in the database wins over the built-in list, so a
+ * pipeline can be changed from the settings screen instead of from a deploy.
+ *
+ * Names the default pipeline knows keep its weight and owning department; a
+ * name it has never heard of still becomes a stage, with weight 1 and no
+ * department. Filtering those out — as this did while templates were a
+ * constant and every name was known — would quietly drop exactly the custom
+ * stage somebody added the template for.
+ */
+async function templateStages(name: string): Promise<PipelineStageTemplate[]> {
+  const custom = await prisma.pipelineTemplate.findUnique({ where: { name } })
+  const names = custom?.stages ?? PROJECT_TEMPLATES[name]
+  if (!names) return []
+
+  const known = new Map(DEFAULT_PIPELINE.map(stage => [stage.name, stage]))
+  return names.map((stageName, index) =>
+    known.get(stageName) ?? { name: stageName, order: index + 1, weight: 1 }
+  )
 }
 
 function toDate(value?: string | null): Date | null {
@@ -54,10 +77,7 @@ export async function create(input: CreateProjectInput, actorId?: string) {
   const code = input.code ?? (await nextProjectCode())
   if (await repo.findByCode(code)) throw conflict('Project code ' + code + ' is already in use')
 
-  const templateStages = input.template ? PROJECT_TEMPLATES[input.template] : undefined
-  const stages = templateStages
-    ? DEFAULT_PIPELINE.filter(stage => templateStages.includes(stage.name))
-    : []
+  const stages = input.template ? await templateStages(input.template) : []
 
   return prisma.$transaction(async tx => {
     const project = await tx.project.create({
