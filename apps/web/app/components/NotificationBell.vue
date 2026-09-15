@@ -39,16 +39,6 @@ async function follow(item: Notification) {
   if (item.linkUrl) await navigateTo(item.linkUrl)
 }
 
-function timeAgo(value: string) {
-  const diff = Date.now() - new Date(value).getTime()
-  const minutes = Math.round(diff / 60000)
-  if (minutes < 1) return 'только что'
-  if (minutes < 60) return minutes + ' мин назад'
-  const hours = Math.round(minutes / 60)
-  if (hours < 24) return hours + ' ч назад'
-  return Math.round(hours / 24) + ' дн назад'
-}
-
 /** Russian needs three plural forms, not the English one-or-many. */
 function pluralUnread(count: number) {
   const mod10 = count % 10

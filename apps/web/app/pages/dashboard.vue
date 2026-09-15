@@ -66,17 +66,6 @@ function formatDate(value: string | null) {
   return new Date(value).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' })
 }
 
-function timeAgo(value: string) {
-  const minutes = Math.round((Date.now() - new Date(value).getTime()) / 60000)
-  if (minutes < 60) return Math.max(minutes, 1) + ' мин назад'
-  const hours = Math.round(minutes / 60)
-  if (hours < 24) return hours + ' ч назад'
-  return Math.round(hours / 24) + ' дн назад'
-}
-
-function actionLabel(action: string) {
-  return action.split('.').join(' ').split('_').join(' ')
-}
 </script>
 
 <template>
@@ -252,7 +241,7 @@ function actionLabel(action: string) {
                 <span class="text-muted-foreground">
                   {{ event.actor ? event.actor.firstName + ' ' + event.actor.lastName : 'Система' }}
                 </span>
-                — {{ actionLabel(event.action) }}
+                — {{ enumLabel(ACTIVITY_ACTION_LABEL, event.action) }}
               </span>
               <span class="shrink-0 text-xs text-muted-foreground">
                 {{ timeAgo(event.createdAt) }}
