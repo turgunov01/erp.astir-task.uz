@@ -14,7 +14,15 @@ const props = withDefaults(defineProps<{
   busy?: boolean
   /** Label used in the trigger's accessible name. */
   name?: string
-}>(), { canManage: true })
+  /**
+   * Whether this table has an archive at all.
+   *
+   * Finance rows do not: a payment is either recorded or it was a mistake, and
+   * offering to archive one would promise a place to find it again that the
+   * API has no column for.
+   */
+  archivable?: boolean
+}>(), { canManage: true, archivable: true })
 
 const emit = defineEmits<{
   (e: 'edit'): void
@@ -86,7 +94,7 @@ onMounted(() => {
       </button>
 
       <button
-        v-if="props.canManage && !props.archived"
+        v-if="props.canManage && props.archivable && !props.archived"
         type="button"
         class="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm hover:bg-secondary"
         role="menuitem"
@@ -97,7 +105,7 @@ onMounted(() => {
       </button>
 
       <button
-        v-if="props.canManage && props.archived"
+        v-if="props.canManage && props.archivable && props.archived"
         type="button"
         class="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm hover:bg-secondary"
         role="menuitem"

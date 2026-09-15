@@ -4,6 +4,8 @@ import {
   DOCUMENT_TYPE_LABEL,
   EMPLOYEE_STATUS_LABEL,
   EMPLOYMENT_TYPE_LABEL,
+  EXPENSE_CATEGORY_LABEL,
+  PAYMENT_STATUS_LABEL,
   PRIORITY_LABEL,
   PRODUCTION_STATUS_LABEL,
   RENDER_STATUS_LABEL,
@@ -24,6 +26,8 @@ import type { EntityFormConfig } from './entity-form'
  */
 
 const PROJECT_SOURCE = { url: '/api/projects', labelKeys: ['code', 'name'] }
+const CLIENT_SOURCE = { url: '/api/clients', labelKeys: ['name'] }
+const INVOICE_SOURCE = { url: '/api/finance/invoices', labelKeys: ['number'] }
 /*
  * Employees list rows describe the employment record, and the person sits
  * under `user`. Fields like assigneeId reference the user, not the employment
@@ -469,4 +473,129 @@ export const EMPLOYEE_FORM: EntityFormConfig = {
       hint: 'Фото, видео, аудио или документ. Загрузятся сразу после сохранения.'
     }
 ]
+}
+
+
+/*
+ * Finance forms.
+ *
+ * Currency sits on each record rather than on the studio: an invoice to a
+ * client in USD and a contractor paid in UZS happen in the same week, and one
+ * studio-wide currency would quietly misreport both.
+ */
+
+export const EXPENSE_FORM: EntityFormConfig = {
+  endpoint: '/api/finance/expenses',
+  createTitle: 'Новый расход',
+  editTitle: 'Редактирование расхода',
+  columns: 2,
+  fields: [
+    { key: 'projectId', label: 'Проект', type: 'select', required: true, source: PROJECT_SOURCE },
+    {
+      key: 'category',
+      label: 'Категория',
+      type: 'select',
+      required: true,
+      options: enumOptions(EXPENSE_CATEGORY_LABEL)
+    },
+    { key: 'amount', label: 'Сумма', type: 'number', required: true },
+    { key: 'currency', label: 'Валюта', type: 'text', placeholder: 'USD' },
+    { key: 'date', label: 'Дата', type: 'date', required: true },
+    { key: 'description', label: 'Описание', type: 'textarea', wide: true }
+  ]
+}
+
+export const PAYMENT_FORM: EntityFormConfig = {
+  endpoint: '/api/finance/payments',
+  createTitle: 'Новый платёж',
+  editTitle: 'Редактирование платежа',
+  columns: 2,
+  fields: [
+    { key: 'clientId', label: 'Клиент', type: 'select', required: true, source: CLIENT_SOURCE },
+    {
+      key: 'projectId',
+      label: 'Проект',
+      type: 'select',
+      source: PROJECT_SOURCE,
+      placeholder: 'Без проекта'
+    },
+    {
+      key: 'invoiceId',
+      label: 'Счёт',
+      type: 'select',
+      source: INVOICE_SOURCE,
+      placeholder: 'Без счёта',
+      hint: 'Если платёж закроет счёт целиком, система предложит отметить счёт оплаченным.'
+    },
+    { key: 'amount', label: 'Сумма', type: 'number', required: true },
+    { key: 'currency', label: 'Валюта', type: 'text', placeholder: 'USD' },
+    {
+      key: 'status',
+      label: 'Статус',
+      type: 'select',
+      options: enumOptions(PAYMENT_STATUS_LABEL)
+    },
+    { key: 'method', label: 'Способ', type: 'text', placeholder: 'Перевод, карта, наличные' },
+    { key: 'dueDate', label: 'Срок', type: 'date' },
+    { key: 'paidDate', label: 'Дата оплаты', type: 'date' }
+  ]
+}
+
+export const INVOICE_FORM: EntityFormConfig = {
+  endpoint: '/api/finance/invoices',
+  createTitle: 'Новый счёт',
+  editTitle: 'Редактирование счёта',
+  columns: 2,
+  fields: [
+    {
+      key: 'number',
+      label: 'Номер',
+      type: 'text',
+      placeholder: 'Пусто — присвоится следующий',
+      hint: 'Номер уникален и уходит клиенту, поэтому менять его стоит осознанно.'
+    },
+    { key: 'clientId', label: 'Клиент', type: 'select', required: true, source: CLIENT_SOURCE },
+    {
+      key: 'projectId',
+      label: 'Проект',
+      type: 'select',
+      source: PROJECT_SOURCE,
+      placeholder: 'Без проекта'
+    },
+    { key: 'amount', label: 'Сумма', type: 'number', required: true },
+    { key: 'currency', label: 'Валюта', type: 'text', placeholder: 'USD' },
+    {
+      key: 'status',
+      label: 'Статус',
+      type: 'select',
+      options: enumOptions(PAYMENT_STATUS_LABEL)
+    },
+    { key: 'issuedAt', label: 'Выставлен', type: 'date' },
+    { key: 'dueDate', label: 'Оплатить до', type: 'date' }
+  ]
+}
+
+/*
+ * Actual cost is absent by design: the API derives it from expenses and priced
+ * hours, so the form carries only the two numbers a human actually decides.
+ */
+export const BUDGET_FORM: EntityFormConfig = {
+  endpoint: '/api/finance/budgets',
+  createTitle: 'Бюджет проекта',
+  editTitle: 'Редактирование бюджета',
+  columns: 2,
+  fields: [
+    {
+      key: 'projectId',
+      label: 'Проект',
+      type: 'select',
+      required: true,
+      source: PROJECT_SOURCE,
+      createOnly: true,
+      hint: 'У проекта один бюджет: сохранение поверх существующего обновит его.'
+    },
+    { key: 'revenue', label: 'Плановая выручка', type: 'number', required: true },
+    { key: 'plannedCost', label: 'Плановая себестоимость', type: 'number', required: true },
+    { key: 'currency', label: 'Валюта', type: 'text', placeholder: 'USD' }
+  ]
 }

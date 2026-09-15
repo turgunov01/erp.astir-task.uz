@@ -148,8 +148,8 @@ export function listPayments(where: Prisma.PaymentWhereInput, skip: number, take
   ])
 }
 
-export function listInvoices(where: Prisma.InvoiceWhereInput, skip: number, take: number) {
-  return Promise.all([
+export async function listInvoices(where: Prisma.InvoiceWhereInput, skip: number, take: number) {
+  const [items, total] = await Promise.all([
     prisma.invoice.findMany({
       where, skip, take,
       orderBy: { issuedAt: 'desc' },
@@ -161,4 +161,74 @@ export function listInvoices(where: Prisma.InvoiceWhereInput, skip: number, take
     }),
     prisma.invoice.count({ where })
   ])
+
+  // How much each invoice has actually collected travels with the row, so the
+  // table can show cover without one request per line.
+  const paid = await prisma.payment.groupBy({
+    by: ['invoiceId'],
+    where: { invoiceId: { in: items.map(invoice => invoice.id) }, status: 'PAID' },
+    _sum: { amount: true }
+  })
+  const paidByInvoice = new Map(
+    paid.map(row => [row.invoiceId, Number(row._sum.amount ?? 0)])
+  )
+
+  const rows = items.map(invoice => ({
+    ...invoice,
+    paidTotal: paidByInvoice.get(invoice.id) ?? 0
+  }))
+  return [rows, total] as const
+}
+
+const INVOICE_PREFIX = 'INV-'
+
+/**
+ * Next free INV-nnnn number, mirroring how a project derives its AST-nnn code.
+ *
+ * An explicit number from the caller wins. The column is unique, so a racing
+ * second creation fails loudly rather than silently reusing a number — which is
+ * the right outcome for a document a client will quote back at you.
+ */
+export async function nextInvoiceNumber(): Promise<string> {
+  const existing = await prisma.invoice.findMany({
+    where: { number: { startsWith: INVOICE_PREFIX } },
+    select: { number: true }
+  })
+  const highest = existing.reduce((max, row) => {
+    const value = Number.parseInt(row.number.slice(INVOICE_PREFIX.length), 10)
+    return Number.isFinite(value) && value > max ? value : max
+  }, 0)
+  return INVOICE_PREFIX + String(highest + 1).padStart(4, '0')
+}
+
+/**
+ * How much of one invoice its payments actually cover.
+ *
+ * Recording a payment never changes an invoice on its own: the interface asks
+ * first, and this is the number it asks with (spec 43). Keeping the decision
+ * with the user means no invoice is ever closed by a side effect nobody saw.
+ */
+export async function invoiceCoverage(id: string) {
+  const invoice = await prisma.invoice.findUnique({
+    where: { id },
+    select: { id: true, number: true, amount: true, currency: true, status: true }
+  })
+  if (!invoice) throw notFound('Invoice')
+
+  const paid = await prisma.payment.aggregate({
+    where: { invoiceId: id, status: 'PAID' },
+    _sum: { amount: true }
+  })
+  const paidTotal = Number(paid._sum.amount ?? 0)
+  const amount = Number(invoice.amount)
+
+  return {
+    id: invoice.id,
+    number: invoice.number,
+    currency: invoice.currency,
+    status: invoice.status,
+    amount,
+    paidTotal,
+    covered: amount > 0 && paidTotal >= amount
+  }
 }

@@ -27,6 +27,13 @@ export interface EntityCrudOptions {
    * that cycle.
    */
   archivedView?: Ref<boolean>
+  /**
+   * Runs after a save, with whatever the API returned.
+   *
+   * Lets a page follow up on what the save implied — a payment that finished
+   * covering its invoice, say — without this composable knowing about any of it.
+   */
+  onSaved?: (saved: unknown) => unknown | Promise<unknown>
 }
 
 /**
@@ -69,8 +76,9 @@ export function useEntityCrud(options: EntityCrudOptions) {
     editing.value = null
   }
 
-  async function saved() {
+  async function saved(row?: unknown) {
     await options.refresh()
+    await options.onSaved?.(row)
   }
 
   async function setArchived(row: EntityRow, archived: boolean) {

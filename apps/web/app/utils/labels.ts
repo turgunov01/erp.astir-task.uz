@@ -57,6 +57,23 @@ export function formatDay(value: string | null | undefined) {
   })
 }
 
+/**
+ * Money with its own currency.
+ *
+ * Records keep the kopecks by default; roll-ups pass 0, because a portfolio
+ * total to the kopeck is false precision nobody reads.
+ */
+export function formatMoney(
+  value: number | null | undefined,
+  currency = 'USD',
+  maximumFractionDigits = 2
+) {
+  if (value === null || value === undefined) return '—'
+  return new Intl.NumberFormat('ru-RU', {
+    style: 'currency', currency, maximumFractionDigits
+  }).format(value)
+}
+
 export function fullName(
   person: { firstName: string, lastName: string } | null | undefined
 ) {
@@ -171,6 +188,156 @@ export const STATUS_LABEL: Record<string, string> = {
   SUBMITTED: 'Отправлена'
 }
 
+export const EXPENSE_CATEGORY_LABEL: Record<string, string> = {
+  EMPLOYEE: 'Штат',
+  FREELANCER: 'Подряд',
+  RENDER: 'Рендер',
+  SOFTWARE: 'Софт',
+  HARDWARE: 'Железо',
+  AUDIO: 'Звук',
+  PRODUCTION: 'Продакшн',
+  OTHER: 'Прочее'
+}
+
+/*
+ * Kept out of STATUS_LABEL on purpose: PENDING already means "Ожидает" for a
+ * review, and merging this map would silently retitle every review badge.
+ * StatusBadge reaches it through kind="payment" instead.
+ */
+export const PAYMENT_STATUS_LABEL: Record<string, string> = {
+  PENDING: 'Ожидает оплаты',
+  PARTIALLY_PAID: 'Оплачен частично',
+  PAID: 'Оплачен',
+  OVERDUE: 'Просрочен',
+  CANCELLED: 'Отменён'
+}
+
 export const RISK_LABEL: Record<string, string> = {
   LOW: 'Низкий', MEDIUM: 'Средний', HIGH: 'Высокий', CRITICAL: 'Критический'
+}
+
+/**
+ * What each recorded action says in the interface.
+ *
+ * The log stores machine names like task.status_changed. Splitting those on
+ * dots and underscores produces readable English, which is the wrong language
+ * for every other string in this application, so the feed reads from a real
+ * dictionary and falls back to the machine name only for actions nobody has
+ * translated yet.
+ */
+export const ACTIVITY_ACTION_LABEL: Record<string, string> = {
+  created: 'создано',
+  updated: 'изменено',
+  deleted: 'удалено',
+
+  'project.created': 'создал проект',
+  'project.status_changed': 'сменил статус проекта',
+  'project.archived': 'архивировал проект',
+  'project.hard_deleted': 'удалил проект без возврата',
+  'member.added': 'добавил участника в проект',
+  'member.removed': 'убрал участника из проекта',
+
+  'stage.created': 'создал этап',
+  'stage.status_changed': 'сменил статус этапа',
+  'episode.created': 'создал эпизод',
+  'episode.status_changed': 'сменил статус эпизода',
+  'scene.created': 'создал сцену',
+  'scene.status_changed': 'сменил статус сцены',
+  'shot.created': 'создал шот',
+  'shot.status_changed': 'сменил статус шота',
+  'shot_stage.status_changed': 'сменил статус этапа шота',
+
+  'task.created': 'создал задачу',
+  'task.assigned': 'назначил исполнителя',
+  'task.status_changed': 'сменил статус задачи',
+  'task.archived': 'архивировал задачу',
+  'task.unarchived': 'вернул задачу из архива',
+  'task.deleted': 'удалил задачу',
+
+  'version.created': 'загрузил версию',
+  'version.submitted': 'отправил версию на согласование',
+  'version.deleted': 'удалил версию',
+  'revision.created': 'завёл правку',
+  'revision.status_changed': 'сменил статус правки',
+  'revision.deleted': 'удалил правку',
+  'render.queued': 'поставил задачу в очередь рендера',
+  'asset.created': 'добавил ассет',
+  'file.uploaded': 'загрузил файл',
+  'review.approved': 'утвердил версию',
+  'review.changes_requested': 'запросил правки по версии',
+  'review.rejected': 'отклонил версию',
+
+  'finance.budget_saved': 'сохранил бюджет проекта',
+  'finance.budget_deleted': 'удалил бюджет проекта',
+  'finance.expense_created': 'добавил расход',
+  'finance.expense_updated': 'изменил расход',
+  'finance.expense_deleted': 'удалил расход',
+  'finance.invoice_created': 'выставил счёт',
+  'finance.invoice_updated': 'изменил счёт',
+  'finance.invoice_deleted': 'удалил счёт',
+  'finance.payment_created': 'провёл платёж',
+  'finance.payment_updated': 'изменил платёж',
+  'finance.payment_deleted': 'удалил платёж',
+
+  'settings.updated': 'изменил настройки студии',
+  'settings.template_created': 'создал шаблон пайплайна',
+  'settings.template_updated': 'изменил шаблон пайплайна',
+  'settings.template_deleted': 'удалил шаблон пайплайна',
+  'settings.mail_tested': 'проверил почтовые настройки',
+
+  'client.created': 'создал клиента',
+  'client.updated': 'изменил клиента',
+  'client.archived': 'архивировал клиента',
+  'department.created': 'создал отдел',
+  'department.updated': 'изменил отдел',
+  'department.deleted': 'удалил отдел',
+  'employee.updated': 'изменил сотрудника',
+  'employee.email_verified_manually': 'подтвердил почту сотрудника вручную',
+  'user.created': 'завёл пользователя',
+  'user.role_changed': 'сменил роль пользователя',
+  'user.deactivated': 'отключил пользователя'
+}
+
+/** Entity names as they read in a sentence about them. */
+export const ENTITY_TYPE_LABEL: Record<string, string> = {
+  Project: 'Проект',
+  ProjectStage: 'Этап',
+  ProjectMember: 'Участник',
+  Episode: 'Эпизод',
+  Scene: 'Сцена',
+  Shot: 'Шот',
+  ShotStage: 'Этап шота',
+  Task: 'Задача',
+  Version: 'Версия',
+  Review: 'Согласование',
+  Revision: 'Правка',
+  RenderJob: 'Рендер',
+  Asset: 'Ассет',
+  Document: 'Документ',
+  Client: 'Клиент',
+  Department: 'Отдел',
+  Employee: 'Сотрудник',
+  User: 'Пользователь',
+  ProjectBudget: 'Бюджет',
+  Expense: 'Расход',
+  Invoice: 'Счёт',
+  Payment: 'Платёж',
+  StudioSettings: 'Настройки студии',
+  PipelineTemplate: 'Шаблон пайплайна'
+}
+
+/**
+ * Rough age of an event, for feeds where the exact minute does not matter.
+ *
+ * Deliberately coarse: past a day nobody counts hours, and a feed full of
+ * precise timestamps is harder to skim than one that says "3 дн назад".
+ */
+export function timeAgo(value: string | Date | null | undefined) {
+  if (!value) return '—'
+  const minutes = Math.round((Date.now() - new Date(value).getTime()) / 60000)
+  if (minutes < 1) return 'только что'
+  if (minutes < 60) return minutes + ' мин назад'
+  const hours = Math.round(minutes / 60)
+  if (hours < 24) return hours + ' ч назад'
+  return Math.round(hours / 24) + ' дн назад'
 }

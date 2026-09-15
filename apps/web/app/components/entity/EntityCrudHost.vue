@@ -12,7 +12,18 @@ const props = defineProps<{
   crud: EntityCrud
   /** Omitted when the page edits through its own route rather than a panel. */
   config?: EntityFormConfig
+  /**
+   * What deletion actually costs on this table.
+   *
+   * The default mentions archiving, which only tables that have an archive can
+   * offer; a finance row has none, and promising one would be a lie.
+   */
+  deleteDetail?: string
 }>()
+
+const DEFAULT_DELETE_DETAIL =
+  'Запись исчезнет из списков. Вернуть её через интерфейс будет нельзя — ' +
+  'для обратимого скрытия есть архивирование.'
 </script>
 
 <template>
@@ -30,14 +41,14 @@ const props = defineProps<{
       :config="props.config"
       :record="props.crud.editing"
       @close="props.crud.closeForm()"
-      @saved="props.crud.saved()"
+      @saved="props.crud.saved($event)"
     />
 
     <ConfirmDialog
       v-if="props.crud.deleteTarget"
       title="Удаление"
       :message="props.crud.deleteMessage"
-      detail="Запись исчезнет из списков. Вернуть её через интерфейс будет нельзя — для обратимого скрытия есть архивирование."
+      :detail="props.deleteDetail ?? DEFAULT_DELETE_DETAIL"
       confirm-label="Удалить"
       :pending="props.crud.deleting"
       @confirm="props.crud.confirmDelete()"

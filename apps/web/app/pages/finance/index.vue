@@ -26,12 +26,9 @@ const { data, pending, error, refresh } = await useFetch<{ data: Overview }>(
 
 const stats = computed(() => data.value?.data)
 
-function money(value: number | undefined, currency = 'USD') {
-  if (value === undefined) return '—'
-  return new Intl.NumberFormat('ru-RU', {
-    style: 'currency', currency, maximumFractionDigits: 0
-  }).format(value)
-}
+/** Roll-up figures read better without kopecks. */
+const money = (value: number | undefined, currency = 'USD') =>
+  formatMoney(value, currency, 0)
 
 /** Negative margin is the signal the page exists for. */
 function marginTone(margin: number) {

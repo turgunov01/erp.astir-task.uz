@@ -1,7 +1,7 @@
 <script setup lang="ts">
 type Tone = 'neutral' | 'info' | 'progress' | 'success' | 'warning' | 'danger'
 
-const props = defineProps<{ status: string, kind?: 'project' | 'risk' | 'generic' }>()
+const props = defineProps<{ status: string, kind?: 'project' | 'risk' | 'payment' | 'generic' }>()
 
 /** Semantic colour, not decorative: tone always encodes production meaning. */
 const PROJECT_TONES: Record<string, Tone> = {
@@ -30,6 +30,15 @@ const RISK_TONES: Record<string, Tone> = {
   CRITICAL: 'danger'
 }
 
+/** Money owed is a warning, money late is a failure. */
+const PAYMENT_TONES: Record<string, Tone> = {
+  PENDING: 'warning',
+  PARTIALLY_PAID: 'progress',
+  PAID: 'success',
+  OVERDUE: 'danger',
+  CANCELLED: 'neutral'
+}
+
 const TONE_CLASS: Record<Tone, string> = {
   neutral: 'bg-secondary text-secondary-foreground',
   info: 'bg-sky-500/12 text-sky-700 dark:text-sky-300',
@@ -41,6 +50,7 @@ const TONE_CLASS: Record<Tone, string> = {
 
 const tone = computed<Tone>(() => {
   if (props.kind === 'risk') return RISK_TONES[props.status] ?? 'neutral'
+  if (props.kind === 'payment') return PAYMENT_TONES[props.status] ?? 'neutral'
   return PROJECT_TONES[props.status] ?? 'neutral'
 })
 
@@ -49,11 +59,11 @@ const tone = computed<Tone>(() => {
  * from, so the label comes from the merged map rather than from prettifying
  * the English identifier.
  */
-const label = computed(() =>
-  props.kind === 'risk'
-    ? enumLabel(RISK_LABEL, props.status)
-    : enumLabel(STATUS_LABEL, props.status)
-)
+const label = computed(() => {
+  if (props.kind === 'risk') return enumLabel(RISK_LABEL, props.status)
+  if (props.kind === 'payment') return enumLabel(PAYMENT_STATUS_LABEL, props.status)
+  return enumLabel(STATUS_LABEL, props.status)
+})
 </script>
 
 <template>
