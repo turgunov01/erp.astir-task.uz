@@ -1388,3 +1388,17 @@ model PipelineTemplate {
 
   @@map("pipeline_templates")
 }
+
+/// What a role may do, as edited from Settings.
+///
+/// One row per role that the studio has changed; a role without a row keeps
+/// the defaults compiled into @astir/types. The whole list is stored rather
+/// than a diff, so reading a role's rights is one lookup with no merging.
+model RolePermission {
+  role        Role     @id
+  permissions String[]
+
+  updatedAt DateTime @updatedAt
+
+  @@map("role_permissions")
+}

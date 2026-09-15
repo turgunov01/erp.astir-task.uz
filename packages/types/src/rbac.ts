@@ -73,29 +73,34 @@ export const PERMISSION = {
 
 export type Permission = (typeof PERMISSION)[keyof typeof PERMISSION]
 
-const ALL_PERMISSIONS = Object.values(PERMISSION) as Permission[]
+export const ALL_PERMISSIONS = Object.values(PERMISSION) as readonly Permission[]
 
 const P = PERMISSION
 
 /**
- * Role to permission mapping.
+ * Default role to permission mapping.
  *
- * OWNER holds every permission by construction, so adding a new permission
- * can never silently lock the owner out.
+ * These are the starting points: a studio can change any role except OWNER
+ * from Settings, and the API keeps the edited copy in the database. OWNER
+ * holds every permission by construction, so adding a new permission can
+ * never silently lock the owner out.
+ *
+ * `task:view` roles also get `task:view:own`: the task pages are guarded by
+ * the narrower one, and seeing everyone's tasks has to include your own.
  */
 export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
   [ROLE.OWNER]: ALL_PERMISSIONS,
 
-  [ROLE.ADMIN]: ALL_PERMISSIONS.filter(
-    p => p !== P.PERMISSION_MANAGE && p !== P.PROJECT_DELETE
-  ),
+  // The administrator manages access day to day; only project deletion stays
+  // with the owner.
+  [ROLE.ADMIN]: ALL_PERMISSIONS.filter(p => p !== P.PROJECT_DELETE),
 
   [ROLE.PRODUCER]: [
     P.DASHBOARD_VIEW,
     P.PROJECT_VIEW, P.PROJECT_CREATE, P.PROJECT_UPDATE, P.PROJECT_ARCHIVE,
     P.CLIENT_VIEW,
     P.PRODUCTION_VIEW, P.PRODUCTION_MANAGE, P.PIPELINE_MANAGE,
-    P.TASK_VIEW, P.TASK_CREATE, P.TASK_UPDATE, P.TASK_ASSIGN,
+    P.TASK_VIEW, P.TASK_VIEW_OWN, P.TASK_CREATE, P.TASK_UPDATE, P.TASK_ASSIGN,
     P.VERSION_VIEW,
     P.REVIEW_VIEW, P.REVIEW_INTERNAL,
     P.REVISION_VIEW, P.REVISION_MANAGE,
@@ -112,7 +117,7 @@ export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
     P.PROJECT_VIEW, P.PROJECT_UPDATE,
     P.CLIENT_VIEW,
     P.PRODUCTION_VIEW, P.PRODUCTION_MANAGE, P.PIPELINE_MANAGE,
-    P.TASK_VIEW, P.TASK_CREATE, P.TASK_UPDATE, P.TASK_ASSIGN,
+    P.TASK_VIEW, P.TASK_VIEW_OWN, P.TASK_CREATE, P.TASK_UPDATE, P.TASK_ASSIGN,
     P.VERSION_VIEW,
     P.REVIEW_VIEW, P.REVIEW_INTERNAL,
     P.REVISION_VIEW, P.REVISION_MANAGE,
@@ -127,7 +132,7 @@ export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
     P.DASHBOARD_VIEW,
     P.PROJECT_VIEW,
     P.PRODUCTION_VIEW,
-    P.TASK_VIEW,
+    P.TASK_VIEW, P.TASK_VIEW_OWN,
     P.VERSION_VIEW,
     P.REVIEW_VIEW, P.REVIEW_INTERNAL, P.REVIEW_APPROVE,
     P.REVISION_VIEW, P.REVISION_MANAGE,

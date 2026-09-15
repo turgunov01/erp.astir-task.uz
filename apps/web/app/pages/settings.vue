@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { apiErrorMessage, apiRequest, useListResource } from '~/composables/useApi'
-import { PERMISSION, ROLE_PERMISSIONS, type Permission } from '@astir/types'
+import { PERMISSION, ROLE, type Permission } from '@astir/types'
+import RoleMatrix from '~/components/settings/RoleMatrix.vue'
 import { useAuthStore } from '~/stores/auth'
 
 useHead({ title: 'Settings — Aster ERP' })
@@ -24,8 +25,11 @@ const TABS: SettingsTab[] = [
   { key: 'studio', label: 'Студия' },
   { key: 'mail', label: 'Почта' },
   { key: 'templates', label: 'Шаблоны пайплайна' },
-  { key: 'users', label: 'Пользователи и роли', permission: PERMISSION.USER_MANAGE }
+  { key: 'users', label: 'Пользователи', permission: PERMISSION.USER_MANAGE },
+  { key: 'roles', label: 'Роли и доступ', permission: PERMISSION.PERMISSION_MANAGE }
 ]
+
+const canEditRoles = computed(() => auth.can(PERMISSION.PERMISSION_MANAGE))
 
 const visibleTabs = computed(() => TABS.filter(entry => !entry.permission || auth.can(entry.permission)))
 const tab = computed({
@@ -253,14 +257,8 @@ async function updateAccount(row: Account, body: Record<string, unknown>) {
   }
 }
 
-const ROLES = Object.keys(ROLE_PERMISSIONS)
+const ROLES = Object.values(ROLE)
 const isSelf = (row: Account) => row.id === auth.user?.id
-
-/** Every permission any role has, so the matrix has stable columns. */
-const allPermissions = computed(() =>
-  [...new Set(Object.values(ROLE_PERMISSIONS).flat())].sort()
-)
-const showMatrix = ref(false)
 </script>
 
 <template>
@@ -609,34 +607,10 @@ const showMatrix = ref(false)
         </button>
       </div>
 
-      <section class="overflow-hidden rounded-xl border bg-card">
-        <button type="button" class="flex w-full items-center justify-between px-5 py-3 text-left text-sm font-medium" @click="showMatrix = !showMatrix">
-          Что может каждая роль
-          <Icon :name="showMatrix ? 'lucide:chevron-up' : 'lucide:chevron-down'" class="size-4 text-muted-foreground" />
-        </button>
+    </section>
 
-        <div v-if="showMatrix" class="overflow-x-auto border-t">
-          <table class="w-full text-xs">
-            <thead class="bg-muted/30 text-left text-muted-foreground">
-              <tr>
-                <th class="px-4 py-2 font-medium">Право</th>
-                <th v-for="role in ROLES" :key="role" class="px-3 py-2 text-center font-medium">
-                  {{ enumLabel(ROLE_LABEL, role) }}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="permission in allPermissions" :key="permission" class="border-t">
-                <td class="px-4 py-1.5 font-mono">{{ permission }}</td>
-                <td v-for="role in ROLES" :key="role" class="px-3 py-1.5 text-center">
-                  <span v-if="ROLE_PERMISSIONS[role as keyof typeof ROLE_PERMISSIONS].includes(permission as never)">✓</span>
-                  <span v-else class="text-muted-foreground/40">—</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+    <section v-else-if="tab === 'roles'">
+      <RoleMatrix :can-edit="canEditRoles" />
     </section>
 
     <ConfirmDialog

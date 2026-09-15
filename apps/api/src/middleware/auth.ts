@@ -1,7 +1,8 @@
 import type { NextFunction, Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
-import { roleHasPermission, type Permission } from '@astir/types'
+import type { Permission } from '@astir/types'
 import { prisma } from '../lib/prisma'
+import { hasPermission } from '../lib/rbac'
 import { forbidden, tokenExpired, unauthenticated } from '../lib/errors'
 import { ACCESS_COOKIE, verifyAccessToken } from '../modules/auth/tokens'
 
@@ -57,14 +58,24 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
   }
 }
 
-/** Guard a route behind one permission from the central RBAC map (spec 4, 99). */
+/**
+ * Guard a route behind one permission (spec 4, 99).
+ *
+ * The check goes through the effective matrix — the studio's edits from
+ * Settings over the compiled defaults — so a change there takes effect
+ * without a deploy.
+ */
 export function requirePermission(permission: Permission) {
-  return (req: Request, _res: Response, next: NextFunction) => {
-    if (!req.user) return next(unauthenticated())
-    if (!roleHasPermission(req.user.role, permission)) {
-      return next(forbidden('Missing permission: ' + permission))
+  return async (req: Request, _res: Response, next: NextFunction) => {
+    try {
+      if (!req.user) return next(unauthenticated())
+      if (!(await hasPermission(req.user.role, permission))) {
+        return next(forbidden('Missing permission: ' + permission))
+      }
+      next()
+    } catch (err) {
+      next(err)
     }
-    next()
   }
 }
 

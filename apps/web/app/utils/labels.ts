@@ -341,3 +341,97 @@ export function timeAgo(value: string | Date | null | undefined) {
   if (hours < 24) return hours + ' ч назад'
   return Math.round(hours / 24) + ' дн назад'
 }
+
+/**
+ * The permission catalogue as the role editor shows it: grouped by the section
+ * of the app it unlocks, in sidebar order, with the page-opening right first
+ * in each group so the "who sees this page" question reads off the top row.
+ */
+export interface PermissionGroup {
+  label: string
+  permissions: ReadonlyArray<{ key: string, label: string }>
+}
+
+export const PERMISSION_GROUPS: readonly PermissionGroup[] = [
+  { label: 'Панель управления', permissions: [
+    { key: 'dashboard:view', label: 'Открывать панель' }
+  ] },
+  { label: 'Проекты', permissions: [
+    { key: 'project:view', label: 'Видеть проекты' },
+    { key: 'project:create', label: 'Создавать' },
+    { key: 'project:update', label: 'Редактировать' },
+    { key: 'project:archive', label: 'Архивировать' },
+    { key: 'project:delete', label: 'Удалять' }
+  ] },
+  { label: 'Производство: эпизоды, сцены, шоты, календарь', permissions: [
+    { key: 'production:view', label: 'Видеть' },
+    { key: 'production:manage', label: 'Управлять' },
+    { key: 'pipeline:manage', label: 'Настраивать конвейер' }
+  ] },
+  { label: 'Задачи', permissions: [
+    { key: 'task:view:own', label: 'Видеть свои задачи (открывает раздел)' },
+    { key: 'task:view', label: 'Видеть все задачи' },
+    { key: 'task:create', label: 'Создавать' },
+    { key: 'task:update', label: 'Изменять' },
+    { key: 'task:assign', label: 'Назначать исполнителей' }
+  ] },
+  { label: 'Версии', permissions: [
+    { key: 'version:view', label: 'Видеть' },
+    { key: 'version:upload', label: 'Загружать' },
+    { key: 'version:delete:approved', label: 'Удалять утверждённые' }
+  ] },
+  { label: 'Согласование', permissions: [
+    { key: 'review:view', label: 'Видеть' },
+    { key: 'review:internal', label: 'Внутреннее ревью' },
+    { key: 'review:client', label: 'Клиентское ревью' },
+    { key: 'review:approve', label: 'Утверждать' }
+  ] },
+  { label: 'Правки', permissions: [
+    { key: 'revision:view', label: 'Видеть' },
+    { key: 'revision:manage', label: 'Управлять' }
+  ] },
+  { label: 'Библиотека ассетов', permissions: [
+    { key: 'asset:view', label: 'Видеть' },
+    { key: 'asset:manage', label: 'Управлять' }
+  ] },
+  { label: 'Очередь рендера', permissions: [
+    { key: 'render:view', label: 'Видеть' },
+    { key: 'render:manage', label: 'Управлять' }
+  ] },
+  { label: 'Команда', permissions: [
+    { key: 'team:view', label: 'Видеть сотрудников и отделы' },
+    { key: 'team:manage', label: 'Управлять сотрудниками' },
+    { key: 'workload:view', label: 'Видеть загрузку' }
+  ] },
+  { label: 'Учёт времени', permissions: [
+    { key: 'timesheet:view:own', label: 'Видеть свой табель (открывает раздел)' },
+    { key: 'timesheet:view:all', label: 'Видеть табели всех' },
+    { key: 'timesheet:submit', label: 'Заполнять табель' }
+  ] },
+  { label: 'Клиенты', permissions: [
+    { key: 'client:view', label: 'Видеть' },
+    { key: 'client:manage', label: 'Управлять' }
+  ] },
+  { label: 'Финансы', permissions: [
+    { key: 'finance:view', label: 'Видеть финансы' },
+    { key: 'finance:manage', label: 'Управлять' },
+    { key: 'budget:view', label: 'Видеть бюджеты' }
+  ] },
+  { label: 'Отчёты', permissions: [
+    { key: 'report:view', label: 'Видеть отчёты' }
+  ] },
+  { label: 'Документы', permissions: [
+    { key: 'document:view', label: 'Видеть' },
+    { key: 'document:manage', label: 'Управлять' }
+  ] },
+  { label: 'Лента событий и аудит', permissions: [
+    { key: 'activity:view', label: 'Видеть ленту' },
+    { key: 'audit:view', label: 'Видеть журнал аудита' }
+  ] },
+  { label: 'Настройки', permissions: [
+    { key: 'settings:view', label: 'Открывать настройки' },
+    { key: 'settings:manage', label: 'Менять настройки' },
+    { key: 'user:manage', label: 'Управлять пользователями' },
+    { key: 'permission:manage', label: 'Редактировать права ролей' }
+  ] }
+]

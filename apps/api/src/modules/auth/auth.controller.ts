@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express'
-import { permissionsForRole } from '@astir/types'
+import { effectivePermissions } from '../../lib/rbac'
 import { sendItem, sendNoContent } from '../../lib/http'
 import { unauthenticated } from '../../lib/errors'
 import * as authService from './auth.service'
@@ -31,7 +31,7 @@ export async function loginHandler(req: Request, res: Response, next: NextFuncti
     setSessionCookies(res, result)
     return sendItem(res, {
       user: result.user,
-      permissions: permissionsForRole(result.user.role),
+      permissions: await effectivePermissions(result.user.role),
       accessToken: result.accessToken
     })
   } catch (err) {
@@ -48,7 +48,7 @@ export async function refreshHandler(req: Request, res: Response, next: NextFunc
     setSessionCookies(res, result)
     return sendItem(res, {
       user: result.user,
-      permissions: permissionsForRole(result.user.role),
+      permissions: await effectivePermissions(result.user.role),
       accessToken: result.accessToken
     })
   } catch (err) {
@@ -67,11 +67,15 @@ export async function logoutHandler(req: Request, res: Response, next: NextFunct
   }
 }
 
-export function meHandler(req: Request, res: Response) {
-  return sendItem(res, {
-    user: req.user,
-    permissions: req.user ? permissionsForRole(req.user.role) : []
-  })
+export async function meHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    return sendItem(res, {
+      user: req.user,
+      permissions: req.user ? await effectivePermissions(req.user.role) : []
+    })
+  } catch (err) {
+    next(err)
+  }
 }
 
 /**
@@ -89,7 +93,7 @@ export async function verifyCodeHandler(req: Request, res: Response, next: NextF
     setSessionCookies(res, result)
     return sendItem(res, {
       user: result.user,
-      permissions: permissionsForRole(result.user.role),
+      permissions: await effectivePermissions(result.user.role),
       accessToken: result.accessToken
     })
   } catch (err) {

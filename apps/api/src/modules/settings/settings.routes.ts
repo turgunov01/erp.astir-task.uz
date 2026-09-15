@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import { idParamSchema } from '@astir/validation'
-import { PERMISSION } from '@astir/types'
+import { ALL_PERMISSIONS, PERMISSION, ROLE, ROLE_PERMISSIONS, type Permission, type Role } from '@astir/types'
 import { authenticate, requirePermission } from '../../middleware/auth'
 import { validate } from '../../middleware/validate'
 import { badRequest, notFound } from '../../lib/errors'
@@ -10,6 +10,12 @@ import { prisma } from '../../lib/prisma'
 import { recordAudit } from '../../lib/activity'
 import { sendMail } from '../../lib/mailer'
 import { publicStudioSettings, saveStudioSettings, studioSettings } from '../../lib/settings'
+import {
+  customisedRoles,
+  permissionMatrix,
+  resetRolePermissions,
+  saveRolePermissions
+} from '../../lib/rbac'
 
 export const settingsRouter = Router()
 
@@ -240,6 +246,101 @@ settingsRouter.delete(
       })
 
       return sendNoContent(res)
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+/* ------------------------------------------------------------ permissions */
+
+/** Every role but the owner, whose rights are not up for editing. */
+const EDITABLE_ROLES = Object.values(ROLE).filter(role => role !== ROLE.OWNER) as [Role, ...Role[]]
+
+const roleParamSchema = z.object({ role: z.enum(EDITABLE_ROLES) })
+
+const rolePermissionsSchema = z.object({
+  permissions: z.array(z.enum(ALL_PERMISSIONS as [Permission, ...Permission[]])).max(ALL_PERMISSIONS.length)
+})
+
+/**
+ * The rights a role must keep when the person editing it holds that role.
+ *
+ * Without this an administrator could untick their own access to settings,
+ * save, and have no way back in.
+ */
+const SELF_LOCKOUT_GUARD: readonly Permission[] = [
+  PERMISSION.SETTINGS_VIEW,
+  PERMISSION.PERMISSION_MANAGE
+]
+
+settingsRouter.get(
+  '/permissions',
+  requirePermission(PERMISSION.SETTINGS_VIEW),
+  async (_req, res, next) => {
+    try {
+      return sendItem(res, {
+        roles: await permissionMatrix(),
+        defaults: ROLE_PERMISSIONS,
+        customised: await customisedRoles(),
+        catalogue: ALL_PERMISSIONS
+      })
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+settingsRouter.put(
+  '/permissions/:role',
+  requirePermission(PERMISSION.PERMISSION_MANAGE),
+  validate(roleParamSchema, 'params'),
+  validate(rolePermissionsSchema),
+  async (req, res, next) => {
+    try {
+      const role = req.params.role as Role
+      const permissions = req.body.permissions as Permission[]
+
+      if (req.user?.role === role) {
+        const missing = SELF_LOCKOUT_GUARD.filter(p => !permissions.includes(p))
+        if (missing.length > 0) {
+          throw badRequest('Нельзя лишить собственную роль доступа к настройкам и управлению правами')
+        }
+      }
+
+      await saveRolePermissions(role, permissions)
+      await recordAudit({
+        actorId: req.user?.id,
+        action: 'settings.permissions_updated',
+        entityType: 'Role',
+        ipAddress: req.ip,
+        // Roles are enum members, not rows, so the name travels in metadata.
+        metadata: { role, permissions }
+      })
+
+      return sendItem(res, { role, permissions: (await permissionMatrix())[role] })
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+settingsRouter.delete(
+  '/permissions/:role',
+  requirePermission(PERMISSION.PERMISSION_MANAGE),
+  validate(roleParamSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const role = req.params.role as Role
+      await resetRolePermissions(role)
+      await recordAudit({
+        actorId: req.user?.id,
+        action: 'settings.permissions_reset',
+        entityType: 'Role',
+        ipAddress: req.ip,
+        metadata: { role }
+      })
+      return sendItem(res, { role, permissions: ROLE_PERMISSIONS[role] })
     } catch (err) {
       next(err)
     }
