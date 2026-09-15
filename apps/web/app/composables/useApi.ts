@@ -65,9 +65,20 @@ const ERROR_MESSAGE_RU: Record<string, string> = {
   INTERNAL_ERROR: 'Внутренняя ошибка сервера'
 }
 
+interface ApiErrorBody {
+  code?: string
+  message?: string
+  details?: Record<string, string[]>
+}
+
+/** The error envelope (spec 67) from a failed request, when the API sent one. */
+export function apiErrorBody(err: unknown): ApiErrorBody | undefined {
+  return (err as { data?: { error?: ApiErrorBody } })?.data?.error
+}
+
 export function apiErrorMessage(err: unknown, fallback = 'Что-то пошло не так'): string {
-  const body = (err as { data?: { error?: { code?: string, message?: string } } })?.data
-  const code = body?.error?.code
+  const body = apiErrorBody(err)
+  const code = body?.code
   if (code && ERROR_MESSAGE_RU[code]) return ERROR_MESSAGE_RU[code] as string
-  return body?.error?.message ?? fallback
+  return body?.message ?? fallback
 }

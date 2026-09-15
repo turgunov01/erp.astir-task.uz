@@ -133,19 +133,40 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function login(email: string, password: string) {
+  /** Post credentials and adopt the session the API answers with. */
+  async function establish(path: string, body: Record<string, string>) {
     pending.value = true
     try {
-      const response = await $fetch<{ data: SessionPayload }>('/api/auth/login', {
-        method: 'POST',
-        body: { email, password }
-      })
+      const response = await $fetch<{ data: SessionPayload }>(path, { method: 'POST', body })
       apply(response.data)
       initialized.value = true
       return response.data.user
     } finally {
       pending.value = false
     }
+  }
+
+  function login(email: string, password: string) {
+    return establish('/api/auth/login', { email, password })
+  }
+
+  /**
+   * Finish a login the API stopped for email verification.
+   *
+   * The password travels again on purpose: the API re-checks it, so a code
+   * on its own never opens an account.
+   */
+  function verifyCode(email: string, password: string, code: string) {
+    return establish('/api/auth/verify-code', { email, password, code })
+  }
+
+  /** Ask for another code; resolves to the seconds until the next one may be sent. */
+  async function resendCode(email: string): Promise<number> {
+    const response = await $fetch<{ data: { retryAfter: number } }>('/api/auth/resend-code', {
+      method: 'POST',
+      body: { email }
+    })
+    return response.data.retryAfter
   }
 
   async function logout() {
@@ -169,6 +190,8 @@ export const useAuthStore = defineStore('auth', () => {
     init,
     refresh,
     login,
+    verifyCode,
+    resendCode,
     logout
   }
 })

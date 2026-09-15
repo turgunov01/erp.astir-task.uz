@@ -1,7 +1,8 @@
 import { createHash, randomInt } from 'node:crypto'
 import { prisma } from './prisma'
 import { sendMail } from './mailer'
-import { badRequest, forbidden } from './errors'
+import { badRequest } from './errors'
+import { env } from '../config/env'
 
 /**
  * One-time codes emailed to prove an address.
@@ -73,15 +74,24 @@ export async function issueLoginCode(user: {
     })
   ])
 
+  /*
+   * The letter says where the code goes: it is asked for on the sign-in page
+   * right after the password, and only on the first login. Without that line
+   * the reader is left holding six digits and no idea what to do with them.
+   */
   const { delivered } = await sendMail({
     to: user.email,
-    subject: 'Код подтверждения входа — Aster ERP',
+    subject: 'Подтверждение почты — Aster ERP',
     text: [
       user.firstName + ', здравствуйте.',
       '',
-      'Код для подтверждения входа: ' + code,
+      'Ваш код для подтверждения почты: ' + code,
       '',
-      'Код действует ' + CODE_TTL_MINUTES + ' минут и вводится один раз.',
+      'Введите его на странице входа в Aster ERP сразу после пароля:',
+      new URL('/login', env.APP_URL).href,
+      '',
+      'Код нужен только при первом входе, действует ' + CODE_TTL_MINUTES +
+        ' минут и вводится один раз.',
       'Если вход выполняли не вы — сообщите администратору студии.'
     ].join('\n')
   })
@@ -108,9 +118,14 @@ export async function consumeLoginCode(userId: string, code: string): Promise<vo
     throw badRequest('Срок действия кода истёк, запросите новый')
   }
 
+  /*
+   * A burnt code is the same situation as an expired one — get a new one —
+   * and is reported the same way. FORBIDDEN would be rewritten by the web
+   * client into "insufficient permissions", which is not what happened.
+   */
   if (record.attempts >= MAX_ATTEMPTS) {
     await prisma.emailCode.delete({ where: { id: record.id } })
-    throw forbidden('Слишком много попыток, запросите новый код')
+    throw badRequest('Слишком много попыток, запросите новый код')
   }
 
   if (record.codeHash !== hash(code.trim())) {
