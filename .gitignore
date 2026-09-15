@@ -17,3 +17,9 @@ astir-erp-deploy.tar.gz
 
 # Локальный кластер PostgreSQL для разработки.
 .local/
+
+# Recorded demo videos: large binaries, produced on demand
+media/
+
+# Personal Claude Code overrides
+.claude/settings.local.json
