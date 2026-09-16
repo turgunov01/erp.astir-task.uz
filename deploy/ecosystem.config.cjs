@@ -9,6 +9,8 @@
  * deployment without being edited.
  */
 const APP_DIR = process.env.APP_DIR || '/var/www/erp.astir-task.uz'
+// Process names carry the site, so two deployments on one box stay apart.
+const SITE = process.env.SITE || 'erp-astir-task'
 const RELEASE = APP_DIR + '/current'
 const API_PORT = process.env.API_PORT || '4100'
 const WEB_PORT = process.env.WEB_PORT || '9991'
@@ -29,7 +31,7 @@ module.exports = {
   apps: [
     {
       ...common,
-      name: 'erp-astir-task-api',
+      name: SITE + '-api',
       cwd: RELEASE + '/apps/api',
       /*
        * Sources through tsx, not the tsc output.
@@ -50,7 +52,7 @@ module.exports = {
     },
     {
       ...common,
-      name: 'erp-astir-task-web',
+      name: SITE + '-web',
       cwd: RELEASE + '/apps/web',
       // Nuxt builds a self-contained Nitro server; node runs it directly.
       script: RELEASE + '/apps/web/.output/server/index.mjs',

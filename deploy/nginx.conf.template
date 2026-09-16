@@ -15,12 +15,12 @@
 # map to an empty Connection, which is also what the keepalive pool requires.
 # The name is prefixed because this box hosts other sites that may define their
 # own $connection_upgrade, and a duplicate map name fails `nginx -t` for all.
-map $http_upgrade $erp_connection_upgrade {
+map $http_upgrade $__SITE___connection_upgrade {
     default upgrade;
     ""      "";
 }
 
-upstream erp_astir_task_web {
+upstream __SITE___web {
     server 127.0.0.1:__WEB_PORT__;
     keepalive 32;
 }

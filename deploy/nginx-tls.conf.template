@@ -11,12 +11,12 @@
 # Placeholders __DOMAIN__ and __WEB_PORT__ are filled in by deploy.sh.
 
 # See nginx.conf.template for why this map exists.
-map $http_upgrade $erp_connection_upgrade {
+map $http_upgrade $__SITE___connection_upgrade {
     default upgrade;
     ""      "";
 }
 
-upstream erp_astir_task_web {
+upstream __SITE___web {
     server 127.0.0.1:__WEB_PORT__;
     keepalive 32;
 }
@@ -51,7 +51,7 @@ server {
     ssl_prefer_server_ciphers off;
     # The cache name is per-site: a shared zone name reused by another vhost on
     # this box would collide.
-    ssl_session_cache shared:erp_astir_task_ssl:10m;
+    ssl_session_cache shared:__SITE___ssl:10m;
     ssl_session_timeout 1d;
     ssl_session_tickets off;
 

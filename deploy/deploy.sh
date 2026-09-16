@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 #
-# Deploy Aster ERP to erp.astir-task.uz.
+# Deploy Aster ERP to a domain on this server.
+#
+# One script, any number of sites: everything a site owns — directory, database,
+# PM2 processes, nginx vhost and upstream — is named after its domain, so
+#
+#   DOMAIN=projects.turgunovsardor.uz API_PORT=4110 WEB_PORT=9992 bash deploy.sh
+#
+# stands up a second, independent copy next to the first.
 #
 # Runs on the server against an uploaded source tarball. Written to be
 # repeatable: running it twice must land in the same place, because the second
@@ -11,16 +18,25 @@
 # vhost and never restarts nginx, only reloads it after its own config passes.
 set -euo pipefail
 
-DOMAIN="erp.astir-task.uz"
+DOMAIN="${DOMAIN:-erp.astir-task.uz}"
 APP_DIR="/var/www/${DOMAIN}"
-TARBALL="/tmp/astir-erp.tar.gz"
+TARBALL="${TARBALL:-/tmp/astir-erp.tar.gz}"
+# The site's short name, for process and nginx object names: the domain minus
+# its TLD, with dashes (erp-astir-task) or underscores (erp_astir_task) where
+# the syntax wants them.
+SITE="$(printf '%s' "$DOMAIN" | sed -E 's/\.[a-z]+$//; s/[^a-z0-9]+/-/g')"
+SITE_U="${SITE//-/_}"
 # 9991, not 9990: this box is shared, and 9990 belongs to another project that
 # has held it for months. A default that cannot actually be used turns the first
 # redeploy anyone runs without the override into an abort.
 API_PORT="${API_PORT:-4100}"
 WEB_PORT="${WEB_PORT:-9991}"
-DB_NAME="astir_erp_prod"
-DB_USER="astir_erp"
+# The first site predates the naming rule and keeps the database it has.
+if [ "$DOMAIN" = "erp.astir-task.uz" ]; then
+  DB_NAME="${DB_NAME:-astir_erp_prod}"; DB_USER="${DB_USER:-astir_erp}"
+else
+  DB_NAME="${DB_NAME:-${SITE_U}}";     DB_USER="${DB_USER:-${SITE_U}}"
+fi
 
 say() { printf '\n\033[1;36m==> %s\033[0m\n' "$1"; }
 fail() { printf '\n\033[1;31mОШИБКА: %s\033[0m\n' "$1" >&2; exit 1; }
@@ -37,7 +53,7 @@ echo "node $(node -v), pnpm $(pnpm -v)"
 # A busy port would give a process that dies on boot with a confusing error, so
 # it is caught before anything is written. A port held by this deployment own
 # processes is fine — that is what a redeploy looks like.
-OWN_PIDS=" $(pm2 pid erp-astir-task-api 2>/dev/null || true) $(pm2 pid erp-astir-task-web 2>/dev/null || true) "
+OWN_PIDS=" $(pm2 pid "${SITE}-api" 2>/dev/null || true) $(pm2 pid "${SITE}-web" 2>/dev/null || true) "
 
 # The socket is not necessarily held by the pid PM2 reports. The API runs under
 # tsx, which spawns a child, and that child is what binds the port — so a
@@ -197,7 +213,7 @@ NUXT_API_ORIGIN="http://127.0.0.1:${API_PORT}" pnpm --filter @astir/web build
 say "Запуск под PM2"
 cp deploy/ecosystem.config.cjs "${APP_DIR}/ecosystem.config.cjs"
 cd "$APP_DIR"
-APP_DIR="$APP_DIR" API_PORT="$API_PORT" WEB_PORT="$WEB_PORT" \
+SITE="$SITE" APP_DIR="$APP_DIR" API_PORT="$API_PORT" WEB_PORT="$WEB_PORT" \
   pm2 startOrReload ecosystem.config.cjs --update-env
 pm2 save
 
@@ -208,7 +224,7 @@ VHOST="/etc/nginx/sites-available/${DOMAIN}.conf"
 SNIPPET="/etc/nginx/snippets/${DOMAIN}.proxy.conf"
 TEMPLATES="${APP_DIR}/current/deploy"
 
-render() { sed -e "s|__DOMAIN__|${DOMAIN}|g" -e "s|__WEB_PORT__|${WEB_PORT}|g" -e "s|__APP_DIR__|${APP_DIR}|g" "$1"; }
+render() { sed -e "s|__DOMAIN__|${DOMAIN}|g" -e "s|__WEB_PORT__|${WEB_PORT}|g" -e "s|__APP_DIR__|${APP_DIR}|g" -e "s|__SITE__|${SITE_U}|g" "$1"; }
 
 install -d /etc/nginx/snippets
 
@@ -257,7 +273,7 @@ systemctl reload nginx
 
 say "Готово"
 echo "Адрес:  ${SCHEME}://${DOMAIN}"
-echo "Логи:   pm2 logs erp-astir-task-api    pm2 logs erp-astir-task-web"
+echo "Логи:   pm2 logs ${SITE}-api    pm2 logs ${SITE}-web"
 if [ "$SCHEME" = "http" ]; then
   echo "HTTPS:  certbot --nginx -d ${DOMAIN}, затем повторите деплой —"
   echo "        схема и Secure-cookie переключатся сами"

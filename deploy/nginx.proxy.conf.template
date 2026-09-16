@@ -40,7 +40,7 @@ location /uploads/ {
 }
 
 location / {
-    proxy_pass http://erp_astir_task_web;
+    proxy_pass http://__SITE___web;
     proxy_http_version 1.1;
 
     proxy_set_header Host              $host;
@@ -56,7 +56,7 @@ location / {
     proxy_connect_timeout 5s;
 
     proxy_set_header Upgrade    $http_upgrade;
-    proxy_set_header Connection $erp_connection_upgrade;
+    proxy_set_header Connection $__SITE___connection_upgrade;
 }
 
 # Uploaded media can be large; the API enforces its own limit above this one.

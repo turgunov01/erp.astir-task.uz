@@ -22,8 +22,10 @@ APP_DIR="/var/www/${DOMAIN}"
 # project on this box. Probing it reports that stranger as healthy.
 API_PORT="${API_PORT:-4100}"
 WEB_PORT="${WEB_PORT:-9991}"
-API_PROC="erp-astir-task-api"
-WEB_PROC="erp-astir-task-web"
+# Same rule as deploy.sh: the domain minus its TLD, dashed.
+SITE="$(printf '%s' "$DOMAIN" | sed -E 's/\.[a-z]+$//; s/[^a-z0-9]+/-/g')"
+API_PROC="${SITE}-api"
+WEB_PROC="${SITE}-web"
 VHOST="/etc/nginx/sites-available/${DOMAIN}.conf"
 SNIPPET="/etc/nginx/snippets/${DOMAIN}.proxy.conf"
 TEMPLATES="${APP_DIR}/current/deploy"
