@@ -77,7 +77,7 @@ interface ReviewRow {
 const { items, meta, pending, errorMessage, refresh } =
   useListResource<ReviewRow>('/api/reviews', filters as never)
 
-const { data: countData, refresh: refreshCounts } = await useFetch<{
+const { data: countData, refresh: refreshCounts } = useFetch<{
   data: Array<{ status: string, count: number }>
 }>('/api/reviews/counts', { credentials: 'include', default: () => ({ data: [] }) })
 
@@ -86,7 +86,7 @@ const counts = computed(() => {
   return map
 })
 
-const { data: projectData } = await useFetch<{ data: Array<{ id: string, code: string }> }>(
+const { data: projectData } = useFetch<{ data: Array<{ id: string, code: string }> }>(
   '/api/projects',
   { query: { limit: 100 }, credentials: 'include', default: () => ({ data: [] }) }
 )

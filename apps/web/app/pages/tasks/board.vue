@@ -33,7 +33,7 @@ function onPointerUp(task: Task, event: PointerEvent) {
 
 const projectId = ref(String(route.query.projectId ?? ''))
 
-const { data: projectData } = await useFetch<{ data: Array<{ id: string, code: string, name: string }> }>(
+const { data: projectData } = useFetch<{ data: Array<{ id: string, code: string, name: string }> }>(
   '/api/projects',
   { query: { limit: 100 }, credentials: 'include', default: () => ({ data: [] }) }
 )

@@ -61,7 +61,7 @@ interface Settings {
   smtpPasswordSet: boolean
 }
 
-const { data: settingsData, refresh: refreshSettings } = await useFetch<{ data: Settings }>(
+const { data: settingsData, refresh: refreshSettings } = useFetch<{ data: Settings }>(
   '/api/settings',
   { credentials: 'include' }
 )
@@ -143,7 +143,7 @@ interface Template {
   isDefault: boolean
 }
 
-const { data: templateData, refresh: refreshTemplates } = await useFetch<{ data: Template[] }>(
+const { data: templateData, refresh: refreshTemplates } = useFetch<{ data: Template[] }>(
   '/api/settings/templates',
   { credentials: 'include', default: () => ({ data: [] }) }
 )

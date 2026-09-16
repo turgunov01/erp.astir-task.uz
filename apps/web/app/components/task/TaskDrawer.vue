@@ -42,12 +42,12 @@ const { data, pending, error, refresh } = await useFetch<{ data: TaskDetail }>(
 )
 const task = computed(() => data.value?.data)
 
-const { data: staff } = await useFetch<{
+const { data: staff } = useFetch<{
   data: Array<{ userId: string, user: { firstName: string, lastName: string } }>
 }>('/api/employees', { query: { limit: 100 }, credentials: 'include', default: () => ({ data: [] }) })
 
 const stageQuery = computed(() => ({ projectId: task.value?.projectId }))
-const { data: stageData } = await useFetch<{ data: Array<{ id: string, name: string }> }>(
+const { data: stageData } = useFetch<{ data: Array<{ id: string, name: string }> }>(
   '/api/stages',
   { query: stageQuery, credentials: 'include', default: () => ({ data: [] }), immediate: false }
 )

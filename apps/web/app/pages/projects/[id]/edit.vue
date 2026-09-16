@@ -43,11 +43,11 @@ if (!project.value) {
 
 useHead({ title: computed(() => 'Редактирование ' + (project.value?.code ?? '') + ' — Aster ERP') })
 
-const { data: clientsResponse } = await useFetch<{ data: Array<{ id: string, name: string }> }>(
+const { data: clientsResponse } = useFetch<{ data: Array<{ id: string, name: string }> }>(
   '/api/clients',
   { query: { limit: 100 }, credentials: 'include', default: () => ({ data: [] }) }
 )
-const { data: staffResponse } = await useFetch<{
+const { data: staffResponse } = useFetch<{
   data: Array<{ userId: string, user: { firstName: string, lastName: string, role: string } }>
 }>('/api/employees', { query: { limit: 100 }, credentials: 'include', default: () => ({ data: [] }) })
 

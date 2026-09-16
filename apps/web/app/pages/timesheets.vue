@@ -91,7 +91,7 @@ interface Summary {
   }>
 }
 
-const { data: summaryData, refresh: refreshSummary } = await useFetch<{ data: Summary }>(
+const { data: summaryData, refresh: refreshSummary } = useFetch<{ data: Summary }>(
   '/api/timesheets/summary',
   {
     query: computed(() => ({
@@ -107,7 +107,7 @@ const { data: summaryData, refresh: refreshSummary } = await useFetch<{ data: Su
 
 const summary = computed(() => summaryData.value?.data)
 
-const { data: projectData } = await useFetch<{
+const { data: projectData } = useFetch<{
   data: Array<{ id: string, code: string, name: string }>
 }>('/api/projects', {
   query: { limit: 100 }, credentials: 'include', default: () => ({ data: [] })
@@ -135,7 +135,7 @@ const draft = reactive({
   description: ''
 })
 
-const { data: taskData } = await useFetch<{
+const { data: taskData } = useFetch<{
   data: Array<{ id: string, title: string, projectId: string }>
 }>('/api/tasks', {
   query: { limit: 100 }, credentials: 'include', default: () => ({ data: [] })

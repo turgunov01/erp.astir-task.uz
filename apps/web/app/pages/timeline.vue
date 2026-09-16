@@ -7,7 +7,7 @@ const route = useRoute()
 const router = useRouter()
 const { openTask } = useTaskPanels()
 
-const { data: projectData } = await useFetch<{
+const { data: projectData } = useFetch<{
   data: Array<{ id: string, code: string, name: string }>
 }>('/api/projects', {
   query: { limit: 100 }, credentials: 'include', default: () => ({ data: [] })

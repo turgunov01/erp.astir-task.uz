@@ -67,11 +67,11 @@ function showDay(date: string) {
   })
 }
 
-const { data: projectData } = await useFetch<{ data: Array<{ id: string, code: string }> }>(
+const { data: projectData } = useFetch<{ data: Array<{ id: string, code: string }> }>(
   '/api/projects',
   { query: { limit: 100 }, credentials: 'include', default: () => ({ data: [] }) }
 )
-const { data: staffData } = await useFetch<{
+const { data: staffData } = useFetch<{
   data: Array<{ userId: string, user: { firstName: string, lastName: string } }>
 }>('/api/employees', { query: { limit: 100 }, credentials: 'include', default: () => ({ data: [] }) })
 

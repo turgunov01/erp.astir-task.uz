@@ -65,11 +65,11 @@ interface JobRow {
 const { items, meta, pending, errorMessage: loadError, refresh } =
   useListResource<JobRow>('/api/render', filters as never)
 
-const { data: countData, refresh: refreshCounts } = await useFetch<{
+const { data: countData, refresh: refreshCounts } = useFetch<{
   data: Array<{ status: string, count: number }>
 }>('/api/render/counts', { credentials: 'include', default: () => ({ data: [] }) })
 
-const { data: nodeData } = await useFetch<{
+const { data: nodeData } = useFetch<{
   data: Array<{ id: string, name: string, isOnline: boolean, _count: { jobs: number } }>
 }>('/api/render/nodes', { credentials: 'include', default: () => ({ data: [] }) })
 

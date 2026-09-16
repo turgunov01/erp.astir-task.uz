@@ -71,13 +71,13 @@ interface RevisionRow {
 const { items, meta, pending, errorMessage: loadError, refresh } =
   useListResource<RevisionRow>('/api/revisions', filters as never)
 
-const { data: countData, refresh: refreshCounts } = await useFetch<{
+const { data: countData, refresh: refreshCounts } = useFetch<{
   data: Array<{ status: string, count: number }>
 }>('/api/revisions/counts', { credentials: 'include', default: () => ({ data: [] }) })
 
 const counts = computed(() => new Map((countData.value?.data ?? []).map(r => [r.status, r.count])))
 
-const { data: projectData } = await useFetch<{ data: Array<{ id: string, code: string }> }>(
+const { data: projectData } = useFetch<{ data: Array<{ id: string, code: string }> }>(
   '/api/projects',
   { query: { limit: 100 }, credentials: 'include', default: () => ({ data: [] }) }
 )

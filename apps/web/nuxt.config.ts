@@ -47,6 +47,12 @@ export default defineNuxtConfig({
     '/uploads/**': { proxy: API_ORIGIN + '/uploads/**' }
   },
 
+  // Every hashed asset is written with .gz and .br siblings at build time, so
+  // nginx (gzip_static) hands out compressed files without touching Node.
+  nitro: {
+    compressPublicAssets: true
+  },
+
   runtimeConfig: {
     apiOrigin: API_ORIGIN,
     public: {

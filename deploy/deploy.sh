@@ -208,7 +208,7 @@ VHOST="/etc/nginx/sites-available/${DOMAIN}.conf"
 SNIPPET="/etc/nginx/snippets/${DOMAIN}.proxy.conf"
 TEMPLATES="${APP_DIR}/current/deploy"
 
-render() { sed -e "s|__DOMAIN__|${DOMAIN}|g" -e "s|__WEB_PORT__|${WEB_PORT}|g" "$1"; }
+render() { sed -e "s|__DOMAIN__|${DOMAIN}|g" -e "s|__WEB_PORT__|${WEB_PORT}|g" -e "s|__APP_DIR__|${APP_DIR}|g" "$1"; }
 
 install -d /etc/nginx/snippets
 

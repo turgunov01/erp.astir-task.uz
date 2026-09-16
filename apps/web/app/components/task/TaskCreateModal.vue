@@ -28,11 +28,11 @@ const form = reactive({
   estimatedHours: ''
 })
 
-const { data: projectData } = await useFetch<{ data: Array<{ id: string, code: string, name: string }> }>(
+const { data: projectData } = useFetch<{ data: Array<{ id: string, code: string, name: string }> }>(
   '/api/projects',
   { query: { limit: 100 }, credentials: 'include', default: () => ({ data: [] }) }
 )
-const { data: staffData } = await useFetch<{
+const { data: staffData } = useFetch<{
   data: Array<{ userId: string, user: { firstName: string, lastName: string, role: string } }>
 }>('/api/employees', { query: { limit: 100 }, credentials: 'include', default: () => ({ data: [] }) })
 
@@ -51,7 +51,7 @@ const reviewers = computed(() =>
  */
 const scopeQuery = computed(() => ({ projectId: form.projectId || undefined }))
 
-const { data: stageData, refresh: refreshStages } = await useFetch<{
+const { data: stageData, refresh: refreshStages } = useFetch<{
   data: Array<{ id: string, name: string, order: number }>
 }>('/api/stages', {
   query: scopeQuery,
@@ -60,7 +60,7 @@ const { data: stageData, refresh: refreshStages } = await useFetch<{
   immediate: Boolean(props.projectId)
 })
 
-const { data: shotData, refresh: refreshShots } = await useFetch<{
+const { data: shotData, refresh: refreshShots } = useFetch<{
   data: Array<{ id: string, code: string }>
 }>('/api/shots', {
   query: computed(() => ({ projectId: form.projectId || undefined, limit: 100 })),
