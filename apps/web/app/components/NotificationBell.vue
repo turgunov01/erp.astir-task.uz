@@ -13,9 +13,14 @@ interface Notification {
 
 const open = ref(false)
 
-const { data, refresh } = await useFetch<{ data: Notification[] }>('/api/notifications', {
+// Lazy on purpose: the bell is on every page, and the unread count is not
+// worth holding the whole server render for. It fills in right after
+// hydration; until then the bell simply shows no badge.
+const { data, refresh } = useFetch<{ data: Notification[] }>('/api/notifications', {
   query: { limit: 10 },
   credentials: 'include',
+  lazy: true,
+  server: false,
   default: () => ({ data: [] })
 })
 

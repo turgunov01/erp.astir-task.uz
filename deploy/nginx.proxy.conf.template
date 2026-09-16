@@ -24,7 +24,6 @@ gzip_types text/plain text/css text/javascript application/javascript applicatio
 location /_nuxt/ {
     alias __APP_DIR__/current/apps/web/.output/public/_nuxt/;
     gzip_static on;
-    expires 1y;
     add_header Cache-Control "public, max-age=31536000, immutable";
     access_log off;
     try_files $uri =404;
@@ -35,7 +34,6 @@ location /_nuxt/ {
 # for local development where there is no nginx.
 location /uploads/ {
     alias __APP_DIR__/storage/;
-    expires 1h;
     add_header Cache-Control "public, max-age=3600";
     access_log off;
     try_files $uri =404;
