@@ -7,7 +7,7 @@ import { useAuthStore } from '~/stores/auth'
 import { useEntityCrud } from '~/composables/useEntityCrud'
 import { RENDER_FORM } from '~/utils/entity-forms'
 
-useHead({ title: 'Очередь рендера — Aster ERP' })
+useHead({ title: 'Очередь рендера' })
 
 const route = useRoute()
 const router = useRouter()

@@ -6,7 +6,7 @@ import { EMPLOYEE_FORM } from '~/utils/entity-forms'
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Employees — Aster ERP' })
+useHead({ title: 'Employees' })
 
 const page = ref(1)
 const search = ref('')

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useTaskPanels } from '~/composables/useTaskPanels'
 
-useHead({ title: 'Загрузка команды — Aster ERP' })
+useHead({ title: 'Загрузка команды' })
 
 const { openTask } = useTaskPanels()
 

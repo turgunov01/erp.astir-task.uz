@@ -7,10 +7,11 @@ import { Label } from '~/components/ui/label'
 import { apiErrorBody, apiErrorMessage } from '~/composables/useApi'
 
 definePageMeta({ layout: false })
-useHead({ title: 'Sign in — Aster ERP' })
+useHead({ title: 'Sign in' })
 
 const auth = useAuthStore()
 const route = useRoute()
+const brand = useBrand()
 
 const email = ref('')
 const password = ref('')
@@ -102,7 +103,7 @@ function back() {
       <div class="w-full max-w-sm">
         <div class="mb-10">
           <p class="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-            Aster Animation Studio
+            {{ brand.name }}
           </p>
           <template v-if="step === 'code'">
             <h1 class="mt-2 text-3xl font-semibold tracking-tight">

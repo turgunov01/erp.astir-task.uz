@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { printReport, reportCsvHref, useReportPeriod } from '~/composables/useReport'
 
-useHead({ title: 'Financial report — Aster ERP' })
+useHead({ title: 'Financial report' })
 
 const { from, to, params, reset, isFiltered } = useReportPeriod()
 

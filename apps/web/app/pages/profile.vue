@@ -2,7 +2,7 @@
 import { apiErrorMessage, apiRequest } from '~/composables/useApi'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Profile — Aster ERP' })
+useHead({ title: 'Profile' })
 
 const auth = useAuthStore()
 

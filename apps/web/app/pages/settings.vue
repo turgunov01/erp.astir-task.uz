@@ -4,12 +4,13 @@ import { PERMISSION, ROLE, type Permission } from '@astir/types'
 import RoleMatrix from '~/components/settings/RoleMatrix.vue'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Settings — Aster ERP' })
+useHead({ title: 'Settings' })
 
 const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 
+const brand = useBrand()
 const canManage = computed(() => auth.can(PERMISSION.SETTINGS_MANAGE))
 const canManageUsers = computed(() => auth.can(PERMISSION.USER_MANAGE))
 
@@ -46,6 +47,7 @@ const tabStrip = useTabStrip(tab)
 interface Settings {
   name: string
   legalName: string | null
+  logoUrl: string | null
   email: string | null
   phone: string | null
   website: string | null
@@ -92,7 +94,9 @@ async function save(fields: string[]) {
       body.smtpPassword = smtpPassword.value
     }
 
-    await apiRequest('/api/settings', { method: 'PATCH', body })
+    const response = await apiRequest<{ data: Settings }>('/api/settings', { method: 'PATCH', body })
+    // The sidebar and tab titles read the name from here; keep them current.
+    brand.value = { name: response.data.name, logoUrl: response.data.logoUrl ?? null }
     smtpPassword.value = ''
     saved.value = true
     await refreshSettings()

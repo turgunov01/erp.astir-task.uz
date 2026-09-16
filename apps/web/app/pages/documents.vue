@@ -8,7 +8,7 @@ import { DOCUMENT_FORM } from '~/utils/entity-forms'
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Документы — Aster ERP' })
+useHead({ title: 'Документы' })
 
 const route = useRoute()
 const { openTask } = useTaskPanels()

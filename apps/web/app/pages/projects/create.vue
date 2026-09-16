@@ -7,7 +7,7 @@ import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 
-useHead({ title: 'Новый проект — Aster ERP' })
+useHead({ title: 'Новый проект' })
 
 const auth = useAuthStore()
 if (!auth.can(PERMISSION.PROJECT_CREATE)) {

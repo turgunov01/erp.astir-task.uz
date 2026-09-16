@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Dashboard — Aster ERP' })
+useHead({ title: 'Dashboard' })
 
 const auth = useAuthStore()
 

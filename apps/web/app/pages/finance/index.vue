@@ -1,5 +1,5 @@
 <script setup lang="ts">
-useHead({ title: 'Финансы — Aster ERP' })
+useHead({ title: 'Финансы' })
 
 interface ProjectRow {
   id: string

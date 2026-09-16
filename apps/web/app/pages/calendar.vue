@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useTaskPanels } from '~/composables/useTaskPanels'
 
-useHead({ title: 'Календарь — Aster ERP' })
+useHead({ title: 'Календарь' })
 
 const { openTask } = useTaskPanels()
 

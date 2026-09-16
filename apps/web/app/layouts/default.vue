@@ -14,6 +14,9 @@ import {
 
 const auth = useAuthStore()
 const navigation = useVisibleNavigation()
+const brand = useBrand()
+/** One letter for the tile: the logo when there is one, the initial otherwise. */
+const brandInitial = computed(() => brand.value.name.trim().charAt(0).toUpperCase() || 'E')
 const route = useRoute()
 
 const collapsed = ref(false)
@@ -104,12 +107,13 @@ watch(() => route.path, () => { moreOpen.value = false })
       :class="collapsed ? 'w-16' : 'w-64'"
     >
       <div class="flex h-14 items-center gap-2.5 px-4">
-        <div class="grid size-8 shrink-0 place-items-center rounded-md bg-primary text-primary-foreground">
-          <span class="text-sm font-semibold">A</span>
+        <div class="grid size-8 shrink-0 place-items-center overflow-hidden rounded-md bg-primary text-primary-foreground">
+          <img v-if="brand.logoUrl" :src="brand.logoUrl" :alt="brand.name" class="size-full object-cover">
+          <span v-else class="text-sm font-semibold">{{ brandInitial }}</span>
         </div>
         <div v-if="!collapsed" class="min-w-0">
-          <p class="truncate text-sm font-semibold leading-tight">Aster ERP</p>
-          <p class="truncate text-xs text-muted-foreground">Анимационная студия</p>
+          <p class="truncate text-sm font-semibold leading-tight">{{ brand.name }}</p>
+          <p class="truncate text-xs text-muted-foreground">Управление производством</p>
         </div>
       </div>
 
@@ -181,10 +185,11 @@ watch(() => route.path, () => { moreOpen.value = false })
           the space goes to saying which application this is.
         -->
         <div class="flex items-center gap-2 lg:hidden">
-          <span class="grid size-7 place-items-center rounded-md bg-primary text-xs font-semibold text-primary-foreground">
-            A
+          <span class="grid size-7 place-items-center overflow-hidden rounded-md bg-primary text-xs font-semibold text-primary-foreground">
+            <img v-if="brand.logoUrl" :src="brand.logoUrl" :alt="brand.name" class="size-full object-cover">
+            <template v-else>{{ brandInitial }}</template>
           </span>
-          <span class="text-sm font-semibold">Aster ERP</span>
+          <span class="text-sm font-semibold">{{ brand.name }}</span>
         </div>
 
         <div class="relative hidden max-w-md flex-1 sm:block">

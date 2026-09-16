@@ -5,7 +5,7 @@ import { useAuthStore } from '~/stores/auth'
 import { useEntityCrud } from '~/composables/useEntityCrud'
 import { PERMISSION, PROJECT_STATUS } from '@astir/types'
 
-useHead({ title: 'Projects — Aster ERP' })
+useHead({ title: 'Projects' })
 
 const auth = useAuthStore()
 const route = useRoute()

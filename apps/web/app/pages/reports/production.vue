@@ -2,7 +2,7 @@
 import { useFilterOptions } from '~/composables/useFilterOptions'
 import { printReport, reportCsvHref } from '~/composables/useReport'
 
-useHead({ title: 'Production report — Aster ERP' })
+useHead({ title: 'Production report' })
 
 const route = useRoute()
 const router = useRouter()

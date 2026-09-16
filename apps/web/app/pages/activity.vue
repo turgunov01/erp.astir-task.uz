@@ -2,7 +2,7 @@
 import { useListResource } from '~/composables/useApi'
 import { useFilterOptions } from '~/composables/useFilterOptions'
 
-useHead({ title: 'Activity — Aster ERP' })
+useHead({ title: 'Activity' })
 
 const route = useRoute()
 const router = useRouter()

@@ -40,7 +40,7 @@ if (!pending.value && !project.value) {
   throw createError({ statusCode: 404, statusMessage: 'Проект не найден' })
 }
 
-useHead({ title: computed(() => (project.value?.code ?? 'Проект') + ' — Aster ERP') })
+useHead({ title: computed(() => (project.value?.code ?? 'Проект') + '') })
 
 /**
  * Tabs live in a query param rather than nested routes: the panels are part of

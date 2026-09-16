@@ -2,7 +2,7 @@
 import { PRIORITY } from '@astir/types'
 import { useTaskPanels } from '~/composables/useTaskPanels'
 
-useHead({ title: 'Calendar — Aster ERP' })
+useHead({ title: 'Calendar' })
 
 const route = useRoute()
 const router = useRouter()

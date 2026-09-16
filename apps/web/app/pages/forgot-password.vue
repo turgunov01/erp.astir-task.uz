@@ -4,7 +4,7 @@ import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 
 definePageMeta({ layout: false })
-useHead({ title: 'Reset password — Aster ERP' })
+useHead({ title: 'Reset password' })
 
 const email = ref('')
 const submitted = ref(false)

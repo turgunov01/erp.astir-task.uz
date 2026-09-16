@@ -4,7 +4,7 @@ import { apiErrorMessage, apiRequest } from '~/composables/useApi'
 import { useAuthStore } from '~/stores/auth'
 import { useTaskPanels } from '~/composables/useTaskPanels'
 
-useHead({ title: 'Board — Aster ERP' })
+useHead({ title: 'Board' })
 
 const route = useRoute()
 const router = useRouter()

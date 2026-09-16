@@ -7,7 +7,7 @@ import { EXPENSE_FORM } from '~/utils/entity-forms'
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Expenses — Aster ERP' })
+useHead({ title: 'Expenses' })
 
 const route = useRoute()
 const page = ref(Number(route.query.page ?? 1))

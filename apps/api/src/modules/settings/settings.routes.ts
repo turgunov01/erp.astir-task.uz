@@ -29,6 +29,19 @@ import {
 
 export const settingsRouter = Router()
 
+/**
+ * What the sign-in page may know before anyone is signed in: the name and
+ * the logo. Nothing else from the settings row leaves without a session.
+ */
+settingsRouter.get('/brand', async (_req, res, next) => {
+  try {
+    const settings = await studioSettings()
+    return sendItem(res, { name: settings.name, logoUrl: settings.logoUrl })
+  } catch (err) {
+    next(err)
+  }
+})
+
 settingsRouter.use(authenticate)
 
 const optionalText = (max: number) => z.string().trim().max(max).optional().nullable()
@@ -116,10 +129,11 @@ settingsRouter.post(
       const to = req.user?.email
       if (!to) throw badRequest('Current account has no email address')
 
+      const settings = await studioSettings()
       const result = await sendMail({
         to,
-        subject: 'Aster ERP — проверка почты',
-        text: 'Если вы читаете это письмо, отправка почты из Aster ERP настроена верно.'
+        subject: settings.name + ' — проверка почты',
+        text: 'Если вы читаете это письмо, отправка почты из ' + settings.name + ' настроена верно.'
       })
 
       await recordAudit({

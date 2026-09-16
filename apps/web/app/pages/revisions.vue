@@ -7,7 +7,7 @@ import { useAuthStore } from '~/stores/auth'
 import { useEntityCrud } from '~/composables/useEntityCrud'
 import { REVISION_FORM } from '~/utils/entity-forms'
 
-useHead({ title: 'Правки — Aster ERP' })
+useHead({ title: 'Правки' })
 
 const route = useRoute()
 const router = useRouter()

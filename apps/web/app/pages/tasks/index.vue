@@ -6,7 +6,7 @@ import { useAuthStore } from '~/stores/auth'
 import { useTaskPanels } from '~/composables/useTaskPanels'
 import { useEntityCrud } from '~/composables/useEntityCrud'
 
-useHead({ title: 'Tasks — Aster ERP' })
+useHead({ title: 'Tasks' })
 
 const route = useRoute()
 const router = useRouter()

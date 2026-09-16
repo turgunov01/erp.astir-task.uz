@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useTaskPanels } from '~/composables/useTaskPanels'
 
-useHead({ title: 'Таймлайн — Aster ERP' })
+useHead({ title: 'Таймлайн' })
 
 const route = useRoute()
 const router = useRouter()

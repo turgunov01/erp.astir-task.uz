@@ -6,7 +6,7 @@ const props = defineProps<{ error: NuxtError }>()
 
 const isNotFound = computed(() => props.error?.statusCode === 404)
 
-useHead({ title: computed(() => (isNotFound.value ? 'Page not found' : 'Error') + ' — Aster ERP') })
+useHead({ title: computed(() => (isNotFound.value ? 'Page not found' : 'Error') + '') })
 </script>
 
 <template>

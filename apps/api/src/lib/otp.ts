@@ -3,6 +3,7 @@ import { prisma } from './prisma'
 import { sendMail } from './mailer'
 import { badRequest } from './errors'
 import { env } from '../config/env'
+import { studioSettings } from './settings'
 
 /**
  * One-time codes emailed to prove an address.
@@ -79,15 +80,16 @@ export async function issueLoginCode(user: {
    * right after the password, and only on the first login. Without that line
    * the reader is left holding six digits and no idea what to do with them.
    */
+  const { name: studio } = await studioSettings()
   const { delivered } = await sendMail({
     to: user.email,
-    subject: 'Подтверждение почты — Aster ERP',
+    subject: 'Подтверждение почты — ' + studio,
     text: [
       user.firstName + ', здравствуйте.',
       '',
       'Ваш код для подтверждения почты: ' + code,
       '',
-      'Введите его на странице входа в Aster ERP сразу после пароля:',
+      'Введите его на странице входа в ' + studio + ' сразу после пароля:',
       new URL('/login', env.APP_URL).href,
       '',
       'Код нужен только при первом входе, действует ' + CODE_TTL_MINUTES +

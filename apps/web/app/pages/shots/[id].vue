@@ -49,7 +49,7 @@ if (!pending.value && !shot.value) {
   throw createError({ statusCode: 404, statusMessage: 'Шот не найден' })
 }
 
-useHead({ title: computed(() => (shot.value?.code ?? 'Шот') + ' — Aster ERP') })
+useHead({ title: computed(() => (shot.value?.code ?? 'Шот') + '') })
 
 // An artist owns their shot stages, unlike the project-level pipeline.
 const canEditStages = computed(() => auth.can(PERMISSION.TASK_UPDATE))

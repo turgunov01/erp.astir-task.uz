@@ -6,7 +6,7 @@ import { useEntityCrud } from '~/composables/useEntityCrud'
 import { SHOT_FORM } from '~/utils/entity-forms'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Shots — Aster ERP' })
+useHead({ title: 'Shots' })
 
 const route = useRoute()
 const router = useRouter()

@@ -7,7 +7,7 @@ import { REVIEW_FORM } from '~/utils/entity-forms'
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Согласование — Aster ERP' })
+useHead({ title: 'Согласование' })
 
 const route = useRoute()
 const router = useRouter()

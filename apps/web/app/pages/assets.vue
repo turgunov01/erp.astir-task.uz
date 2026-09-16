@@ -7,7 +7,7 @@ import { useEntityCrud } from '~/composables/useEntityCrud'
 import { ASSET_FORM } from '~/utils/entity-forms'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Библиотека ассетов — Aster ERP' })
+useHead({ title: 'Библиотека ассетов' })
 
 const route = useRoute()
 const { openEntity } = useTaskPanels()

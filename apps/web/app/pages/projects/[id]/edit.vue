@@ -41,7 +41,7 @@ if (!project.value) {
   throw createError({ statusCode: 404, statusMessage: 'Проект не найден' })
 }
 
-useHead({ title: computed(() => 'Редактирование ' + (project.value?.code ?? '') + ' — Aster ERP') })
+useHead({ title: computed(() => 'Редактирование ' + (project.value?.code ?? '') + '') })
 
 const { data: clientsResponse } = useFetch<{ data: Array<{ id: string, name: string }> }>(
   '/api/clients',

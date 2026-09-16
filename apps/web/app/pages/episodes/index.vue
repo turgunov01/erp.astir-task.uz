@@ -6,7 +6,7 @@ import { useEntityCrud } from '~/composables/useEntityCrud'
 import { EPISODE_FORM } from '~/utils/entity-forms'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Episodes — Aster ERP' })
+useHead({ title: 'Episodes' })
 
 const route = useRoute()
 const page = ref(Number(route.query.page ?? 1))

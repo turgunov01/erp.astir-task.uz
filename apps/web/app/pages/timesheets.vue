@@ -5,7 +5,7 @@ import { useTaskPanels } from '~/composables/useTaskPanels'
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Учёт времени — Aster ERP' })
+useHead({ title: 'Учёт времени' })
 
 const route = useRoute()
 const router = useRouter()

@@ -6,7 +6,7 @@ import { BUDGET_FORM } from '~/utils/entity-forms'
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Budgets — Aster ERP' })
+useHead({ title: 'Budgets' })
 
 const auth = useAuthStore()
 const canManage = computed(() => auth.can(PERMISSION.FINANCE_MANAGE))
