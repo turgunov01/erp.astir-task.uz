@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { PERMISSION, DOCUMENT_TYPE } from '@astir/types'
+import { PERMISSION, DOCUMENT_TYPE, UPLOAD_KIND } from '@astir/types'
 import { apiErrorMessage } from '~/composables/useApi'
+import { isUploadCancelled, useChunkedUpload } from '~/composables/useChunkedUpload'
 import { useAuthStore } from '~/stores/auth'
 import { Button } from '~/components/ui/button'
 
@@ -59,25 +60,44 @@ function formatSize(bytes: string | null) {
   return (value / (1024 * 1024)).toFixed(1) + ' MB'
 }
 
-/** Uploads go through FormData, so no JSON body and no manual content-type. */
+const {
+  progress: uploadProgress,
+  fileName: uploadingName,
+  upload,
+  cancel: cancelUpload
+} = useChunkedUpload()
+/** Position in a multi-file batch, for "2 of 5". */
+const batch = ref({ current: 0, total: 0 })
+
+/**
+ * Files go up one at a time in chunks, so a large video survives a flaky
+ * connection and the bar can show real progress. A failure or a cancel stops
+ * the batch; whatever finished before it stays uploaded.
+ */
 async function uploadFiles(list: FileList | null) {
-  if (!list || list.length === 0) return
+  // One batch at a time: a second drop would share the uploader in flight.
+  if (!list || list.length === 0 || uploading.value) return
+  const chosen = Array.from(list)
   errorMessage.value = ''
   uploading.value = true
+  let uploaded = 0
   try {
-    for (const file of Array.from(list)) {
-      const body = new FormData()
-      body.append('file', file)
-      body.append('projectId', props.projectId)
-      body.append('type', docType.value)
-      await $fetch('/api/files', { method: 'POST', body, credentials: 'include' })
+    for (const [position, file] of chosen.entries()) {
+      batch.value = { current: position + 1, total: chosen.length }
+      await upload(file, {
+        kind: UPLOAD_KIND.DOCUMENT,
+        fields: { projectId: props.projectId, type: docType.value }
+      })
+      uploaded += 1
     }
-    await refresh()
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось загрузить файл')
+    if (!isUploadCancelled(err)) {
+      errorMessage.value = apiErrorMessage(err, 'Не удалось загрузить файл')
+    }
   } finally {
     uploading.value = false
     if (fileInput.value) fileInput.value.value = ''
+    if (uploaded > 0) await refresh()
   }
 }
 
@@ -138,8 +158,28 @@ function onDrop(event: DragEvent) {
           {{ uploading ? 'Загрузка...' : 'Перетащите файлы сюда' }}
         </p>
         <p class="mt-1 text-xs text-muted-foreground">
-          Изображения, видео, аудио, PDF и документы. До 200 МБ.
+          Изображения, видео, аудио, PDF и документы. До 1 ГБ.
         </p>
+        <div
+          v-if="uploading"
+          class="mt-4 w-full max-w-sm text-left"
+          aria-live="polite"
+        >
+          <p class="flex items-baseline justify-between gap-3 text-xs">
+            <span class="min-w-0 truncate font-medium">{{ uploadingName }}</span>
+            <span v-if="batch.total > 1" class="shrink-0 text-muted-foreground">
+              {{ batch.current }} из {{ batch.total }}
+            </span>
+          </p>
+          <ProgressBar :value="uploadProgress" fluid class="mt-1.5" />
+          <button
+            type="button"
+            class="mt-2 rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-secondary hover:text-destructive"
+            @click="cancelUpload()"
+          >
+            Отменить загрузку
+          </button>
+        </div>
         <input
           ref="fileInput"
           type="file"

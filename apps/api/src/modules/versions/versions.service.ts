@@ -5,6 +5,7 @@ import { buildMeta, toSkipTake } from '../../lib/http'
 import { recordActivity } from '../../lib/activity'
 import { notify } from '../../lib/notify'
 import { storage } from '../../lib/storage'
+import type { IncomingFile } from '../files/files.service'
 
 const INCLUDE = {
   project: { select: { id: true, code: true, name: true } },
@@ -119,10 +120,17 @@ export interface CreateVersionInput {
   assetId?: string | null
   notes?: string | null
   label?: string
-  file?: { buffer: Buffer, originalname: string, mimetype: string }
+  /** Multipart buffer or assembled chunked upload, streamed either way. */
+  file?: IncomingFile
 }
 
-export async function create(input: CreateVersionInput, actorId?: string) {
+/**
+ * Check the version's targets exist before any blob is written.
+ *
+ * Exported so a chunked upload can fail at its first request rather than
+ * after a gigabyte has crossed the wire.
+ */
+export async function assertVersionTarget(input: { projectId: string, shotId?: string | null }) {
   const project = await prisma.project.findFirst({
     where: { id: input.projectId, deletedAt: null },
     select: { id: true, code: true }
@@ -134,6 +142,12 @@ export async function create(input: CreateVersionInput, actorId?: string) {
     : null
   if (input.shotId && !shot) throw notFound('Shot')
 
+  return { project, shot }
+}
+
+export async function create(input: CreateVersionInput, actorId?: string) {
+  const { project, shot } = await assertVersionTarget(input)
+
   const versionNumber = await nextNumber(input)
   const base = shot?.code ?? project.code
   const suffix = input.label?.trim() || 'work'
@@ -142,12 +156,13 @@ export async function create(input: CreateVersionInput, actorId?: string) {
   let stored = null
   if (input.file) {
     stored = await storage.save({
-      buffer: input.file.buffer,
-      originalName: input.file.originalname,
-      mimeType: input.file.mimetype,
+      stream: input.file.stream,
+      originalName: input.file.originalName,
+      mimeType: input.file.mimeType,
       prefix: 'versions/' + input.projectId
     })
   }
+  const storedKey = stored?.key
 
   const version = await prisma.version.create({
     data: {
@@ -166,6 +181,10 @@ export async function create(input: CreateVersionInput, actorId?: string) {
       mimeType: stored ? stored.mimeType : null
     },
     include: INCLUDE
+  }).catch(async (err: unknown) => {
+    // A blob no row points at is unreachable; drop it with the failed write.
+    if (storedKey) await storage.remove(storedKey)
+    throw err
   })
 
   await recordActivity({

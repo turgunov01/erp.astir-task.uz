@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { UPLOAD_KIND, UPLOAD_LIMITS } from '@astir/types'
 import { apiErrorMessage, apiRequest } from '~/composables/useApi'
+import { isUploadCancelled, useChunkedUpload } from '~/composables/useChunkedUpload'
 
 const props = defineProps<{
   config: EntityFormConfig
@@ -88,7 +90,13 @@ const pendingFiles = reactive<Record<string, File[]>>({})
 
 function addFiles(field: FormField, list: FileList | null) {
   if (!list || list.length === 0) return
-  pendingFiles[field.key] = [...(pendingFiles[field.key] ?? []), ...Array.from(list)]
+  const chosen = Array.from(list)
+  const tooBig = oversized(chosen)
+  errorMessage.value = tooBig.length > 0
+    ? 'Больше 1 ГБ, не добавлены: ' + tooBig.map(file => file.name).join(', ')
+    : ''
+  const accepted = chosen.filter(file => !tooBig.includes(file))
+  pendingFiles[field.key] = [...(pendingFiles[field.key] ?? []), ...accepted]
 }
 
 function dropFile(field: FormField, index: number) {
@@ -109,30 +117,46 @@ function humanSize(bytes: number) {
   return (bytes / (1024 * 1024)).toFixed(1) + ' МБ'
 }
 
+const {
+  progress: uploadProgress,
+  fileName: uploadingName,
+  uploading,
+  upload,
+  cancel: cancelUpload
+} = useChunkedUpload()
+
 /**
  * Upload whatever was chosen, once the record has an id.
  *
  * A failed upload is reported but does not undo the record: losing a filled-in
  * form because one attachment failed is worse than an attachment missing.
+ * Cancelling stops the remaining files too.
  */
 async function uploadPending(recordId: string) {
   const failed: string[] = []
+  let cancelled = false
   for (const field of fields.value) {
     if (field.type !== 'files' || !field.attachTo) continue
     for (const file of pendingFiles[field.key] ?? []) {
+      if (cancelled) break
       try {
-        const body = new FormData()
-        body.append('file', file)
-        body.append(field.attachTo, recordId)
-        body.append('name', file.name)
-        await $fetch('/api/files', { method: 'POST', body, credentials: 'include' })
-      } catch {
-        failed.push(file.name)
+        await upload(file, {
+          kind: UPLOAD_KIND.DOCUMENT,
+          fields: { [field.attachTo]: recordId, name: file.name }
+        })
+      } catch (err) {
+        if (isUploadCancelled(err)) cancelled = true
+        else failed.push(file.name + ' (' + apiErrorMessage(err, 'ошибка') + ')')
       }
     }
     pendingFiles[field.key] = []
   }
-  return failed
+  return { failed, cancelled }
+}
+
+/** Files over the limit are refused when chosen, not after the record is saved. */
+function oversized(list: File[]) {
+  return list.filter(file => file.size > UPLOAD_LIMITS.MAX_FILE_BYTES)
 }
 
 const missing = computed(() =>
@@ -162,9 +186,11 @@ async function submit() {
       )
 
     const recordId = row?.data?.id ?? (props.record?.id as string | undefined)
-    const failed = recordId ? await uploadPending(recordId) : []
-    if (failed.length > 0) {
-      errorMessage.value = 'Запись сохранена, но не загрузились файлы: ' + failed.join(', ')
+    const result = recordId ? await uploadPending(recordId) : { failed: [], cancelled: false }
+    if (result.cancelled || result.failed.length > 0) {
+      errorMessage.value = result.cancelled
+        ? 'Запись сохранена, загрузка файлов отменена'
+        : 'Запись сохранена, но не загрузились файлы: ' + result.failed.join(', ')
       emit('saved', row)
       return
     }
@@ -256,7 +282,7 @@ onMounted(() => {
                   class="flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed px-3 py-4 text-sm text-muted-foreground hover:border-ring hover:text-foreground"
                 >
                   <Icon name="lucide:paperclip" class="size-4" />
-                  Выбрать фото, видео, аудио или документ
+                  Выбрать фото, видео, аудио или документ (до 1 ГБ)
                   <input
                     :id="'field-' + field.key"
                     type="file"
@@ -315,6 +341,19 @@ onMounted(() => {
           </div>
 
           <footer class="border-t px-5 py-3.5">
+            <div v-if="uploading" class="mb-3" aria-live="polite">
+              <p class="flex items-baseline justify-between gap-3 text-xs">
+                <span class="min-w-0 truncate">Загрузка: {{ uploadingName }}</span>
+                <button
+                  type="button"
+                  class="shrink-0 rounded px-1.5 py-0.5 text-muted-foreground hover:text-destructive"
+                  @click="cancelUpload()"
+                >
+                  Отменить
+                </button>
+              </p>
+              <ProgressBar :value="uploadProgress" fluid class="mt-1.5" />
+            </div>
             <p
               v-if="errorMessage"
               role="alert"

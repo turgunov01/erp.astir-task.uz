@@ -105,7 +105,7 @@ export function cleanPayload(
 ): Record<string, unknown> {
   const out: Record<string, unknown> = {}
   for (const field of fields) {
-    // Files travel as multipart uploads of their own, never in the JSON body.
+    // Files travel as chunked uploads of their own, never in the JSON body.
     if (field.type === 'files') continue
     const value = values[field.key]
     if (value === '' || value === undefined) {

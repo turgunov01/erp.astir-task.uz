@@ -10,6 +10,7 @@ dist/
 !.env.example
 
 storage/
+upload-sessions/
 *.log
 .astir-lookup.txt
 astir-erp-deploy.tar.gz

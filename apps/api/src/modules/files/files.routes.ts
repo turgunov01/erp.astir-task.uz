@@ -9,56 +9,19 @@ import { sendItem, sendList, sendNoContent, buildMeta, toSkipTake } from '../../
 import { badRequest, notFound } from '../../lib/errors'
 import { prisma } from '../../lib/prisma'
 import { recordActivity } from '../../lib/activity'
-import { storage, isAllowedMimeType, MAX_UPLOAD_BYTES } from '../../lib/storage'
+import { bufferStream, isAllowedMimeType, MAX_SINGLE_REQUEST_BYTES, storage } from '../../lib/storage'
 import { mountArchiveRoutes } from '../../lib/archive-routes'
+import { createDocument, DOCUMENT_TYPES, OWNER_KEYS, type OwnerKey } from './files.service'
 
-const DOCUMENT_TYPES = [
-  'CONTRACT', 'BRIEF', 'SPECIFICATION', 'INVOICE', 'ACT', 'NDA', 'OTHER'
-] as const
-
-// Buffered in memory so the file is validated before anything touches disk.
+/*
+ * Buffered in memory so the file is validated before anything touches disk.
+ * Kept small for that reason: larger files go through the chunked upload API
+ * (/api/uploads), which streams to disk instead.
+ */
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: MAX_UPLOAD_BYTES, files: 1 }
+  limits: { fileSize: MAX_SINGLE_REQUEST_BYTES, files: 1 }
 })
-
-/**
- * Relations a document can hang from, and how to find the project it belongs
- * to.
- *
- * Every table in the app lets a file be attached to the record being created,
- * so the owner is looked up in this table rather than being another branch in
- * the upload handler for each new entity.
- */
-/** The owning row, seen loosely: only the project link is read off it. */
-type OwnerRow = Record<string, unknown> & {
-  projectId?: string | null
-  version?: { projectId: string } | null
-}
-
-interface OwnerSpec {
-  /** Prisma delegate key. */
-  model: string
-  /** Project the document should also be filed under, when there is one. */
-  project: (row: OwnerRow) => string | null
-}
-
-const OWNERS = {
-  taskId: { model: 'task', project: row => row.projectId ?? null },
-  reviewId: { model: 'review', project: row => row.version?.projectId ?? null },
-  assetId: { model: 'asset', project: row => row.projectId ?? null },
-  renderJobId: { model: 'renderJob', project: row => row.projectId ?? null },
-  episodeId: { model: 'episode', project: row => row.projectId ?? null },
-  sceneId: { model: 'scene', project: row => row.projectId ?? null },
-  shotId: { model: 'shot', project: row => row.projectId ?? null },
-  revisionId: { model: 'revision', project: row => row.projectId ?? null },
-  departmentId: { model: 'department', project: () => null },
-  employeeId: { model: 'employee', project: () => null }
-} satisfies Record<string, OwnerSpec>
-
-type OwnerKey = keyof typeof OWNERS
-
-const OWNER_KEYS = Object.keys(OWNERS) as OwnerKey[]
 
 const listSchema = listQuerySchema.extend({
   projectId: uuidSchema.optional(),
@@ -139,82 +102,15 @@ filesRouter.post(
         throw badRequest('File type ' + file.mimetype + ' is not allowed')
       }
 
-      let projectId = req.body.projectId || null
-      const clientId = req.body.clientId || null
-
-      /*
-       * Resolve whichever owner was sent.
-       *
-       * The owner is verified to exist before the blob is written, and the
-       * document inherits its project so the upload also shows up in the
-       * project file list without the caller passing both.
-       */
-      const owners: Partial<Record<OwnerKey, string>> = {}
-      for (const key of OWNER_KEYS) {
-        const value = req.body[key]
-        if (!value) continue
-        const spec: OwnerSpec = OWNERS[key]
-        const delegate = (prisma as unknown as Record<string, {
-          findFirst(args: unknown): Promise<OwnerRow | null>
-        } | undefined>)[spec.model]
-        if (!delegate) throw badRequest('Unknown attachment target: ' + key)
-        const row = await delegate.findFirst({
-          where: { id: value, deletedAt: null },
-          include: key === 'reviewId' ? { version: { select: { projectId: true } } } : undefined
-        })
-        if (!row) throw notFound(spec.model)
-        owners[key] = value
-        projectId = projectId ?? spec.project(row)
-      }
-
-      if (!projectId && !clientId && Object.keys(owners).length === 0) {
-        throw badRequest('Прикрепите файл к записи, проекту или клиенту')
-      }
-
-      if (projectId) {
-        const project = await prisma.project.findFirst({
-          where: { id: projectId, deletedAt: null },
-          select: { id: true }
-        })
-        if (!project) throw notFound('Project')
-      }
-
-      const stored = await storage.save({
-        buffer: file.buffer,
-        originalName: file.originalname,
-        mimeType: file.mimetype,
-        prefix: projectId
-          ? 'projects/' + projectId
-          : clientId
-            ? 'clients/' + clientId
-            : 'shared'
-      })
-
-      const document = await prisma.document.create({
-        data: {
-          projectId,
-          clientId,
-          ...owners,
-          type: DOCUMENT_TYPES.includes(req.body.type) ? req.body.type : 'OTHER',
-          name: req.body.name?.trim() || file.originalname,
-          fileUrl: stored.url,
-          fileSize: BigInt(stored.size),
-          mimeType: stored.mimeType,
-          uploadedById: req.user?.id ?? null
+      // Same path a completed chunked upload takes (modules/uploads).
+      const document = await createDocument({
+        fields: req.body ?? {},
+        file: {
+          stream: bufferStream(file.buffer),
+          originalName: file.originalname,
+          mimeType: file.mimetype
         },
-        include: {
-          uploadedBy: { select: { id: true, firstName: true, lastName: true } },
-          task: { select: { id: true, title: true, status: true } }
-        }
-      })
-
-      await recordActivity({
-        actorId: req.user?.id,
-        entityType: 'Document',
-        entityId: document.id,
-        projectId,
-        action: 'file.uploaded',
-        metadata: { name: document.name, size: stored.size }
+        actorId: req.user?.id
       })
 
       return sendItem(res, document, 201)
