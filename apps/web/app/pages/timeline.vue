@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useTimelineState } from '~/composables/useTimelineState'
+import { useTaskPanels } from '~/composables/useTaskPanels'
 import {
   TIMELINE_GROUPS,
   TIMELINE_SCALES,
@@ -36,6 +37,17 @@ const { data, pending, error, refresh } = await useFetch<{ data: TimelinePayload
   '/api/dashboard/timeline',
   { query: state.apiQuery, credentials: 'include' }
 )
+
+/*
+ * Edits made in the task drawer opened from the chart — status, dates,
+ * assignee — show up behind it as soon as they are saved, and once more when
+ * the drawer closes to catch anything saved without announcing itself.
+ */
+const { stack: panelStack, changes: panelChanges } = useTaskPanels()
+watch(panelChanges, () => refresh())
+watch(() => panelStack.value.length, (next, previous) => {
+  if (next < previous) refresh()
+})
 
 const projects = computed(() => projectData.value?.data ?? [])
 const payload = computed(() => data.value?.data)
