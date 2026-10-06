@@ -17,6 +17,8 @@ export interface Mail {
   to: string
   subject: string
   text: string
+  /** Optional rich version; `text` stays the fallback every client can show. */
+  html?: string
 }
 
 let transporter: Transporter | null = null
@@ -71,7 +73,8 @@ export async function sendMail(mail: Mail): Promise<{ delivered: boolean }> {
       from: config.from,
       to: mail.to,
       subject: mail.subject,
-      text: mail.text
+      text: mail.text,
+      ...(mail.html ? { html: mail.html } : {})
     })
     return { delivered: true }
   } catch (err) {

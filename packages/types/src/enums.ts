@@ -243,3 +243,22 @@ export const NOTIFICATION_CHANNEL = {
   TELEGRAM: 'TELEGRAM'
 } as const
 export type NotificationChannel = (typeof NOTIFICATION_CHANNEL)[keyof typeof NOTIFICATION_CHANNEL]
+
+/**
+ * Notification types that can also arrive by email.
+ *
+ * A type joins this list once its letter is worth an inbox slot; the rest stay
+ * in the app only. Delivery for everything listed is still opt-out per person:
+ * on until the recipient switches it off in their profile.
+ */
+export const EMAIL_NOTIFICATION_TYPES: readonly NotificationType[] = [
+  NOTIFICATION_TYPE.TASK_ASSIGNED,
+  NOTIFICATION_TYPE.PROJECT_ASSIGNED
+]
+
+/** Channels a person can switch on and off in their profile. */
+export const CONFIGURABLE_NOTIFICATION_CHANNELS = [
+  NOTIFICATION_CHANNEL.IN_APP,
+  NOTIFICATION_CHANNEL.EMAIL
+] as const
+export type ConfigurableNotificationChannel = (typeof CONFIGURABLE_NOTIFICATION_CHANNELS)[number]

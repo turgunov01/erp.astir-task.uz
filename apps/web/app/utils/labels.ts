@@ -90,6 +90,22 @@ export const ROLE_LABEL: Record<string, string> = {
   ARTIST: 'Художник', CLIENT: 'Клиент', FINANCE: 'Финансы'
 }
 
+/** Notification types as the preferences screen names them, in its order. */
+export const NOTIFICATION_TYPE_LABEL: Record<string, { title: string, hint: string }> = {
+  TASK_ASSIGNED: { title: 'Новая задача', hint: 'Вас назначили исполнителем задачи' },
+  PROJECT_ASSIGNED: { title: 'Новый проект', hint: 'Вас добавили в команду проекта' },
+  TASK_REVIEW: { title: 'Задача на проверку', hint: 'Задачу передали вам на проверку' },
+  TASK_OVERDUE: { title: 'Просрочка', hint: 'Задача вышла за срок' },
+  COMMENT_MENTION: { title: 'Упоминание', hint: 'Вас упомянули в комментарии' },
+  VERSION_SUBMITTED: { title: 'Новая версия', hint: 'Загружена версия на просмотр' },
+  VERSION_APPROVED: { title: 'Версия утверждена', hint: 'Вашу версию приняли' },
+  CHANGES_REQUESTED: { title: 'Нужны правки', hint: 'По версии запросили изменения' },
+  REVISION_CREATED: { title: 'Новая правка', hint: 'Создана правка по вашей работе' },
+  PROJECT_DEADLINE: { title: 'Срок проекта', hint: 'Приближается дедлайн проекта' },
+  SHOT_DEADLINE: { title: 'Срок шота', hint: 'Приближается дедлайн шота' },
+  RENDER_FAILED: { title: 'Ошибка рендера', hint: 'Рендер завершился с ошибкой' }
+}
+
 export const EMPLOYMENT_TYPE_LABEL: Record<string, string> = {
   FULL_TIME: 'Полная занятость', PART_TIME: 'Частичная занятость',
   FREELANCE: 'Фриланс', INTERN: 'Стажировка'
