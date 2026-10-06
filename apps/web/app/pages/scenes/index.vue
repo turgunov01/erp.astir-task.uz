@@ -6,7 +6,9 @@ import { useEntityCrud } from '~/composables/useEntityCrud'
 import { SCENE_FORM } from '~/utils/entity-forms'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Сцены' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('shell.nav.scenes')) })
 
 const route = useRoute()
 const page = ref(Number(route.query.page ?? 1))
@@ -52,22 +54,22 @@ const projects = computed(() => projectData.value?.data ?? [])
 const crud = useEntityCrud({
   endpoint: '/api/scenes',
   refresh: () => refresh(),
-  entityLabel: 'сцену',
+  entityLabel: () => t('production.scenes.deleteEntity'),
   archivedView
 })
 
 // Switching between the working set and the archive starts from page one.
 watch(archivedView, () => { page.value = 1 })
 
-const columns: Column[] = [
-  { key: 'code', label: 'Сцена', width: '26%' },
-  { key: 'project', label: 'Проект', width: '14%' },
-  { key: 'episode', label: 'Эпизод', width: '16%' },
-  { key: 'shots', label: 'Шоты', width: '10%', numeric: true },
-  { key: 'progress', label: 'Прогресс', width: '18%' },
-  { key: 'status', label: 'Статус', width: '16%' },
+const columns = computed<Column[]>(() => [
+  { key: 'code', label: t('production.scenes.columns.scene'), width: '26%' },
+  { key: 'project', label: t('production.scenes.columns.project'), width: '14%' },
+  { key: 'episode', label: t('production.scenes.columns.episode'), width: '16%' },
+  { key: 'shots', label: t('production.scenes.columns.shots'), width: '10%', numeric: true },
+  { key: 'progress', label: t('production.scenes.columns.progress'), width: '18%' },
+  { key: 'status', label: t('production.scenes.columns.status'), width: '16%' },
   { key: 'actions', label: '', width: '56px' }
-]
+])
 
 const STATUSES = Object.values(PRODUCTION_STATUS)
 
@@ -79,14 +81,14 @@ function pad(value: number) {
 <template>
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Производство</p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Сцены</h1>
-      <p class="mt-1 text-sm text-muted-foreground">{{ meta.total }} сцен(ы)</p>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{{ t('shell.nav.production') }}</p>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('shell.nav.scenes') }}</h1>
+      <p class="mt-1 text-sm text-muted-foreground">{{ countLabel(meta.total, 'production.scenes.count') }}</p>
     </header>
 
     <div class="mb-4 flex flex-wrap items-center justify-end gap-3">
 
-      <EntityToolbar :crud="crud" create-label="Новая сцена" :can-manage="canManage" />
+      <EntityToolbar :crud="crud" :create-label="t('production.scenes.create')" :can-manage="canManage" />
 
     </div>
 
@@ -98,10 +100,10 @@ function pad(value: number) {
       :meta="meta"
       :pending="pending"
       :error-message="errorMessage"
-      search-placeholder="Поиск по названию..."
+      :search-placeholder="t('production.scenes.searchPlaceholder')"
       empty-icon="lucide:film"
-      empty-title="Сцен пока нет"
-      empty-body="Сцены создаются на странице проекта во вкладке «Сцены»."
+      :empty-title="t('production.scenes.emptyTitle')"
+      :empty-body="t('production.scenes.emptyBody')"
       @update:page="page = $event"
       @update:search="page = 1"
       @retry="refresh"
@@ -110,19 +112,19 @@ function pad(value: number) {
         <select
           v-model="projectId"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Фильтр по проекту"
+          :aria-label="t('production.scenes.filters.byProject')"
           @change="page = 1"
         >
-          <option value="">Все проекты</option>
+          <option value="">{{ t('production.scenes.filters.allProjects') }}</option>
           <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.code }}</option>
         </select>
         <select
           v-model="status"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Фильтр по статусу"
+          :aria-label="t('production.scenes.filters.byStatus')"
           @change="page = 1"
         >
-          <option value="">Все статусы</option>
+          <option value="">{{ t('production.scenes.filters.allStatuses') }}</option>
           <option v-for="s in STATUSES" :key="s" :value="s">{{ enumLabel(PRODUCTION_STATUS_LABEL, s) }}</option>
         </select>
       </template>
@@ -143,7 +145,7 @@ function pad(value: number) {
 
       <template #cell-episode="{ row }">
         <span v-if="row.episode" class="truncate">{{ row.episode.title }}</span>
-        <span v-else class="text-muted-foreground">без эпизода</span>
+        <span v-else class="text-muted-foreground">{{ t('production.scenes.noEpisode') }}</span>
       </template>
 
       <template #cell-shots="{ row }">{{ row._count.shots }}</template>

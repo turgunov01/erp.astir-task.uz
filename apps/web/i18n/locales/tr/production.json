@@ -1,3 +1,759 @@
 {
-  "production": {}
+  "production": {
+    "assetDetail": {
+      "description": "Açıklama",
+      "fallbackTitle": "Varlık",
+      "noVersions": "Bu varlığın henüz sürümü yok.",
+      "openThumbnail": "{name} kapağını aç",
+      "panelLabel": "Varlık ayrıntıları",
+      "thumbnailCaption": "Varlık kapağı",
+      "versions": "Sürümler",
+      "versionsCount": "{n} sürüm"
+    },
+    "assets": {
+      "columns": {
+        "name": "Varlık",
+        "owner": "Sahibi",
+        "project": "Proje",
+        "status": "Durum",
+        "type": "Tür",
+        "versions": "Sürüm"
+      },
+      "count": "{n} varlık",
+      "createLabel": "Yeni varlık",
+      "deleteEntity": "varlık",
+      "emptyBody": "Karakterler, ortamlar, aksesuarlar ve rigler burada yer alacak.",
+      "emptyTitle": "Kütüphane boş",
+      "filters": {
+        "allProjects": "Tüm projeler",
+        "allTypes": "Tüm türler",
+        "projectAria": "Projeye göre filtrele",
+        "typeAria": "Türe göre filtrele"
+      },
+      "searchPlaceholder": "Ada göre ara..."
+    },
+    "board": {
+      "allProjects": "Tüm projeler",
+      "atLimit": "İlk {n} görev gösteriliyor — proje filtresiyle daraltın",
+      "dragHint": "kartları sütunlar arasında sürükleyin",
+      "emptyColumn": "Boş",
+      "listView": "Liste",
+      "loadFailed": "Pano yüklenemedi",
+      "moveFailed": "Görev taşınamadı",
+      "movedComment": "Panoda taşındı: {change}",
+      "openColumn": "{name} sütununu aç",
+      "projectAria": "Projeye göre filtrele",
+      "title": "Görev panosu",
+      "unassigned": "atanmadı"
+    },
+    "calendar": {
+      "deliveriesCount": "{n} proje teslimi",
+      "deliveryLabel": "{code} · teslim",
+      "eyebrow": "Planlama",
+      "legend": {
+        "delivery": "proje teslimi",
+        "milestone": "kilometre taşı",
+        "task": "görev"
+      },
+      "loadFailed": "Takvim yüklenemedi",
+      "milestonesCount": "{n} kilometre taşı",
+      "more": "{n} tane daha",
+      "nextMonth": "Sonraki ay",
+      "prevMonth": "Önceki ay",
+      "summary": "Bu ay {deliveries} · {milestones} · {tasks}",
+      "title": "Takvim",
+      "today": "Bugün"
+    },
+    "comments": {
+      "deleteFailed": "Yorum silinemedi",
+      "deletedUser": "Silinmiş kullanıcı",
+      "empty": "Henüz tartışma yok. İlk yorumu yazın.",
+      "loadFailed": "Tartışma yüklenemedi",
+      "newComment": "Yeni yorum",
+      "placeholder": "Yorum yazın...",
+      "reply": "Yanıtla",
+      "replyPlaceholder": "Yanıt yazın...",
+      "send": "Gönder",
+      "sendFailed": "Yorum gönderilemedi",
+      "sending": "Gönderiliyor...",
+      "title": "Tartışma"
+    },
+    "crud": {
+      "activeView": "Aktif",
+      "archive": "Arşivle",
+      "archiveFailed": "Arşivlenemedi",
+      "archiveView": "Arşiv",
+      "deleteDetail": "Kayıt listelerden kaybolur ve arayüzden geri getirilemez. Geri alınabilir şekilde gizlemek için arşivleyin.",
+      "deleteFailed": "Silinemedi",
+      "deleteQuestion": "{entity} «{name}» silinsin mi?",
+      "deleteTitle": "Silme",
+      "edit": "Düzenle",
+      "noRights": "Yetki yetersiz",
+      "recordSet": "Kayıt kümesi",
+      "rowActions": "İşlemler",
+      "rowActionsFor": "İşlemler: {name}",
+      "unarchive": "Arşivden çıkar",
+      "unarchiveFailed": "Arşivden geri alınamadı"
+    },
+    "detail": {
+      "created": "Oluşturuldu",
+      "frames": "Kareler",
+      "node": "Düğüm",
+      "openVersionFile": "{label} sürümünün dosyasını aç",
+      "owner": "Sahibi",
+      "project": "Proje",
+      "shared": "ortak",
+      "shot": "Çekim",
+      "status": "Durum",
+      "unassigned": "atanmadı",
+      "updated": "Güncellendi",
+      "version": "Sürüm"
+    },
+    "entity": {
+      "cancelUpload": "İptal",
+      "fileFailed": "{name} ({error})",
+      "missingRequired": "Zorunlu alanları doldurun: {fields}",
+      "notSelected": "Seçilmedi",
+      "pickFiles": "Fotoğraf, video, ses veya belge seçin (1 GB'a kadar)",
+      "removeFile": "Kaldır: {name}",
+      "saving": "Kaydediliyor...",
+      "tooBig": "1 GB'tan büyük, eklenmedi: {files}",
+      "uploadCancelled": "Kayıt kaydedildi, dosya yükleme iptal edildi",
+      "uploadError": "hata",
+      "uploadFailed": "Kayıt kaydedildi ancak şu dosyalar yüklenemedi: {files}",
+      "uploading": "Yükleniyor: {name}",
+      "yes": "Evet"
+    },
+    "episodes": {
+      "columns": {
+        "episode": "Bölüm",
+        "progress": "İlerleme",
+        "project": "Proje",
+        "scenes": "Sahneler",
+        "shots": "Çekimler",
+        "status": "Durum"
+      },
+      "count": "{n} bölüm",
+      "create": "Yeni bölüm",
+      "deleteEntity": "bölüm",
+      "emptyBody": "Bölümler proje sayfasındaki «Bölümler» sekmesinde oluşturulur.",
+      "emptyTitle": "Henüz bölüm yok",
+      "filters": {
+        "allProjects": "Tüm projeler",
+        "allStatuses": "Tüm durumlar",
+        "byProject": "Projeye göre filtrele",
+        "byStatus": "Duruma göre filtrele"
+      },
+      "searchPlaceholder": "Ada göre ara..."
+    },
+    "forms": {
+      "asset": {
+        "createTitle": "Yeni varlık",
+        "editTitle": "Varlığı düzenle"
+      },
+      "budget": {
+        "createTitle": "Proje bütçesi",
+        "editTitle": "Bütçeyi düzenle"
+      },
+      "client": {
+        "createTitle": "Yeni müşteri",
+        "editTitle": "Müşteriyi düzenle"
+      },
+      "department": {
+        "createTitle": "Yeni departman",
+        "editTitle": "Departmanı düzenle"
+      },
+      "document": {
+        "createTitle": "Yeni belge",
+        "editTitle": "Belgeyi düzenle"
+      },
+      "employee": {
+        "createTitle": "Yeni çalışan",
+        "editTitle": "Çalışanı düzenle"
+      },
+      "episode": {
+        "createTitle": "Yeni bölüm",
+        "editTitle": "Bölümü düzenle"
+      },
+      "expense": {
+        "createTitle": "Yeni gider",
+        "editTitle": "Gideri düzenle"
+      },
+      "fields": {
+        "amount": "Tutar",
+        "assignee": "Sorumlu",
+        "category": "Kategori",
+        "client": "Müşteri",
+        "companyName": "Şirket",
+        "country": "Ülke",
+        "currency": "Para birimi",
+        "date": "Tarih",
+        "deadline": "Son tarih",
+        "department": "Departman",
+        "description": "Açıklama",
+        "documentNumber": "Belge numarası",
+        "documentUrl": "Tarama bağlantısı",
+        "durationSeconds": "Süre, sn",
+        "email": "E-posta",
+        "employee": "Çalışan",
+        "employmentType": "Çalışma şekli",
+        "endFrame": "Son kare",
+        "episode": "Bölüm",
+        "errorMessage": "Hata metni",
+        "fee": "Banka komisyonu",
+        "files": "Dosyalar",
+        "firstName": "Ad",
+        "fps": "Saniyedeki kare",
+        "hourlyRate": "Saatlik ücret",
+        "invoice": "Fatura",
+        "issuedAt": "Düzenlendi",
+        "lastName": "Soyad",
+        "lateMinutes": "Gecikme, dakika",
+        "method": "Yöntem",
+        "name": "Ad",
+        "node": "Düğüm",
+        "notes": "Notlar",
+        "number": "Numara",
+        "owner": "Sahibi",
+        "paidDate": "Ödeme tarihi",
+        "password": "Şifre",
+        "payBy": "Son ödeme tarihi",
+        "paymentMethod": "Ödeme yöntemi",
+        "paymentNotes": "Not",
+        "payrollType": "Tür",
+        "period": "Bordro ayı",
+        "personName": "Ad",
+        "phone": "Telefon",
+        "plannedCost": "Planlanan maliyet",
+        "position": "Pozisyon",
+        "priority": "Öncelik",
+        "progress": "İlerleme, %",
+        "project": "Proje",
+        "purpose": "Fatura konusu",
+        "reason": "Neden / yorum",
+        "reference": "İşlem numarası",
+        "revenue": "Planlanan gelir",
+        "reviewComment": "Neyi görüşüyoruz",
+        "reviewDeadline": "Görüşme son tarihi",
+        "reviewType": "Onay türü",
+        "reviewer": "İnceleyen",
+        "revision": "Düzeltme",
+        "role": "Rol",
+        "scene": "Sahne",
+        "shot": "Çekim",
+        "startDate": "Başlangıç",
+        "startFrame": "İlk kare",
+        "status": "Durum",
+        "task": "Görev",
+        "thumbnailUrl": "Önizleme bağlantısı",
+        "title": "Başlık",
+        "type": "Tür",
+        "vat": "İçerdiği KDV",
+        "vendor": "Karşı taraf",
+        "version": "Sürüm",
+        "weeklyHours": "Haftalık saat"
+      },
+      "hints": {
+        "budgetProject": "Bir projenin tek bütçesi vardır: mevcut bütçenin üzerine kaydetmek onu günceller.",
+        "expenseProject": "Stüdyonun kira, vergi ve aboneliklerini projesiz bırakın.",
+        "expenseVat": "Tutarın bir parçası, üstüne eklenmez. Boş — KDV yok.",
+        "files": "Fotoğraf, video, ses veya belge. Kaydettikten hemen sonra yüklenir.",
+        "invoiceNumber": "Numara benzersizdir ve müşteriye gider; bilerek değiştirin.",
+        "invoiceVat": "Fatura tutarının bir parçası. Boş — KDV yok.",
+        "lateMinutes": "Yalnızca gecikme cezası için — orada zorunlu.",
+        "loginEmail": "Giriş kullanıcı adı, sonradan değiştirilemez",
+        "nextNumber": "Boş — sıradaki boş numara",
+        "password": "En az 8 karakter",
+        "paymentInvoice": "Ödeme faturayı tamamen kapatırsa sistem faturayı ödendi olarak işaretlemeyi önerir.",
+        "payrollAmount": "Her zaman pozitif: eklenip eklenmeyeceğine kayıt türü karar verir.",
+        "period": "Boş — tarihteki ay.",
+        "reference": "Ödeme banka ekstresinde bu numarayla bulunur.",
+        "reviewDeadline": "Bu tarihe kadar karar verilmezse onay «Kapandı» durumunu alır",
+        "reviewVersion": "Görüşmeye açılan materyal"
+      },
+      "invoice": {
+        "createTitle": "Yeni fatura",
+        "editTitle": "Faturayı düzenle"
+      },
+      "payment": {
+        "createTitle": "Yeni ödeme",
+        "editTitle": "Ödemeyi düzenle"
+      },
+      "payroll": {
+        "createTitle": "Yeni kayıt: avans, ceza veya prim",
+        "editTitle": "Taslağı düzenle"
+      },
+      "placeholders": {
+        "anyTeamMember": "Ekipten herhangi biri",
+        "autoNumber": "Boş — sıradaki atanır",
+        "documentKinds": "Fiş, tutanak, fatura",
+        "howToAddress": "Nasıl hitap edilmeli",
+        "invoicePurpose": "Fatura ne için kesildi",
+        "noInvoice": "Faturasız",
+        "noProject": "Projesiz",
+        "notSpecified": "Belirtilmedi",
+        "paidTo": "Kime ödendi",
+        "reviewComment": "Görüşülecek soru, önce neye bakılmalı",
+        "sharedAsset": "Ortak",
+        "studioCurrency": "Stüdyo para birimi",
+        "studioNoProject": "Stüdyo — projesiz",
+        "transactionRef": "Ödeme emri, işlem kimliği",
+        "yearMonth": "YYYY-AA"
+      },
+      "render": {
+        "createTitle": "Yeni render işi",
+        "editTitle": "İşi düzenle"
+      },
+      "review": {
+        "createTitle": "Onaya gönder",
+        "editTitle": "Onay ayarları"
+      },
+      "revision": {
+        "createTitle": "Yeni düzeltme",
+        "editTitle": "Düzeltmeyi düzenle"
+      },
+      "scene": {
+        "createTitle": "Yeni sahne",
+        "editTitle": "Sahneyi düzenle"
+      },
+      "shot": {
+        "createTitle": "Yeni çekim",
+        "editTitle": "Çekimi düzenle"
+      }
+    },
+    "myTasks": {
+      "empty": {
+        "active": "Açık görev yok. Yenileri atandıkları anda burada görünecek.",
+        "completed": "Henüz tamamlanan görev yok.",
+        "late": "Gecikmiş görev yok — böyle devam.",
+        "review": "Şu anda incelemeyi bekleyen bir şey yok."
+      },
+      "eyebrow": "Kişisel",
+      "fullList": "Tüm liste",
+      "intro": "{name}, size atanan her şey burada — önce acil olanlar.",
+      "sections": {
+        "blocked": "Engellendi",
+        "completed": "Tamamlanan",
+        "late": "Gecikmiş",
+        "progress": "Devam ediyor",
+        "review": "İncelemede",
+        "revision": "Düzeltmede",
+        "todo": "Yapılacak"
+      },
+      "shownOf": "{total} görevden {shown} tanesi gösteriliyor — son tarihi en yakın olanlar.",
+      "summaryAria": "Görev özeti",
+      "tiles": {
+        "dueThisWeek": "Bu hafta son tarihli",
+        "inWork": "Devam eden ve düzeltmede",
+        "late": "Gecikmiş",
+        "review": "İncelemede"
+      },
+      "title": "Görevlerim",
+      "views": {
+        "active": "Açık",
+        "completed": "Tamamlanan",
+        "late": "Gecikmiş",
+        "review": "İncelemede"
+      },
+      "viewsAria": "Görev görünümleri"
+    },
+    "personal": {
+      "changeStatus": "Durum",
+      "day": {
+        "empty": "Bu tarihte görev yok",
+        "filtersHint": "Takvimin geçerli filtreleri uygulanmış haliyle.",
+        "loadFailed": "Görevler yüklenemedi",
+        "overdue": "{n} gecikmiş"
+      },
+      "due": {
+        "inDays": "{n} gün sonra",
+        "none": "Son tarih yok",
+        "overdueBy": "{n} gün gecikti",
+        "today": "Bugün",
+        "todayPassed": "Bugün, süre doldu",
+        "tomorrow": "Yarın"
+      }
+    },
+    "render": {
+      "columns": {
+        "frames": "Kareler",
+        "node": "Düğüm",
+        "progress": "İlerleme",
+        "project": "Proje",
+        "shot": "Çekim",
+        "status": "Durum"
+      },
+      "createLabel": "Yeni iş",
+      "deleteEntity": "render işi",
+      "emptyBody": "Çekimler render için gönderildiğinde işler burada görünür.",
+      "emptyTitle": "Kuyruk boş",
+      "nodeJobs": "{n} iş",
+      "nodeOffline": "çevrimdışı",
+      "nodeOnline": "çevrimiçi",
+      "searchUnavailable": "Bu bölümde arama yapılamaz",
+      "statusAria": "İş durumu",
+      "summary": {
+        "failed": "{n} hatalı",
+        "queued": "{n} sırada",
+        "rendering": "{n} render ediliyor"
+      },
+      "updateFailed": "İş güncellenemedi",
+      "views": {
+        "all": "Tümü",
+        "completed": "Tamamlandı",
+        "failed": "Hatalı",
+        "queue": "Sırada",
+        "running": "Render ediliyor"
+      },
+      "viewsLabel": "Render görünümleri"
+    },
+    "renderDetail": {
+      "completed": "Bitti",
+      "duration": "Süre",
+      "errorTitle": "Render hatası",
+      "fallbackTitle": "Render işi",
+      "offline": "çevrimdışı",
+      "online": "çevrimiçi",
+      "panelLabel": "Render işi ayrıntıları",
+      "progress": "İlerleme",
+      "started": "Başladı",
+      "submittedBy": "Gönderen"
+    },
+    "review": {
+      "approve": "Onayla",
+      "attachmentsEmpty": "Materyal yok. Tartışmaya fotoğraf, video veya ses ekleyin.",
+      "attachmentsTitle": "Tartışma materyalleri",
+      "closedQuestion": "Konu kapandı",
+      "comment": "Yorum",
+      "commentPlaceholder": "Yorum — düzeltmeye geri gönderirken zorunlu",
+      "completed": "Onay tamamlandı: {date}",
+      "deadline": {
+        "daysLeft": "{date} · {n} gün kaldı",
+        "lastDay": "{date} · bugün son gün",
+        "none": "son tarih yok",
+        "passed": "{date} · süre doldu"
+      },
+      "expiredNote": "Son tarihe kadar karar verilmediği için konu kapatıldı. Tartışmayı yeniden açmak için onay ayarlarında yeni bir son tarih belirleyin.",
+      "fields": {
+        "deadline": "Tartışma son tarihi",
+        "project": "Proje",
+        "reviewer": "İnceleyen",
+        "sent": "Gönderildi",
+        "shot": "Çekim",
+        "task": "Görev",
+        "versionAuthor": "Sürüm yazarı"
+      },
+      "fileNotUploaded": "dosya yüklenmedi",
+      "fullscreen": "Tam ekran",
+      "loadFailed": "Onay yüklenemedi",
+      "noPreview": "Önizleme yok · {type}",
+      "notAssigned": "atanmadı",
+      "openFile": "Dosyayı aç",
+      "openFullscreen": "{label} sürümünü tam ekranda aç",
+      "reject": "Reddet",
+      "requestChanges": "Düzeltmeye gönder",
+      "revisionDeadline": "Düzeltme son tarihi",
+      "saveFailed": "Karar kaydedilemedi",
+      "typeHeading": "Onay · {type}"
+    },
+    "reviews": {
+      "allProjects": "Tüm projeler",
+      "columns": {
+        "author": "Yazar",
+        "project": "Proje",
+        "reviewer": "İnceleyen",
+        "status": "Durum",
+        "type": "Tür",
+        "version": "Sürüm"
+      },
+      "createLabel": "Onaya gönder",
+      "deleteEntity": "onay",
+      "emptyBody": "Onaya gönderilen sürümler burada görünecek.",
+      "emptyTitle": "Onay yok",
+      "notAssigned": "atanmadı",
+      "projectFilter": "Projeye göre filtrele",
+      "searchUnavailable": "Bu bölümde arama yapılamaz",
+      "summary": "{inReview} incelemede · {changes} düzeltmede · {approved} onaylandı",
+      "views": {
+        "all": "Tümü",
+        "approved": "Onaylanan",
+        "changes": "Düzeltmede",
+        "client": "Müşteri",
+        "inReview": "İncelemede",
+        "internal": "Dahili",
+        "pending": "Bekleyen"
+      },
+      "viewsLabel": "Onay görünümleri",
+      "waitingDays": "{n} gündür bekliyor",
+      "waitingToday": "bugünden beri bekliyor"
+    },
+    "revision": {
+      "description": "Açıklama",
+      "fallbackTitle": "Düzeltme",
+      "fields": {
+        "assignee": "Sorumlu",
+        "author": "Yazar",
+        "completed": "Tamamlandı",
+        "created": "Oluşturuldu",
+        "deadline": "Son tarih",
+        "project": "Proje",
+        "round": "Tur",
+        "shot": "Çekim",
+        "status": "Durum",
+        "task": "Görev",
+        "updated": "Güncellendi",
+        "version": "Sürüm"
+      },
+      "overdue": "Gecikmiş",
+      "panelLabel": "Düzeltme ayrıntıları",
+      "subtitle": "Düzeltme · {round}. tur"
+    },
+    "revisions": {
+      "allProjects": "Tüm projeler",
+      "columns": {
+        "assignee": "Sorumlu",
+        "deadline": "Son tarih",
+        "project": "Proje",
+        "round": "Tur",
+        "status": "Durum",
+        "title": "Düzeltme"
+      },
+      "createLabel": "Yeni düzeltme",
+      "deleteEntity": "düzeltme",
+      "emptyBody": "Düzeltmeler, onay süreci bir sürümü düzeltmeye geri gönderdiğinde oluşturulur.",
+      "emptyTitle": "Düzeltme yok",
+      "from": "{name} tarafından",
+      "notAssigned": "atanmadı",
+      "projectFilter": "Projeye göre filtrele",
+      "searchUnavailable": "Bu bölümde arama yapılamaz",
+      "statusOf": "{title} düzeltmesinin durumu",
+      "summary": "{open} açık · {inProgress} devam ediyor · {completed} tamamlandı",
+      "updateFailed": "Düzeltme güncellenemedi",
+      "views": {
+        "all": "Tümü",
+        "completed": "Tamamlanan",
+        "inProgress": "Devam eden",
+        "open": "Açık",
+        "ready": "İncelemede"
+      },
+      "viewsLabel": "Düzeltme görünümleri"
+    },
+    "scenes": {
+      "columns": {
+        "episode": "Bölüm",
+        "progress": "İlerleme",
+        "project": "Proje",
+        "scene": "Sahne",
+        "shots": "Çekimler",
+        "status": "Durum"
+      },
+      "count": "{n} sahne",
+      "create": "Yeni sahne",
+      "deleteEntity": "sahne",
+      "emptyBody": "Sahneler proje sayfasındaki «Sahneler» sekmesinde oluşturulur.",
+      "emptyTitle": "Henüz sahne yok",
+      "filters": {
+        "allProjects": "Tüm projeler",
+        "allStatuses": "Tüm durumlar",
+        "byProject": "Projeye göre filtrele",
+        "byStatus": "Duruma göre filtrele"
+      },
+      "noEpisode": "bölümsüz",
+      "searchPlaceholder": "Ada göre ara..."
+    },
+    "shot": {
+      "assignee": "Sorumlu",
+      "backToList": "Tüm çekimler",
+      "deadline": "son tarih {date}",
+      "description": "Açıklama",
+      "fallbackTitle": "Çekim",
+      "fps": "{n} fps",
+      "frameRange": "{start}–{end} ({n} kare)",
+      "frames": "Kareler",
+      "loadFailed": "Çekim yüklenemedi",
+      "notFound": "Çekim bulunamadı",
+      "progress": "İlerleme",
+      "stageCompleted": "tamamlandı: {date}",
+      "stageProgressAria": "{name} aşamasının ilerlemesi",
+      "stageStatusAria": "{name} aşamasının durumu",
+      "stageUpdateFailed": "Aşama güncellenemedi",
+      "stageWeight": "ağırlık {n}",
+      "stages": "Aşamalar",
+      "stagesActive": "{n} devam ediyor",
+      "stagesBlocked": "{n} engellendi",
+      "stagesEmptyBody": "Çekim, projenin süreç hattı kurulmadan önce oluşturuldu.",
+      "stagesEmptyTitle": "Aşama atanmamış",
+      "stagesHint": "Çekim ilerlemesi aşama ağırlıklarına göre hesaplanır ve sahneye, bölüme ve projeye yansır",
+      "stagesTitle": "Üretim aşamaları",
+      "unassigned": "atanmadı"
+    },
+    "shots": {
+      "columns": {
+        "assignee": "Sorumlu",
+        "progress": "İlerleme",
+        "project": "Proje",
+        "scene": "Sahne",
+        "shot": "Çekim",
+        "status": "Durum"
+      },
+      "countAllProjects": "Tüm projelerde {n} çekim",
+      "create": "Yeni çekim",
+      "deleteEntity": "çekim",
+      "emptyBody": "Çekimler proje sayfasında, bir sahnenin içinde oluşturulur.",
+      "emptyTitle": "Henüz çekim yok",
+      "filters": {
+        "allProjects": "Tüm projeler",
+        "allStatuses": "Tüm durumlar",
+        "byProject": "Projeye göre filtrele",
+        "byStatus": "Duruma göre filtrele"
+      },
+      "fps": "{n} fps",
+      "searchPlaceholder": "Koda veya ada göre ara...",
+      "unassigned": "atanmadı",
+      "versions": "{n} sürüm"
+    },
+    "task": {
+      "create": {
+        "chooseProject": "Proje seçin",
+        "creating": "Oluşturuluyor...",
+        "descriptionPlaceholder": "Yapılacaklar, referans bağlantıları, gereksinimler...",
+        "estimate": "Tahmin, saat",
+        "failed": "Görev oluşturulamadı",
+        "name": "Ad",
+        "namePlaceholder": "SH014 animasyonu",
+        "noShot": "Çekime bağlı değil",
+        "noStage": "Aşamasız",
+        "project": "Proje",
+        "reviewer": "İnceleyen",
+        "shot": "Çekim",
+        "stage": "Süreç aşaması",
+        "start": "Başlangıç",
+        "submit": "Görev oluştur",
+        "title": "Yeni görev"
+      },
+      "drawer": {
+        "archive": "Arşivle",
+        "archiveConfirm": {
+          "detail": "Tüm veriler korunur, görev istediğiniz zaman arşivden geri alınabilir.",
+          "message": "«{title}» aktif listelerden ve panodan kalkacak.",
+          "title": "Görev arşivlensin mi?"
+        },
+        "archiveFailed": "Arşiv durumu değiştirilemedi",
+        "ariaLabel": "Görev",
+        "deleteConfirm": {
+          "detail": "Görev artık işte gerekmiyorsa arşivi kullanın, geri alınabilir.",
+          "message": "«{title}» bağımlılıkları ve bağlantılarıyla birlikte silinecek.",
+          "title": "Görev silinsin mi?"
+        },
+        "deleteFailed": "Görev silinemedi",
+        "dependsOn": "Bağlı olduğu görevler",
+        "descriptionPlaceholder": "Açıklama ekleyin...",
+        "discard": "Vazgeç",
+        "estimate": "Tahmin, sa",
+        "lateBy": "{n} gün gecikti",
+        "lateNotice": "Görev bir talep olarak ele alınır: her değişiklik yönetime bildirim olarak gider ve aşağıdaki tartışmaya eklenir. Neden, panelin altında kaydet düğmesinin yanında istenir.",
+        "loadFailed": "Görev yüklenemedi",
+        "overdueReasonHint": "Neden belirtilmeden kaydedilemez — yönetime ve tartışmaya gönderilir",
+        "overdueReasonPlaceholder": "Gecikmiş görevi düzenleme nedeni",
+        "overdueReasonRequired": "Görev gecikmiş: düzenleme nedenini belirtin",
+        "removeDependency": "{title} bağımlılığını kaldır",
+        "removeDependencyFailed": "Bağımlılık kaldırılamadı",
+        "saving": "Kaydediliyor...",
+        "stage": "Aşama",
+        "statusNoteHint": "Not, görev tartışmasına eklenir",
+        "statusNotePlaceholder": "Ne yapıldı — durum değişikliği için zorunlu",
+        "titleLabel": "Görev adı",
+        "unarchive": "Arşivden çıkar",
+        "unsavedChanges": "Kaydedilmemiş değişiklikler var"
+      },
+      "fields": {
+        "assignee": "Sorumlu",
+        "assigneeNotified": "Sorumluya atama bildirimi gönderilir",
+        "deadline": "Son tarih",
+        "description": "Açıklama",
+        "priority": "Öncelik",
+        "status": "Durum",
+        "statusChangeFailed": "Durum değiştirilemedi",
+        "statusNoteLabel": "Durum değişikliğinin gerekçesi",
+        "unassigned": "Atanmadı"
+      },
+      "quickStatus": {
+        "newStatus": "Yeni durum",
+        "notePlaceholder": "Ne yapıldı — görev tartışmasına eklenir",
+        "reasonLabel": "Gecikme nedeni",
+        "reasonPlaceholder": "Süre neden aşıldı — yönetime gönderilir",
+        "submit": "Durumu değiştir"
+      },
+      "status": {
+        "allGood": "tüm görevler atanmış ve zamanında",
+        "ariaLabel": "{status} durumundaki görevler",
+        "emptyBody": "Panodaki bir kartı buraya sürükleyin ya da görevin durumunu değiştirin.",
+        "emptyTitle": "Bu sütun boş",
+        "loadFailed": "Sütun yüklenemedi",
+        "moveComment": "Durum panelinden taşındı: {change}",
+        "moveTask": "{title} görevini taşı",
+        "overdue": "{n} gecikmiş",
+        "unassigned": "{n} sorumlusuz",
+        "unassignedShort": "atanmadı"
+      }
+    },
+    "taskCalendar": {
+      "boardView": "Pano",
+      "dayAria": "{date} tarihli görevler: {n}",
+      "filters": {
+        "allAssignees": "Tüm sorumlular",
+        "allProjects": "Tüm projeler",
+        "anyPriority": "Her öncelik",
+        "assigneeAria": "Sorumluya göre filtrele",
+        "priorityAria": "Önceliğe göre filtrele",
+        "projectAria": "Projeye göre filtrele"
+      },
+      "heading": "Son tarih takvimi",
+      "listView": "Liste",
+      "title": "Görev takvimi",
+      "withDeadline": "{n} son tarihli",
+      "withoutDate": "{n} tarihsiz"
+    },
+    "tasks": {
+      "board": "Pano",
+      "calendar": "Takvim",
+      "columns": {
+        "assignee": "Sorumlu",
+        "deadline": "Son tarih",
+        "priority": "Öncelik",
+        "project": "Proje",
+        "status": "Durum",
+        "task": "Görev"
+      },
+      "deleteEntity": "görev",
+      "empty": {
+        "archiveBody": "Arşivlenen görevler burada görünür ve yeniden işe alınabilir.",
+        "archiveTitle": "Arşiv boş",
+        "body": "Bu görünümde henüz bir şey yok. Yukarıdaki düğmeyle görev oluşturun.",
+        "title": "Görev yok"
+      },
+      "eyebrow": "Prodüksiyon",
+      "filters": {
+        "allAssignees": "Tüm sorumlular",
+        "allProjects": "Tüm projeler",
+        "anyPriority": "Tüm öncelikler",
+        "assignee": "Sorumluya göre filtrele",
+        "priority": "Önceliğe göre filtrele",
+        "project": "Projeye göre filtrele"
+      },
+      "newTask": "Yeni görev",
+      "searchPlaceholder": "Ada göre ara...",
+      "title": "Görevler",
+      "unassigned": "atanmadı",
+      "views": {
+        "all": "Tümü",
+        "archived": "Arşiv",
+        "completed": "Tamamlanan",
+        "my": "Benim",
+        "overdue": "Gecikmiş",
+        "review": "Onayda"
+      },
+      "viewsLabel": "Hızlı görünümler"
+    }
+  }
 }

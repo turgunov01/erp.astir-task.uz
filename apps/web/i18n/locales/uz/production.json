@@ -1,3 +1,759 @@
 {
-  "production": {}
+  "production": {
+    "assetDetail": {
+      "description": "Tavsif",
+      "fallbackTitle": "Asset",
+      "noVersions": "Assetda hali versiyalar yo‘q.",
+      "openThumbnail": "{name} muqovasini ochish",
+      "panelLabel": "Asset tafsilotlari",
+      "thumbnailCaption": "Asset muqovasi",
+      "versions": "Versiyalar",
+      "versionsCount": "{n} ta versiya"
+    },
+    "assets": {
+      "columns": {
+        "name": "Asset",
+        "owner": "Egasi",
+        "project": "Loyiha",
+        "status": "Holat",
+        "type": "Turi",
+        "versions": "Versiya"
+      },
+      "count": "{n} ta asset",
+      "createLabel": "Yangi asset",
+      "deleteEntity": "asset",
+      "emptyBody": "Personajlar, muhitlar, rekvizitlar va riglar shu yerda bo‘ladi.",
+      "emptyTitle": "Kutubxona bo‘sh",
+      "filters": {
+        "allProjects": "Barcha loyihalar",
+        "allTypes": "Barcha turlar",
+        "projectAria": "Loyiha bo‘yicha filtr",
+        "typeAria": "Tur bo‘yicha filtr"
+      },
+      "searchPlaceholder": "Nomi bo‘yicha qidirish..."
+    },
+    "board": {
+      "allProjects": "Barcha loyihalar",
+      "atLimit": "Dastlabki {n} ta vazifa ko‘rsatilgan — loyiha filtri bilan toraytiring",
+      "dragHint": "kartochkalarni ustunlar orasida suring",
+      "emptyColumn": "Bo‘sh",
+      "listView": "Ro‘yxat",
+      "loadFailed": "Doskani yuklab bo‘lmadi",
+      "moveFailed": "Vazifani ko‘chirib bo‘lmadi",
+      "movedComment": "Doskada ko‘chirildi: {change}",
+      "openColumn": "{name} ustunini ochish",
+      "projectAria": "Loyiha bo‘yicha filtr",
+      "title": "Vazifalar doskasi",
+      "unassigned": "biriktirilmagan"
+    },
+    "calendar": {
+      "deliveriesCount": "{n} ta loyiha topshiruvi",
+      "deliveryLabel": "{code} · topshiruv",
+      "eyebrow": "Rejalashtirish",
+      "legend": {
+        "delivery": "loyiha topshiruvi",
+        "milestone": "nazorat nuqtasi",
+        "task": "vazifa"
+      },
+      "loadFailed": "Taqvimni yuklab bo‘lmadi",
+      "milestonesCount": "{n} ta nazorat nuqtasi",
+      "more": "yana {n} ta",
+      "nextMonth": "Keyingi oy",
+      "prevMonth": "Oldingi oy",
+      "summary": "{deliveries} · {milestones} · bu oyda {tasks}",
+      "title": "Taqvim",
+      "today": "Bugun"
+    },
+    "comments": {
+      "deleteFailed": "Izohni o‘chirib bo‘lmadi",
+      "deletedUser": "O‘chirilgan foydalanuvchi",
+      "empty": "Hozircha muhokama yo‘q. Birinchi izohni yozing.",
+      "loadFailed": "Muhokamani yuklab bo‘lmadi",
+      "newComment": "Yangi izoh",
+      "placeholder": "Izoh yozing...",
+      "reply": "Javob berish",
+      "replyPlaceholder": "Javob yozing...",
+      "send": "Yuborish",
+      "sendFailed": "Izohni yuborib bo‘lmadi",
+      "sending": "Yuborilmoqda...",
+      "title": "Muhokama"
+    },
+    "crud": {
+      "activeView": "Faol",
+      "archive": "Arxivlash",
+      "archiveFailed": "Arxivlab bo‘lmadi",
+      "archiveView": "Arxiv",
+      "deleteDetail": "Yozuv ro‘yxatlardan yo‘qoladi. Uni interfeys orqali qaytarib bo‘lmaydi — qaytariladigan yashirish uchun arxivlash bor.",
+      "deleteFailed": "O‘chirib bo‘lmadi",
+      "deleteQuestion": "{entity} «{name}» o‘chirilsinmi?",
+      "deleteTitle": "O‘chirish",
+      "edit": "Tahrirlash",
+      "noRights": "Huquq yetarli emas",
+      "recordSet": "Yozuvlar to‘plami",
+      "rowActions": "Amallar",
+      "rowActionsFor": "Amallar: {name}",
+      "unarchive": "Arxivdan qaytarish",
+      "unarchiveFailed": "Arxivdan qaytarib bo‘lmadi"
+    },
+    "detail": {
+      "created": "Yaratilgan",
+      "frames": "Kadrlar",
+      "node": "Tugun",
+      "openVersionFile": "{label} versiyasi faylini ochish",
+      "owner": "Egasi",
+      "project": "Loyiha",
+      "shared": "umumiy",
+      "shot": "Shot",
+      "status": "Holat",
+      "unassigned": "tayinlanmagan",
+      "updated": "Yangilangan",
+      "version": "Versiya"
+    },
+    "entity": {
+      "cancelUpload": "Bekor qilish",
+      "fileFailed": "{name} ({error})",
+      "missingRequired": "Majburiy maydonlarni to‘ldiring: {fields}",
+      "notSelected": "Tanlanmagan",
+      "pickFiles": "Foto, video, audio yoki hujjat tanlang (1 GB gacha)",
+      "removeFile": "Olib tashlash: {name}",
+      "saving": "Saqlanmoqda...",
+      "tooBig": "1 GB dan katta, qo‘shilmadi: {files}",
+      "uploadCancelled": "Yozuv saqlandi, fayllarni yuklash bekor qilindi",
+      "uploadError": "xato",
+      "uploadFailed": "Yozuv saqlandi, lekin fayllar yuklanmadi: {files}",
+      "uploading": "Yuklanmoqda: {name}",
+      "yes": "Ha"
+    },
+    "episodes": {
+      "columns": {
+        "episode": "Epizod",
+        "progress": "Bajarilishi",
+        "project": "Loyiha",
+        "scenes": "Sahnalar",
+        "shots": "Shotlar",
+        "status": "Holat"
+      },
+      "count": "{n} ta epizod",
+      "create": "Yangi epizod",
+      "deleteEntity": "epizod",
+      "emptyBody": "Epizodlar loyiha sahifasidagi «Epizodlar» bo‘limida yaratiladi.",
+      "emptyTitle": "Hozircha epizodlar yo‘q",
+      "filters": {
+        "allProjects": "Barcha loyihalar",
+        "allStatuses": "Barcha holatlar",
+        "byProject": "Loyiha bo‘yicha filtr",
+        "byStatus": "Holat bo‘yicha filtr"
+      },
+      "searchPlaceholder": "Nomi bo‘yicha qidirish..."
+    },
+    "forms": {
+      "asset": {
+        "createTitle": "Yangi asset",
+        "editTitle": "Assetni tahrirlash"
+      },
+      "budget": {
+        "createTitle": "Loyiha byudjeti",
+        "editTitle": "Byudjetni tahrirlash"
+      },
+      "client": {
+        "createTitle": "Yangi mijoz",
+        "editTitle": "Mijozni tahrirlash"
+      },
+      "department": {
+        "createTitle": "Yangi bo‘lim",
+        "editTitle": "Bo‘limni tahrirlash"
+      },
+      "document": {
+        "createTitle": "Yangi hujjat",
+        "editTitle": "Hujjatni tahrirlash"
+      },
+      "employee": {
+        "createTitle": "Yangi xodim",
+        "editTitle": "Xodimni tahrirlash"
+      },
+      "episode": {
+        "createTitle": "Yangi epizod",
+        "editTitle": "Epizodni tahrirlash"
+      },
+      "expense": {
+        "createTitle": "Yangi xarajat",
+        "editTitle": "Xarajatni tahrirlash"
+      },
+      "fields": {
+        "amount": "Summa",
+        "assignee": "Ijrochi",
+        "category": "Toifa",
+        "client": "Mijoz",
+        "companyName": "Kompaniya",
+        "country": "Mamlakat",
+        "currency": "Valyuta",
+        "date": "Sana",
+        "deadline": "Muddat",
+        "department": "Bo‘lim",
+        "description": "Tavsif",
+        "documentNumber": "Hujjat raqami",
+        "documentUrl": "Skan havolasi",
+        "durationSeconds": "Davomiyligi, soniya",
+        "email": "Pochta",
+        "employee": "Xodim",
+        "employmentType": "Bandlik",
+        "endFrame": "Oxirgi kadr",
+        "episode": "Epizod",
+        "errorMessage": "Xato matni",
+        "fee": "Bank komissiyasi",
+        "files": "Fayllar",
+        "firstName": "Ism",
+        "fps": "Soniyasiga kadr",
+        "hourlyRate": "Soatlik stavka",
+        "invoice": "Hisob-faktura",
+        "issuedAt": "Berilgan sana",
+        "lastName": "Familiya",
+        "lateMinutes": "Kechikish, daqiqa",
+        "method": "Usul",
+        "name": "Nomi",
+        "node": "Tugun",
+        "notes": "Eslatmalar",
+        "number": "Raqami",
+        "owner": "Egasi",
+        "paidDate": "To‘langan sana",
+        "password": "Parol",
+        "payBy": "To‘lash muddati",
+        "paymentMethod": "To‘lov usuli",
+        "paymentNotes": "Izoh",
+        "payrollType": "Turi",
+        "period": "Hisob-kitob oyi",
+        "personName": "Ism",
+        "phone": "Telefon",
+        "plannedCost": "Rejadagi tannarx",
+        "position": "Lavozim",
+        "priority": "Ustuvorlik",
+        "progress": "Bajarilishi, %",
+        "project": "Loyiha",
+        "purpose": "To‘lov maqsadi",
+        "reason": "Sabab / izoh",
+        "reference": "Tranzaksiya raqami",
+        "revenue": "Rejadagi tushum",
+        "reviewComment": "Nimani muhokama qilamiz",
+        "reviewDeadline": "Muhokama muddati",
+        "reviewType": "Kelishuv turi",
+        "reviewer": "Tekshiruvchi",
+        "revision": "Tuzatish",
+        "role": "Rol",
+        "scene": "Sahna",
+        "shot": "Shot",
+        "startDate": "Boshlanishi",
+        "startFrame": "Birinchi kadr",
+        "status": "Holat",
+        "task": "Vazifa",
+        "thumbnailUrl": "Prevyu havolasi",
+        "title": "Nomi",
+        "type": "Turi",
+        "vat": "Shu jumladan QQS",
+        "vendor": "Kontragent",
+        "version": "Versiya",
+        "weeklyHours": "Haftasiga soat"
+      },
+      "hints": {
+        "budgetProject": "Loyihaning bitta byudjeti bor: mavjudining ustidan saqlash uni yangilaydi.",
+        "expenseProject": "Studiyaning ijara, soliq va obunalarini loyihasiz qoldiring.",
+        "expenseVat": "Summaning bir qismi, unga qo‘shimcha emas. Bo‘sh — QQSsiz.",
+        "files": "Foto, video, audio yoki hujjat. Saqlangandan so‘ng darhol yuklanadi.",
+        "invoiceNumber": "Raqam yagona va mijozga yuboriladi, shuning uchun uni o‘ylab o‘zgartiring.",
+        "invoiceVat": "Hisob-faktura summasining bir qismi. Bo‘sh — QQSsiz.",
+        "lateMinutes": "Faqat kechikish jarimasi uchun — u yerda majburiy.",
+        "loginEmail": "Kirish uchun login, keyin o‘zgartirib bo‘lmaydi",
+        "nextNumber": "Bo‘sh qoldirilsa — keyingi bo‘sh raqam",
+        "password": "Kamida 8 ta belgi",
+        "paymentInvoice": "Agar to‘lov hisob-fakturani to‘liq yopsa, tizim uni to‘langan deb belgilashni taklif qiladi.",
+        "payrollAmount": "Doim musbat: qo‘shish yoki ushlab qolishni yozuv turi o‘zi hal qiladi.",
+        "period": "Bo‘sh — sanadagi oy.",
+        "reference": "Shu raqam bo‘yicha to‘lov bank ko‘chirmasidan topiladi.",
+        "reviewDeadline": "Agar shu sanagacha qaror bo‘lmasa, kelishuv «Yopildi» holatini oladi",
+        "reviewVersion": "Muhokamaga chiqariladigan material"
+      },
+      "invoice": {
+        "createTitle": "Yangi hisob-faktura",
+        "editTitle": "Hisob-fakturani tahrirlash"
+      },
+      "payment": {
+        "createTitle": "Yangi to‘lov",
+        "editTitle": "To‘lovni tahrirlash"
+      },
+      "payroll": {
+        "createTitle": "Yangi yozuv: avans, jarima yoki mukofot",
+        "editTitle": "Qoralamani tahrirlash"
+      },
+      "placeholders": {
+        "anyTeamMember": "Jamoadan istalgan kishi",
+        "autoNumber": "Bo‘sh — keyingisi beriladi",
+        "documentKinds": "Chek, dalolatnoma, hisob-faktura",
+        "howToAddress": "Qanday murojaat qilish kerak",
+        "invoicePurpose": "Hisob-faktura nima uchun berilgan",
+        "noInvoice": "Hisob-fakturasiz",
+        "noProject": "Loyihasiz",
+        "notSpecified": "Ko‘rsatilmagan",
+        "paidTo": "Kimga to‘langan",
+        "reviewComment": "Muhokama uchun savol, birinchi navbatda nimaga qarash kerak",
+        "sharedAsset": "Umumiy",
+        "studioCurrency": "Studiya valyutasi",
+        "studioNoProject": "Studiya — loyihasiz",
+        "transactionRef": "To‘lov topshiriqnomasi, operatsiya ID",
+        "yearMonth": "YYYY-OO"
+      },
+      "render": {
+        "createTitle": "Yangi render vazifasi",
+        "editTitle": "Vazifani tahrirlash"
+      },
+      "review": {
+        "createTitle": "Kelishuvga yuborish",
+        "editTitle": "Kelishuv sozlamalari"
+      },
+      "revision": {
+        "createTitle": "Yangi tuzatish",
+        "editTitle": "Tuzatishni tahrirlash"
+      },
+      "scene": {
+        "createTitle": "Yangi sahna",
+        "editTitle": "Sahnani tahrirlash"
+      },
+      "shot": {
+        "createTitle": "Yangi shot",
+        "editTitle": "Shotni tahrirlash"
+      }
+    },
+    "myTasks": {
+      "empty": {
+        "active": "Ochiq vazifalar yo‘q. Yangilari biriktirilishi bilan shu yerda paydo bo‘ladi.",
+        "completed": "Hozircha yakunlangan vazifalar yo‘q.",
+        "late": "Muddati o‘tgan vazifalar yo‘q — shunday davom eting.",
+        "review": "Hozir tekshiruvni kutayotgan narsa yo‘q."
+      },
+      "eyebrow": "Shaxsiy",
+      "fullList": "To‘liq ro‘yxat",
+      "intro": "{name}, bu yerda sizga biriktirilgan hamma narsa — avval shoshilinchlari.",
+      "sections": {
+        "blocked": "Bloklangan",
+        "completed": "Yakunlangan",
+        "late": "Muddati o‘tgan",
+        "progress": "Jarayonda",
+        "review": "Tekshiruvda",
+        "revision": "Tuzatishda",
+        "todo": "Bajarilishi kerak"
+      },
+      "shownOf": "{total} tadan {shown} tasi ko‘rsatilgan — muddati yaqinlari.",
+      "summaryAria": "Vazifalar bo‘yicha xulosa",
+      "tiles": {
+        "dueThisWeek": "Muddati shu haftada",
+        "inWork": "Jarayonda va tuzatishda",
+        "late": "Muddati o‘tgan",
+        "review": "Tekshiruvda"
+      },
+      "title": "Mening vazifalarim",
+      "views": {
+        "active": "Ochiq",
+        "completed": "Yakunlangan",
+        "late": "Muddati o‘tgan",
+        "review": "Tekshiruvda"
+      },
+      "viewsAria": "Vazifalar tanlovi"
+    },
+    "personal": {
+      "changeStatus": "Holat",
+      "day": {
+        "empty": "Bu sanaga vazifalar yo‘q",
+        "filtersHint": "Taqvimning joriy filtrlari hisobga olingan.",
+        "loadFailed": "Vazifalarni yuklab bo‘lmadi",
+        "overdue": "{n} ta muddati o‘tgan"
+      },
+      "due": {
+        "inDays": "{n} kundan keyin",
+        "none": "Muddatsiz",
+        "overdueBy": "{n} kun kechikdi",
+        "today": "Bugun",
+        "todayPassed": "Bugun, muddat o‘tdi",
+        "tomorrow": "Ertaga"
+      }
+    },
+    "render": {
+      "columns": {
+        "frames": "Kadrlar",
+        "node": "Tugun",
+        "progress": "Bajarilish",
+        "project": "Loyiha",
+        "shot": "Shot",
+        "status": "Holat"
+      },
+      "createLabel": "Yangi vazifa",
+      "deleteEntity": "render vazifasi",
+      "emptyBody": "Shotlar renderga yuborilgach, vazifalar shu yerda paydo bo‘ladi.",
+      "emptyTitle": "Navbat bo‘sh",
+      "nodeJobs": "{n} ta vazifa",
+      "nodeOffline": "tarmoqda emas",
+      "nodeOnline": "tarmoqda",
+      "searchUnavailable": "Bu bo‘limda qidiruv mavjud emas",
+      "statusAria": "Vazifa holati",
+      "summary": {
+        "failed": "{n} ta xato bilan",
+        "queued": "{n} ta navbatda",
+        "rendering": "{n} ta render qilinmoqda"
+      },
+      "updateFailed": "Vazifani yangilab bo‘lmadi",
+      "views": {
+        "all": "Barchasi",
+        "completed": "Tayyor",
+        "failed": "Xatolar",
+        "queue": "Navbatda",
+        "running": "Render qilinmoqda"
+      },
+      "viewsLabel": "Render saralamalari"
+    },
+    "renderDetail": {
+      "completed": "Tugagan",
+      "duration": "Davomiyligi",
+      "errorTitle": "Render xatosi",
+      "fallbackTitle": "Render vazifasi",
+      "offline": "oflayn",
+      "online": "onlayn",
+      "panelLabel": "Render vazifasi tafsilotlari",
+      "progress": "Bajarilish",
+      "started": "Boshlangan",
+      "submittedBy": "Yuborgan"
+    },
+    "review": {
+      "approve": "Kelishish",
+      "attachmentsEmpty": "Materiallar yo‘q. Muhokamaga foto, video yoki audio biriktiring.",
+      "attachmentsTitle": "Muhokama materiallari",
+      "closedQuestion": "Masala yopilgan",
+      "comment": "Izoh",
+      "commentPlaceholder": "Izoh — qayta ishlashga qaytarishda majburiy",
+      "completed": "Kelishuv yakunlandi: {date}",
+      "deadline": {
+        "daysLeft": "{date} · {n} kun qoldi",
+        "lastDay": "{date} · bugun oxirgi kun",
+        "none": "muddatsiz",
+        "passed": "{date} · muddat o‘tgan"
+      },
+      "expiredNote": "Muddat tugaguncha qaror qabul qilinmadi, shuning uchun masala yopildi. Muhokamani qaytarish uchun kelishuv sozlamalarida yangi muddat belgilang.",
+      "fields": {
+        "deadline": "Muhokama muddati",
+        "project": "Loyiha",
+        "reviewer": "Tekshiruvchi",
+        "sent": "Yuborilgan",
+        "shot": "Shot",
+        "task": "Vazifa",
+        "versionAuthor": "Versiya muallifi"
+      },
+      "fileNotUploaded": "fayl yuklanmagan",
+      "fullscreen": "To‘liq ekran",
+      "loadFailed": "Kelishuvni yuklab bo‘lmadi",
+      "noPreview": "Oldindan ko‘rish mavjud emas · {type}",
+      "notAssigned": "tayinlanmagan",
+      "openFile": "Faylni ochish",
+      "openFullscreen": "{label} versiyasini to‘liq ekranda ochish",
+      "reject": "Rad etish",
+      "requestChanges": "Qayta ishlashga",
+      "revisionDeadline": "Tuzatishlar muddati",
+      "saveFailed": "Qarorni saqlab bo‘lmadi",
+      "typeHeading": "Kelishuv · {type}"
+    },
+    "reviews": {
+      "allProjects": "Barcha loyihalar",
+      "columns": {
+        "author": "Muallif",
+        "project": "Loyiha",
+        "reviewer": "Tekshiruvchi",
+        "status": "Holat",
+        "type": "Turi",
+        "version": "Versiya"
+      },
+      "createLabel": "Kelishuvga yuborish",
+      "deleteEntity": "kelishuv",
+      "emptyBody": "Kelishuvga yuborilgan versiyalar shu yerda paydo bo‘ladi.",
+      "emptyTitle": "Kelishuvlar yo‘q",
+      "notAssigned": "tayinlanmagan",
+      "projectFilter": "Loyiha bo‘yicha filtr",
+      "searchUnavailable": "Bu bo‘limda qidiruv mavjud emas",
+      "summary": "{inReview} ta jarayonda · {changes} ta qayta ishlashda · {approved} ta kelishilgan",
+      "views": {
+        "all": "Hammasi",
+        "approved": "Kelishilgan",
+        "changes": "Qayta ishlashda",
+        "client": "Mijoz",
+        "inReview": "Jarayonda",
+        "internal": "Ichki",
+        "pending": "Kutilmoqda"
+      },
+      "viewsLabel": "Kelishuv bo‘limlari",
+      "waitingDays": "{n} kundan beri kutmoqda",
+      "waitingToday": "bugundan beri kutmoqda"
+    },
+    "revision": {
+      "description": "Tavsif",
+      "fallbackTitle": "Tuzatish",
+      "fields": {
+        "assignee": "Ijrochi",
+        "author": "Muallif",
+        "completed": "Yakunlangan",
+        "created": "Yaratilgan",
+        "deadline": "Muddat",
+        "project": "Loyiha",
+        "round": "Raund",
+        "shot": "Shot",
+        "status": "Holat",
+        "task": "Vazifa",
+        "updated": "Yangilangan",
+        "version": "Versiya"
+      },
+      "overdue": "Muddati o‘tgan",
+      "panelLabel": "Tuzatish tafsilotlari",
+      "subtitle": "Tuzatish · {round}-raund"
+    },
+    "revisions": {
+      "allProjects": "Barcha loyihalar",
+      "columns": {
+        "assignee": "Ijrochi",
+        "deadline": "Muddat",
+        "project": "Loyiha",
+        "round": "Raund",
+        "status": "Holat",
+        "title": "Tuzatish"
+      },
+      "createLabel": "Yangi tuzatish",
+      "deleteEntity": "tuzatish",
+      "emptyBody": "Tuzatishlar kelishuv versiyani qayta ishlashga qaytarganda yaratiladi.",
+      "emptyTitle": "Tuzatishlar yo‘q",
+      "from": "{name}dan",
+      "notAssigned": "tayinlanmagan",
+      "projectFilter": "Loyiha bo‘yicha filtr",
+      "searchUnavailable": "Bu bo‘limda qidiruv mavjud emas",
+      "statusOf": "{title} tuzatishining holati",
+      "summary": "{open} ta ochiq · {inProgress} ta jarayonda · {completed} ta yakunlangan",
+      "updateFailed": "Tuzatishni yangilab bo‘lmadi",
+      "views": {
+        "all": "Hammasi",
+        "completed": "Yakunlangan",
+        "inProgress": "Jarayonda",
+        "open": "Ochiq",
+        "ready": "Tekshiruvda"
+      },
+      "viewsLabel": "Tuzatish bo‘limlari"
+    },
+    "scenes": {
+      "columns": {
+        "episode": "Epizod",
+        "progress": "Bajarilishi",
+        "project": "Loyiha",
+        "scene": "Sahna",
+        "shots": "Shotlar",
+        "status": "Holat"
+      },
+      "count": "{n} ta sahna",
+      "create": "Yangi sahna",
+      "deleteEntity": "sahna",
+      "emptyBody": "Sahnalar loyiha sahifasidagi «Sahnalar» bo‘limida yaratiladi.",
+      "emptyTitle": "Hozircha sahnalar yo‘q",
+      "filters": {
+        "allProjects": "Barcha loyihalar",
+        "allStatuses": "Barcha holatlar",
+        "byProject": "Loyiha bo‘yicha filtr",
+        "byStatus": "Holat bo‘yicha filtr"
+      },
+      "noEpisode": "epizodsiz",
+      "searchPlaceholder": "Nomi bo‘yicha qidirish..."
+    },
+    "shot": {
+      "assignee": "Ijrochi",
+      "backToList": "Barcha shotlarga",
+      "deadline": "muddat {date}",
+      "description": "Tavsif",
+      "fallbackTitle": "Shot",
+      "fps": "{n} kadr/s",
+      "frameRange": "{start}–{end} ({n} ta kadr)",
+      "frames": "Kadrlar",
+      "loadFailed": "Shotni yuklab bo‘lmadi",
+      "notFound": "Shot topilmadi",
+      "progress": "Bajarilishi",
+      "stageCompleted": "yakunlangan {date}",
+      "stageProgressAria": "{name} bosqichining bajarilishi",
+      "stageStatusAria": "{name} bosqichining holati",
+      "stageUpdateFailed": "Bosqichni yangilab bo‘lmadi",
+      "stageWeight": "vazn {n}",
+      "stages": "Bosqichlar",
+      "stagesActive": "{n} ta jarayonda",
+      "stagesBlocked": "{n} ta bloklangan",
+      "stagesEmptyBody": "Shot loyiha pipeline’i sozlanishidan oldin yaratilgan.",
+      "stagesEmptyTitle": "Bosqichlar tayinlanmagan",
+      "stagesHint": "Shot bajarilishi bosqichlar vazniga ko‘ra hisoblanadi va sahna, epizod hamda loyihaga uzatiladi",
+      "stagesTitle": "Ishlab chiqarish bosqichlari",
+      "unassigned": "tayinlanmagan"
+    },
+    "shots": {
+      "columns": {
+        "assignee": "Ijrochi",
+        "progress": "Bajarilishi",
+        "project": "Loyiha",
+        "scene": "Sahna",
+        "shot": "Shot",
+        "status": "Holat"
+      },
+      "countAllProjects": "Barcha loyihalarda {n} ta shot",
+      "create": "Yangi shot",
+      "deleteEntity": "shot",
+      "emptyBody": "Shotlar loyiha sahifasida, sahna ichida yaratiladi.",
+      "emptyTitle": "Hozircha shotlar yo‘q",
+      "filters": {
+        "allProjects": "Barcha loyihalar",
+        "allStatuses": "Barcha holatlar",
+        "byProject": "Loyiha bo‘yicha filtr",
+        "byStatus": "Holat bo‘yicha filtr"
+      },
+      "fps": "{n} fps",
+      "searchPlaceholder": "Kod yoki nom bo‘yicha qidirish...",
+      "unassigned": "tayinlanmagan",
+      "versions": "{n} ta versiya"
+    },
+    "task": {
+      "create": {
+        "chooseProject": "Loyihani tanlang",
+        "creating": "Yaratilmoqda...",
+        "descriptionPlaceholder": "Nima qilish kerak, referenslarga havolalar, talablar...",
+        "estimate": "Baho, soat",
+        "failed": "Vazifani yaratib bo‘lmadi",
+        "name": "Nomi",
+        "namePlaceholder": "SH014 animatsiyasi",
+        "noShot": "Shotga bog‘lanmagan",
+        "noStage": "Bosqichsiz",
+        "project": "Loyiha",
+        "reviewer": "Tekshiruvchi",
+        "shot": "Shot",
+        "stage": "Pipeline bosqichi",
+        "start": "Boshlanishi",
+        "submit": "Vazifa yaratish",
+        "title": "Yangi vazifa"
+      },
+      "drawer": {
+        "archive": "Arxivga",
+        "archiveConfirm": {
+          "detail": "Barcha ma’lumotlar saqlanadi, vazifani istalgan vaqtda arxivdan qaytarish mumkin.",
+          "message": "«{title}» faol ro‘yxatlar va doskadan yo‘qoladi.",
+          "title": "Vazifa arxivlansinmi?"
+        },
+        "archiveFailed": "Arxiv holatini o‘zgartirib bo‘lmadi",
+        "ariaLabel": "Vazifa",
+        "deleteConfirm": {
+          "detail": "Agar vazifa endi ishda kerak bo‘lmasa — arxivdan foydalaning, uni qaytarish mumkin.",
+          "message": "«{title}» bog‘liqliklari va aloqalari bilan birga o‘chiriladi.",
+          "title": "Vazifa o‘chirilsinmi?"
+        },
+        "deleteFailed": "Vazifani o‘chirib bo‘lmadi",
+        "dependsOn": "Bog‘liq vazifalar",
+        "descriptionPlaceholder": "Tavsif qo‘shing...",
+        "discard": "Bekor qilish",
+        "estimate": "Baho, soat",
+        "lateBy": "{n} kun kechikdi",
+        "lateNotice": "Vazifa so‘rov sifatida ko‘riladi: har qanday o‘zgarish ma’muriyatga bildirishnoma bo‘lib boradi va quyidagi muhokamaga tushadi. Sabab panel pastida, saqlash tugmasi yonida so‘raladi.",
+        "loadFailed": "Vazifani yuklab bo‘lmadi",
+        "overdueReasonHint": "Sababsiz saqlab bo‘lmaydi — u ma’muriyatga va muhokamaga yuboriladi",
+        "overdueReasonPlaceholder": "Muddati o‘tgan vazifani tahrirlash sababi",
+        "overdueReasonRequired": "Vazifa muddati o‘tgan: tahrir sababini kiriting",
+        "removeDependency": "{title} bog‘liqligini olib tashlash",
+        "removeDependencyFailed": "Bog‘liqlikni olib tashlab bo‘lmadi",
+        "saving": "Saqlanmoqda...",
+        "stage": "Bosqich",
+        "statusNoteHint": "Yozuv vazifa muhokamasiga tushadi",
+        "statusNotePlaceholder": "Nima qilindi — holatni o‘zgartirish uchun majburiy",
+        "titleLabel": "Vazifa nomi",
+        "unarchive": "Arxivdan qaytarish",
+        "unsavedChanges": "Saqlanmagan o‘zgarishlar bor"
+      },
+      "fields": {
+        "assignee": "Ijrochi",
+        "assigneeNotified": "Ijrochiga tayinlov haqida bildirishnoma boradi",
+        "deadline": "Muddat",
+        "description": "Tavsif",
+        "priority": "Ustuvorlik",
+        "status": "Holat",
+        "statusChangeFailed": "Holatni o‘zgartirib bo‘lmadi",
+        "statusNoteLabel": "Holat o‘zgarishi asosi",
+        "unassigned": "Tayinlanmagan"
+      },
+      "quickStatus": {
+        "newStatus": "Yangi holat",
+        "notePlaceholder": "Nima qilindi — vazifa muhokamasiga tushadi",
+        "reasonLabel": "Kechikish sababi",
+        "reasonPlaceholder": "Muddat nega o‘tib ketdi — ma’muriyatga yuboriladi",
+        "submit": "Holatni o‘zgartirish"
+      },
+      "status": {
+        "allGood": "barcha vazifalar tayinlangan va muddatida",
+        "ariaLabel": "«{status}» holatidagi vazifalar",
+        "emptyBody": "Doskadagi kartochkani shu yerga sudrang yoki vazifa holatini o‘zgartiring.",
+        "emptyTitle": "Bu ustunda hech narsa yo‘q",
+        "loadFailed": "Ustunni yuklab bo‘lmadi",
+        "moveComment": "Holat panelidan ko‘chirildi: {change}",
+        "moveTask": "{title} vazifasini ko‘chirish",
+        "overdue": "{n} ta muddati o‘tgan",
+        "unassigned": "{n} ta ijrochisiz",
+        "unassignedShort": "tayinlanmagan"
+      }
+    },
+    "taskCalendar": {
+      "boardView": "Doska",
+      "dayAria": "{date} sanasidagi vazifalar: {n}",
+      "filters": {
+        "allAssignees": "Barcha ijrochilar",
+        "allProjects": "Barcha loyihalar",
+        "anyPriority": "Har qanday ustuvorlik",
+        "assigneeAria": "Ijrochi bo‘yicha filtr",
+        "priorityAria": "Ustuvorlik bo‘yicha filtr",
+        "projectAria": "Loyiha bo‘yicha filtr"
+      },
+      "heading": "Muddatlar taqvimi",
+      "listView": "Ro‘yxat",
+      "title": "Vazifalar taqvimi",
+      "withDeadline": "{n} ta muddatli",
+      "withoutDate": "{n} ta sanasiz"
+    },
+    "tasks": {
+      "board": "Doska",
+      "calendar": "Taqvim",
+      "columns": {
+        "assignee": "Ijrochi",
+        "deadline": "Muddat",
+        "priority": "Ustuvorlik",
+        "project": "Loyiha",
+        "status": "Holat",
+        "task": "Vazifa"
+      },
+      "deleteEntity": "vazifa",
+      "empty": {
+        "archiveBody": "Arxivlangan vazifalar shu yerda paydo bo‘ladi, ularni ishga qaytarish mumkin.",
+        "archiveTitle": "Arxiv bo‘sh",
+        "body": "Bu tanlovda hozircha hech narsa yo‘q. Yuqoridagi tugma bilan vazifa yarating.",
+        "title": "Vazifalar yo‘q"
+      },
+      "eyebrow": "Ishlab chiqarish",
+      "filters": {
+        "allAssignees": "Barcha ijrochilar",
+        "allProjects": "Barcha loyihalar",
+        "anyPriority": "Istalgan ustuvorlik",
+        "assignee": "Ijrochi bo‘yicha filtr",
+        "priority": "Ustuvorlik bo‘yicha filtr",
+        "project": "Loyiha bo‘yicha filtr"
+      },
+      "newTask": "Yangi vazifa",
+      "searchPlaceholder": "Nomi bo‘yicha qidirish...",
+      "title": "Vazifalar",
+      "unassigned": "tayinlanmagan",
+      "views": {
+        "all": "Barchasi",
+        "archived": "Arxiv",
+        "completed": "Yakunlangan",
+        "my": "Meniki",
+        "overdue": "Muddati o‘tgan",
+        "review": "Kelishuvda"
+      },
+      "viewsLabel": "Tezkor tanlovlar"
+    }
+  }
 }

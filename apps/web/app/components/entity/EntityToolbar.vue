@@ -15,11 +15,13 @@ const props = withDefaults(defineProps<{
   /** Page with its own create form; links there instead of opening the panel. */
   createTo?: string
 }>(), { canManage: true })
+
+const { t } = useI18n()
 </script>
 
 <template>
   <div class="flex flex-wrap items-center gap-2">
-    <div class="flex rounded-md border p-0.5" role="group" aria-label="Набор записей">
+    <div class="flex rounded-md border p-0.5" role="group" :aria-label="t('production.crud.recordSet')">
       <button
         type="button"
         class="rounded px-2.5 py-1 text-sm"
@@ -29,7 +31,7 @@ const props = withDefaults(defineProps<{
         :aria-pressed="!props.crud.archivedView"
         @click="props.crud.archivedView = false"
       >
-        Активные
+        {{ t('production.crud.activeView') }}
       </button>
       <button
         type="button"
@@ -40,7 +42,7 @@ const props = withDefaults(defineProps<{
         :aria-pressed="props.crud.archivedView"
         @click="props.crud.archivedView = true"
       >
-        Архив
+        {{ t('production.crud.archiveView') }}
       </button>
     </div>
 

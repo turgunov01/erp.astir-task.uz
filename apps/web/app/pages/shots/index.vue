@@ -6,7 +6,9 @@ import { useEntityCrud } from '~/composables/useEntityCrud'
 import { SHOT_FORM } from '~/utils/entity-forms'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Шоты' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('shell.nav.shots')) })
 
 const route = useRoute()
 const router = useRouter()
@@ -70,46 +72,41 @@ const projects = computed(() => projectData.value?.data ?? [])
 const crud = useEntityCrud({
   endpoint: '/api/shots',
   refresh: () => refresh(),
-  entityLabel: 'шот',
+  entityLabel: () => t('production.shots.deleteEntity'),
   archivedView
 })
 
 // Switching between the working set and the archive starts from page one.
 watch(archivedView, () => { page.value = 1 })
 
-const columns: Column[] = [
-  { key: 'code', label: 'Шот', width: '18%' },
-  { key: 'project', label: 'Проект', width: '18%' },
-  { key: 'scene', label: 'Сцена', width: '18%' },
-  { key: 'assignee', label: 'Исполнитель', width: '16%' },
-  { key: 'progress', label: 'Прогресс', width: '16%' },
-  { key: 'status', label: 'Статус', width: '14%' },
+const columns = computed<Column[]>(() => [
+  { key: 'code', label: t('production.shots.columns.shot'), width: '18%' },
+  { key: 'project', label: t('production.shots.columns.project'), width: '18%' },
+  { key: 'scene', label: t('production.shots.columns.scene'), width: '18%' },
+  { key: 'assignee', label: t('production.shots.columns.assignee'), width: '16%' },
+  { key: 'progress', label: t('production.shots.columns.progress'), width: '16%' },
+  { key: 'status', label: t('production.shots.columns.status'), width: '14%' },
   { key: 'actions', label: '', width: '56px' }
-]
+])
 
 const STATUSES = Object.values(PRODUCTION_STATUS)
-
-function formatDate(value: string | null) {
-  if (!value) return '—'
-  return new Date(value).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' })
-}
 </script>
 
 <template>
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
       <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-        Производство
+        {{ t('shell.nav.production') }}
       </p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Шоты</h1>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('shell.nav.shots') }}</h1>
       <p class="mt-1 text-sm text-muted-foreground">
-        {{ countLabel(meta.total, 'шот', 'шота', 'шотов') }} во всех проектах
+        {{ countLabel(meta.total, 'production.shots.countAllProjects') }}
       </p>
     </header>
 
     <div class="mb-4 flex flex-wrap items-center justify-end gap-3">
 
-      <EntityToolbar :crud="crud" create-label="Новый шот" :can-manage="canManage" />
+      <EntityToolbar :crud="crud" :create-label="t('production.shots.create')" :can-manage="canManage" />
 
     </div>
 
@@ -121,10 +118,10 @@ function formatDate(value: string | null) {
       :meta="meta"
       :pending="pending"
       :error-message="errorMessage"
-      search-placeholder="Поиск по коду или названию..."
+      :search-placeholder="t('production.shots.searchPlaceholder')"
       empty-icon="lucide:camera"
-      empty-title="Шотов пока нет"
-      empty-body="Шоты создаются внутри сцены на странице проекта."
+      :empty-title="t('production.shots.emptyTitle')"
+      :empty-body="t('production.shots.emptyBody')"
       @update:page="page = $event"
       @update:search="page = 1"
       @retry="refresh"
@@ -133,19 +130,19 @@ function formatDate(value: string | null) {
         <select
           v-model="projectId"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Фильтр по проекту"
+          :aria-label="t('production.shots.filters.byProject')"
           @change="page = 1"
         >
-          <option value="">Все проекты</option>
+          <option value="">{{ t('production.shots.filters.allProjects') }}</option>
           <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.code }}</option>
         </select>
         <select
           v-model="status"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Фильтр по статусу"
+          :aria-label="t('production.shots.filters.byStatus')"
           @change="page = 1"
         >
-          <option value="">Все статусы</option>
+          <option value="">{{ t('production.shots.filters.allStatuses') }}</option>
           <option v-for="s in STATUSES" :key="s" :value="s">{{ enumLabel(PRODUCTION_STATUS_LABEL, s) }}</option>
         </select>
       </template>
@@ -155,7 +152,7 @@ function formatDate(value: string | null) {
           {{ row.code }}
         </NuxtLink>
         <p class="mt-0.5 text-xs text-muted-foreground">
-          {{ row.fps }} fps · {{ row._count.versions }} версий
+          {{ t('production.shots.fps', { n: row.fps }) }} · {{ t('production.shots.versions', row._count.versions) }}
         </p>
       </template>
 
@@ -173,7 +170,7 @@ function formatDate(value: string | null) {
 
       <template #cell-assignee="{ row }">
         <span v-if="row.assignee">{{ row.assignee.firstName }} {{ row.assignee.lastName }}</span>
-        <span v-else class="text-muted-foreground">не назначен</span>
+        <span v-else class="text-muted-foreground">{{ t('production.shots.unassigned') }}</span>
       </template>
 
       <template #cell-progress="{ row }">

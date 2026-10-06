@@ -5,6 +5,7 @@ import type { ViewerItem } from '~/utils/media'
 const props = defineProps<{ id: string, offset: number }>()
 const emit = defineEmits<{ (e: 'close'): void }>()
 
+const { t } = useI18n()
 const { closeAll } = useTaskPanels()
 
 interface AssetVersion {
@@ -58,7 +59,7 @@ const viewerItems = computed<ViewerItem[]>(() => {
       name: item.name,
       url: item.thumbnailUrl,
       mimeType: null,
-      caption: 'Обложка ассета'
+      caption: t('production.assetDetail.thumbnailCaption')
     })
   }
   for (const version of versions.value) {
@@ -87,13 +88,13 @@ function openInViewer(id: string) {
 
 <template>
   <DetailPanel
-    :title="asset?.name ?? 'Ассет'"
-    :subtitle="asset ? labelOf(ASSET_TYPE_LABEL, asset.type) : 'Библиотека ассетов'"
+    :title="asset?.name ?? t('production.assetDetail.fallbackTitle')"
+    :subtitle="asset ? labelOf(ASSET_TYPE_LABEL, asset.type) : t('shell.nav.assets')"
     :offset="props.offset"
     :pending="pending"
     :error="Boolean(error)"
     width="wide"
-    panel-label="Детали ассета"
+    :panel-label="t('production.assetDetail.panelLabel')"
     @close="emit('close')"
     @retry="refresh()"
   >
@@ -106,7 +107,7 @@ function openInViewer(id: string) {
               v-if="asset.thumbnailUrl"
               type="button"
               class="block size-full cursor-zoom-in"
-              :aria-label="'Открыть обложку ' + asset.name"
+              :aria-label="t('production.assetDetail.openThumbnail', { name: asset.name })"
               @click="openInViewer('thumb-' + asset.id)"
             >
               <img
@@ -126,23 +127,23 @@ function openInViewer(id: string) {
               {{ labelOf(ASSET_TYPE_LABEL, asset.type) }}
             </span>
             <span class="text-xs text-muted-foreground">
-              {{ asset._count.versions }} версий
+              {{ t('production.assetDetail.versionsCount', asset._count.versions) }}
             </span>
           </div>
         </div>
 
         <section v-if="asset.description" class="border-b px-5 py-4">
           <h3 class="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Описание
+            {{ t('production.assetDetail.description') }}
           </h3>
           <p class="mt-2 whitespace-pre-wrap text-sm leading-relaxed">{{ asset.description }}</p>
         </section>
 
         <dl class="divide-y">
-          <DetailRow label="Статус">
+          <DetailRow :label="t('production.detail.status')">
             {{ labelOf(PRODUCTION_STATUS_LABEL, asset.status) }}
           </DetailRow>
-          <DetailRow label="Проект">
+          <DetailRow :label="t('production.detail.project')">
             <NuxtLink
               v-if="asset.project"
               :to="'/projects/' + asset.project.id"
@@ -151,11 +152,11 @@ function openInViewer(id: string) {
             >
               {{ asset.project.code }} · {{ asset.project.name }}
             </NuxtLink>
-            <span v-else class="text-muted-foreground">общий</span>
+            <span v-else class="text-muted-foreground">{{ t('production.detail.shared') }}</span>
           </DetailRow>
-          <DetailRow label="Владелец">{{ fullName(asset.owner) }}</DetailRow>
-          <DetailRow label="Создан">{{ formatDateTime(asset.createdAt) }}</DetailRow>
-          <DetailRow label="Обновлён">{{ formatDateTime(asset.updatedAt) }}</DetailRow>
+          <DetailRow :label="t('production.detail.owner')">{{ fullName(asset.owner) }}</DetailRow>
+          <DetailRow :label="t('production.detail.created')">{{ formatDateTime(asset.createdAt) }}</DetailRow>
+          <DetailRow :label="t('production.detail.updated')">{{ formatDateTime(asset.updatedAt) }}</DetailRow>
         </dl>
       </div>
 
@@ -164,11 +165,11 @@ function openInViewer(id: string) {
         <h3
           class="border-b px-5 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground"
         >
-          Версии
+          {{ t('production.assetDetail.versions') }}
         </h3>
 
         <p v-if="versions.length === 0" class="px-5 py-6 text-sm text-muted-foreground">
-          У ассета пока нет версий.
+          {{ t('production.assetDetail.noVersions') }}
         </p>
 
         <ul v-else class="divide-y">
@@ -181,7 +182,7 @@ function openInViewer(id: string) {
               v-if="version.fileUrl"
               type="button"
               class="block size-12 shrink-0 overflow-hidden rounded-md border bg-secondary hover:opacity-90"
-              :aria-label="'Открыть файл версии ' + version.label"
+              :aria-label="t('production.detail.openVersionFile', { label: version.label })"
               @click="openInViewer(version.id)"
             >
               <MediaThumb

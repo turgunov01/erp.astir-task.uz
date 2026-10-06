@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { useTaskPanels } from '~/composables/useTaskPanels'
 
-useHead({ title: 'Календарь' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('production.calendar.title')) })
 
 const { openTask } = useTaskPanels()
 
@@ -90,7 +92,7 @@ const eventsByDay = computed(() => {
     push(dayKey(project.deadline), {
       kind: 'project',
       id: project.id,
-      label: project.code + ' · сдача',
+      label: t('production.calendar.deliveryLabel', { code: project.code }),
       meta: project.name,
       done: project.status === 'COMPLETED'
     })
@@ -145,10 +147,11 @@ const KIND_CLASS: Record<EventKind, string> = {
   task: 'bg-sky-500/12 text-sky-700 dark:text-sky-300'
 }
 
-const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+/** Monday first, matching the grid above. */
+const weekdays = computed(() => [1, 2, 3, 4, 5, 6, 7].map(day => t('common.weekdayShort.' + day)))
 
 const monthLabel = computed(() =>
-  viewDate.value.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })
+  new Intl.DateTimeFormat(intlTag(), { month: 'long', year: 'numeric' }).format(viewDate.value)
 )
 
 const totals = computed(() => ({
@@ -167,14 +170,17 @@ function openEvent(event: DayEvent) {
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
       <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-        Планирование
+        {{ t('production.calendar.eyebrow') }}
       </p>
       <div class="mt-1.5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 class="text-2xl font-semibold tracking-tight">Календарь</h1>
+          <h1 class="text-2xl font-semibold tracking-tight">{{ t('production.calendar.title') }}</h1>
           <p class="mt-1 text-sm text-muted-foreground">
-            {{ totals.projects }} сдач проектов · {{ totals.milestones }} вех ·
-            {{ countLabel(totals.tasks, 'задача', 'задачи', 'задач') }} в этом месяце
+            {{ t('production.calendar.summary', {
+              deliveries: t('production.calendar.deliveriesCount', totals.projects),
+              milestones: t('production.calendar.milestonesCount', totals.milestones),
+              tasks: countLabel(totals.tasks, 'common.count.tasks')
+            }) }}
           </p>
         </div>
 
@@ -182,7 +188,7 @@ function openEvent(event: DayEvent) {
           <button
             type="button"
             class="rounded-md border px-2.5 py-1.5 hover:bg-secondary"
-            aria-label="Предыдущий месяц"
+            :aria-label="t('production.calendar.prevMonth')"
             @click="monthOffset--"
           >
             <Icon name="lucide:chevron-left" class="size-4" />
@@ -193,7 +199,7 @@ function openEvent(event: DayEvent) {
           <button
             type="button"
             class="rounded-md border px-2.5 py-1.5 hover:bg-secondary"
-            aria-label="Следующий месяц"
+            :aria-label="t('production.calendar.nextMonth')"
             @click="monthOffset++"
           >
             <Icon name="lucide:chevron-right" class="size-4" />
@@ -204,7 +210,7 @@ function openEvent(event: DayEvent) {
             class="ml-1 rounded-md border px-2.5 py-1.5 text-sm hover:bg-secondary"
             @click="monthOffset = 0"
           >
-            Сегодня
+            {{ t('production.calendar.today') }}
           </button>
         </div>
       </div>
@@ -212,13 +218,13 @@ function openEvent(event: DayEvent) {
 
     <div class="mb-4 flex flex-wrap gap-3 text-xs text-muted-foreground">
       <span class="inline-flex items-center gap-1.5">
-        <span class="size-2 rounded-sm bg-destructive/60" /> сдача проекта
+        <span class="size-2 rounded-sm bg-destructive/60" /> {{ t('production.calendar.legend.delivery') }}
       </span>
       <span class="inline-flex items-center gap-1.5">
-        <span class="size-2 rounded-sm bg-violet-500/60" /> веха
+        <span class="size-2 rounded-sm bg-violet-500/60" /> {{ t('production.calendar.legend.milestone') }}
       </span>
       <span class="inline-flex items-center gap-1.5">
-        <span class="size-2 rounded-sm bg-sky-500/60" /> задача
+        <span class="size-2 rounded-sm bg-sky-500/60" /> {{ t('production.calendar.legend.task') }}
       </span>
     </div>
 
@@ -227,13 +233,13 @@ function openEvent(event: DayEvent) {
       class="grid place-items-center rounded-xl border bg-card px-6 py-16 text-center"
     >
       <Icon name="lucide:triangle-alert" class="size-7 text-destructive" />
-      <p class="mt-3 text-sm">Не удалось загрузить календарь</p>
+      <p class="mt-3 text-sm">{{ t('production.calendar.loadFailed') }}</p>
       <button
         type="button"
         class="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
         @click="refresh()"
       >
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
@@ -244,8 +250,8 @@ function openEvent(event: DayEvent) {
     >
       <div class="grid grid-cols-7 border-b bg-muted/30">
         <div
-          v-for="day in WEEKDAYS"
-          :key="day"
+          v-for="(day, dayIndex) in weekdays"
+          :key="dayIndex"
           class="px-2 py-2 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground"
         >
           {{ day }}
@@ -288,7 +294,7 @@ function openEvent(event: DayEvent) {
               v-if="(eventsByDay.get(cell.key) ?? []).length > 3"
               class="px-1.5 text-xs text-muted-foreground"
             >
-              ещё {{ (eventsByDay.get(cell.key) ?? []).length - 3 }}
+              {{ t('production.calendar.more', { n: (eventsByDay.get(cell.key) ?? []).length - 3 }) }}
             </li>
           </ul>
         </div>

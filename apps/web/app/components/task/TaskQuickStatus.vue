@@ -18,6 +18,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{ changed: [], cancel: [] }>()
 
+const { t } = useI18n()
+
 const MIN_NOTE = 3
 
 /** The move people make most often from each status, offered first. */
@@ -60,7 +62,7 @@ async function submit() {
     })
     emit('changed')
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось изменить статус')
+    errorMessage.value = apiErrorMessage(err, t('production.task.fields.statusChangeFailed'))
   } finally {
     saving.value = false
   }
@@ -72,7 +74,7 @@ async function submit() {
     <select
       v-model="nextStatus"
       class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-      aria-label="Новый статус"
+      :aria-label="t('production.task.quickStatus.newStatus')"
     >
       <option v-for="option in options" :key="option" :value="option">
         {{ enumLabel(TASK_STATUS_LABEL, option) }}
@@ -82,18 +84,18 @@ async function submit() {
     <input
       v-model="note"
       maxlength="4000"
-      placeholder="Что сделано — попадёт в обсуждение задачи"
+      :placeholder="t('production.task.quickStatus.notePlaceholder')"
       class="h-9 rounded-md border bg-background px-3 text-sm outline-none focus:border-ring"
-      aria-label="Основание смены статуса"
+      :aria-label="t('production.task.fields.statusNoteLabel')"
     >
 
     <input
       v-if="late"
       v-model="overdueReason"
       maxlength="500"
-      placeholder="Почему срок сорван — уйдёт администрации"
+      :placeholder="t('production.task.quickStatus.reasonPlaceholder')"
       class="h-9 rounded-md border border-destructive/40 bg-background px-3 text-sm outline-none focus:border-ring sm:col-span-2"
-      aria-label="Причина просрочки"
+      :aria-label="t('production.task.quickStatus.reasonLabel')"
     >
 
     <p v-if="errorMessage" class="text-sm text-destructive sm:col-span-2" role="alert">
@@ -106,7 +108,7 @@ async function submit() {
         class="h-8 rounded-md px-3 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground"
         @click="emit('cancel')"
       >
-        Отмена
+        {{ t('common.actions.cancel') }}
       </button>
       <button
         type="submit"
@@ -114,7 +116,7 @@ async function submit() {
         :disabled="!ready || saving"
       >
         <Icon v-if="saving" name="lucide:loader-circle" class="size-3.5 animate-spin" />
-        Сменить статус
+        {{ t('production.task.quickStatus.submit') }}
       </button>
     </div>
   </form>

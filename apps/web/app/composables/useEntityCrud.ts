@@ -1,4 +1,4 @@
-import type { Ref } from 'vue'
+import type { MaybeRefOrGetter, Ref } from 'vue'
 import { apiErrorMessage, apiRequest } from '~/composables/useApi'
 
 /**
@@ -15,8 +15,16 @@ export interface EntityCrudOptions {
   endpoint: string
   /** Called after any action that changed data. */
   refresh: () => unknown | Promise<unknown>
-  /** Accusative-case noun for dialogs: "клиента", "ассет". */
-  entityLabel: string
+  /**
+   * The row's noun inside the delete question, in the current language.
+   *
+   * Pass a getter so the dialog follows a language switch:
+   * `() => t('production.episodes.deleteEntity')`. The sentence frame is
+   * `production.crud.deleteQuestion`: Russian puts the noun in the accusative,
+   * Uzbek, English and Turkish use the plain noun. A plain string still works,
+   * and one that is a message key is translated.
+   */
+  entityLabel: MaybeRefOrGetter<string>
   /** Human name of a row, shown in the delete confirmation. */
   nameOf?: (row: EntityRow) => string
   /**
@@ -91,7 +99,7 @@ export function useEntityCrud(options: EntityCrudOptions) {
     } catch (err) {
       errorMessage.value = apiErrorMessage(
         err,
-        archived ? 'Не удалось архивировать' : 'Не удалось вернуть из архива'
+        translate(archived ? 'production.crud.archiveFailed' : 'production.crud.unarchiveFailed')
       )
     } finally {
       busyId.value = ''
@@ -119,7 +127,7 @@ export function useEntityCrud(options: EntityCrudOptions) {
       deleteTarget.value = null
       await options.refresh()
     } catch (err) {
-      errorMessage.value = apiErrorMessage(err, 'Не удалось удалить')
+      errorMessage.value = apiErrorMessage(err, translate('production.crud.deleteFailed'))
       deleteTarget.value = null
     } finally {
       deleting.value = false
@@ -130,7 +138,11 @@ export function useEntityCrud(options: EntityCrudOptions) {
   const deleteMessage = computed(() => {
     const row = deleteTarget.value
     if (!row) return ''
-    return 'Удалить ' + options.entityLabel + ' «' + nameOf(row) + '»?'
+    const label = toValue(options.entityLabel)
+    const entity = hasMessage(label) ? translate(label) : label
+    const question = translate('production.crud.deleteQuestion', { entity, name: nameOf(row) })
+    // Uzbek and Turkish open the sentence with the noun.
+    return question.charAt(0).toLocaleUpperCase(intlTag()) + question.slice(1)
   })
 
   /*

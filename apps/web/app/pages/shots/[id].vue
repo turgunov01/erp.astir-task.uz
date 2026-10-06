@@ -3,6 +3,7 @@ import { PERMISSION, PRODUCTION_STATUS, STAGE_STATUS } from '@astir/types'
 import { apiErrorMessage, apiRequest } from '~/composables/useApi'
 import { useAuthStore } from '~/stores/auth'
 
+const { t } = useI18n()
 const route = useRoute()
 const auth = useAuthStore()
 const shotId = computed(() => String(route.params.id))
@@ -46,10 +47,10 @@ const { data, pending, error, refresh } = await useFetch<{ data: ShotDetail }>(
 const shot = computed(() => data.value?.data)
 
 if (!pending.value && !shot.value) {
-  throw createError({ statusCode: 404, statusMessage: 'Шот не найден' })
+  throw createError({ statusCode: 404, statusMessage: t('production.shot.notFound') })
 }
 
-useHead({ title: computed(() => (shot.value?.code ?? 'Шот') + '') })
+useHead({ title: computed(() => shot.value?.code ?? t('production.shot.fallbackTitle')) })
 
 // An artist owns their shot stages, unlike the project-level pipeline.
 const canEditStages = computed(() => auth.can(PERMISSION.TASK_UPDATE))
@@ -80,23 +81,16 @@ async function patchStage(stage: ShotStage, payload: Record<string, unknown>) {
     })
     await refresh()
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось обновить стадию')
+    errorMessage.value = apiErrorMessage(err, t('production.shot.stageUpdateFailed'))
   } finally {
     busyStageId.value = ''
   }
 }
 
-function formatDate(value: string | null) {
-  if (!value) return '—'
-  return new Date(value).toLocaleDateString('ru-RU', {
-    day: '2-digit', month: 'short', year: 'numeric'
-  })
-}
-
 function frameRange(target: ShotDetail) {
   if (target.startFrame == null || target.endFrame == null) return '—'
   const frames = target.endFrame - target.startFrame + 1
-  return target.startFrame + '–' + target.endFrame + ' (' + frames + ' кадров)'
+  return t('production.shot.frameRange', { start: target.startFrame, end: target.endFrame, n: frames }, frames)
 }
 </script>
 
@@ -107,18 +101,18 @@ function frameRange(target: ShotDetail) {
       class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
     >
       <Icon name="lucide:arrow-left" class="size-3.5" />
-      Ко всем шотам
+      {{ t('production.shot.backToList') }}
     </NuxtLink>
 
     <div v-if="error" class="mt-8 rounded-xl border bg-card px-6 py-16 text-center">
       <Icon name="lucide:triangle-alert" class="size-8 text-destructive" />
-      <p class="mt-3 text-sm font-medium">Не удалось загрузить шот</p>
+      <p class="mt-3 text-sm font-medium">{{ t('production.shot.loadFailed') }}</p>
       <button
         type="button"
         class="mt-4 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
         @click="refresh()"
       >
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
@@ -144,33 +138,33 @@ function frameRange(target: ShotDetail) {
 
       <section class="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border lg:grid-cols-4">
         <div class="bg-card px-5 py-4">
-          <p class="text-xs uppercase tracking-wider text-muted-foreground">Прогресс</p>
+          <p class="text-xs uppercase tracking-wider text-muted-foreground">{{ t('production.shot.progress') }}</p>
           <p class="mt-1.5 text-2xl font-semibold tabular-nums">{{ shot.progress }}%</p>
           <ProgressBar class="mt-2" :value="shot.progress" />
         </div>
         <div class="bg-card px-5 py-4">
-          <p class="text-xs uppercase tracking-wider text-muted-foreground">Стадии</p>
+          <p class="text-xs uppercase tracking-wider text-muted-foreground">{{ t('production.shot.stages') }}</p>
           <p class="mt-1.5 text-lg font-medium tabular-nums">
             {{ summary.done }} / {{ summary.total }}
           </p>
           <p class="mt-1 text-xs text-muted-foreground">
-            {{ summary.active }} в работе
+            {{ t('production.shot.stagesActive', { n: summary.active }) }}
             <span v-if="summary.blocked > 0" class="text-destructive">
-              · {{ summary.blocked }} заблокировано
+              · {{ t('production.shot.stagesBlocked', { n: summary.blocked }) }}
             </span>
           </p>
         </div>
         <div class="bg-card px-5 py-4">
-          <p class="text-xs uppercase tracking-wider text-muted-foreground">Кадры</p>
+          <p class="text-xs uppercase tracking-wider text-muted-foreground">{{ t('production.shot.frames') }}</p>
           <p class="mt-1.5 text-sm font-medium">{{ frameRange(shot) }}</p>
-          <p class="mt-1 text-xs text-muted-foreground">{{ shot.fps }} к/с</p>
+          <p class="mt-1 text-xs text-muted-foreground">{{ t('production.shot.fps', { n: shot.fps }) }}</p>
         </div>
         <div class="bg-card px-5 py-4">
-          <p class="text-xs uppercase tracking-wider text-muted-foreground">Исполнитель</p>
+          <p class="text-xs uppercase tracking-wider text-muted-foreground">{{ t('production.shot.assignee') }}</p>
           <p class="mt-1.5 text-sm font-medium">
-            {{ shot.assignee ? shot.assignee.firstName + ' ' + shot.assignee.lastName : 'не назначен' }}
+            {{ shot.assignee ? shot.assignee.firstName + ' ' + shot.assignee.lastName : t('production.shot.unassigned') }}
           </p>
-          <p class="mt-1 text-xs text-muted-foreground">дедлайн {{ formatDate(shot.deadline) }}</p>
+          <p class="mt-1 text-xs text-muted-foreground">{{ t('production.shot.deadline', { date: formatDay(shot.deadline) }) }}</p>
         </div>
       </section>
 
@@ -185,18 +179,18 @@ function frameRange(target: ShotDetail) {
       <section class="mt-6 rounded-xl border bg-card">
         <header class="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4">
           <div>
-            <h2 class="text-sm font-medium">Производственные стадии</h2>
+            <h2 class="text-sm font-medium">{{ t('production.shot.stagesTitle') }}</h2>
             <p class="mt-1 text-xs text-muted-foreground">
-              Прогресс шота считается по весам стадий и поднимается до сцены, эпизода и проекта
+              {{ t('production.shot.stagesHint') }}
             </p>
           </div>
         </header>
 
         <div v-if="shot.stages.length === 0" class="grid place-items-center px-6 py-14 text-center">
           <Icon name="lucide:git-branch" class="size-7 text-muted-foreground/50" />
-          <h3 class="mt-3 text-sm font-medium">Стадии не назначены</h3>
+          <h3 class="mt-3 text-sm font-medium">{{ t('production.shot.stagesEmptyTitle') }}</h3>
           <p class="mt-1.5 max-w-sm text-sm text-muted-foreground">
-            Шот создан до настройки пайплайна проекта.
+            {{ t('production.shot.stagesEmptyBody') }}
           </p>
         </div>
 
@@ -214,12 +208,12 @@ function frameRange(target: ShotDetail) {
             <div class="min-w-0 flex-1">
               <p class="truncate text-sm font-medium">{{ item.stage.name }}</p>
               <p class="mt-0.5 text-xs text-muted-foreground">
-                вес {{ item.stage.weight }}
+                {{ t('production.shot.stageWeight', { n: item.stage.weight }) }}
                 <template v-if="item.assignee">
                   · {{ item.assignee.firstName }} {{ item.assignee.lastName }}
                 </template>
                 <template v-if="item.completedAt">
-                  · завершена {{ formatDate(item.completedAt) }}
+                  · {{ t('production.shot.stageCompleted', { date: formatDay(item.completedAt) }) }}
                 </template>
               </p>
             </div>
@@ -233,7 +227,7 @@ function frameRange(target: ShotDetail) {
               :value="item.progress"
               :disabled="item.status === 'DONE' || busyStageId === item.stageId"
               class="h-1.5 w-28 cursor-pointer accent-primary disabled:cursor-not-allowed"
-              :aria-label="'Прогресс стадии ' + item.stage.name"
+              :aria-label="t('production.shot.stageProgressAria', { name: item.stage.name })"
               @change="patchStage(item, { progress: Number(($event.target as HTMLInputElement).value) })"
             >
             <span class="w-9 text-right text-xs tabular-nums text-muted-foreground">
@@ -245,7 +239,7 @@ function frameRange(target: ShotDetail) {
               :value="item.status"
               :disabled="busyStageId === item.stageId"
               class="h-8 rounded-md border bg-background px-2 text-xs outline-none focus:border-ring"
-              :aria-label="'Статус стадии ' + item.stage.name"
+              :aria-label="t('production.shot.stageStatusAria', { name: item.stage.name })"
               @change="patchStage(item, { status: ($event.target as HTMLSelectElement).value })"
             >
               <option v-for="s in STAGE_STATUSES" :key="s" :value="s">
@@ -258,7 +252,7 @@ function frameRange(target: ShotDetail) {
       </section>
 
       <section v-if="shot.description" class="mt-6 rounded-xl border bg-card p-5">
-        <h2 class="text-sm font-medium">Описание</h2>
+        <h2 class="text-sm font-medium">{{ t('production.shot.description') }}</h2>
         <p class="mt-2 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
           {{ shot.description }}
         </p>

@@ -11,6 +11,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{ (e: 'close'): void, (e: 'saved', row: unknown): void }>()
 
+const { t } = useI18n()
+
 const isEdit = computed(() => Boolean(props.record?.id))
 
 /** Create-only fields vanish once the row exists; edit-only appear then. */
@@ -93,7 +95,7 @@ function addFiles(field: FormField, list: FileList | null) {
   const chosen = Array.from(list)
   const tooBig = oversized(chosen)
   errorMessage.value = tooBig.length > 0
-    ? 'Больше 1 ГБ, не добавлены: ' + tooBig.map(file => file.name).join(', ')
+    ? t('production.entity.tooBig', { files: tooBig.map(file => file.name).join(', ') })
     : ''
   const accepted = chosen.filter(file => !tooBig.includes(file))
   pendingFiles[field.key] = [...(pendingFiles[field.key] ?? []), ...accepted]
@@ -140,7 +142,12 @@ async function uploadPending(recordId: string) {
         })
       } catch (err) {
         if (isUploadCancelled(err)) cancelled = true
-        else failed.push(file.name + ' (' + apiErrorMessage(err, 'ошибка') + ')')
+        else {
+          failed.push(t('production.entity.fileFailed', {
+            name: file.name,
+            error: apiErrorMessage(err, t('production.entity.uploadError'))
+          }))
+        }
       }
     }
     pendingFiles[field.key] = []
@@ -166,8 +173,9 @@ const missing = computed(() =>
 
 async function submit() {
   if (missing.value.length > 0) {
-    errorMessage.value = 'Заполните обязательные поля: ' +
-      missing.value.map(field => field.label).join(', ')
+    errorMessage.value = t('production.entity.missingRequired', {
+      fields: missing.value.map(field => field.label).join(', ')
+    })
     return
   }
   saving.value = true
@@ -191,8 +199,8 @@ async function submit() {
     const result = recordId ? await uploadPending(recordId) : { failed: [], cancelled: false }
     if (result.cancelled || result.failed.length > 0) {
       errorMessage.value = result.cancelled
-        ? 'Запись сохранена, загрузка файлов отменена'
-        : 'Запись сохранена, но не загрузились файлы: ' + result.failed.join(', ')
+        ? t('production.entity.uploadCancelled')
+        : t('production.entity.uploadFailed', { files: result.failed.join(', ') })
       emit('saved', row)
       return
     }
@@ -200,7 +208,7 @@ async function submit() {
     emit('saved', row)
     emit('close')
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось сохранить')
+    errorMessage.value = apiErrorMessage(err, t('common.errors.saveFailed'))
   } finally {
     saving.value = false
   }
@@ -233,7 +241,7 @@ onMounted(() => {
           <button
             type="button"
             class="rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground"
-            aria-label="Закрыть"
+            :aria-label="t('common.actions.close')"
             @click="emit('close')"
           >
             <Icon name="lucide:x" class="size-4" />
@@ -273,7 +281,7 @@ onMounted(() => {
                 v-model="values[field.key] as string"
                 class="h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
               >
-                <option v-if="!(isEdit && field.notNull)" value="">{{ field.placeholder ?? 'Не выбрано' }}</option>
+                <option v-if="!(isEdit && field.notNull)" value="">{{ field.placeholder ?? t('production.entity.notSelected') }}</option>
                 <option v-for="option in optionsFor(field)" :key="option.value" :value="option.value">
                   {{ option.label }}
                 </option>
@@ -284,7 +292,7 @@ onMounted(() => {
                   class="flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed px-3 py-4 text-sm text-muted-foreground hover:border-ring hover:text-foreground"
                 >
                   <Icon name="lucide:paperclip" class="size-4" />
-                  Выбрать фото, видео, аудио или документ (до 1 ГБ)
+                  {{ t('production.entity.pickFiles') }}
                   <input
                     :id="'field-' + field.key"
                     type="file"
@@ -307,7 +315,7 @@ onMounted(() => {
                     <button
                       type="button"
                       class="shrink-0 rounded p-0.5 text-muted-foreground hover:text-destructive"
-                      :aria-label="'Убрать ' + file.name"
+                      :aria-label="t('production.entity.removeFile', { name: file.name })"
                       @click="dropFile(field, index)"
                     >
                       <Icon name="lucide:x" class="size-3.5" />
@@ -326,7 +334,7 @@ onMounted(() => {
                   type="checkbox"
                   class="size-4 rounded border"
                 >
-                <span class="text-muted-foreground">{{ field.placeholder ?? 'Да' }}</span>
+                <span class="text-muted-foreground">{{ field.placeholder ?? t('production.entity.yes') }}</span>
               </label>
 
               <input
@@ -347,13 +355,13 @@ onMounted(() => {
           <footer class="border-t px-5 py-3.5">
             <div v-if="uploading" class="mb-3" aria-live="polite">
               <p class="flex items-baseline justify-between gap-3 text-xs">
-                <span class="min-w-0 truncate">Загрузка: {{ uploadingName }}</span>
+                <span class="min-w-0 truncate">{{ t('production.entity.uploading', { name: uploadingName }) }}</span>
                 <button
                   type="button"
                   class="shrink-0 rounded px-1.5 py-0.5 text-muted-foreground hover:text-destructive"
                   @click="cancelUpload()"
                 >
-                  Отменить
+                  {{ t('production.entity.cancelUpload') }}
                 </button>
               </p>
               <ProgressBar :value="uploadProgress" fluid class="mt-1.5" />
@@ -371,14 +379,14 @@ onMounted(() => {
                 class="rounded-md px-3 py-2 text-sm text-muted-foreground hover:text-foreground"
                 @click="emit('close')"
               >
-                Отмена
+                {{ t('common.actions.cancel') }}
               </button>
               <button
                 type="submit"
                 :disabled="saving"
                 class="h-9 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
               >
-                {{ saving ? 'Сохранение...' : isEdit ? 'Сохранить' : 'Создать' }}
+                {{ saving ? t('production.entity.saving') : isEdit ? t('common.actions.save') : t('common.actions.create') }}
               </button>
             </div>
           </footer>

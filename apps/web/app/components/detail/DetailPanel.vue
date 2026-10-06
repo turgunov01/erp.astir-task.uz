@@ -19,6 +19,8 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits<{ (e: 'close'): void, (e: 'retry'): void }>()
 
+const { t } = useI18n()
+
 const widthClass = computed(() =>
   props.width === 'wide' ? 'max-w-3xl' : 'max-w-xl'
 )
@@ -43,7 +45,7 @@ const widthClass = computed(() =>
         <button
           type="button"
           class="rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground"
-          aria-label="Закрыть"
+          :aria-label="t('common.actions.close')"
           @click="emit('close')"
         >
           <Icon name="lucide:x" class="size-4" />
@@ -60,13 +62,13 @@ const widthClass = computed(() =>
     <div v-else-if="props.error" class="grid flex-1 place-items-center px-6 text-center">
       <div>
         <Icon name="lucide:triangle-alert" class="size-7 text-destructive" />
-        <p class="mt-3 text-sm">Не удалось загрузить данные</p>
+        <p class="mt-3 text-sm">{{ t('common.errors.loadFailed') }}</p>
         <button
           type="button"
           class="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
           @click="emit('retry')"
         >
-          Повторить
+          {{ t('common.actions.retry') }}
         </button>
       </div>
     </div>
