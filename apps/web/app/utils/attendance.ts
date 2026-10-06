@@ -54,16 +54,14 @@ export interface AttendanceTotals {
   workedMinutes: number
 }
 
-/** The chip wording; the board spells "не отметился" out in full. */
+/** The chip wording, in the current language; today's board spells "не отметился" out in full. */
 export function attendanceStatusLabel(status: AttendanceStatus, isToday: boolean): string {
   switch (status) {
-    case 'PRESENT': return 'Отметился'
-    case 'UNMARKED': return isToday ? 'В системе, не отметился' : 'Без отметки'
-    case 'ABSENT': return isToday ? 'Не пришёл' : 'Не было'
-    case 'DAY_OFF': return 'Выходной'
-    case 'ON_LEAVE': return 'Отпуск'
-    case 'NOT_EMPLOYED': return 'Не в штате'
+    case 'UNMARKED':
+    case 'ABSENT':
+      return translate('team.attendanceStatus.' + status + (isToday ? '.today' : '.past'))
     case 'UPCOMING': return '—'
+    default: return translate('team.attendanceStatus.' + status)
   }
 }
 
@@ -77,10 +75,9 @@ export const ATTENDANCE_STATUS_CLASS: Record<AttendanceStatus, string> = {
   UPCOMING: 'bg-secondary text-muted-foreground'
 }
 
-export const ATTENDANCE_SOURCE_LABEL: Record<string, string> = {
-  WEB: 'Автоматически',
-  MANUAL: 'Исправлено вручную',
-  EXTERNAL: 'Из системы контроля доступа'
+/** Where a day's times came from (WEB, MANUAL, EXTERNAL), in the current language. */
+export function attendanceSourceLabel(source: 'WEB' | 'MANUAL' | 'EXTERNAL'): string {
+  return translate('team.attendanceSource.' + source)
 }
 
 /** Short weekday name for an ISO weekday (1 = Monday ... 7 = Sunday), in the current language. */

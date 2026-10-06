@@ -16,6 +16,7 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{ (e: 'saved'): void, (e: 'cancel'): void }>()
+const { t } = useI18n()
 
 const clockOrEmpty = (value: string | null) => (value ? studioClock(value, props.timezone) : '')
 
@@ -46,7 +47,7 @@ async function save() {
     })
     emit('saved')
   } catch (err) {
-    error.value = apiErrorMessage(err, 'Не удалось сохранить исправление')
+    error.value = apiErrorMessage(err, t('team.correct.saveFailed'))
   } finally {
     busy.value = false
   }
@@ -59,7 +60,7 @@ async function reset() {
     await apiRequest(endpoint.value + '/correction', { method: 'DELETE' })
     emit('saved')
   } catch (err) {
-    error.value = apiErrorMessage(err, 'Не удалось вернуть автоматические данные')
+    error.value = apiErrorMessage(err, t('team.correct.resetFailed'))
   } finally {
     busy.value = false
   }
@@ -92,7 +93,7 @@ const inputClass = 'mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 tex
       <div class="space-y-4 px-6 py-5">
         <div>
           <h2 id="attendance-correct-title" class="text-base font-semibold tracking-tight">
-            Исправить день
+            {{ t('team.correct.title') }}
           </h2>
           <p class="mt-1 text-sm text-muted-foreground">
             {{ props.person.user.firstName }} {{ props.person.user.lastName }} · {{ shortDate(props.date) }}
@@ -100,38 +101,42 @@ const inputClass = 'mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 tex
         </div>
 
         <p class="rounded-lg bg-secondary/60 px-3 py-2 text-xs text-muted-foreground">
-          Система видела: первый вход
-          <span class="font-medium text-foreground tabular-nums">{{ studioClock(props.day.firstSeenAt, props.timezone) }}</span>,
-          последняя активность
-          <span class="font-medium text-foreground tabular-nums">{{ studioClock(props.day.lastSeenAt, props.timezone) }}</span>.
+          <i18n-t keypath="team.correct.observed" tag="span" scope="global">
+            <template #first>
+              <span class="font-medium text-foreground tabular-nums">{{ studioClock(props.day.firstSeenAt, props.timezone) }}</span>
+            </template>
+            <template #last>
+              <span class="font-medium text-foreground tabular-nums">{{ studioClock(props.day.lastSeenAt, props.timezone) }}</span>
+            </template>
+          </i18n-t>
           <template v-if="props.day.source === 'MANUAL' && props.day.comment">
-            <br>Прошлое исправление: «{{ props.day.comment }}»
+            <br>{{ t('team.correct.previous', { comment: props.day.comment }) }}
           </template>
         </p>
 
         <div class="grid grid-cols-2 gap-3">
           <label class="block">
-            <span class="text-sm font-medium">Приход</span>
+            <span class="text-sm font-medium">{{ t('team.days.columns.checkIn') }}</span>
             <input v-model="form.checkIn" type="time" :class="inputClass">
           </label>
           <label class="block">
-            <span class="text-sm font-medium">Уход</span>
+            <span class="text-sm font-medium">{{ t('team.days.columns.checkOut') }}</span>
             <input v-model="form.checkOut" type="time" :class="inputClass">
           </label>
         </div>
         <p class="-mt-2 text-xs text-muted-foreground">
-          Пустой приход — сотрудник не был на работе в этот день.
+          {{ t('team.correct.emptyHint') }}
         </p>
 
         <label class="block">
-          <span class="text-sm font-medium">Причина исправления</span>
+          <span class="text-sm font-medium">{{ t('team.correct.reason') }}</span>
           <textarea
             v-model="form.comment"
             rows="2"
             required
             minlength="3"
             maxlength="500"
-            placeholder="Например: забыл войти, был на съёмке с 9:00"
+            :placeholder="t('team.correct.reasonPlaceholder')"
             class="mt-1.5 w-full rounded-md border bg-background px-2.5 py-2 text-sm outline-none focus:border-ring"
           />
         </label>
@@ -147,21 +152,21 @@ const inputClass = 'mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 tex
           :disabled="busy"
           @click="reset()"
         >
-          Вернуть автоматические
+          {{ t('team.correct.reset') }}
         </button>
         <button
           type="button"
           class="h-9 rounded-md border px-4 text-sm hover:bg-secondary"
           @click="emit('cancel')"
         >
-          Отмена
+          {{ t('common.actions.cancel') }}
         </button>
         <button
           type="submit"
           class="h-9 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-50"
           :disabled="busy || form.comment.trim().length < 3"
         >
-          {{ busy ? 'Сохраняю...' : 'Сохранить' }}
+          {{ busy ? t('common.actions.saving') : t('common.actions.save') }}
         </button>
       </div>
     </form>

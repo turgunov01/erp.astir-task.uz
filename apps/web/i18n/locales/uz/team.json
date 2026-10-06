@@ -70,7 +70,380 @@
         "invoicePrefixHint": "Masalan, INV- INV-0001 ni beradi.",
         "defaultLanguage": "Standart til",
         "defaultLanguageHint": "Profilda til tanlamaganlar uchun, shuningdek kirish sahifasi, xatlar va eksportlar uchun."
+      },
+      "mail": {
+        "testFailed": "Tekshiruv muvaffaqiyatsiz tugadi",
+        "intro": "SMTP to‘ldirilmaguncha tasdiqlash kodlari va bildirishnomalar yuborilmaydi — ular server jurnaliga yoziladi. Ro‘yxatdan o‘tish rasman ishlaydi, lekin tirik odam kodni olmaydi.",
+        "host": "Server",
+        "hostPlaceholder": "Pochta serveri manzili",
+        "port": "Port",
+        "portHint": "465 — darhol TLS, qolganlari — STARTTLS.",
+        "user": "Foydalanuvchi",
+        "password": "Parol",
+        "passwordSet": "Saqlangan — o‘zgartirmaslik uchun bo‘sh qoldiring",
+        "passwordUnset": "Belgilanmagan",
+        "passwordHint": "Parol qaytarib berilmaydi — uni bu sahifada ko‘rib bo‘lmaydi.",
+        "from": "Jo‘natuvchi",
+        "fromPlaceholder": "Jo‘natuvchining ismi va manzili",
+        "testing": "Yuborilmoqda...",
+        "test": "O‘zimga sinov xatini yuborish"
+      },
+      "templates": {
+        "saveFailed": "Shablonni saqlab bo‘lmadi",
+        "deleteFailed": "Shablonni o‘chirib bo‘lmadi",
+        "intro": "Shablon yangi loyihaga qo‘shiladigan bosqichlar ro‘yxatini belgilaydi. Standart pipeline bosqichlari o‘z vazni va bo‘limini saqlaydi; notanish nom ham bosqichga aylanadi — vazni 1 va bo‘limsiz.",
+        "default": "standart",
+        "stageCount": "{n} ta bosqich",
+        "stagesLine": "{count}: {stages}",
+        "empty": "Hozircha o‘z shablonlaringiz yo‘q — loyihalar o‘rnatilgan pipeline bo‘yicha yaratiladi.",
+        "editTitle": "Shablonni tahrirlash",
+        "newTitle": "Yangi shablon",
+        "name": "Nomi",
+        "description": "Tavsif",
+        "stages": "Bosqichlar — har qatorda bittadan, kerakli tartibda",
+        "isDefault": "Bu shablonni birinchi bo‘lib taklif qilish",
+        "deleteTitle": "Shablonni o‘chirish",
+        "deleteMessage": "«{name}» shabloni o‘chirilsinmi?",
+        "deleteDetail": "Yaratilgan loyihalar o‘zgarmaydi — shablon faqat yangilariga ta’sir qiladi."
+      },
+      "users": {
+        "updateFailed": "Hisobni o‘zgartirib bo‘lmadi",
+        "intro": "Bu yerda barcha hisoblar, shu jumladan xodim kartochkasi bo‘lmaganlar ham — masalan, mijozlar portali foydalanuvchilari. Ishga qabul, lavozim va stavka {link} bo‘limida.",
+        "introLink": "xodimlar",
+        "search": "Ism yoki pochta bo‘yicha qidirish...",
+        "columns": {
+          "user": "Foydalanuvchi",
+          "role": "Rol",
+          "email": "Pochta",
+          "access": "Kirish"
+        },
+        "clientPortal": "{client} mijoz portali",
+        "noEmployee": "xodim kartochkasisiz",
+        "roleAria": "Rol: {name}",
+        "verified": "tasdiqlangan",
+        "verify": "qo‘lda tasdiqlash",
+        "unverified": "tasdiqlanmagan",
+        "disable": "O‘chirish",
+        "enable": "Yoqish",
+        "self": "bu siz",
+        "active": "faol",
+        "disabled": "o‘chirilgan"
       }
+    },
+    "eyebrow": "Jamoa",
+    "planningEyebrow": "Rejalashtirish",
+    "allDepartments": "Barcha bo‘limlar",
+    "departmentFilter": "Bo‘lim bo‘yicha filtr",
+    "hours": "{n} soat",
+    "noMatches": "Tanlangan shartlarga hech kim mos kelmadi.",
+    "employees": {
+      "title": "Xodimlar",
+      "entity": "xodim",
+      "count": "{n} nafar xodim",
+      "columns": {
+        "name": "Xodim",
+        "position": "Lavozim",
+        "department": "Bo‘lim",
+        "role": "Rol",
+        "capacity": "Haftasiga soat",
+        "status": "Holat"
+      },
+      "create": "Yangi xodim",
+      "search": "Ism, pochta yoki lavozim bo‘yicha qidirish...",
+      "emptyTitle": "Xodimlar yo‘q",
+      "emptyBody": "Vazifalarga tayinlash uchun xodimlarni qo‘shing.",
+      "deleteDetail": "Hisob va kirish huquqi o‘chiriladi, pochta manzili bo‘shatiladi. Vazifalar va versiyalar ijrochisiz qoladi; agar xodimning tabellari yoki izohlari bo‘lsa, uning yozuvi bazada kirish huquqisiz saqlanadi."
+    },
+    "departments": {
+      "title": "Bo‘limlar",
+      "entity": "bo‘lim",
+      "count": "{n} ta bo‘lim",
+      "columns": {
+        "name": "Bo‘lim",
+        "description": "Tavsif",
+        "employees": "Xodimlar"
+      },
+      "create": "Yangi bo‘lim",
+      "search": "Bo‘limni qidirish...",
+      "emptyTitle": "Bo‘limlar yo‘q",
+      "emptyBody": "Bo‘limlar xodimlarni ixtisosligi bo‘yicha guruhlaydi."
+    },
+    "attendance": {
+      "eyebrow": "Nazorat",
+      "title": "Xodimlar davomati",
+      "intro": "Kim ishga keldi, kim kelmadi. Kelish — sayt sarlavhasidagi «Keldim» tugmasini bosish, ketish — «Ketdim» yoki oxirgi faollik.",
+      "scheduleLine": "Ish jadvali {start}–{end}, {days}; {start} + {grace} daqiqadan keyin kelish — kechikish.",
+      "editSchedule": "Jadvalni o‘zgartirish",
+      "viewsAria": "Ko‘rinish rejimi",
+      "views": {
+        "day": "Kun",
+        "period": "Davr"
+      },
+      "correctTitle": "Kelish va ketishni tuzatish"
+    },
+    "workload": {
+      "title": "Jamoa yuklamasi",
+      "summary": "{people} kishi · {capacity} soatdan {assigned} soat tayinlangan · o‘rtacha yuklama {average}%",
+      "overloaded": "ortiqcha yuklangan: {n}",
+      "bandFilter": "Yuklama bo‘yicha filtr",
+      "anyBand": "Har qanday yuklama",
+      "band": {
+        "AVAILABLE": "Bo‘sh",
+        "NORMAL": "Me’yorda",
+        "HIGH": "Yuqori",
+        "OVERLOADED": "Ortiqcha yuklangan"
+      },
+      "ofCapacity": "/ {n} soat",
+      "current": "Shu haftada ishda",
+      "currentEmpty": "Hech narsa tayinlanmagan",
+      "upcoming": "Keyingi",
+      "upcomingEmpty": "Navbat bo‘sh",
+      "loggedThisWeek": "Shu haftada yozilgan: {n} soat"
+    },
+    "attendanceStatus": {
+      "PRESENT": "Belgilandi",
+      "UNMARKED": {
+        "today": "Tizimda, belgilanmagan",
+        "past": "Belgisiz"
+      },
+      "ABSENT": {
+        "today": "Kelmadi",
+        "past": "Bo‘lmagan"
+      },
+      "DAY_OFF": "Dam olish kuni",
+      "ON_LEAVE": "Ta’tilda",
+      "NOT_EMPLOYED": "Shtatda emas"
+    },
+    "attendanceSource": {
+      "WEB": "Avtomatik",
+      "MANUAL": "Qo‘lda tuzatilgan",
+      "EXTERNAL": "Kirish nazorati tizimidan"
+    },
+    "board": {
+      "loadFailed": "Faollikni yuklab bo‘lmadi",
+      "tiles": {
+        "arrived": "Keldi",
+        "absent": "Kelmadi",
+        "late": "Kechikdi",
+        "unmarked": "Belgilanmagan",
+        "online": "Hozir onlayn"
+      },
+      "groups": {
+        "absent": "Kelmadi",
+        "unmarked": "Tizimda, lekin belgilanmagan",
+        "present": "Keldi va belgilandi",
+        "off": "Dam olish, ta’til"
+      },
+      "previousDay": "Oldingi kun",
+      "day": "Kun",
+      "nextDay": "Keyingi kun",
+      "today": "Bugun",
+      "statusFilter": "Holat bo‘yicha filtr",
+      "filter": {
+        "any": "Har qanday holat",
+        "ARRIVED": "Keldi",
+        "PRESENT": "Belgilandi",
+        "UNMARKED": "Tizimda, belgilanmagan",
+        "ABSENT": "Kelmadi",
+        "LATE": "Kechikdi",
+        "ONLINE": "Onlayn",
+        "DAY_OFF": "Dam olish kuni",
+        "ON_LEAVE": "Ta’til"
+      },
+      "dayOff": "Jadval bo‘yicha ish kuni emas",
+      "autoRefresh": "Har daqiqada yangilanadi",
+      "noStaff": "Shtatda hali xodimlar yo‘q.",
+      "columns": {
+        "employee": "Xodim",
+        "status": "Holat",
+        "arrived": "Keldi",
+        "late": "Kechikish",
+        "activity": "Faollik",
+        "worked": "Ishlangan",
+        "actions": "Amallar"
+      },
+      "online": "onlayn",
+      "correctedTitle": "Qo‘lda tuzatilgan: {comment}",
+      "unmarkedTitle": "«Keldim» tugmasi bosilmagan — birinchi faollik vaqti",
+      "unmarkedNote": "belgisiz",
+      "byButton": "«Keldim» tugmasi orqali",
+      "feedOf": "Voqealar lentasi: {name}",
+      "feedAria": "{name} xodimining voqealar lentasi",
+      "feed": "Voqealar lentasi",
+      "correctAria": "Kunni tuzatish: {name}"
+    },
+    "days": {
+      "loading": "Kunlar yuklanmoqda...",
+      "loadFailed": "Xodimning kunlarini yuklab bo‘lmadi.",
+      "columns": {
+        "day": "Kun",
+        "status": "Holat",
+        "checkIn": "Kelish",
+        "checkOut": "Ketish",
+        "late": "Kechikish",
+        "worked": "Ishlangan",
+        "note": "Izoh"
+      },
+      "correctAria": "{date} kunini tuzatish"
+    },
+    "correct": {
+      "saveFailed": "Tuzatishni saqlab bo‘lmadi",
+      "resetFailed": "Avtomatik ma’lumotlarni qaytarib bo‘lmadi",
+      "title": "Kunni tuzatish",
+      "observed": "Tizim ko‘rgan: birinchi kirish {first}, oxirgi faollik {last}.",
+      "previous": "Oldingi tuzatish: «{comment}»",
+      "emptyHint": "Kelish bo‘sh bo‘lsa — xodim shu kuni ishda bo‘lmagan.",
+      "reason": "Tuzatish sababi",
+      "reasonPlaceholder": "Masalan: kirishni unutdi, 9:00 dan suratga olishda edi",
+      "reset": "Avtomatikka qaytarish"
+    },
+    "period": {
+      "loadFailed": "Davrni yuklab bo‘lmadi",
+      "presets": {
+        "thisWeek": "Shu hafta",
+        "lastWeek": "O‘tgan hafta",
+        "thisMonth": "Shu oy",
+        "lastMonth": "O‘tgan oy"
+      },
+      "ratePerDay": "kuniga {amount}",
+      "ratePerMinute": "daqiqasiga {amount}",
+      "rateUnset": "stavka belgilanmagan",
+      "fineFailed": "Jarimalarni hisoblab bo‘lmadi",
+      "from": "Davr boshi",
+      "to": "Davr oxiri",
+      "fineButton": "Kechikish uchun jarima hisoblash",
+      "fineCreated": "Yaratilgan qoralamalar: {count}, jami {amount}.",
+      "fineSkipped": "O‘tkazib yuborildi (allaqachon hisoblangan): {count}.",
+      "openPayroll": "«Ish haqi» bo‘limida ochish",
+      "empty": "Bu davr uchun xodimlar yo‘q.",
+      "columns": {
+        "employee": "Xodim",
+        "present": "Keldi / ish kunlari",
+        "absent": "Kelmagan",
+        "lateDays": "Kechikishlar",
+        "lateMinutes": "Kechikish vaqti",
+        "worked": "Ishlangan"
+      },
+      "days": "{n} kun",
+      "unmarkedTitle": "Tizimda bo‘lgan, lekin «Keldim» tugmasini bosmagan: {days}",
+      "unmarked": "belgisiz: {n}",
+      "daysAria": "{name} xodimining kunlari",
+      "total": "Jami · {n} kishi",
+      "confirm": {
+        "title": "Kechikish uchun jarimalar hisoblansinmi?",
+        "message": "{from} — {to} davrida kechikilgan har bir kun «Ish haqi» bo‘limida jarima qoralamasiga aylanadi. Stavka: {rate}.",
+        "detail": "Jarima allaqachon hisoblangan kunlar o‘tkazib yuboriladi — qayta ishga tushirish hech narsani ikki marta yozmaydi. Qoralamalarni hali tasdiqlash kerak.",
+        "action": "Hisoblash"
+      }
+    },
+    "allProjects": "Barcha loyihalar",
+    "pageOf": "{page}-sahifa, jami {pages}",
+    "nextPage": "Keyingi",
+    "timesheets": {
+      "title": "Vaqt hisobi",
+      "views": {
+        "my": "Mening soatlarim",
+        "team": "Jamoa",
+        "projects": "Loyihalar bo‘yicha",
+        "reports": "Hisobot"
+      },
+      "viewsAria": "Vaqt hisobi ko‘rinishlari",
+      "columns": {
+        "date": "Sana",
+        "who": "Xodim",
+        "project": "Loyiha",
+        "work": "Ish",
+        "hours": "Soat"
+      },
+      "required": "Loyiha, sana va soatlar sonini kiriting",
+      "saveFailed": "Soatlarni yozib bo‘lmadi",
+      "deleteFailed": "Yozuvni o‘chirib bo‘lmadi",
+      "summary": "davr uchun {hours} soat",
+      "entries": "{n} ta yozuv",
+      "collapse": "Yig‘ish",
+      "log": "Soat yozish",
+      "newEntry": "Yangi yozuv",
+      "notSelected": "Tanlanmagan",
+      "task": "Vazifa",
+      "noTask": "Vazifasiz",
+      "description": "Nima qilindi",
+      "submit": "Yozish",
+      "byProject": "Loyihalar bo‘yicha",
+      "byEmployee": "Xodimlar bo‘yicha",
+      "noHours": "Bu davrda soatlar yo‘q.",
+      "noProject": "Loyihasiz",
+      "unknown": "Noma’lum",
+      "noSearch": "Bu bo‘limda qidiruv mavjud emas",
+      "emptyTitle": "Yozuvlar yo‘q",
+      "emptyBody": "Yozilgan soatlar loyihaning haqiqiy tannarxini tashkil qiladi.",
+      "projectFilter": "Loyiha bo‘yicha filtr",
+      "from": "Davr boshi",
+      "to": "Davr oxiri",
+      "deleteAria": "{date} sanasidagi yozuvni o‘chirish",
+      "deleteTitle": "Yozuvni o‘chirish",
+      "deleteMessage": "{date} sanasidagi {hours} soat o‘chirilsinmi?",
+      "deleteDetail": "Soatlar hisobotlardan va loyiha tannarxidan yo‘qoladi."
+    },
+    "activity": {
+      "eyebrow": "Studiya",
+      "title": "Voqealar lentasi",
+      "intro": "Studiyada nima bo‘lgani: kim nimani yaratdi, qayta tayinladi va boshqa holatga o‘tkazdi. Lenta faqat o‘qiladi — voqeani tuzatib bo‘lmaydi, uning ma’nosi ham shunda.",
+      "otherFamily": "Boshqa",
+      "quoted": "«{title}»",
+      "record": "Yozuv",
+      "system": "Tizim",
+      "unknownAction": "amal bajardi",
+      "line": "{actor} {action}",
+      "lineWithDetail": "{actor} {action}: {detail}",
+      "filters": {
+        "project": "Loyiha",
+        "actor": "Muallif",
+        "allActors": "Barcha mualliflar",
+        "action": "Voqea turi",
+        "anyAction": "Har qanday voqealar",
+        "entity": "Obyekt",
+        "anyEntity": "Har qanday obyektlar",
+        "from": "Dan",
+        "to": "gacha"
+      },
+      "emptyFiltered": "Bu filtrlarga hech narsa mos kelmadi",
+      "emptyTitle": "Hozircha voqealar yo‘q",
+      "emptyFilteredBody": "Davrni kengaytiring yoki filtrlarning bir qismini olib tashlang.",
+      "emptyBody": "Holat o‘zgarishlari, versiyalar va kelishuvlar shu yerda paydo bo‘ladi — sodir bo‘lishi bilanoq.",
+      "resetFilters": "Filtrlarni tozalash",
+      "total": "Voqealar: {n}"
+    },
+    "schedule": {
+      "saveFailed": "Jadvalni saqlab bo‘lmadi",
+      "intro": "«Davomat» bo‘limi kechikishlar va ishlangan vaqtni shu jadval bo‘yicha hisoblaydi. Kelish — «Keldim» tugmasini bosish (bosilmasa — kundagi birinchi faollik), ketish — «Ketdim» yoki oxirgi faollik. Vaqt studiyaning vaqt mintaqasida («Studiya» yorlig‘i).",
+      "saved": "Jadval saqlandi.",
+      "start": "Ish kuni boshlanishi",
+      "end": "Ish kuni tugashi",
+      "grace": "Kechikishga ruxsat, daq",
+      "graceHint": "{start} + ruxsat etilgan vaqtgacha kelish kechikish emas. Undan keyin kechikish {start} dan hisoblanadi.",
+      "weekdays": "Ish kunlari",
+      "penaltyPerDay": "Kechikilgan kun uchun jarima, {currency}",
+      "penaltyPerMinute": "Kechikishning har daqiqasi uchun jarima, {currency}",
+      "penaltyHint": "Stavkalar qo‘shiladi: 25 daqiqa kechikish {amount} {currency} turadi. Ikkalasi ham nol bo‘lsa — jarima hisoblanmaydi. Hisoblash «Davomat» sahifasida qo‘lda ishga tushiriladi va «Ish haqi» bo‘limida qoralamalar yaratadi.",
+      "save": "Jadvalni saqlash"
+    },
+    "roles": {
+      "ownerAll": "Egasi doim hamma narsani qila oladi",
+      "ceiling": "Bu rolga bunday ruxsat berib bo‘lmaydi",
+      "notYours": "Sizning rolingizda bu ruxsat yo‘q, shuning uchun uni berib bo‘lmaydi",
+      "saved": "Ruxsatlar saqlandi. Foydalanuvchilar o‘zgarishlarni sahifa keyingi yuklanganda ko‘radi.",
+      "saveFailed": "Ruxsatlarni saqlab bo‘lmadi",
+      "resetDone": "«{role}» roli standart ruxsatlarga qaytarildi.",
+      "resetFailed": "Ruxsatlarni tiklab bo‘lmadi",
+      "title": "Kim nimani ko‘radi va qila oladi",
+      "intro": "Har bir bo‘limning birinchi qatori uning sahifasini ochadi; qolganlari — ichidagi amallar. Egasi doim hamma narsani qila oladi; faqat rolingizda bor ruxsatni berish mumkin; mijozlarga — faqat mijoz to‘plami. O‘zgarishlar foydalanuvchida sahifa keyingi yuklanganda kuchga kiradi.",
+      "discard": "Bekor qilish",
+      "saveCount": "Saqlash ({n})",
+      "loadFailed": "Rollar ruxsatlarini yuklab bo‘lmadi.",
+      "permission": "Ruxsat",
+      "reset": "tiklash",
+      "everything": "hammasi",
+      "groupAria": "{role} roli uchun butun «{group}» bo‘limi"
     }
   }
 }

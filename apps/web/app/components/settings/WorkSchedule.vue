@@ -7,6 +7,7 @@ import { apiErrorMessage, apiRequest } from '~/composables/useApi'
  */
 
 const props = defineProps<{ canManage: boolean }>()
+const { t } = useI18n()
 
 interface ScheduleSettings {
   currency: string
@@ -19,15 +20,8 @@ interface ScheduleSettings {
   latePenaltyPerMinute: string | number
 }
 
-const WEEKDAYS = [
-  { value: 1, label: 'Пн' },
-  { value: 2, label: 'Вт' },
-  { value: 3, label: 'Ср' },
-  { value: 4, label: 'Чт' },
-  { value: 5, label: 'Пт' },
-  { value: 6, label: 'Сб' },
-  { value: 7, label: 'Вс' }
-] as const
+/** ISO weekdays, Monday first; names come from common.weekdayShort. */
+const WEEKDAYS = [1, 2, 3, 4, 5, 6, 7] as const
 
 const { data, refresh } = useFetch<{ data: ScheduleSettings }>('/api/settings', { credentials: 'include' })
 
@@ -78,7 +72,7 @@ async function save() {
     saved.value = true
     await refresh()
   } catch (err) {
-    error.value = apiErrorMessage(err, 'Не удалось сохранить график')
+    error.value = apiErrorMessage(err, t('team.schedule.saveFailed'))
   } finally {
     saving.value = false
   }
@@ -90,9 +84,7 @@ const inputClass = 'mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 tex
 <template>
   <section class="space-y-4">
     <p class="rounded-lg border bg-card px-4 py-3 text-sm text-muted-foreground">
-      По этому графику раздел «Посещаемость» считает опоздания и
-      отработанное время. Приход — нажатие «Я приехал» (без него — первая
-      активность за день), уход — «Я ушёл» или последняя активность. Время — в часовом поясе студии (вкладка «Студия»).
+      {{ t('team.schedule.intro') }}
     </p>
 
     <p
@@ -106,42 +98,42 @@ const inputClass = 'mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 tex
       v-else-if="saved"
       class="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-sm"
     >
-      График сохранён.
+      {{ t('team.schedule.saved') }}
     </p>
 
     <div class="grid gap-4 rounded-xl border bg-card p-5 sm:grid-cols-3">
       <label class="block">
-        <span class="text-sm font-medium">Начало рабочего дня</span>
+        <span class="text-sm font-medium">{{ t('team.schedule.start') }}</span>
         <input v-model="form.workDayStart" type="time" :disabled="!props.canManage" :class="inputClass">
       </label>
       <label class="block">
-        <span class="text-sm font-medium">Конец рабочего дня</span>
+        <span class="text-sm font-medium">{{ t('team.schedule.end') }}</span>
         <input v-model="form.workDayEnd" type="time" :disabled="!props.canManage" :class="inputClass">
       </label>
       <label class="block">
-        <span class="text-sm font-medium">Допуск, мин</span>
+        <span class="text-sm font-medium">{{ t('team.schedule.grace') }}</span>
         <input v-model.number="form.lateGraceMinutes" type="number" min="0" max="240" :disabled="!props.canManage" :class="inputClass">
         <span class="mt-1 block text-xs text-muted-foreground">
-          Приход до {{ form.workDayStart }} + допуск — не опоздание. Позже — опоздание считается от {{ form.workDayStart }}.
+          {{ t('team.schedule.graceHint', { start: form.workDayStart }) }}
         </span>
       </label>
 
       <fieldset class="sm:col-span-3">
-        <legend class="text-sm font-medium">Рабочие дни</legend>
+        <legend class="text-sm font-medium">{{ t('team.schedule.weekdays') }}</legend>
         <div class="mt-1.5 flex flex-wrap gap-1.5">
           <button
             v-for="day in WEEKDAYS"
-            :key="day.value"
+            :key="day"
             type="button"
             :disabled="!props.canManage"
             class="h-9 min-w-11 rounded-md border px-3 text-sm transition-colors disabled:opacity-60"
-            :class="form.workWeekdays.includes(day.value)
+            :class="form.workWeekdays.includes(day)
               ? 'border-primary bg-primary text-primary-foreground'
               : 'bg-background text-muted-foreground hover:bg-secondary'"
-            :aria-pressed="form.workWeekdays.includes(day.value)"
-            @click="toggleDay(day.value)"
+            :aria-pressed="form.workWeekdays.includes(day)"
+            @click="toggleDay(day)"
           >
-            {{ day.label }}
+            {{ weekdayShort(day) }}
           </button>
         </div>
       </fieldset>
@@ -149,17 +141,15 @@ const inputClass = 'mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 tex
 
     <div class="grid gap-4 rounded-xl border bg-card p-5 sm:grid-cols-2">
       <label class="block">
-        <span class="text-sm font-medium">Штраф за день опоздания, {{ currency }}</span>
+        <span class="text-sm font-medium">{{ t('team.schedule.penaltyPerDay', { currency }) }}</span>
         <input v-model.number="form.latePenaltyPerDay" type="number" min="0" step="0.01" :disabled="!props.canManage" :class="inputClass">
       </label>
       <label class="block">
-        <span class="text-sm font-medium">Штраф за минуту опоздания, {{ currency }}</span>
+        <span class="text-sm font-medium">{{ t('team.schedule.penaltyPerMinute', { currency }) }}</span>
         <input v-model.number="form.latePenaltyPerMinute" type="number" min="0" step="0.01" :disabled="!props.canManage" :class="inputClass">
       </label>
       <p class="text-xs text-muted-foreground sm:col-span-2">
-        Ставки складываются: опоздание на 25 минут обойдётся в {{ example }} {{ currency }}.
-        Обе по нулям — штрафы не начисляются. Начисление запускается вручную на странице
-        «Посещаемость» и создаёт черновики в разделе «Зарплата».
+        {{ t('team.schedule.penaltyHint', { amount: example, currency }) }}
       </p>
     </div>
 
@@ -170,7 +160,7 @@ const inputClass = 'mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 tex
       :disabled="saving"
       @click="save()"
     >
-      {{ saving ? 'Сохраняю...' : 'Сохранить график' }}
+      {{ saving ? t('common.actions.saving') : t('team.schedule.save') }}
     </button>
   </section>
 </template>

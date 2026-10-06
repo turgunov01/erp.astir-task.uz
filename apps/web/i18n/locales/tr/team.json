@@ -70,7 +70,380 @@
         "invoicePrefixHint": "Örneğin INV-, INV-0001 verir.",
         "defaultLanguage": "Varsayılan dil",
         "defaultLanguageHint": "Profilinde dil seçmemiş herkes ile giriş sayfası, e-postalar ve dışa aktarımlar için."
+      },
+      "mail": {
+        "testFailed": "Test başarısız oldu",
+        "intro": "SMTP doldurulana kadar doğrulama kodları ve bildirimler gönderilmez — sunucu günlüğüne yazılır. Kayıt biçimsel olarak çalışır ama gerçek bir kişi kodu almaz.",
+        "host": "Sunucu",
+        "hostPlaceholder": "Posta sunucusu adresi",
+        "port": "Port",
+        "portHint": "465 — doğrudan TLS, diğerleri — STARTTLS.",
+        "user": "Kullanıcı",
+        "password": "Parola",
+        "passwordSet": "Kaydedildi — değiştirmemek için boş bırakın",
+        "passwordUnset": "Belirlenmedi",
+        "passwordHint": "Parola geri gönderilmez — bu sayfada görüntülenemez.",
+        "from": "Gönderen",
+        "fromPlaceholder": "Gönderenin adı ve adresi",
+        "testing": "Gönderiliyor...",
+        "test": "Kendime deneme e-postası gönder"
+      },
+      "templates": {
+        "saveFailed": "Şablon kaydedilemedi",
+        "deleteFailed": "Şablon silinemedi",
+        "intro": "Şablon, yeni bir projeye eklenecek aşamaların listesini belirler. Standart süreçteki aşamalar ağırlığını ve departmanını korur; bilinmeyen bir ad da aşama olur — ağırlığı 1, departmanı olmadan.",
+        "default": "varsayılan",
+        "stageCount": "{n} aşama",
+        "stagesLine": "{count}: {stages}",
+        "empty": "Henüz özel şablon yok — projeler yerleşik süreçle oluşturulur.",
+        "editTitle": "Şablonu düzenle",
+        "newTitle": "Yeni şablon",
+        "name": "Ad",
+        "description": "Açıklama",
+        "stages": "Aşamalar — her satıra bir tane, sırasıyla",
+        "isDefault": "Bu şablonu ilk sırada öner",
+        "deleteTitle": "Şablonu sil",
+        "deleteMessage": "«{name}» şablonu silinsin mi?",
+        "deleteDetail": "Önceden oluşturulan projeler değişmez — şablon yalnızca yenilerini etkiler."
+      },
+      "users": {
+        "updateFailed": "Hesap güncellenemedi",
+        "intro": "Çalışan kartı olmayanlar da dahil tüm hesaplar burada — örneğin müşteri portalı kullanıcıları. İşe alım, pozisyon ve ücret {link} bölümündedir.",
+        "introLink": "Çalışanlar",
+        "search": "Ad veya e-postaya göre ara...",
+        "columns": {
+          "user": "Kullanıcı",
+          "role": "Rol",
+          "email": "E-posta",
+          "access": "Erişim"
+        },
+        "clientPortal": "{client} müşteri portalı",
+        "noEmployee": "çalışan kartı yok",
+        "roleAria": "Rol: {name}",
+        "verified": "doğrulandı",
+        "verify": "elle doğrula",
+        "unverified": "doğrulanmadı",
+        "disable": "Devre dışı bırak",
+        "enable": "Etkinleştir",
+        "self": "bu sizsiniz",
+        "active": "etkin",
+        "disabled": "devre dışı"
       }
+    },
+    "eyebrow": "Ekip",
+    "planningEyebrow": "Planlama",
+    "allDepartments": "Tüm departmanlar",
+    "departmentFilter": "Departmana göre filtrele",
+    "hours": "{n} sa",
+    "noMatches": "Seçilen koşullara uyan kimse yok.",
+    "employees": {
+      "title": "Çalışanlar",
+      "entity": "çalışan",
+      "count": "{n} çalışan",
+      "columns": {
+        "name": "Çalışan",
+        "position": "Pozisyon",
+        "department": "Departman",
+        "role": "Rol",
+        "capacity": "Haftalık saat",
+        "status": "Durum"
+      },
+      "create": "Yeni çalışan",
+      "search": "Ad, e-posta veya pozisyona göre ara...",
+      "emptyTitle": "Çalışan yok",
+      "emptyBody": "Görevlere atamak için çalışan ekleyin.",
+      "deleteDetail": "Hesap ve erişim silinir, e-posta adresi serbest kalır. Görevler ve sürümler atanan kişisiz kalır; çalışanın puantajı veya yorumları varsa kaydı veritabanında erişimsiz olarak saklanır."
+    },
+    "departments": {
+      "title": "Departmanlar",
+      "entity": "departman",
+      "count": "{n} departman",
+      "columns": {
+        "name": "Departman",
+        "description": "Açıklama",
+        "employees": "Çalışanlar"
+      },
+      "create": "Yeni departman",
+      "search": "Departman ara...",
+      "emptyTitle": "Departman yok",
+      "emptyBody": "Departmanlar çalışanları uzmanlık alanına göre gruplar."
+    },
+    "attendance": {
+      "eyebrow": "Kontrol",
+      "title": "Çalışan devam takibi",
+      "intro": "Kim işe geldi, kim gelmedi. Geliş — site başlığındaki «Geldim» düğmesine basmak, çıkış — «Çıkıyorum» ya da son etkinlik.",
+      "scheduleLine": "Çalışma saatleri {start}–{end}, {days}; {start} + {grace} dk sonrası geç kalma sayılır.",
+      "editSchedule": "Programı değiştir",
+      "viewsAria": "Görünüm",
+      "views": {
+        "day": "Gün",
+        "period": "Dönem"
+      },
+      "correctTitle": "Geliş ve çıkışı düzelt"
+    },
+    "workload": {
+      "title": "Ekip iş yükü",
+      "summary": "{people} kişi · {capacity} saatin {assigned} saati atandı · ortalama yük %{average}",
+      "overloaded": "{n} kişi aşırı yüklü",
+      "bandFilter": "Yüke göre filtrele",
+      "anyBand": "Her yük",
+      "band": {
+        "AVAILABLE": "Müsait",
+        "NORMAL": "Normal",
+        "HIGH": "Yüksek",
+        "OVERLOADED": "Aşırı yüklü"
+      },
+      "ofCapacity": "/ {n} sa",
+      "current": "Bu hafta yapılan",
+      "currentEmpty": "Atanmış iş yok",
+      "upcoming": "Sıradaki",
+      "upcomingEmpty": "Sıra boş",
+      "loggedThisWeek": "Bu hafta girilen: {n} sa"
+    },
+    "attendanceStatus": {
+      "PRESENT": "Giriş yaptı",
+      "UNMARKED": {
+        "today": "Sistemde, giriş yapmadı",
+        "past": "Girişsiz"
+      },
+      "ABSENT": {
+        "today": "Gelmedi",
+        "past": "Yoktu"
+      },
+      "DAY_OFF": "İzin günü",
+      "ON_LEAVE": "İzinde",
+      "NOT_EMPLOYED": "Kadroda değil"
+    },
+    "attendanceSource": {
+      "WEB": "Otomatik",
+      "MANUAL": "Elle düzeltildi",
+      "EXTERNAL": "Geçiş kontrol sisteminden"
+    },
+    "board": {
+      "loadFailed": "Etkinlik yüklenemedi",
+      "tiles": {
+        "arrived": "Gelenler",
+        "absent": "Gelmeyenler",
+        "late": "Geç kalanlar",
+        "unmarked": "Giriş yapmayanlar",
+        "online": "Şu an çevrimiçi"
+      },
+      "groups": {
+        "absent": "Gelmeyenler",
+        "unmarked": "Sistemde ama giriş yapmayanlar",
+        "present": "Gelip giriş yapanlar",
+        "off": "İzin günü, izin"
+      },
+      "previousDay": "Önceki gün",
+      "day": "Gün",
+      "nextDay": "Sonraki gün",
+      "today": "Bugün",
+      "statusFilter": "Duruma göre filtrele",
+      "filter": {
+        "any": "Her durum",
+        "ARRIVED": "Gelenler",
+        "PRESENT": "Giriş yapanlar",
+        "UNMARKED": "Sistemde, giriş yapmayanlar",
+        "ABSENT": "Gelmeyenler",
+        "LATE": "Geç kalanlar",
+        "ONLINE": "Çevrimiçi",
+        "DAY_OFF": "İzin günü",
+        "ON_LEAVE": "İzinde"
+      },
+      "dayOff": "Programa göre çalışma günü değil",
+      "autoRefresh": "Her dakika güncellenir",
+      "noStaff": "Kadroda henüz çalışan yok.",
+      "columns": {
+        "employee": "Çalışan",
+        "status": "Durum",
+        "arrived": "Geliş",
+        "late": "Gecikme",
+        "activity": "Etkinlik",
+        "worked": "Çalışılan",
+        "actions": "İşlem"
+      },
+      "online": "çevrimiçi",
+      "correctedTitle": "Elle düzeltildi: {comment}",
+      "unmarkedTitle": "«Geldim» düğmesine basmadı — ilk etkinlik zamanı",
+      "unmarkedNote": "girişsiz",
+      "byButton": "«Geldim» düğmesiyle",
+      "feedOf": "Etkinlik akışı: {name}",
+      "feedAria": "{name} adlı çalışanın etkinlik akışı",
+      "feed": "Etkinlik akışı",
+      "correctAria": "Günü düzelt: {name}"
+    },
+    "days": {
+      "loading": "Günler yükleniyor...",
+      "loadFailed": "Çalışanın günleri yüklenemedi.",
+      "columns": {
+        "day": "Gün",
+        "status": "Durum",
+        "checkIn": "Geliş",
+        "checkOut": "Çıkış",
+        "late": "Gecikme",
+        "worked": "Çalışılan",
+        "note": "Not"
+      },
+      "correctAria": "{date} gününü düzelt"
+    },
+    "correct": {
+      "saveFailed": "Düzeltme kaydedilemedi",
+      "resetFailed": "Otomatik veriler geri yüklenemedi",
+      "title": "Günü düzelt",
+      "observed": "Sistemin gördüğü: ilk giriş {first}, son etkinlik {last}.",
+      "previous": "Önceki düzeltme: «{comment}»",
+      "emptyHint": "Geliş boşsa çalışan o gün işte değildi.",
+      "reason": "Düzeltme nedeni",
+      "reasonPlaceholder": "Örneğin: giriş yapmayı unuttu, 9:00’dan itibaren çekimdeydi",
+      "reset": "Otomatiğe döndür"
+    },
+    "period": {
+      "loadFailed": "Dönem yüklenemedi",
+      "presets": {
+        "thisWeek": "Bu hafta",
+        "lastWeek": "Geçen hafta",
+        "thisMonth": "Bu ay",
+        "lastMonth": "Geçen ay"
+      },
+      "ratePerDay": "günlük {amount}",
+      "ratePerMinute": "dakika başına {amount}",
+      "rateUnset": "oran belirlenmedi",
+      "fineFailed": "Cezalar oluşturulamadı",
+      "from": "Dönem başı",
+      "to": "Dönem sonu",
+      "fineButton": "Geç kalma cezası uygula",
+      "fineCreated": "Oluşturulan taslak: {count}, toplam {amount}.",
+      "fineSkipped": "Atlandı (zaten uygulanmış): {count}.",
+      "openPayroll": "«Bordro» bölümünde aç",
+      "empty": "Bu dönem için çalışan yok.",
+      "columns": {
+        "employee": "Çalışan",
+        "present": "Geldiği / iş günü",
+        "absent": "Devamsızlık",
+        "lateDays": "Geç kalma",
+        "lateMinutes": "Gecikme süresi",
+        "worked": "Çalışılan"
+      },
+      "days": "{n} gün",
+      "unmarkedTitle": "Sistemdeydi ama «Geldim» düğmesine basmadı: {days}",
+      "unmarked": "girişsiz: {n}",
+      "daysAria": "{name} adlı çalışanın günleri",
+      "total": "Toplam · {n} kişi",
+      "confirm": {
+        "title": "Geç kalma cezaları uygulansın mı?",
+        "message": "{from} — {to} döneminde geç kalınan her gün «Bordro» bölümünde taslak cezaya dönüşür. Oran: {rate}.",
+        "detail": "Cezası zaten uygulanmış günler atlanır — yeniden çalıştırmak hiçbir şeyi iki kez yazmaz. Taslakların yine de onaylanması gerekir.",
+        "action": "Uygula"
+      }
+    },
+    "allProjects": "Tüm projeler",
+    "pageOf": "Sayfa {page} / {pages}",
+    "nextPage": "İleri",
+    "timesheets": {
+      "title": "Zaman takibi",
+      "views": {
+        "my": "Saatlerim",
+        "team": "Ekip",
+        "projects": "Projelere göre",
+        "reports": "Rapor"
+      },
+      "viewsAria": "Zaman takibi görünümleri",
+      "columns": {
+        "date": "Tarih",
+        "who": "Çalışan",
+        "project": "Proje",
+        "work": "İş",
+        "hours": "Saat"
+      },
+      "required": "Projeyi, tarihi ve saat sayısını doldurun",
+      "saveFailed": "Saatler kaydedilemedi",
+      "deleteFailed": "Kayıt silinemedi",
+      "summary": "dönemde {hours} sa",
+      "entries": "{n} kayıt",
+      "collapse": "Daralt",
+      "log": "Saat gir",
+      "newEntry": "Yeni kayıt",
+      "notSelected": "Seçilmedi",
+      "task": "Görev",
+      "noTask": "Görevsiz",
+      "description": "Ne yapıldı",
+      "submit": "Kaydet",
+      "byProject": "Projelere göre",
+      "byEmployee": "Çalışanlara göre",
+      "noHours": "Bu dönemde saat yok.",
+      "noProject": "Projesiz",
+      "unknown": "Bilinmiyor",
+      "noSearch": "Bu bölümde arama yapılamaz",
+      "emptyTitle": "Kayıt yok",
+      "emptyBody": "Girilen saatler projenin gerçek maliyetini oluşturur.",
+      "projectFilter": "Projeye göre filtrele",
+      "from": "Dönem başı",
+      "to": "Dönem sonu",
+      "deleteAria": "{date} tarihli kaydı sil",
+      "deleteTitle": "Kaydı sil",
+      "deleteMessage": "{date} tarihli {hours} saat silinsin mi?",
+      "deleteDetail": "Saatler raporlardan ve proje maliyetinden kaldırılır."
+    },
+    "activity": {
+      "eyebrow": "Stüdyo",
+      "title": "Etkinlik akışı",
+      "intro": "Stüdyoda neler oldu: kim neyi oluşturdu, yeniden atadı ve başka bir duruma taşıdı. Akış yalnızca okunur — bir olay düzeltilemez, amacı da budur.",
+      "otherFamily": "Diğer",
+      "quoted": "“{title}”",
+      "record": "Kayıt",
+      "system": "Sistem",
+      "unknownAction": "bir işlem yaptı",
+      "line": "{actor} {action}",
+      "lineWithDetail": "{actor} {action}: {detail}",
+      "filters": {
+        "project": "Proje",
+        "actor": "Yapan",
+        "allActors": "Herkes",
+        "action": "Olay türü",
+        "anyAction": "Tüm olaylar",
+        "entity": "Nesne",
+        "anyEntity": "Tüm nesneler",
+        "from": "Başlangıç",
+        "to": "bitiş"
+      },
+      "emptyFiltered": "Bu filtrelere uyan bir şey yok",
+      "emptyTitle": "Henüz olay yok",
+      "emptyFilteredBody": "Dönemi genişletmeyi veya bazı filtreleri kaldırmayı deneyin.",
+      "emptyBody": "Durum değişiklikleri, sürümler ve onaylar gerçekleşir gerçekleşmez burada görünecek.",
+      "resetFilters": "Filtreleri sıfırla",
+      "total": "Olay: {n}"
+    },
+    "schedule": {
+      "saveFailed": "Program kaydedilemedi",
+      "intro": "«Devam» bölümü geç kalmaları ve çalışılan süreyi bu programa göre hesaplar. Geliş — «Geldim» düğmesine basmak (basılmazsa günün ilk etkinliği), çıkış — «Çıkıyorum» ya da son etkinlik. Saatler stüdyonun saat dilimindedir («Stüdyo» sekmesi).",
+      "saved": "Program kaydedildi.",
+      "start": "İş günü başlangıcı",
+      "end": "İş günü bitişi",
+      "grace": "Tolerans, dk",
+      "graceHint": "{start} + tolerans öncesi geliş geç kalma sayılmaz. Sonrasında gecikme {start} saatinden itibaren hesaplanır.",
+      "weekdays": "Çalışma günleri",
+      "penaltyPerDay": "Geç kalınan gün başına ceza, {currency}",
+      "penaltyPerMinute": "Gecikmenin dakikası başına ceza, {currency}",
+      "penaltyHint": "Oranlar toplanır: 25 dakika geç kalmak {amount} {currency} tutar. İkisi de sıfırsa ceza uygulanmaz. Cezalar «Devam» sayfasında elle başlatılır ve «Bordro» bölümünde taslak oluşturur.",
+      "save": "Programı kaydet"
+    },
+    "roles": {
+      "ownerAll": "Sahip her zaman her şeyi yapabilir",
+      "ceiling": "Bu role bu yetki verilemez",
+      "notYours": "Rolünüzde bu yetki yok, bu yüzden veremezsiniz",
+      "saved": "Yetkiler kaydedildi. Kullanıcılar değişiklikleri sayfa bir sonraki yüklendiğinde görecek.",
+      "saveFailed": "Yetkiler kaydedilemedi",
+      "resetDone": "«{role}» rolü standart yetkilerine döndürüldü.",
+      "resetFailed": "Yetkiler sıfırlanamadı",
+      "title": "Kim neyi görür ve yapabilir",
+      "intro": "Her bölümün ilk satırı o bölümün sayfasını açar; diğerleri içindeki işlemlerdir. Sahip her zaman her şeyi yapabilir; yalnızca kendi rolünüzde olanı verebilirsiniz; müşterilere yalnızca müşteri seti verilir. Değişiklikler kullanıcı sayfayı bir sonraki yüklediğinde geçerli olur.",
+      "discard": "Vazgeç",
+      "saveCount": "Kaydet ({n})",
+      "loadFailed": "Rol yetkileri yüklenemedi.",
+      "permission": "Yetki",
+      "reset": "sıfırla",
+      "everything": "tümü",
+      "groupAria": "{role} rolü için «{group}» bölümünün tamamı"
     }
   }
 }

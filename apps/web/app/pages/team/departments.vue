@@ -6,7 +6,9 @@ import { DEPARTMENT_FORM } from '~/utils/entity-forms'
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Отделы' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('team.departments.title')) })
 
 const page = ref(1)
 const search = ref('')
@@ -36,32 +38,32 @@ const { items, meta, pending, errorMessage, refresh } =
 const crud = useEntityCrud({
   endpoint: '/api/departments',
   refresh: () => refresh(),
-  entityLabel: 'отдел',
+  entityLabel: () => t('team.departments.entity'),
   archivedView
 })
 
 // Switching between the working set and the archive starts from page one.
 watch(archivedView, () => { page.value = 1 })
 
-const columns: Column[] = [
-  { key: 'name', label: 'Отдел', width: '34%' },
-  { key: 'description', label: 'Описание', width: '46%' },
-  { key: 'employees', label: 'Сотрудники', width: '20%', numeric: true },
+const columns = computed<Column[]>(() => [
+  { key: 'name', label: t('team.departments.columns.name'), width: '34%' },
+  { key: 'description', label: t('team.departments.columns.description'), width: '46%' },
+  { key: 'employees', label: t('team.departments.columns.employees'), width: '20%', numeric: true },
   { key: 'actions', label: '', width: '56px' }
-]
+])
 </script>
 
 <template>
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Команда</p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Отделы</h1>
-      <p class="mt-1 text-sm text-muted-foreground">{{ countLabel(meta.total, 'отдел', 'отдела', 'отделов') }}</p>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{{ t('team.eyebrow') }}</p>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('team.departments.title') }}</h1>
+      <p class="mt-1 text-sm text-muted-foreground">{{ countLabel(meta.total, 'team.departments.count') }}</p>
     </header>
 
     <div class="mb-4 flex flex-wrap items-center justify-end gap-3">
 
-      <EntityToolbar :crud="crud" create-label="Новый отдел" :can-manage="canManage" />
+      <EntityToolbar :crud="crud" :create-label="t('team.departments.create')" :can-manage="canManage" />
 
     </div>
 
@@ -73,10 +75,10 @@ const columns: Column[] = [
       :meta="meta"
       :pending="pending"
       :error-message="errorMessage"
-      search-placeholder="Поиск отдела..."
+      :search-placeholder="t('team.departments.search')"
       empty-icon="lucide:building-2"
-      empty-title="Нет отделов"
-      empty-body="Отделы группируют сотрудников по специализации."
+      :empty-title="t('team.departments.emptyTitle')"
+      :empty-body="t('team.departments.emptyBody')"
       @update:page="page = $event"
       @update:search="page = 1"
       @retry="refresh"

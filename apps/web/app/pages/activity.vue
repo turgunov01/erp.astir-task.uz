@@ -2,7 +2,9 @@
 import { useListResource } from '~/composables/useApi'
 import { useFilterOptions } from '~/composables/useFilterOptions'
 
-useHead({ title: 'Лента событий' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('team.activity.title')) })
 
 const route = useRoute()
 const router = useRouter()
@@ -99,8 +101,8 @@ const actionFamilies = computed(() => {
     families.set(family, (families.get(family) ?? 0) + row.count)
   }
   return [...families.entries()]
-    .map(([family, count]) => ({ value: family + '.', label: labelOf(ACTIVITY_FAMILY_LABEL, family, 'Прочее'), count }))
-    .sort((a, b) => a.label.localeCompare(b.label))
+    .map(([family, count]) => ({ value: family + '.', label: labelOf(ACTIVITY_FAMILY_LABEL, family, t('team.activity.otherFamily')), count }))
+    .sort((a, b) => a.label.localeCompare(b.label, intlTag()))
 })
 
 const entityTypes = computed(() => facetData.value?.data.entityTypes ?? [])
@@ -138,7 +140,7 @@ function detail(row: ActivityRow) {
   if (!meta) return ''
   const parts: string[] = []
   const title = meta.title ?? meta.name ?? meta.code ?? meta.number
-  if (typeof title === 'string') parts.push('«' + title + '»')
+  if (typeof title === 'string') parts.push(t('team.activity.quoted', { title }))
   if (typeof meta.from === 'string' && typeof meta.to === 'string') {
     parts.push(enumLabel(STATUS_LABEL, meta.from) + ' → ' + enumLabel(STATUS_LABEL, meta.to))
   } else if (typeof meta.status === 'string') {
@@ -163,20 +165,19 @@ const grouped = computed(() => {
 <template>
   <div class="mx-auto max-w-5xl px-6 py-8">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Студия</p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Лента событий</h1>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{{ t('team.activity.eyebrow') }}</p>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('team.activity.title') }}</h1>
       <p class="mt-1 max-w-2xl text-sm text-muted-foreground">
-        Что происходило в студии: кто что создал, переназначил и перевёл в другой
-        статус. Лента только читается — исправить событие нельзя, в этом её смысл.
+        {{ t('team.activity.intro') }}
       </p>
 
       <div class="mt-4 flex flex-wrap items-center gap-2">
         <select
           v-model="projectId"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Проект"
+          :aria-label="t('team.activity.filters.project')"
         >
-          <option value="">Все проекты</option>
+          <option value="">{{ t('team.allProjects') }}</option>
           <option v-for="option in projectOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </option>
@@ -185,9 +186,9 @@ const grouped = computed(() => {
         <select
           v-model="actorId"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Автор"
+          :aria-label="t('team.activity.filters.actor')"
         >
-          <option value="">Все авторы</option>
+          <option value="">{{ t('team.activity.filters.allActors') }}</option>
           <option v-for="option in actorOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </option>
@@ -196,9 +197,9 @@ const grouped = computed(() => {
         <select
           v-model="action"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Тип события"
+          :aria-label="t('team.activity.filters.action')"
         >
-          <option value="">Любые события</option>
+          <option value="">{{ t('team.activity.filters.anyAction') }}</option>
           <option v-for="family in actionFamilies" :key="family.value" :value="family.value">
             {{ family.label }} ({{ family.count }})
           </option>
@@ -207,16 +208,16 @@ const grouped = computed(() => {
         <select
           v-model="entityType"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Объект"
+          :aria-label="t('team.activity.filters.entity')"
         >
-          <option value="">Любые объекты</option>
+          <option value="">{{ t('team.activity.filters.anyEntity') }}</option>
           <option v-for="row in entityTypes" :key="row.value" :value="row.value">
-            {{ labelOf(ENTITY_TYPE_LABEL, row.value, 'Запись') }} ({{ row.count }})
+            {{ labelOf(ENTITY_TYPE_LABEL, row.value, t('team.activity.record')) }} ({{ row.count }})
           </option>
         </select>
 
         <label class="flex items-center gap-2 text-sm text-muted-foreground">
-          С
+          {{ t('team.activity.filters.from') }}
           <input
             v-model="from"
             type="date"
@@ -224,7 +225,7 @@ const grouped = computed(() => {
           >
         </label>
         <label class="flex items-center gap-2 text-sm text-muted-foreground">
-          по
+          {{ t('team.activity.filters.to') }}
           <input
             v-model="to"
             type="date"
@@ -238,7 +239,7 @@ const grouped = computed(() => {
           class="h-9 rounded-md px-2.5 text-sm text-muted-foreground hover:text-foreground"
           @click="resetFilters()"
         >
-          Сбросить
+          {{ t('common.actions.reset') }}
         </button>
       </div>
     </header>
@@ -254,7 +255,7 @@ const grouped = computed(() => {
         class="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
         @click="refresh()"
       >
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
@@ -268,13 +269,13 @@ const grouped = computed(() => {
     >
       <Icon name="lucide:activity" class="size-7 text-muted-foreground" />
       <p class="mt-3 text-sm font-medium">
-        {{ isFiltered ? 'Под эти фильтры ничего не подошло' : 'Пока нет событий' }}
+        {{ isFiltered ? t('team.activity.emptyFiltered') : t('team.activity.emptyTitle') }}
       </p>
       <p class="mt-1.5 max-w-sm text-sm text-muted-foreground">
         {{
           isFiltered
-            ? 'Попробуйте расширить период или снять часть фильтров.'
-            : 'Здесь появятся изменения статусов, версии и согласования — как только они произойдут.'
+            ? t('team.activity.emptyFilteredBody')
+            : t('team.activity.emptyBody')
         }}
       </p>
       <button
@@ -283,12 +284,12 @@ const grouped = computed(() => {
         class="mt-4 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
         @click="resetFilters()"
       >
-        Сбросить фильтры
+        {{ t('team.activity.resetFilters') }}
       </button>
     </div>
 
     <template v-else>
-      <p class="mb-3 text-sm text-muted-foreground">Событий: {{ meta.total }}</p>
+      <p class="mb-3 text-sm text-muted-foreground">{{ t('team.activity.total', { n: meta.total }) }}</p>
 
       <section v-for="group in grouped" :key="group.day" class="mb-6">
         <h2 class="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -308,19 +309,20 @@ const grouped = computed(() => {
             </span>
 
             <div class="min-w-0 flex-1">
-              <p>
-                <span class="font-medium">
-                  {{ row.actor ? row.actor.firstName + ' ' + row.actor.lastName : 'Система' }}
-                </span>
-                {{ ' ' }}
-                <span>{{ labelOf(ACTIVITY_ACTION_LABEL, row.action, 'выполнил действие') }}</span>
-                <span v-if="detail(row)" class="text-muted-foreground">
-                  {{ ' ' }}{{ detail(row) }}
-                </span>
-              </p>
+              <i18n-t :keypath="detail(row) ? 'team.activity.lineWithDetail' : 'team.activity.line'" tag="p" scope="global">
+                <template #actor>
+                  <span class="font-medium">{{ row.actor ? row.actor.firstName + ' ' + row.actor.lastName : t('team.activity.system') }}</span>
+                </template>
+                <template #action>
+                  <span>{{ labelOf(ACTIVITY_ACTION_LABEL, row.action, t('team.activity.unknownAction')) }}</span>
+                </template>
+                <template #detail>
+                  <span class="text-muted-foreground">{{ detail(row) }}</span>
+                </template>
+              </i18n-t>
 
               <p class="mt-0.5 text-xs text-muted-foreground">
-                <span>{{ labelOf(ENTITY_TYPE_LABEL, row.entityType, 'Запись') }}</span>
+                <span>{{ labelOf(ENTITY_TYPE_LABEL, row.entityType, t('team.activity.record')) }}</span>
                 <template v-if="row.project">
                   ·
                   <NuxtLink :to="'/projects/' + row.project.id" class="hover:underline">
@@ -329,7 +331,7 @@ const grouped = computed(() => {
                 </template>
                 <template v-if="entityLink(row)">
                   ·
-                  <NuxtLink :to="entityLink(row)!" class="hover:underline">Открыть</NuxtLink>
+                  <NuxtLink :to="entityLink(row)!" class="hover:underline">{{ t('common.actions.open') }}</NuxtLink>
                 </template>
               </p>
             </div>
@@ -352,10 +354,10 @@ const grouped = computed(() => {
           :disabled="meta.page <= 1"
           @click="page = meta.page - 1"
         >
-          Назад
+          {{ t('common.actions.back') }}
         </button>
         <p class="text-sm text-muted-foreground">
-          Страница {{ meta.page }} из {{ meta.pages }}
+          {{ t('team.pageOf', { page: meta.page, pages: meta.pages }) }}
         </p>
         <button
           type="button"
@@ -363,7 +365,7 @@ const grouped = computed(() => {
           :disabled="meta.page >= meta.pages"
           @click="page = meta.page + 1"
         >
-          Дальше
+          {{ t('team.nextPage') }}
         </button>
       </div>
     </template>

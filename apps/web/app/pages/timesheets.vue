@@ -5,7 +5,9 @@ import { useTaskPanels } from '~/composables/useTaskPanels'
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Учёт времени' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('team.timesheets.title')) })
 
 const route = useRoute()
 const router = useRouter()
@@ -23,10 +25,10 @@ const canSeeTeam = computed(() => auth.can(PERMISSION.TIMESHEET_VIEW_ALL))
  * shareable ?view= keeps every URL working.
  */
 const VIEWS = [
-  { key: 'my', label: 'Мои часы', teamOnly: false },
-  { key: 'team', label: 'Команда', teamOnly: true },
-  { key: 'projects', label: 'По проектам', teamOnly: true },
-  { key: 'reports', label: 'Отчёт', teamOnly: true }
+  { key: 'my', labelKey: 'team.timesheets.views.my', teamOnly: false },
+  { key: 'team', labelKey: 'team.timesheets.views.team', teamOnly: true },
+  { key: 'projects', labelKey: 'team.timesheets.views.projects', teamOnly: true },
+  { key: 'reports', labelKey: 'team.timesheets.views.reports', teamOnly: true }
 ] as const
 
 const availableViews = computed(() =>
@@ -114,14 +116,14 @@ const { data: projectData } = useFetch<{
 })
 const projects = computed(() => projectData.value?.data ?? [])
 
-const columns: Column[] = [
-  { key: 'date', label: 'Дата', width: '12%' },
-  { key: 'who', label: 'Сотрудник', width: '20%' },
-  { key: 'project', label: 'Проект', width: '14%' },
-  { key: 'work', label: 'Работа', width: '32%' },
-  { key: 'hours', label: 'Часы', width: '10%', numeric: true },
+const columns = computed<Column[]>(() => [
+  { key: 'date', label: t('team.timesheets.columns.date'), width: '12%' },
+  { key: 'who', label: t('team.timesheets.columns.who'), width: '20%' },
+  { key: 'project', label: t('team.timesheets.columns.project'), width: '14%' },
+  { key: 'work', label: t('team.timesheets.columns.work'), width: '32%' },
+  { key: 'hours', label: t('team.timesheets.columns.hours'), width: '10%', numeric: true },
   { key: 'actions', label: '', width: '56px' }
-]
+])
 
 // --- logging hours ---------------------------------------------------------
 
@@ -150,7 +152,7 @@ const tasksForProject = computed(() =>
 
 async function submit() {
   if (!draft.projectId || !draft.date || !draft.hours) {
-    errorMessage.value = 'Заполните проект, дату и количество часов'
+    errorMessage.value = t('team.timesheets.required')
     return
   }
   saving.value = true
@@ -172,7 +174,7 @@ async function submit() {
     formOpen.value = false
     await Promise.all([refresh(), refreshSummary()])
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось записать часы')
+    errorMessage.value = apiErrorMessage(err, t('team.timesheets.saveFailed'))
   } finally {
     saving.value = false
   }
@@ -190,7 +192,7 @@ async function confirmDelete() {
     deleteTarget.value = null
     await Promise.all([refresh(), refreshSummary()])
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось удалить запись')
+    errorMessage.value = apiErrorMessage(err, t('team.timesheets.deleteFailed'))
     deleteTarget.value = null
   } finally {
     deleting.value = false
@@ -208,13 +210,13 @@ function who(row: EntryRow) {
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
       <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-        Планирование
+        {{ t('team.planningEyebrow') }}
       </p>
       <div class="mt-1.5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 class="text-2xl font-semibold tracking-tight">Учёт времени</h1>
+          <h1 class="text-2xl font-semibold tracking-tight">{{ t('team.timesheets.title') }}</h1>
           <p class="mt-1 text-sm text-muted-foreground">
-            {{ summary?.totalHours ?? 0 }}ч за период · {{ summary?.entries ?? 0 }} записей
+            {{ t('team.timesheets.summary', { hours: summary?.totalHours ?? 0 }) }} · {{ countLabel(summary?.entries ?? 0, 'team.timesheets.entries') }}
           </p>
         </div>
         <button
@@ -224,12 +226,12 @@ function who(row: EntryRow) {
           @click="formOpen = !formOpen"
         >
           <Icon :name="formOpen ? 'lucide:x' : 'lucide:plus'" class="size-4" />
-          {{ formOpen ? 'Свернуть' : 'Списать часы' }}
+          {{ formOpen ? t('team.timesheets.collapse') : t('team.timesheets.log') }}
         </button>
       </div>
     </header>
 
-    <nav class="mb-5 flex flex-wrap gap-1.5" aria-label="Выборки учёта времени">
+    <nav class="mb-5 flex flex-wrap gap-1.5" :aria-label="t('team.timesheets.viewsAria')">
       <button
         v-for="item in availableViews"
         :key="item.key"
@@ -240,7 +242,7 @@ function who(row: EntryRow) {
           : 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground'"
         @click="selectView(item.key)"
       >
-        {{ item.label }}
+        {{ t(item.labelKey) }}
       </button>
     </nav>
 
@@ -253,37 +255,37 @@ function who(row: EntryRow) {
     </p>
 
     <section v-if="formOpen" class="mb-5 rounded-xl border bg-card p-4">
-      <h2 class="text-sm font-medium">Новая запись</h2>
+      <h2 class="text-sm font-medium">{{ t('team.timesheets.newEntry') }}</h2>
       <div class="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <label for="ts-project" class="mb-1.5 block text-sm font-medium leading-none">
-            Проект <span class="text-destructive">*</span>
+            {{ t('team.timesheets.columns.project') }} <span class="text-destructive">*</span>
           </label>
           <select
             id="ts-project"
             v-model="draft.projectId"
             class="h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
           >
-            <option value="">Не выбран</option>
+            <option value="">{{ t('team.timesheets.notSelected') }}</option>
             <option v-for="p in projects" :key="p.id" :value="p.id">
               {{ p.code }} · {{ p.name }}
             </option>
           </select>
         </div>
         <div>
-          <label for="ts-task" class="mb-1.5 block text-sm font-medium leading-none">Задача</label>
+          <label for="ts-task" class="mb-1.5 block text-sm font-medium leading-none">{{ t('team.timesheets.task') }}</label>
           <select
             id="ts-task"
             v-model="draft.taskId"
             class="h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
           >
-            <option value="">Без задачи</option>
-            <option v-for="t in tasksForProject" :key="t.id" :value="t.id">{{ t.title }}</option>
+            <option value="">{{ t('team.timesheets.noTask') }}</option>
+            <option v-for="task in tasksForProject" :key="task.id" :value="task.id">{{ task.title }}</option>
           </select>
         </div>
         <div>
           <label for="ts-date" class="mb-1.5 block text-sm font-medium leading-none">
-            Дата <span class="text-destructive">*</span>
+            {{ t('team.timesheets.columns.date') }} <span class="text-destructive">*</span>
           </label>
           <input
             id="ts-date"
@@ -294,7 +296,7 @@ function who(row: EntryRow) {
         </div>
         <div>
           <label for="ts-hours" class="mb-1.5 block text-sm font-medium leading-none">
-            Часы <span class="text-destructive">*</span>
+            {{ t('team.timesheets.columns.hours') }} <span class="text-destructive">*</span>
           </label>
           <input
             id="ts-hours"
@@ -309,7 +311,7 @@ function who(row: EntryRow) {
         </div>
         <div class="sm:col-span-2 lg:col-span-4">
           <label for="ts-note" class="mb-1.5 block text-sm font-medium leading-none">
-            Что делали
+            {{ t('team.timesheets.description') }}
           </label>
           <textarea
             id="ts-note"
@@ -326,19 +328,19 @@ function who(row: EntryRow) {
           :disabled="saving"
           @click="submit"
         >
-          {{ saving ? 'Сохранение...' : 'Записать' }}
+          {{ saving ? t('common.actions.saving') : t('team.timesheets.submit') }}
         </button>
       </div>
     </section>
 
     <!-- Reporting views summarise instead of listing every entry. -->
     <section v-if="view === 'projects' || view === 'reports'" class="mb-5 grid gap-4 lg:grid-cols-2">
-      <div class="rounded-xl border bg-card p-4">
+      <div class="min-w-0 rounded-xl border bg-card p-4">
         <h2 class="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          По проектам
+          {{ t('team.timesheets.byProject') }}
         </h2>
         <p v-if="(summary?.byProject.length ?? 0) === 0" class="mt-3 text-sm text-muted-foreground">
-          За период часов нет.
+          {{ t('team.timesheets.noHours') }}
         </p>
         <ul v-else class="mt-3 space-y-2">
           <li
@@ -347,22 +349,22 @@ function who(row: EntryRow) {
             class="flex items-center justify-between gap-3 text-sm"
           >
             <span class="min-w-0 truncate">
-              {{ row.project ? row.project.code + ' · ' + row.project.name : 'Без проекта' }}
+              {{ row.project ? row.project.code + ' · ' + row.project.name : t('team.timesheets.noProject') }}
             </span>
             <span class="shrink-0 tabular-nums">
-              {{ row.hours }}ч
+              {{ t('team.hours', { n: row.hours }) }}
               <span class="text-xs text-muted-foreground">({{ row.entries }})</span>
             </span>
           </li>
         </ul>
       </div>
 
-      <div class="rounded-xl border bg-card p-4">
+      <div class="min-w-0 rounded-xl border bg-card p-4">
         <h2 class="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          По сотрудникам
+          {{ t('team.timesheets.byEmployee') }}
         </h2>
         <p v-if="(summary?.byEmployee.length ?? 0) === 0" class="mt-3 text-sm text-muted-foreground">
-          За период часов нет.
+          {{ t('team.timesheets.noHours') }}
         </p>
         <ul v-else class="mt-3 space-y-2">
           <li
@@ -373,10 +375,10 @@ function who(row: EntryRow) {
             <span class="min-w-0 truncate">
               {{ row.employee
                 ? row.employee.user.firstName + ' ' + row.employee.user.lastName
-                : 'Неизвестен' }}
+                : t('team.timesheets.unknown') }}
             </span>
             <span class="shrink-0 tabular-nums">
-              {{ row.hours }}ч
+              {{ t('team.hours', { n: row.hours }) }}
               <span class="text-xs text-muted-foreground">({{ row.entries }})</span>
             </span>
           </li>
@@ -390,10 +392,10 @@ function who(row: EntryRow) {
       :meta="meta"
       :pending="pending"
       :error-message="loadError"
-      search-placeholder="Поиск недоступен в этом разделе"
+      :search-placeholder="t('team.timesheets.noSearch')"
       empty-icon="lucide:clock"
-      empty-title="Записей нет"
-      empty-body="Списанные часы формируют фактическую себестоимость проекта."
+      :empty-title="t('team.timesheets.emptyTitle')"
+      :empty-body="t('team.timesheets.emptyBody')"
       @update:page="page = $event"
       @retry="refresh"
     >
@@ -401,24 +403,24 @@ function who(row: EntryRow) {
         <select
           v-model="projectId"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Фильтр по проекту"
+          :aria-label="t('team.timesheets.projectFilter')"
           @change="page = 1"
         >
-          <option value="">Все проекты</option>
+          <option value="">{{ t('team.allProjects') }}</option>
           <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.code }}</option>
         </select>
         <input
           v-model="from"
           type="date"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Период с"
+          :aria-label="t('team.timesheets.from')"
           @change="page = 1"
         >
         <input
           v-model="to"
           type="date"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Период по"
+          :aria-label="t('team.timesheets.to')"
           @change="page = 1"
         >
       </template>
@@ -465,7 +467,7 @@ function who(row: EntryRow) {
           v-if="canSubmit"
           type="button"
           class="rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-destructive"
-          :aria-label="'Удалить запись за ' + formatDay(row.date)"
+          :aria-label="t('team.timesheets.deleteAria', { date: formatDay(row.date) })"
           data-row-ignore
           @click="deleteTarget = row"
         >
@@ -476,10 +478,10 @@ function who(row: EntryRow) {
 
     <ConfirmDialog
       v-if="deleteTarget"
-      title="Удаление записи"
-      :message="'Удалить ' + deleteTarget.hours + 'ч за ' + formatDay(deleteTarget.date) + '?'"
-      detail="Часы исчезнут из отчётов и себестоимости проекта."
-      confirm-label="Удалить"
+      :title="t('team.timesheets.deleteTitle')"
+      :message="t('team.timesheets.deleteMessage', { hours: deleteTarget.hours, date: formatDay(deleteTarget.date) })"
+      :detail="t('team.timesheets.deleteDetail')"
+      :confirm-label="t('common.actions.delete')"
       :pending="deleting"
       @confirm="confirmDelete"
       @cancel="deleteTarget = null"
