@@ -2,6 +2,7 @@
 import { apiErrorMessage, apiRequest, useListResource } from '~/composables/useApi'
 import { PERMISSION, ROLE, type Permission } from '@astir/types'
 import RoleMatrix from '~/components/settings/RoleMatrix.vue'
+import WorkSchedule from '~/components/settings/WorkSchedule.vue'
 import { useAuthStore } from '~/stores/auth'
 
 useHead({ title: 'Settings' })
@@ -24,6 +25,7 @@ interface SettingsTab {
 /** Tabs live in the URL so a link can point at the one being discussed. */
 const TABS: SettingsTab[] = [
   { key: 'studio', label: 'Студия' },
+  { key: 'schedule', label: 'Рабочий график' },
   { key: 'mail', label: 'Почта' },
   { key: 'templates', label: 'Шаблоны пайплайна' },
   { key: 'users', label: 'Пользователи', permission: PERMISSION.USER_MANAGE },
@@ -361,6 +363,9 @@ const isSelf = (row: Account) => row.id === auth.user?.id
         {{ saving ? 'Сохраняю...' : 'Сохранить' }}
       </button>
     </section>
+
+    <!-- --------------------------------------------------------- schedule -->
+    <WorkSchedule v-else-if="tab === 'schedule'" :can-manage="canManage" />
 
     <!-- ------------------------------------------------------------- mail -->
     <section v-else-if="tab === 'mail'" class="space-y-4">

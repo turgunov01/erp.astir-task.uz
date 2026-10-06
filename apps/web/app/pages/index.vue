@@ -2,8 +2,9 @@
 import type { Pinia } from 'pinia'
 import { useAuthStore } from '~/stores/auth'
 
-// Entry point resolves to the session's home: own tasks for the people doing
-// the work, the dashboard for everyone overseeing it. The global auth
+// Entry point resolves to the session's home (auth store homePath): employee
+// activity for the owner and administrator, own tasks for every employee,
+// the portal for client accounts. The global auth
 // middleware runs first, so unauthenticated visitors land on /login instead.
 definePageMeta({
   middleware: () => {

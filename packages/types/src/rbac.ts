@@ -50,6 +50,11 @@ export const PERMISSION = {
   TEAM_MANAGE: 'team:manage',
   WORKLOAD_VIEW: 'workload:view',
 
+  // Attendance control (Verifix-style): who came in, when and how late.
+  // manage covers correcting a day by hand and turning lateness into fines.
+  ATTENDANCE_VIEW: 'attendance:view',
+  ATTENDANCE_MANAGE: 'attendance:manage',
+
   TIMESHEET_VIEW_OWN: 'timesheet:view:own',
   TIMESHEET_VIEW_ALL: 'timesheet:view:all',
   TIMESHEET_SUBMIT: 'timesheet:submit',
@@ -181,6 +186,9 @@ export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
     P.REPORT_VIEW,
     P.DOCUMENT_VIEW, P.DOCUMENT_MANAGE,
     P.TIMESHEET_VIEW_ALL,
+    // Finance staff are employees with tasks of their own, and "Мои задачи"
+    // is where an employee's session starts.
+    P.TASK_VIEW_OWN,
     P.ACTIVITY_VIEW
   ]
 }

@@ -202,6 +202,16 @@ enum PayrollEntrySource {
   EXTERNAL
 }
 
+/// Where an attendance day's arrival and leave times came from.
+enum AttendanceSource {
+  /// Captured automatically: sign-in and authenticated activity in the app.
+  WEB
+  /// Set by hand by an administrator, with a comment.
+  MANUAL
+  /// Imported from an access-control system (e.g. Verifix turnstiles).
+  EXTERNAL
+}
+
 enum EmploymentType {
   FULL_TIME
   PART_TIME
@@ -299,6 +309,7 @@ model User {
   payrollCreated      PayrollEntry[]           @relation("PayrollCreator")
   payrollApproved     PayrollEntry[]           @relation("PayrollApprover")
   salariesSet         EmployeeSalary[]
+  attendanceCorrected AttendanceDay[]          @relation("AttendanceCorrector")
   documentsUploaded   Document[]
   renderJobsSubmitted RenderJob[]
 
@@ -371,6 +382,7 @@ model Employee {
   timesheetEntries TimesheetEntry[]
   payrollEntries   PayrollEntry[]
   salary           EmployeeSalary?
+  attendanceDays   AttendanceDay[]
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -1180,6 +1192,51 @@ model EmployeeSalary {
   @@map("employee_salaries")
 }
 
+/// One employee's working day (Verifix-style attendance control).
+///
+/// Keyed by the studio-local calendar date. firstSeenAt/lastSeenAt are what
+/// the app itself observed (sign-in, authenticated requests) and are never
+/// edited; checkInAt/checkOutAt are the times that count. On WEB rows they
+/// follow the observations; a manual correction or an external import sets
+/// them and moves the source, after which observations stop overwriting them.
+model AttendanceDay {
+  id         String   @id @default(uuid()) @db.Uuid
+  employeeId String   @db.Uuid
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  /// Studio-local calendar day (StudioSettings.timezone).
+  date DateTime @db.Date
+
+  firstSeenAt DateTime?
+  lastSeenAt  DateTime?
+
+  checkInAt  DateTime?
+  checkOutAt DateTime?
+
+  /// Minutes past the scheduled start; 0 when on time or on a day off.
+  lateMinutes   Int @default(0)
+  /// checkOutAt minus checkInAt, in minutes.
+  workedMinutes Int @default(0)
+
+  source     AttendanceSource @default(WEB)
+  /// Record id in the external system, for idempotent imports.
+  externalId String?
+
+  /// Manual correction: who, when and why.
+  correctedById String?   @db.Uuid
+  correctedBy   User?     @relation("AttendanceCorrector", fields: [correctedById], references: [id], onDelete: SetNull)
+  correctedAt   DateTime?
+  comment       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([employeeId, date])
+  @@unique([source, externalId])
+  @@index([date])
+  @@map("attendance_days")
+}
+
 model Document {
   id        String   @id @default(uuid()) @db.Uuid
   projectId String?  @db.Uuid
@@ -1450,6 +1507,18 @@ model StudioSettings {
 
   /// Prefix for derived invoice numbers, e.g. INV- in INV-0001.
   invoicePrefix String @default("INV-")
+
+  /// Work schedule for attendance control, in studio-local time (HH:MM).
+  workDayStart     String @default("09:00")
+  workDayEnd       String @default("18:00")
+  /// Arriving within this many minutes after the start is not late.
+  lateGraceMinutes Int    @default(10)
+  /// ISO weekdays that are working days: 1 = Monday ... 7 = Sunday.
+  workWeekdays     Int[]  @default([1, 2, 3, 4, 5])
+  /// Lateness fine in the studio currency: per late day plus per late minute.
+  /// Both zero means fines are not calculated.
+  latePenaltyPerDay    Decimal @default(0) @db.Decimal(14, 2)
+  latePenaltyPerMinute Decimal @default(0) @db.Decimal(14, 2)
 
   /// SMTP. Empty values fall back to the environment, so a deployment that
   /// configures mail through env keeps working with no row here at all.

@@ -45,6 +45,7 @@ settingsRouter.get('/brand', async (_req, res, next) => {
 settingsRouter.use(authenticate)
 
 const optionalText = (max: number) => z.string().trim().max(max).optional().nullable()
+const clockSchema = z.string().trim().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Ожидается время ЧЧ:ММ')
 
 const updateSettingsSchema = z.object({
   name: z.string().trim().min(1).max(120).optional(),
@@ -58,6 +59,18 @@ const updateSettingsSchema = z.object({
   currency: z.string().trim().length(3).toUpperCase().optional(),
   timezone: z.string().trim().max(60).optional(),
   invoicePrefix: z.string().trim().max(10).optional(),
+
+  // Work schedule for attendance control (HH:MM, studio-local time).
+  workDayStart: clockSchema.optional(),
+  workDayEnd: clockSchema.optional(),
+  lateGraceMinutes: z.coerce.number().int().min(0).max(240).optional(),
+  workWeekdays: z.array(z.coerce.number().int().min(1).max(7))
+    .min(1, 'Выберите хотя бы один рабочий день')
+    .max(7)
+    .transform(days => [...new Set(days)].sort((a, b) => a - b))
+    .optional(),
+  latePenaltyPerDay: z.coerce.number().min(0).max(1_000_000_000).optional(),
+  latePenaltyPerMinute: z.coerce.number().min(0).max(1_000_000_000).optional(),
 
   smtpHost: optionalText(200),
   smtpPort: z.coerce.number().int().min(1).max(65535).optional().nullable(),
@@ -93,6 +106,14 @@ settingsRouter.patch(
       // An absent password keeps the stored one; a blank one clears it.
       if (patch.smtpPassword === undefined) delete patch.smtpPassword
       else if (patch.smtpPassword === '') patch.smtpPassword = null
+
+      // The working day has to end after it starts, whichever half was sent.
+      if (patch.workDayStart !== undefined || patch.workDayEnd !== undefined) {
+        const current = await studioSettings()
+        const start = patch.workDayStart ?? current.workDayStart
+        const end = patch.workDayEnd ?? current.workDayEnd
+        if (end <= start) throw badRequest('Конец рабочего дня должен быть позже начала')
+      }
 
       const saved = await saveStudioSettings(patch)
 
