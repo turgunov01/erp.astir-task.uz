@@ -35,6 +35,35 @@ export function intlTag(): string {
   return INTL_TAG[currentLocale()]
 }
 
+const intlDataCache = new Map<string, boolean>()
+
+/**
+ * Whether this runtime really carries calendar data for `tag`.
+ *
+ * Node renders Uzbek dates fine, but some Chromium builds ship without Uzbek
+ * month names and print «2026 M10 31» instead; the formatters then fall back
+ * to the month names in the catalogue, so a page never changes its dates
+ * between the server render and hydration.
+ */
+export function hasIntlData(tag: string = intlTag()): boolean {
+  const cached = intlDataCache.get(tag)
+  if (cached !== undefined) return cached
+  let ok = false
+  try {
+    const sample = new Intl.DateTimeFormat(tag, { month: 'short' }).format(new Date(2026, 9, 15))
+    ok = !/^M\d+$/.test(sample.trim())
+  } catch {
+    ok = false
+  }
+  intlDataCache.set(tag, ok)
+  return ok
+}
+
+/** Short month name from the catalogue, 0-based like Date#getMonth. */
+export function monthShortName(monthIndex: number): string {
+  return translate('common.monthShort.' + (monthIndex + 1))
+}
+
 /**
  * `t()` for non-component code.
  *

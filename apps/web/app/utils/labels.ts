@@ -63,10 +63,33 @@ export const PRODUCTION_STATUS_LABEL = enumLabels('productionStatus', [
   'NOT_STARTED', 'IN_PROGRESS', 'REVIEW', 'REVISION', 'APPROVED', 'COMPLETED', 'ON_HOLD'
 ])
 
+/*
+ * Uzbek always goes through the catalogue: browsers differ in whether they
+ * carry Uzbek calendar data, and the server and the browser must print the
+ * same string or hydration breaks. Other languages fall back only when the
+ * runtime turns out to lack their data.
+ */
+function catalogueDates(): boolean {
+  return currentLocale() === 'uz' || !hasIntlData()
+}
+
+function pad2(value: number) {
+  return String(value).padStart(2, '0')
+}
+
+/** «31-okt, 2026», the Uzbek short form, built from catalogue month names. */
+function catalogueDay(date: Date) {
+  return pad2(date.getDate()) + '-' + monthShortName(date.getMonth()) + ', ' + date.getFullYear()
+}
+
 /** Full date and time, for detail panels where precision matters. */
 export function formatDateTime(value: string | null | undefined) {
   if (!value) return '—'
-  return new Date(value).toLocaleString(intlTag(), {
+  const date = new Date(value)
+  if (catalogueDates()) {
+    return catalogueDay(date) + ', ' + pad2(date.getHours()) + ':' + pad2(date.getMinutes())
+  }
+  return date.toLocaleString(intlTag(), {
     day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
   })
 }
@@ -74,9 +97,22 @@ export function formatDateTime(value: string | null | undefined) {
 /** Day-level date, for table cells and deadlines. */
 export function formatDay(value: string | null | undefined) {
   if (!value) return '—'
-  return new Date(value).toLocaleDateString(intlTag(), {
+  const date = new Date(value)
+  if (catalogueDates()) return catalogueDay(date)
+  return date.toLocaleDateString(intlTag(), {
     day: '2-digit', month: 'short', year: 'numeric'
   })
+}
+
+/** How Uzbek writes currencies after the amount. */
+const UZ_CURRENCY_SUFFIX: Record<string, string> = { UZS: 'so‘m', USD: 'US$', EUR: '€', RUB: '₽' }
+
+/** «36 000 US$»: space-grouped, comma decimals, currency after the amount. */
+function catalogueMoney(value: number, currency: string, maximumFractionDigits: number) {
+  const digits = new Intl.NumberFormat('ru-RU', {
+    minimumFractionDigits: 0, maximumFractionDigits
+  }).format(value)
+  return digits + ' ' + (UZ_CURRENCY_SUFFIX[currency] ?? currency)
 }
 
 /**
@@ -91,6 +127,7 @@ export function formatMoney(
   maximumFractionDigits = 2
 ) {
   if (value === null || value === undefined) return '—'
+  if (currentLocale() === 'uz') return catalogueMoney(value, currency, maximumFractionDigits)
   return new Intl.NumberFormat(intlTag(), {
     style: 'currency', currency, maximumFractionDigits
   }).format(value)
