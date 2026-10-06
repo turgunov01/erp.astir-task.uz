@@ -16,6 +16,19 @@ export function sendList<T>(
   return res.status(status).json({ data, meta })
 }
 
+/**
+ * A page of rows plus figures about every row the filter matched, not just
+ * this page — per-currency totals on the finance lists.
+ */
+export function sendListWithSummary<T, S>(
+  res: Response,
+  data: T[],
+  meta: PaginationMeta,
+  summary: S
+) {
+  return res.status(200).json({ data, meta, summary })
+}
+
 export function sendNoContent(res: Response) {
   return res.status(204).send()
 }
