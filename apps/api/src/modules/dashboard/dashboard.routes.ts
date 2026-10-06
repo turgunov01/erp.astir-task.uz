@@ -3,7 +3,8 @@ import { PERMISSION } from '@astir/types'
 import { authenticate, requirePermission } from '../../middleware/auth'
 import { sendItem } from '../../lib/http'
 import { prisma } from '../../lib/prisma'
-import { badRequest, notFound } from '../../lib/errors'
+import { badRequest, notFound, unauthenticated } from '../../lib/errors'
+import { activityTaskScope, taskScope } from '../../lib/task-scope'
 
 /**
  * Dashboard aggregates (spec 7).
@@ -45,6 +46,11 @@ dashboardRouter.get(
         : {}
 
       const projectWhere = { deletedAt: null, ...clientScope }
+      if (!req.user) throw unauthenticated()
+      const [ownTasks, ownActivity] = await Promise.all([
+        taskScope(req.user),
+        activityTaskScope(req.user)
+      ])
 
       const [
         activeProjects,
@@ -66,6 +72,7 @@ dashboardRouter.get(
         }),
         prisma.task.count({
           where: {
+            ...ownTasks,
             deletedAt: null,
             archivedAt: null,
             deadline: { lt: now },
@@ -105,6 +112,7 @@ dashboardRouter.get(
           }
         }),
         prisma.activityLog.findMany({
+          where: ownActivity,
           orderBy: { createdAt: 'desc' },
           take: 8,
           select: {
@@ -161,6 +169,8 @@ dashboardRouter.get(
         ? new Date(String(req.query.to))
         : new Date(from.getTime() + 90 * 24 * 60 * 60 * 1000)
       const range = { gte: from, lte: to }
+      if (!req.user) throw unauthenticated()
+      const ownTasks = await taskScope(req.user)
 
       const [projects, milestones, tasks] = await Promise.all([
         prisma.project.findMany({
@@ -180,7 +190,7 @@ dashboardRouter.get(
           orderBy: { dueDate: 'asc' }
         }),
         prisma.task.findMany({
-          where: { deadline: range },
+          where: { ...ownTasks, deadline: range },
           select: {
             id: true,
             title: true,
@@ -236,9 +246,14 @@ dashboardRouter.get(
         }
       })
       if (!project) throw notFound('Project')
+      if (!req.user) throw unauthenticated()
 
       const tasks = await prisma.task.findMany({
-        where: { projectId, OR: [{ startDate: { not: null } }, { deadline: { not: null } }] },
+        where: {
+          ...(await taskScope(req.user)),
+          projectId,
+          OR: [{ startDate: { not: null } }, { deadline: { not: null } }]
+        },
         select: {
           id: true,
           title: true,

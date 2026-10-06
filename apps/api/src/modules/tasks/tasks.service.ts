@@ -332,8 +332,8 @@ export async function remove(id: string, actorId?: string) {
   })
 }
 
-export function boardCounts(projectId: string) {
-  return repo.countByStatus(projectId)
+export function boardCounts(projectId: string, assigneeId?: string | null) {
+  return repo.countByStatus(projectId, assigneeId)
 }
 
 /**

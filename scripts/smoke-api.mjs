@@ -285,6 +285,20 @@ expect('limit above the cap is rejected', (await call('GET', '/api/tasks?limit=5
 console.log(NL + 'permissions')
 await login('anna@aster.studio', 'admin123')
 expect('artist reads tasks', (await call('GET', '/api/tasks?limit=1')).status, 200)
+// Without task:view the artist sees their own tasks only, asked or not.
+const artistMe = await call('GET', '/api/auth/me')
+const artistId = artistMe.payload && artistMe.payload.data ? artistMe.payload.data.user.id : null
+const artistTasks = await call('GET', '/api/tasks?limit=100')
+const artistRows = (artistTasks.payload && artistTasks.payload.data) || []
+record(
+  'artist lists only own tasks',
+  artistTasks.status === 200 && artistRows.every(task => task.assignee && task.assignee.id === artistId),
+  artistRows.length + ' rows'
+)
+const strangerTask = tasks.find(task => !task.assignee || task.assignee.id !== artistId)
+if (strangerTask) {
+  expect('artist gets 404 for a stranger task', (await call('GET', '/api/tasks/' + strangerTask.id)).status, 404)
+}
 expect('artist blocked from clients', (await call('GET', '/api/clients')).status, 403)
 expect('artist cannot create project', (await call('POST', '/api/projects', {
   json: { name: 'x', clientId: project ? project.id : undefined }

@@ -7,6 +7,8 @@ import { authenticate, requirePermission } from '../../middleware/auth'
 import { validate, validatedQuery } from '../../middleware/validate'
 import { buildMeta, sendItem, sendList, toSkipTake } from '../../lib/http'
 import { prisma } from '../../lib/prisma'
+import { unauthenticated } from '../../lib/errors'
+import { activityTaskScope } from '../../lib/task-scope'
 
 export const activityRouter = Router()
 
@@ -39,7 +41,8 @@ activityRouter.get(
       const query = validatedQuery<ActivityQuery>(req)
       const { skip, take } = toSkipTake(query.page, query.limit)
 
-      const where: Prisma.ActivityLogWhereInput = {}
+      if (!req.user) throw unauthenticated()
+      const where: Prisma.ActivityLogWhereInput = { AND: [await activityTaskScope(req.user)] }
       if (query.projectId) where.projectId = query.projectId
       if (query.actorId) where.actorId = query.actorId
       if (query.entityType) where.entityType = query.entityType
