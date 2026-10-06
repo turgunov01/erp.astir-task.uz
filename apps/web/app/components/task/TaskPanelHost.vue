@@ -8,7 +8,7 @@ import { useTaskPanels, type Panel } from '~/composables/useTaskPanels'
  * Mounted once in the layout, so any page can open a task panel without
  * shipping its own copy of the drawer.
  */
-const { stack, closeTop, closeAll, isOpen } = useTaskPanels()
+const { stack, closeTop, closeAll, isOpen, markChanged } = useTaskPanels()
 
 onMounted(() => {
   const handler = (event: KeyboardEvent) => {
@@ -67,12 +67,14 @@ function keyFor(panel: Panel, index: number) {
             :task-id="panel.id"
             :offset="offsetFor(index)"
             @close="closeTop"
+            @changed="markChanged"
           />
           <ReviewDetailPanel
             v-else-if="panel.kind === 'review'"
             :id="panel.id"
             :offset="offsetFor(index)"
             @close="closeTop"
+            @changed="markChanged"
           />
           <DetailRevision
             v-else-if="panel.kind === 'revision'"

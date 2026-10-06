@@ -3,6 +3,7 @@ import { PrismaPg } from '@prisma/adapter-pg'
 import { env, isDevelopment } from '../config/env'
 import { FILTERED_OPERATIONS, isArchivable, isSoftDeletable } from './archivable'
 import { shouldListArchived } from './request-context'
+import { flushTransactionQueue, openTransactionQueue, type AfterCommitHook } from './after-commit'
 
 /**
  * Single Prisma instance.
@@ -50,6 +51,39 @@ function createClient() {
   })
 }
 
+/**
+ * Give interactive transactions an after-commit queue (see after-commit.ts).
+ *
+ * Only the callback form is wrapped: the array form has no client for anyone
+ * to queue work against. The queue is flushed when the transaction resolves
+ * and simply forgotten when it throws, so nothing queued outlives a rollback.
+ */
+function withAfterCommit(client: PrismaClient): PrismaClient {
+  const original = client.$transaction.bind(client) as (...args: unknown[]) => Promise<unknown>
+
+  const transaction = (arg: unknown, options?: unknown) => {
+    if (typeof arg !== 'function') return original(arg, options)
+
+    let hooks: AfterCommitHook[] = []
+    return original(async (tx: object) => {
+      hooks = openTransactionQueue(tx)
+      return (arg as (tx: object) => Promise<unknown>)(tx)
+    }, options).then(result => {
+      flushTransactionQueue(hooks)
+      return result
+    })
+  }
+
+  return new Proxy(client, {
+    get(target, prop) {
+      if (prop === '$transaction') return transaction
+      const value = Reflect.get(target, prop, target) as unknown
+      // Bound to the real client: Prisma's methods expect it as `this`.
+      return typeof value === 'function' ? (value as (...args: unknown[]) => unknown).bind(target) : value
+    }
+  })
+}
+
 /*
  * Typed as the plain client on purpose. The extension only changes which
  * rows a read returns, never the shape of the API, and letting the extended
@@ -57,6 +91,6 @@ function createClient() {
  * unusable union.
  */
 export const prisma = (globalForPrisma.prisma ??
-  (createClient() as unknown as PrismaClient)) as PrismaClient
+  withAfterCommit(createClient() as unknown as PrismaClient)) as PrismaClient
 
 if (isDevelopment) globalForPrisma.prisma = prisma

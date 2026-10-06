@@ -23,6 +23,7 @@ const envSchema = z.object({
   ACCESS_TOKEN_TTL: z.string().default('15m'),
   REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().min(1).default(30),
 
+  /** Public web address; every link in an outgoing email is built from it. */
   APP_URL: z.string().url().default('http://127.0.0.1:9990'),
   API_URL: z.string().url().default('http://127.0.0.1:4000'),
 

@@ -1,6 +1,8 @@
 import type { Prisma } from '@prisma/client'
 import { prisma } from './prisma'
 import { logger } from './logger'
+import { afterCommit } from './after-commit'
+import { deliverNotificationEmail, hasEmailChannel } from './notify-email'
 
 type Tx = Prisma.TransactionClient | typeof prisma
 
@@ -38,12 +40,13 @@ async function isMuted(input: NotificationInput, tx: Tx): Promise<boolean> {
 }
 
 /**
- * Create an in-app notification (spec 47, 48).
+ * Create a notification (spec 47, 48).
  *
- * Delivery is IN_APP only for now; the channel column and preference table are
- * already in place so email and Telegram adapters can be added without
- * touching the call sites. An IN_APP preference switched off for the type
- * suppresses the notification.
+ * IN_APP is written here, inside the caller's transaction; an IN_APP
+ * preference switched off for the type suppresses it. Types listed in
+ * EMAIL_NOTIFICATION_TYPES also get a letter, queued to leave after the
+ * transaction commits and gated by the EMAIL preference (notify-email.ts).
+ * Telegram can be added the same way without touching the call sites.
  *
  * Never let a notification failure break the action that triggered it: being
  * unable to tell someone about an assignment must not roll back the
@@ -70,6 +73,14 @@ export async function notify(input: NotificationInput, tx: Tx = prisma): Promise
     }
 
     if (inTransaction) await tx.$executeRawUnsafe('RELEASE SAVEPOINT ' + SAVEPOINT)
+
+    // Email is its own channel with its own switch, so an in-app mute does
+    // not silence it. It leaves only once the caller's write has committed.
+    if (hasEmailChannel(input.type)) {
+      afterCommit(inTransaction ? tx : null, () => {
+        void deliverNotificationEmail(input)
+      })
+    }
   } catch (err) {
     logger.error({ err, userId: input.userId, type: input.type }, 'notification failed')
     if (inTransaction) {

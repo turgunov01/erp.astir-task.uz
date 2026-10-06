@@ -99,11 +99,23 @@ export function useTaskPanels() {
     stack.value = panels.slice(-MAX_DEPTH)
   }
 
+  /*
+   * Bumped whenever a panel saves something. Pages behind the stack watch it
+   * to reload what they show while the panel is still open, instead of waiting
+   * for it to close; closing is still the catch-all for pages that only watch
+   * the stack.
+   */
+  const changes = useState<number>('task-panel-changes', () => 0)
+
+  function markChanged() {
+    changes.value += 1
+  }
+
   const isOpen = computed(() => stack.value.length > 0)
   const depth = computed(() => stack.value.length)
 
   return {
     stack, openTask, openDay, openStatus, openReview, openEntity,
-    closeTop, closeAll, setStack, isOpen, depth
+    closeTop, closeAll, setStack, isOpen, depth, changes, markChanged
   }
 }

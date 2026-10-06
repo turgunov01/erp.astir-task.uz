@@ -161,6 +161,8 @@ const initials = computed(() =>
       </button>
     </section>
 
+    <ProfileNotificationSettings />
+
     <section class="space-y-4 rounded-xl border bg-card p-5">
       <h2 class="text-sm font-medium">Смена пароля</h2>
       <p class="text-sm text-muted-foreground">
