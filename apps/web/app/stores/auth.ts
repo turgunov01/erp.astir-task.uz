@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { appendResponseHeader } from 'h3'
 import type { H3Event } from 'h3'
-import type { AuthUser, Permission } from '@astir/types'
+import { PERMISSION, type AuthUser, type Permission } from '@astir/types'
 
 interface SessionPayload {
   user: AuthUser
@@ -38,6 +38,9 @@ function mergeRequestCookies(event: H3Event, pairs: string[]): void {
     .join('; ')
 }
 
+/** The personal task list, where people doing the work start. */
+export const MY_TASKS_PATH = '/tasks/my'
+
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<AuthUser | null>(null)
   const permissions = ref<Permission[]>([])
@@ -63,6 +66,22 @@ export const useAuthStore = defineStore('auth', () => {
   function can(permission: Permission): boolean {
     return permissions.value.includes(permission)
   }
+
+  /**
+   * Where this session starts: after sign-in, on `/` and when a signed-in
+   * user opens a guest page.
+   *
+   * Decided by permissions rather than by role name, because the matrix is
+   * editable in Settings. A session that may see only its own tasks is someone
+   * doing the work, and starts on that work; anyone who oversees the studio's
+   * tasks keeps the dashboard. A role without a dashboard but with tasks of its
+   * own also starts on them rather than on a refusal.
+   */
+  const homePath = computed(() => {
+    const ownTasksOnly = can(PERMISSION.TASK_VIEW_OWN) && !can(PERMISSION.TASK_VIEW)
+    const tasksWithoutDashboard = can(PERMISSION.TASK_VIEW_OWN) && !can(PERMISSION.DASHBOARD_VIEW)
+    return ownTasksOnly || tasksWithoutDashboard ? MY_TASKS_PATH : '/dashboard'
+  })
 
   /**
    * Resolve the session once per app load. Uses useRequestFetch on the server
@@ -186,6 +205,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     fullName,
     initials,
+    homePath,
     can,
     init,
     refresh,

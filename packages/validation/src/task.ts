@@ -89,6 +89,8 @@ export const taskListQuerySchema = listQuerySchema.extend({
   /** Shorthand for assigneeId = current user. */
   mine: z.coerce.boolean().optional(),
   overdue: z.coerce.boolean().optional(),
+  /** Open work (not yet done or approved) versus finished work. */
+  state: z.enum(['active', 'completed']).optional(),
   /** Archived tasks are hidden unless explicitly asked for. */
   archived: z.coerce.boolean().optional()
 })

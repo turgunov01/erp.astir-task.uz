@@ -42,7 +42,7 @@ function scheduleResend(seconds: number) {
 
 async function enter() {
   const redirect = route.query.redirect
-  await navigateTo(typeof redirect === 'string' ? redirect : '/dashboard')
+  await navigateTo(typeof redirect === 'string' ? redirect : auth.homePath)
 }
 
 async function onSubmit() {
