@@ -7,7 +7,9 @@ import { useAuthStore } from '~/stores/auth'
 import { useTaskPanels } from '~/composables/useTaskPanels'
 import { useEntityCrud } from '~/composables/useEntityCrud'
 
-useHead({ title: 'Задачи' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('production.tasks.title')) })
 
 const route = useRoute()
 const router = useRouter()
@@ -20,18 +22,20 @@ const canManage = computed(() => auth.can(PERMISSION.TASK_UPDATE))
 const { openTask, setStack } = useTaskPanels()
 
 /** Saved views (spec 16) as one shareable query param. */
-const VIEWS = [
-  { key: 'all', label: 'Все' },
-  { key: 'my', label: 'Мои' },
-  { key: 'overdue', label: 'Просроченные' },
-  { key: 'review', label: 'На согласовании' },
-  { key: 'completed', label: 'Завершённые' },
-  { key: 'archived', label: 'Архив' }
-] as const
+const VIEW_KEYS = ['all', 'my', 'overdue', 'review', 'completed', 'archived'] as const
+
+const VIEWS = computed(() => [
+  { key: 'all', label: t('production.tasks.views.all') },
+  { key: 'my', label: t('production.tasks.views.my') },
+  { key: 'overdue', label: t('production.tasks.views.overdue') },
+  { key: 'review', label: t('production.tasks.views.review') },
+  { key: 'completed', label: t('production.tasks.views.completed') },
+  { key: 'archived', label: t('production.tasks.views.archived') }
+])
 
 const view = computed(() => {
   const requested = String(route.query.view ?? 'all')
-  return VIEWS.some(item => item.key === requested) ? requested : 'all'
+  return VIEW_KEYS.some(key => key === requested) ? requested : 'all'
 })
 
 const page = ref(Number(route.query.page ?? 1))
@@ -116,22 +120,22 @@ const staff = computed(() => staffData.value?.data ?? [])
 const crud = useEntityCrud({
   endpoint: '/api/tasks',
   refresh: () => refresh(),
-  entityLabel: 'задачу',
+  entityLabel: () => t('production.tasks.deleteEntity'),
   archivedView: computed({
     get: () => view.value === 'archived',
     set: value => selectView(value ? 'archived' : 'all')
   })
 })
 
-const columns: Column[] = [
-  { key: 'title', label: 'Задача', width: '34%' },
-  { key: 'project', label: 'Проект', width: '11%' },
-  { key: 'assignee', label: 'Исполнитель', width: '17%' },
-  { key: 'deadline', label: 'Срок', width: '13%' },
-  { key: 'priority', label: 'Приоритет', width: '12%' },
-  { key: 'status', label: 'Статус', width: '13%' },
+const columns = computed<Column[]>(() => [
+  { key: 'title', label: t('production.tasks.columns.task'), width: '34%' },
+  { key: 'project', label: t('production.tasks.columns.project'), width: '11%' },
+  { key: 'assignee', label: t('production.tasks.columns.assignee'), width: '17%' },
+  { key: 'deadline', label: t('production.tasks.columns.deadline'), width: '13%' },
+  { key: 'priority', label: t('production.tasks.columns.priority'), width: '12%' },
+  { key: 'status', label: t('production.tasks.columns.status'), width: '13%' },
   { key: 'actions', label: '', width: '56px' }
-]
+])
 
 const PRIORITIES = Object.values(PRIORITY)
 
@@ -148,7 +152,7 @@ async function onCreated(id: string) {
 
 function formatDate(value: string | null) {
   if (!value) return '—'
-  return new Date(value).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' })
+  return new Date(value).toLocaleDateString(intlTag(), { day: '2-digit', month: 'short' })
 }
 
 function isOverdue(row: TaskRow) {
@@ -163,10 +167,10 @@ function isOverdue(row: TaskRow) {
     <header class="mb-6 flex flex-wrap items-start justify-between gap-4">
       <div>
         <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-          Производство
+          {{ t('production.tasks.eyebrow') }}
         </p>
-        <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Задачи</h1>
-        <p class="mt-1 text-sm text-muted-foreground">{{ countLabel(meta.total, 'задача', 'задачи', 'задач') }}</p>
+        <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('production.tasks.title') }}</h1>
+        <p class="mt-1 text-sm text-muted-foreground">{{ countLabel(meta.total, 'common.count.tasks') }}</p>
       </div>
       <div class="flex items-center gap-2">
         <button
@@ -176,26 +180,26 @@ function isOverdue(row: TaskRow) {
           @click="showCreate = true"
         >
           <Icon name="lucide:plus" class="size-4" />
-          Новая задача
+          {{ t('production.tasks.newTask') }}
         </button>
         <NuxtLink
           to="/tasks/calendar"
           class="inline-flex h-9 items-center gap-2 rounded-md border px-3.5 text-sm hover:bg-secondary"
         >
           <Icon name="lucide:calendar" class="size-4" />
-          Календарь
+          {{ t('production.tasks.calendar') }}
         </NuxtLink>
         <NuxtLink
           to="/tasks/board"
           class="inline-flex h-9 items-center gap-2 rounded-md border px-3.5 text-sm hover:bg-secondary"
         >
           <Icon name="lucide:columns-3" class="size-4" />
-          Доска
+          {{ t('production.tasks.board') }}
         </NuxtLink>
       </div>
     </header>
 
-    <nav class="mb-5 flex flex-wrap gap-1.5" aria-label="Быстрые выборки">
+    <nav class="mb-5 flex flex-wrap gap-1.5" :aria-label="t('production.tasks.viewsLabel')">
       <button
         v-for="item in VIEWS"
         :key="item.key"
@@ -215,12 +219,12 @@ function isOverdue(row: TaskRow) {
       :meta="meta"
       :pending="pending"
       :error-message="errorMessage"
-      search-placeholder="Поиск по названию..."
+      :search-placeholder="t('production.tasks.searchPlaceholder')"
       empty-icon="lucide:list-checks"
-      :empty-title="view === 'archived' ? 'Архив пуст' : 'Задач нет'"
+      :empty-title="view === 'archived' ? t('production.tasks.empty.archiveTitle') : t('production.tasks.empty.title')"
       :empty-body="view === 'archived'
-        ? 'Архивированные задачи появятся здесь и их можно вернуть в работу.'
-        : 'В этой выборке пока ничего нет. Создайте задачу кнопкой сверху.'"
+        ? t('production.tasks.empty.archiveBody')
+        : t('production.tasks.empty.body')"
       @update:page="page = $event"
       @update:search="page = 1"
       @retry="refresh"
@@ -229,20 +233,20 @@ function isOverdue(row: TaskRow) {
         <select
           v-model="projectId"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Фильтр по проекту"
+          :aria-label="t('production.tasks.filters.project')"
           @change="page = 1; updateQuery({ projectId: projectId || undefined })"
         >
-          <option value="">Все проекты</option>
+          <option value="">{{ t('production.tasks.filters.allProjects') }}</option>
           <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.code }}</option>
         </select>
 
         <select
           v-model="assigneeId"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Фильтр по исполнителю"
+          :aria-label="t('production.tasks.filters.assignee')"
           @change="page = 1; updateQuery({ assigneeId: assigneeId || undefined })"
         >
-          <option value="">Все исполнители</option>
+          <option value="">{{ t('production.tasks.filters.allAssignees') }}</option>
           <option v-for="s in staff" :key="s.userId" :value="s.userId">
             {{ s.user.firstName }} {{ s.user.lastName }}
           </option>
@@ -251,10 +255,10 @@ function isOverdue(row: TaskRow) {
         <select
           v-model="priority"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Фильтр по приоритету"
+          :aria-label="t('production.tasks.filters.priority')"
           @change="page = 1; updateQuery({ priority: priority || undefined })"
         >
-          <option value="">Любой приоритет</option>
+          <option value="">{{ t('production.tasks.filters.anyPriority') }}</option>
           <option v-for="p in PRIORITIES" :key="p" :value="p">{{ labelOf(PRIORITY_LABEL, p) }}</option>
         </select>
       </template>
@@ -293,7 +297,7 @@ function isOverdue(row: TaskRow) {
 
       <template #cell-assignee="{ row }">
         <span v-if="row.assignee">{{ row.assignee.firstName }} {{ row.assignee.lastName }}</span>
-        <span v-else class="text-muted-foreground">не назначен</span>
+        <span v-else class="text-muted-foreground">{{ t('production.tasks.unassigned') }}</span>
       </template>
 
       <template #cell-deadline="{ row }">

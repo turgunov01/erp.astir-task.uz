@@ -7,7 +7,9 @@ import { REVIEW_FORM } from '~/utils/entity-forms'
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Согласование' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('shell.nav.reviews')) })
 
 const route = useRoute()
 const router = useRouter()
@@ -19,13 +21,13 @@ const { openReview, setStack } = useTaskPanels()
  * so each stays a shareable link without five sibling routes.
  */
 const VIEWS = [
-  { key: 'pending', label: 'Ожидают', status: 'PENDING', type: undefined },
-  { key: 'in-review', label: 'В работе', status: 'IN_REVIEW', type: undefined },
-  { key: 'internal', label: 'Внутренние', status: undefined, type: 'INTERNAL' },
-  { key: 'client', label: 'Клиентские', status: undefined, type: 'CLIENT' },
-  { key: 'changes', label: 'На доработке', status: 'CHANGES_REQUESTED', type: undefined },
-  { key: 'approved', label: 'Согласованы', status: 'APPROVED', type: undefined },
-  { key: 'all', label: 'Все', status: undefined, type: undefined }
+  { key: 'pending', labelKey: 'production.reviews.views.pending', status: 'PENDING', type: undefined },
+  { key: 'in-review', labelKey: 'production.reviews.views.inReview', status: 'IN_REVIEW', type: undefined },
+  { key: 'internal', labelKey: 'production.reviews.views.internal', status: undefined, type: 'INTERNAL' },
+  { key: 'client', labelKey: 'production.reviews.views.client', status: undefined, type: 'CLIENT' },
+  { key: 'changes', labelKey: 'production.reviews.views.changes', status: 'CHANGES_REQUESTED', type: undefined },
+  { key: 'approved', labelKey: 'production.reviews.views.approved', status: 'APPROVED', type: undefined },
+  { key: 'all', labelKey: 'production.reviews.views.all', status: undefined, type: undefined }
 ] as const
 
 const view = computed(() => {
@@ -95,29 +97,22 @@ const projects = computed(() => projectData.value?.data ?? [])
 const crud = useEntityCrud({
   endpoint: '/api/reviews',
   refresh: () => refresh(),
-  entityLabel: 'согласование',
+  entityLabel: () => t('production.reviews.deleteEntity'),
   archivedView
 })
 
 // Switching between the working set and the archive starts from page one.
 watch(archivedView, () => { page.value = 1 })
 
-const columns: Column[] = [
-  { key: 'version', label: 'Версия', width: '28%' },
-  { key: 'project', label: 'Проект', width: '12%' },
-  { key: 'type', label: 'Тип', width: '14%' },
-  { key: 'author', label: 'Автор', width: '16%' },
-  { key: 'reviewer', label: 'Проверяющий', width: '16%' },
-  { key: 'status', label: 'Статус', width: '14%' },
+const columns = computed<Column[]>(() => [
+  { key: 'version', label: t('production.reviews.columns.version'), width: '28%' },
+  { key: 'project', label: t('production.reviews.columns.project'), width: '12%' },
+  { key: 'type', label: t('production.reviews.columns.type'), width: '14%' },
+  { key: 'author', label: t('production.reviews.columns.author'), width: '16%' },
+  { key: 'reviewer', label: t('production.reviews.columns.reviewer'), width: '16%' },
+  { key: 'status', label: t('production.reviews.columns.status'), width: '14%' },
   { key: 'actions', label: '', width: '56px' }
-]
-
-const TYPE_LABEL: Record<string, string> = {
-  INTERNAL: 'Внутреннее',
-  ART_DIRECTOR: 'Арт-директор',
-  CLIENT: 'Клиентское',
-  FINAL: 'Финальное'
-}
+])
 
 // A ?review= link opens that review directly.
 onMounted(() => {
@@ -132,7 +127,9 @@ function onChanged() {
 
 function daysWaiting(value: string) {
   const days = Math.floor((Date.now() - new Date(value).getTime()) / 86400000)
-  return days <= 0 ? 'сегодня' : days + ' дн'
+  return days <= 0
+    ? t('production.reviews.waitingToday')
+    : t('production.reviews.waitingDays', { n: days })
 }
 </script>
 
@@ -140,17 +137,19 @@ function daysWaiting(value: string) {
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
       <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-        Производство
+        {{ t('shell.nav.production') }}
       </p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Согласование</h1>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('shell.nav.reviews') }}</h1>
       <p class="mt-1 text-sm text-muted-foreground">
-        {{ counts.get('IN_REVIEW') ?? 0 }} в работе ·
-        {{ counts.get('CHANGES_REQUESTED') ?? 0 }} на доработке ·
-        {{ counts.get('APPROVED') ?? 0 }} согласовано
+        {{ t('production.reviews.summary', {
+          inReview: counts.get('IN_REVIEW') ?? 0,
+          changes: counts.get('CHANGES_REQUESTED') ?? 0,
+          approved: counts.get('APPROVED') ?? 0
+        }) }}
       </p>
     </header>
 
-    <nav class="mb-5 flex flex-wrap gap-1.5" aria-label="Выборки согласования">
+    <nav class="mb-5 flex flex-wrap gap-1.5" :aria-label="t('production.reviews.viewsLabel')">
       <button
         v-for="item in VIEWS"
         :key="item.key"
@@ -161,7 +160,7 @@ function daysWaiting(value: string) {
           : 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground'"
         @click="selectView(item.key)"
       >
-        {{ item.label }}
+        {{ t(item.labelKey) }}
         <span v-if="item.status" class="ml-1 tabular-nums opacity-60">
           {{ counts.get(item.status) ?? 0 }}
         </span>
@@ -170,7 +169,7 @@ function daysWaiting(value: string) {
 
     <div class="mb-4 flex flex-wrap items-center justify-end gap-3">
 
-      <EntityToolbar :crud="crud" create-label="На согласование" :can-manage="canManage" />
+      <EntityToolbar :crud="crud" :create-label="t('production.reviews.createLabel')" :can-manage="canManage" />
 
     </div>
 
@@ -182,10 +181,10 @@ function daysWaiting(value: string) {
       :pending="pending"
       :error-message="errorMessage"
       row-clickable
-      search-placeholder="Поиск недоступен в этом разделе"
+      :search-placeholder="t('production.reviews.searchUnavailable')"
       empty-icon="lucide:eye"
-      empty-title="Нет согласований"
-      empty-body="Версии, отправленные на согласование, появятся здесь."
+      :empty-title="t('production.reviews.emptyTitle')"
+      :empty-body="t('production.reviews.emptyBody')"
       @update:page="page = $event"
       @retry="refresh"
       @row-click="openReview($event.id)"
@@ -194,10 +193,10 @@ function daysWaiting(value: string) {
         <select
           v-model="projectId"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Фильтр по проекту"
+          :aria-label="t('production.reviews.projectFilter')"
           @change="page = 1"
         >
-          <option value="">Все проекты</option>
+          <option value="">{{ t('production.reviews.allProjects') }}</option>
           <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.code }}</option>
         </select>
       </template>
@@ -212,7 +211,7 @@ function daysWaiting(value: string) {
         </button>
         <p class="mt-0.5 text-xs text-muted-foreground">
           <span v-if="row.version.shot" class="font-mono">{{ row.version.shot.code }}</span>
-          <span v-if="!row.completedAt"> · ждёт {{ daysWaiting(row.createdAt) }}</span>
+          <span v-if="!row.completedAt"> · {{ daysWaiting(row.createdAt) }}</span>
         </p>
       </template>
 
@@ -229,7 +228,7 @@ function daysWaiting(value: string) {
 
       <template #cell-type="{ row }">
         <span class="text-xs text-muted-foreground">
-          {{ labelOf(TYPE_LABEL, row.reviewType) }}
+          {{ labelOf(REVIEW_TYPE_LABEL, row.reviewType) }}
         </span>
       </template>
 
@@ -242,7 +241,7 @@ function daysWaiting(value: string) {
 
       <template #cell-reviewer="{ row }">
         <span v-if="row.reviewer">{{ row.reviewer.firstName }} {{ row.reviewer.lastName }}</span>
-        <span v-else class="text-muted-foreground">не назначен</span>
+        <span v-else class="text-muted-foreground">{{ t('production.reviews.notAssigned') }}</span>
       </template>
 
       <template #cell-status="{ row }">

@@ -1,3 +1,759 @@
 {
-  "production": {}
+  "production": {
+    "assetDetail": {
+      "description": "Описание",
+      "fallbackTitle": "Ассет",
+      "noVersions": "У ассета пока нет версий.",
+      "openThumbnail": "Открыть обложку {name}",
+      "panelLabel": "Детали ассета",
+      "thumbnailCaption": "Обложка ассета",
+      "versions": "Версии",
+      "versionsCount": "{n} версия | {n} версии | {n} версий"
+    },
+    "assets": {
+      "columns": {
+        "name": "Ассет",
+        "owner": "Владелец",
+        "project": "Проект",
+        "status": "Статус",
+        "type": "Тип",
+        "versions": "Версий"
+      },
+      "count": "{n} ассет | {n} ассета | {n} ассетов",
+      "createLabel": "Новый ассет",
+      "deleteEntity": "ассет",
+      "emptyBody": "Персонажи, окружения, пропсы и риги будут здесь.",
+      "emptyTitle": "Библиотека пуста",
+      "filters": {
+        "allProjects": "Все проекты",
+        "allTypes": "Все типы",
+        "projectAria": "Фильтр по проекту",
+        "typeAria": "Фильтр по типу"
+      },
+      "searchPlaceholder": "Поиск по названию..."
+    },
+    "board": {
+      "allProjects": "Все проекты",
+      "atLimit": "Показаны первые {n} задач — сузьте выборку фильтром по проекту",
+      "dragHint": "перетаскивайте карточки между колонками",
+      "emptyColumn": "Пусто",
+      "listView": "Список",
+      "loadFailed": "Не удалось загрузить доску",
+      "moveFailed": "Не удалось перенести задачу",
+      "movedComment": "Перенесено на доске: {change}",
+      "openColumn": "Открыть колонку {name}",
+      "projectAria": "Фильтр по проекту",
+      "title": "Доска задач",
+      "unassigned": "не назначен"
+    },
+    "calendar": {
+      "deliveriesCount": "{n} сдача проекта | {n} сдачи проектов | {n} сдач проектов",
+      "deliveryLabel": "{code} · сдача",
+      "eyebrow": "Планирование",
+      "legend": {
+        "delivery": "сдача проекта",
+        "milestone": "веха",
+        "task": "задача"
+      },
+      "loadFailed": "Не удалось загрузить календарь",
+      "milestonesCount": "{n} веха | {n} вехи | {n} вех",
+      "more": "ещё {n}",
+      "nextMonth": "Следующий месяц",
+      "prevMonth": "Предыдущий месяц",
+      "summary": "{deliveries} · {milestones} · {tasks} в этом месяце",
+      "title": "Календарь",
+      "today": "Сегодня"
+    },
+    "comments": {
+      "deleteFailed": "Не удалось удалить комментарий",
+      "deletedUser": "Удалённый пользователь",
+      "empty": "Обсуждения пока нет. Напишите первый комментарий.",
+      "loadFailed": "Не удалось загрузить обсуждение",
+      "newComment": "Новый комментарий",
+      "placeholder": "Написать комментарий...",
+      "reply": "Ответить",
+      "replyPlaceholder": "Ответить...",
+      "send": "Отправить",
+      "sendFailed": "Не удалось отправить комментарий",
+      "sending": "Отправка...",
+      "title": "Обсуждение"
+    },
+    "crud": {
+      "activeView": "Активные",
+      "archive": "Архивировать",
+      "archiveFailed": "Не удалось архивировать",
+      "archiveView": "Архив",
+      "deleteDetail": "Запись исчезнет из списков. Вернуть её через интерфейс будет нельзя — для обратимого скрытия есть архивирование.",
+      "deleteFailed": "Не удалось удалить",
+      "deleteQuestion": "Удалить {entity} «{name}»?",
+      "deleteTitle": "Удаление",
+      "edit": "Редактировать",
+      "noRights": "Недостаточно прав",
+      "recordSet": "Набор записей",
+      "rowActions": "Действия",
+      "rowActionsFor": "Действия: {name}",
+      "unarchive": "Вернуть из архива",
+      "unarchiveFailed": "Не удалось вернуть из архива"
+    },
+    "detail": {
+      "created": "Создан",
+      "frames": "Кадры",
+      "node": "Узел",
+      "openVersionFile": "Открыть файл версии {label}",
+      "owner": "Владелец",
+      "project": "Проект",
+      "shared": "общий",
+      "shot": "Шот",
+      "status": "Статус",
+      "unassigned": "не назначен",
+      "updated": "Обновлён",
+      "version": "Версия"
+    },
+    "entity": {
+      "cancelUpload": "Отменить",
+      "fileFailed": "{name} ({error})",
+      "missingRequired": "Заполните обязательные поля: {fields}",
+      "notSelected": "Не выбрано",
+      "pickFiles": "Выбрать фото, видео, аудио или документ (до 1 ГБ)",
+      "removeFile": "Убрать {name}",
+      "saving": "Сохранение...",
+      "tooBig": "Больше 1 ГБ, не добавлены: {files}",
+      "uploadCancelled": "Запись сохранена, загрузка файлов отменена",
+      "uploadError": "ошибка",
+      "uploadFailed": "Запись сохранена, но не загрузились файлы: {files}",
+      "uploading": "Загрузка: {name}",
+      "yes": "Да"
+    },
+    "episodes": {
+      "columns": {
+        "episode": "Эпизод",
+        "progress": "Прогресс",
+        "project": "Проект",
+        "scenes": "Сцены",
+        "shots": "Шоты",
+        "status": "Статус"
+      },
+      "count": "{n} эпизод | {n} эпизода | {n} эпизодов",
+      "create": "Новый эпизод",
+      "deleteEntity": "эпизод",
+      "emptyBody": "Эпизоды создаются на странице проекта во вкладке «Эпизоды».",
+      "emptyTitle": "Эпизодов пока нет",
+      "filters": {
+        "allProjects": "Все проекты",
+        "allStatuses": "Все статусы",
+        "byProject": "Фильтр по проекту",
+        "byStatus": "Фильтр по статусу"
+      },
+      "searchPlaceholder": "Поиск по названию..."
+    },
+    "forms": {
+      "asset": {
+        "createTitle": "Новый ассет",
+        "editTitle": "Редактирование ассета"
+      },
+      "budget": {
+        "createTitle": "Бюджет проекта",
+        "editTitle": "Редактирование бюджета"
+      },
+      "client": {
+        "createTitle": "Новый клиент",
+        "editTitle": "Редактирование клиента"
+      },
+      "department": {
+        "createTitle": "Новый отдел",
+        "editTitle": "Редактирование отдела"
+      },
+      "document": {
+        "createTitle": "Новый документ",
+        "editTitle": "Редактирование документа"
+      },
+      "employee": {
+        "createTitle": "Новый сотрудник",
+        "editTitle": "Редактирование сотрудника"
+      },
+      "episode": {
+        "createTitle": "Новый эпизод",
+        "editTitle": "Редактирование эпизода"
+      },
+      "expense": {
+        "createTitle": "Новый расход",
+        "editTitle": "Редактирование расхода"
+      },
+      "fields": {
+        "amount": "Сумма",
+        "assignee": "Исполнитель",
+        "category": "Категория",
+        "client": "Клиент",
+        "companyName": "Компания",
+        "country": "Страна",
+        "currency": "Валюта",
+        "date": "Дата",
+        "deadline": "Срок",
+        "department": "Отдел",
+        "description": "Описание",
+        "documentNumber": "Номер документа",
+        "documentUrl": "Ссылка на скан",
+        "durationSeconds": "Длительность, сек",
+        "email": "Почта",
+        "employee": "Сотрудник",
+        "employmentType": "Занятость",
+        "endFrame": "Последний кадр",
+        "episode": "Эпизод",
+        "errorMessage": "Текст ошибки",
+        "fee": "Комиссия банка",
+        "files": "Файлы",
+        "firstName": "Имя",
+        "fps": "Кадров в секунду",
+        "hourlyRate": "Ставка в час",
+        "invoice": "Счёт",
+        "issuedAt": "Выставлен",
+        "lastName": "Фамилия",
+        "lateMinutes": "Опоздание, минут",
+        "method": "Способ",
+        "name": "Название",
+        "node": "Узел",
+        "notes": "Заметки",
+        "number": "Номер",
+        "owner": "Владелец",
+        "paidDate": "Дата оплаты",
+        "password": "Пароль",
+        "payBy": "Оплатить до",
+        "paymentMethod": "Способ оплаты",
+        "paymentNotes": "Примечание",
+        "payrollType": "Вид",
+        "period": "Месяц расчёта",
+        "personName": "Имя",
+        "phone": "Телефон",
+        "plannedCost": "Плановая себестоимость",
+        "position": "Должность",
+        "priority": "Приоритет",
+        "progress": "Прогресс, %",
+        "project": "Проект",
+        "purpose": "Назначение",
+        "reason": "Причина / комментарий",
+        "reference": "Номер транзакции",
+        "revenue": "Плановая выручка",
+        "reviewComment": "Что обсуждаем",
+        "reviewDeadline": "Срок обсуждения",
+        "reviewType": "Тип согласования",
+        "reviewer": "Проверяющий",
+        "revision": "Правка",
+        "role": "Роль",
+        "scene": "Сцена",
+        "shot": "Шот",
+        "startDate": "Старт",
+        "startFrame": "Первый кадр",
+        "status": "Статус",
+        "task": "Задача",
+        "thumbnailUrl": "Ссылка на превью",
+        "title": "Название",
+        "type": "Тип",
+        "vat": "В т.ч. НДС",
+        "vendor": "Контрагент",
+        "version": "Версия",
+        "weeklyHours": "Часов в неделю"
+      },
+      "hints": {
+        "budgetProject": "У проекта один бюджет: сохранение поверх существующего обновит его.",
+        "expenseProject": "Аренду, налоги и подписки студии оставляйте без проекта.",
+        "expenseVat": "Часть суммы, а не надбавка к ней. Пусто — без НДС.",
+        "files": "Фото, видео, аудио или документ. Загрузятся сразу после сохранения.",
+        "invoiceNumber": "Номер уникален и уходит клиенту, поэтому менять его стоит осознанно.",
+        "invoiceVat": "Часть суммы счёта. Пусто — без НДС.",
+        "lateMinutes": "Только для штрафа за опоздание — там обязательно.",
+        "loginEmail": "Логин для входа, изменить позже нельзя",
+        "nextNumber": "Пусто — следующий свободный",
+        "password": "Минимум 8 символов",
+        "paymentInvoice": "Если платёж закроет счёт целиком, система предложит отметить счёт оплаченным.",
+        "payrollAmount": "Всегда положительная: вид записи сам решает, прибавить или удержать.",
+        "period": "Пусто — месяц из даты.",
+        "reference": "По нему платёж находится в банковской выписке.",
+        "reviewDeadline": "Если до этой даты решения не будет, согласование получит статус «Вопрос закрыт»",
+        "reviewVersion": "Материал, который выносится на обсуждение"
+      },
+      "invoice": {
+        "createTitle": "Новый счёт",
+        "editTitle": "Редактирование счёта"
+      },
+      "payment": {
+        "createTitle": "Новый платёж",
+        "editTitle": "Редактирование платежа"
+      },
+      "payroll": {
+        "createTitle": "Новая запись: аванс, штраф или премия",
+        "editTitle": "Редактирование черновика"
+      },
+      "placeholders": {
+        "anyTeamMember": "Любой из команды",
+        "autoNumber": "Пусто — присвоится следующий",
+        "documentKinds": "Чек, акт, счёт-фактура",
+        "howToAddress": "Как обращаться",
+        "invoicePurpose": "За что выставлен счёт",
+        "noInvoice": "Без счёта",
+        "noProject": "Без проекта",
+        "notSpecified": "Не указан",
+        "paidTo": "Кому заплатили",
+        "reviewComment": "Вопрос к обсуждению, на что смотреть в первую очередь",
+        "sharedAsset": "Общий",
+        "studioCurrency": "Валюта студии",
+        "studioNoProject": "Студия — без проекта",
+        "transactionRef": "Платёжное поручение, ID операции",
+        "yearMonth": "ГГГГ-ММ"
+      },
+      "render": {
+        "createTitle": "Новое задание рендера",
+        "editTitle": "Редактирование задания"
+      },
+      "review": {
+        "createTitle": "Отправить на согласование",
+        "editTitle": "Настройки согласования"
+      },
+      "revision": {
+        "createTitle": "Новая правка",
+        "editTitle": "Редактирование правки"
+      },
+      "scene": {
+        "createTitle": "Новая сцена",
+        "editTitle": "Редактирование сцены"
+      },
+      "shot": {
+        "createTitle": "Новый шот",
+        "editTitle": "Редактирование шота"
+      }
+    },
+    "myTasks": {
+      "empty": {
+        "active": "Открытых задач нет. Новые появятся здесь, как только их назначат.",
+        "completed": "Завершённых задач пока нет.",
+        "late": "Просроченных задач нет — так держать.",
+        "review": "Сейчас ничего не ждёт проверки."
+      },
+      "eyebrow": "Личное",
+      "fullList": "Весь список",
+      "intro": "{name}, здесь всё, что назначено на вас — сначала то, что горит.",
+      "sections": {
+        "blocked": "Заблокировано",
+        "completed": "Завершённые",
+        "late": "Просрочено",
+        "progress": "В работе",
+        "review": "На проверке",
+        "revision": "На правках",
+        "todo": "К выполнению"
+      },
+      "shownOf": "Показаны {shown} из {total} — ближайшие по сроку.",
+      "summaryAria": "Сводка по задачам",
+      "tiles": {
+        "dueThisWeek": "Срок на этой неделе",
+        "inWork": "В работе и на правках",
+        "late": "Просрочено",
+        "review": "На проверке"
+      },
+      "title": "Мои задачи",
+      "views": {
+        "active": "Открытые",
+        "completed": "Завершённые",
+        "late": "Просроченные",
+        "review": "На проверке"
+      },
+      "viewsAria": "Выборки задач"
+    },
+    "personal": {
+      "changeStatus": "Статус",
+      "day": {
+        "empty": "На эту дату задач нет",
+        "filtersHint": "С учётом текущих фильтров календаря.",
+        "loadFailed": "Не удалось загрузить задачи",
+        "overdue": "{n} просрочено"
+      },
+      "due": {
+        "inDays": "Через {n} дн.",
+        "none": "Без срока",
+        "overdueBy": "Просрочено на {n} дн.",
+        "today": "Сегодня",
+        "todayPassed": "Сегодня, срок прошёл",
+        "tomorrow": "Завтра"
+      }
+    },
+    "render": {
+      "columns": {
+        "frames": "Кадры",
+        "node": "Узел",
+        "progress": "Прогресс",
+        "project": "Проект",
+        "shot": "Шот",
+        "status": "Статус"
+      },
+      "createLabel": "Новое задание",
+      "deleteEntity": "задание",
+      "emptyBody": "Задания появятся после отправки шотов на рендер.",
+      "emptyTitle": "Очередь пуста",
+      "nodeJobs": "{n} задание | {n} задания | {n} заданий",
+      "nodeOffline": "не в сети",
+      "nodeOnline": "в сети",
+      "searchUnavailable": "Поиск недоступен в этом разделе",
+      "statusAria": "Статус задания",
+      "summary": {
+        "failed": "{n} с ошибкой",
+        "queued": "{n} в очереди",
+        "rendering": "{n} рендерится"
+      },
+      "updateFailed": "Не удалось обновить задание",
+      "views": {
+        "all": "Все",
+        "completed": "Готово",
+        "failed": "Ошибки",
+        "queue": "В очереди",
+        "running": "Рендерится"
+      },
+      "viewsLabel": "Выборки рендера"
+    },
+    "renderDetail": {
+      "completed": "Завершён",
+      "duration": "Длительность",
+      "errorTitle": "Ошибка рендера",
+      "fallbackTitle": "Задание рендера",
+      "offline": "офлайн",
+      "online": "онлайн",
+      "panelLabel": "Детали задания рендера",
+      "progress": "Прогресс",
+      "started": "Начат",
+      "submittedBy": "Поставил"
+    },
+    "review": {
+      "approve": "Согласовать",
+      "attachmentsEmpty": "Материалов нет. Прикрепите фото, видео или аудио к обсуждению.",
+      "attachmentsTitle": "Материалы обсуждения",
+      "closedQuestion": "Вопрос закрыт",
+      "comment": "Комментарий",
+      "commentPlaceholder": "Комментарий — обязателен при возврате на доработку",
+      "completed": "Согласование завершено {date}",
+      "deadline": {
+        "daysLeft": "{date} · осталось {n} дн.",
+        "lastDay": "{date} · сегодня последний день",
+        "none": "без срока",
+        "passed": "{date} · срок прошёл"
+      },
+      "expiredNote": "Решения до срока не было, поэтому вопрос закрыт. Чтобы вернуть обсуждение, задайте новый срок в настройках согласования.",
+      "fields": {
+        "deadline": "Срок обсуждения",
+        "project": "Проект",
+        "reviewer": "Проверяющий",
+        "sent": "Отправлено",
+        "shot": "Шот",
+        "task": "Задача",
+        "versionAuthor": "Автор версии"
+      },
+      "fileNotUploaded": "файл не загружен",
+      "fullscreen": "На весь экран",
+      "loadFailed": "Не удалось загрузить согласование",
+      "noPreview": "Превью недоступно · {type}",
+      "notAssigned": "не назначен",
+      "openFile": "Открыть файл",
+      "openFullscreen": "Открыть {label} на весь экран",
+      "reject": "Отклонить",
+      "requestChanges": "На доработку",
+      "revisionDeadline": "Дедлайн правок",
+      "saveFailed": "Не удалось сохранить решение",
+      "typeHeading": "{type} согласование"
+    },
+    "reviews": {
+      "allProjects": "Все проекты",
+      "columns": {
+        "author": "Автор",
+        "project": "Проект",
+        "reviewer": "Проверяющий",
+        "status": "Статус",
+        "type": "Тип",
+        "version": "Версия"
+      },
+      "createLabel": "На согласование",
+      "deleteEntity": "согласование",
+      "emptyBody": "Версии, отправленные на согласование, появятся здесь.",
+      "emptyTitle": "Нет согласований",
+      "notAssigned": "не назначен",
+      "projectFilter": "Фильтр по проекту",
+      "searchUnavailable": "Поиск недоступен в этом разделе",
+      "summary": "{inReview} в работе · {changes} на доработке · {approved} согласовано",
+      "views": {
+        "all": "Все",
+        "approved": "Согласованы",
+        "changes": "На доработке",
+        "client": "Клиентские",
+        "inReview": "В работе",
+        "internal": "Внутренние",
+        "pending": "Ожидают"
+      },
+      "viewsLabel": "Выборки согласования",
+      "waitingDays": "ждёт {n} дн",
+      "waitingToday": "ждёт сегодня"
+    },
+    "revision": {
+      "description": "Описание",
+      "fallbackTitle": "Правка",
+      "fields": {
+        "assignee": "Исполнитель",
+        "author": "Автор",
+        "completed": "Завершена",
+        "created": "Создана",
+        "deadline": "Срок",
+        "project": "Проект",
+        "round": "Раунд",
+        "shot": "Шот",
+        "status": "Статус",
+        "task": "Задача",
+        "updated": "Обновлена",
+        "version": "Версия"
+      },
+      "overdue": "Просрочена",
+      "panelLabel": "Детали правки",
+      "subtitle": "Правка · раунд {round}"
+    },
+    "revisions": {
+      "allProjects": "Все проекты",
+      "columns": {
+        "assignee": "Исполнитель",
+        "deadline": "Срок",
+        "project": "Проект",
+        "round": "Раунд",
+        "status": "Статус",
+        "title": "Правка"
+      },
+      "createLabel": "Новая правка",
+      "deleteEntity": "правку",
+      "emptyBody": "Правки создаются, когда согласование возвращает версию на доработку.",
+      "emptyTitle": "Правок нет",
+      "from": "от {name}",
+      "notAssigned": "не назначен",
+      "projectFilter": "Фильтр по проекту",
+      "searchUnavailable": "Поиск недоступен в этом разделе",
+      "statusOf": "Статус правки {title}",
+      "summary": "{open} открыто · {inProgress} в работе · {completed} завершено",
+      "updateFailed": "Не удалось обновить правку",
+      "views": {
+        "all": "Все",
+        "completed": "Завершённые",
+        "inProgress": "В работе",
+        "open": "Открытые",
+        "ready": "На проверке"
+      },
+      "viewsLabel": "Выборки правок"
+    },
+    "scenes": {
+      "columns": {
+        "episode": "Эпизод",
+        "progress": "Прогресс",
+        "project": "Проект",
+        "scene": "Сцена",
+        "shots": "Шоты",
+        "status": "Статус"
+      },
+      "count": "{n} сцена | {n} сцены | {n} сцен",
+      "create": "Новая сцена",
+      "deleteEntity": "сцену",
+      "emptyBody": "Сцены создаются на странице проекта во вкладке «Сцены».",
+      "emptyTitle": "Сцен пока нет",
+      "filters": {
+        "allProjects": "Все проекты",
+        "allStatuses": "Все статусы",
+        "byProject": "Фильтр по проекту",
+        "byStatus": "Фильтр по статусу"
+      },
+      "noEpisode": "без эпизода",
+      "searchPlaceholder": "Поиск по названию..."
+    },
+    "shot": {
+      "assignee": "Исполнитель",
+      "backToList": "Ко всем шотам",
+      "deadline": "дедлайн {date}",
+      "description": "Описание",
+      "fallbackTitle": "Шот",
+      "fps": "{n} к/с",
+      "frameRange": "{start}–{end} ({n} кадр) | {start}–{end} ({n} кадра) | {start}–{end} ({n} кадров)",
+      "frames": "Кадры",
+      "loadFailed": "Не удалось загрузить шот",
+      "notFound": "Шот не найден",
+      "progress": "Прогресс",
+      "stageCompleted": "завершена {date}",
+      "stageProgressAria": "Прогресс стадии {name}",
+      "stageStatusAria": "Статус стадии {name}",
+      "stageUpdateFailed": "Не удалось обновить стадию",
+      "stageWeight": "вес {n}",
+      "stages": "Стадии",
+      "stagesActive": "{n} в работе",
+      "stagesBlocked": "{n} заблокировано",
+      "stagesEmptyBody": "Шот создан до настройки пайплайна проекта.",
+      "stagesEmptyTitle": "Стадии не назначены",
+      "stagesHint": "Прогресс шота считается по весам стадий и поднимается до сцены, эпизода и проекта",
+      "stagesTitle": "Производственные стадии",
+      "unassigned": "не назначен"
+    },
+    "shots": {
+      "columns": {
+        "assignee": "Исполнитель",
+        "progress": "Прогресс",
+        "project": "Проект",
+        "scene": "Сцена",
+        "shot": "Шот",
+        "status": "Статус"
+      },
+      "countAllProjects": "{n} шот во всех проектах | {n} шота во всех проектах | {n} шотов во всех проектах",
+      "create": "Новый шот",
+      "deleteEntity": "шот",
+      "emptyBody": "Шоты создаются внутри сцены на странице проекта.",
+      "emptyTitle": "Шотов пока нет",
+      "filters": {
+        "allProjects": "Все проекты",
+        "allStatuses": "Все статусы",
+        "byProject": "Фильтр по проекту",
+        "byStatus": "Фильтр по статусу"
+      },
+      "fps": "{n} fps",
+      "searchPlaceholder": "Поиск по коду или названию...",
+      "unassigned": "не назначен",
+      "versions": "{n} версия | {n} версии | {n} версий"
+    },
+    "task": {
+      "create": {
+        "chooseProject": "Выберите проект",
+        "creating": "Создание...",
+        "descriptionPlaceholder": "Что нужно сделать, ссылки на референсы, требования...",
+        "estimate": "Оценка, часов",
+        "failed": "Не удалось создать задачу",
+        "name": "Название",
+        "namePlaceholder": "Анимация SH014",
+        "noShot": "Без привязки к шоту",
+        "noStage": "Без стадии",
+        "project": "Проект",
+        "reviewer": "Проверяющий",
+        "shot": "Шот",
+        "stage": "Стадия пайплайна",
+        "start": "Начало",
+        "submit": "Создать задачу",
+        "title": "Новая задача"
+      },
+      "drawer": {
+        "archive": "В архив",
+        "archiveConfirm": {
+          "detail": "Все данные сохранятся, задачу можно вернуть из архива в любой момент.",
+          "message": "«{title}» исчезнет из активных списков и доски.",
+          "title": "Архивировать задачу?"
+        },
+        "archiveFailed": "Не удалось изменить архивный статус",
+        "ariaLabel": "Задача",
+        "deleteConfirm": {
+          "detail": "Если задача просто больше не нужна в работе — используйте архив, он обратим.",
+          "message": "«{title}» будет удалена вместе со своими зависимостями и связями.",
+          "title": "Удалить задачу?"
+        },
+        "deleteFailed": "Не удалось удалить задачу",
+        "dependsOn": "Зависит от",
+        "descriptionPlaceholder": "Добавьте описание...",
+        "discard": "Отменить",
+        "estimate": "Оценка, ч",
+        "lateBy": "Просрочена на {n} дн",
+        "lateNotice": "Задача считается заявкой: любое изменение уходит уведомлением администрации и попадает в обсуждение ниже. Причина запрашивается внизу панели, вместе с кнопкой сохранения.",
+        "loadFailed": "Не удалось загрузить задачу",
+        "overdueReasonHint": "Без причины сохранить нельзя — она уйдёт администрации и в обсуждение",
+        "overdueReasonPlaceholder": "Причина правки просроченной задачи",
+        "overdueReasonRequired": "Задача просрочена: укажите причину правки",
+        "removeDependency": "Снять зависимость {title}",
+        "removeDependencyFailed": "Не удалось снять зависимость",
+        "saving": "Сохранение...",
+        "stage": "Стадия",
+        "statusNoteHint": "Запись попадёт в обсуждение задачи",
+        "statusNotePlaceholder": "Что сделано — обязательно для смены статуса",
+        "titleLabel": "Название задачи",
+        "unarchive": "Вернуть из архива",
+        "unsavedChanges": "Есть несохранённые изменения"
+      },
+      "fields": {
+        "assignee": "Исполнитель",
+        "assigneeNotified": "Исполнитель получит уведомление о назначении",
+        "deadline": "Дедлайн",
+        "description": "Описание",
+        "priority": "Приоритет",
+        "status": "Статус",
+        "statusChangeFailed": "Не удалось изменить статус",
+        "statusNoteLabel": "Основание смены статуса",
+        "unassigned": "Не назначен"
+      },
+      "quickStatus": {
+        "newStatus": "Новый статус",
+        "notePlaceholder": "Что сделано — попадёт в обсуждение задачи",
+        "reasonLabel": "Причина просрочки",
+        "reasonPlaceholder": "Почему срок сорван — уйдёт администрации",
+        "submit": "Сменить статус"
+      },
+      "status": {
+        "allGood": "все задачи назначены и в срок",
+        "ariaLabel": "Задачи в статусе {status}",
+        "emptyBody": "Перетащите сюда карточку на доске или смените статус задачи.",
+        "emptyTitle": "В этой колонке пусто",
+        "loadFailed": "Не удалось загрузить колонку",
+        "moveComment": "Перенесено из панели статуса: {change}",
+        "moveTask": "Перенести задачу {title}",
+        "overdue": "{n} просрочено",
+        "unassigned": "{n} без исполнителя",
+        "unassignedShort": "не назначен"
+      }
+    },
+    "taskCalendar": {
+      "boardView": "Доска",
+      "dayAria": "Задачи на {date}: {n}",
+      "filters": {
+        "allAssignees": "Все исполнители",
+        "allProjects": "Все проекты",
+        "anyPriority": "Любой приоритет",
+        "assigneeAria": "Фильтр по исполнителю",
+        "priorityAria": "Фильтр по приоритету",
+        "projectAria": "Фильтр по проекту"
+      },
+      "heading": "Календарь дедлайнов",
+      "listView": "Список",
+      "title": "Календарь задач",
+      "withDeadline": "{n} с дедлайном",
+      "withoutDate": "{n} без даты"
+    },
+    "tasks": {
+      "board": "Доска",
+      "calendar": "Календарь",
+      "columns": {
+        "assignee": "Исполнитель",
+        "deadline": "Срок",
+        "priority": "Приоритет",
+        "project": "Проект",
+        "status": "Статус",
+        "task": "Задача"
+      },
+      "deleteEntity": "задачу",
+      "empty": {
+        "archiveBody": "Архивированные задачи появятся здесь и их можно вернуть в работу.",
+        "archiveTitle": "Архив пуст",
+        "body": "В этой выборке пока ничего нет. Создайте задачу кнопкой сверху.",
+        "title": "Задач нет"
+      },
+      "eyebrow": "Производство",
+      "filters": {
+        "allAssignees": "Все исполнители",
+        "allProjects": "Все проекты",
+        "anyPriority": "Любой приоритет",
+        "assignee": "Фильтр по исполнителю",
+        "priority": "Фильтр по приоритету",
+        "project": "Фильтр по проекту"
+      },
+      "newTask": "Новая задача",
+      "searchPlaceholder": "Поиск по названию...",
+      "title": "Задачи",
+      "unassigned": "не назначен",
+      "views": {
+        "all": "Все",
+        "archived": "Архив",
+        "completed": "Завершённые",
+        "my": "Мои",
+        "overdue": "Просроченные",
+        "review": "На согласовании"
+      },
+      "viewsLabel": "Быстрые выборки"
+    }
+  }
 }

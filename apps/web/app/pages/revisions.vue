@@ -7,7 +7,9 @@ import { useAuthStore } from '~/stores/auth'
 import { useEntityCrud } from '~/composables/useEntityCrud'
 import { REVISION_FORM } from '~/utils/entity-forms'
 
-useHead({ title: 'Правки' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('shell.nav.revisions')) })
 
 const route = useRoute()
 const router = useRouter()
@@ -20,11 +22,11 @@ const canUpdate = computed(() => auth.can(PERMISSION.TASK_UPDATE))
 const canManage = computed(() => auth.can(PERMISSION.REVISION_MANAGE))
 
 const VIEWS = [
-  { key: 'open', label: 'Открытые', status: 'OPEN' },
-  { key: 'in-progress', label: 'В работе', status: 'IN_PROGRESS' },
-  { key: 'ready', label: 'На проверке', status: 'READY_FOR_REVIEW' },
-  { key: 'completed', label: 'Завершённые', status: 'COMPLETED' },
-  { key: 'all', label: 'Все', status: undefined }
+  { key: 'open', labelKey: 'production.revisions.views.open', status: 'OPEN' },
+  { key: 'in-progress', labelKey: 'production.revisions.views.inProgress', status: 'IN_PROGRESS' },
+  { key: 'ready', labelKey: 'production.revisions.views.ready', status: 'READY_FOR_REVIEW' },
+  { key: 'completed', labelKey: 'production.revisions.views.completed', status: 'COMPLETED' },
+  { key: 'all', labelKey: 'production.revisions.views.all', status: undefined }
 ] as const
 
 const view = computed(() => {
@@ -88,22 +90,22 @@ const STATUSES = ['OPEN', 'IN_PROGRESS', 'READY_FOR_REVIEW', 'COMPLETED', 'CANCE
 const crud = useEntityCrud({
   endpoint: '/api/revisions',
   refresh: () => refresh(),
-  entityLabel: 'правку',
+  entityLabel: () => t('production.revisions.deleteEntity'),
   archivedView
 })
 
 // Switching between the working set and the archive starts from page one.
 watch(archivedView, () => { page.value = 1 })
 
-const columns: Column[] = [
-  { key: 'title', label: 'Правка', width: '32%' },
-  { key: 'round', label: 'Раунд', width: '9%', numeric: true },
-  { key: 'project', label: 'Проект', width: '12%' },
-  { key: 'assignee', label: 'Исполнитель', width: '17%' },
-  { key: 'deadline', label: 'Срок', width: '12%' },
-  { key: 'status', label: 'Статус', width: '18%' },
+const columns = computed<Column[]>(() => [
+  { key: 'title', label: t('production.revisions.columns.title'), width: '32%' },
+  { key: 'round', label: t('production.revisions.columns.round'), width: '9%', numeric: true },
+  { key: 'project', label: t('production.revisions.columns.project'), width: '12%' },
+  { key: 'assignee', label: t('production.revisions.columns.assignee'), width: '17%' },
+  { key: 'deadline', label: t('production.revisions.columns.deadline'), width: '12%' },
+  { key: 'status', label: t('production.revisions.columns.status'), width: '18%' },
   { key: 'actions', label: '', width: '56px' }
-]
+])
 
 async function changeStatus(row: RevisionRow, status: string) {
   busyId.value = row.id
@@ -112,7 +114,7 @@ async function changeStatus(row: RevisionRow, status: string) {
     await apiRequest('/api/revisions/' + row.id, { method: 'PATCH', body: { status } })
     await Promise.all([refresh(), refreshCounts()])
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось обновить правку')
+    errorMessage.value = apiErrorMessage(err, t('production.revisions.updateFailed'))
   } finally {
     busyId.value = ''
   }
@@ -120,7 +122,7 @@ async function changeStatus(row: RevisionRow, status: string) {
 
 function formatDate(value: string | null) {
   if (!value) return '—'
-  return new Date(value).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' })
+  return new Intl.DateTimeFormat(intlTag(), { day: '2-digit', month: 'short' }).format(new Date(value))
 }
 
 function isOverdue(row: RevisionRow) {
@@ -134,17 +136,19 @@ function isOverdue(row: RevisionRow) {
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
       <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-        Производство
+        {{ t('shell.nav.production') }}
       </p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Правки</h1>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('shell.nav.revisions') }}</h1>
       <p class="mt-1 text-sm text-muted-foreground">
-        {{ counts.get('OPEN') ?? 0 }} открыто ·
-        {{ counts.get('IN_PROGRESS') ?? 0 }} в работе ·
-        {{ counts.get('COMPLETED') ?? 0 }} завершено
+        {{ t('production.revisions.summary', {
+          open: counts.get('OPEN') ?? 0,
+          inProgress: counts.get('IN_PROGRESS') ?? 0,
+          completed: counts.get('COMPLETED') ?? 0
+        }) }}
       </p>
     </header>
 
-    <nav class="mb-5 flex flex-wrap gap-1.5" aria-label="Выборки правок">
+    <nav class="mb-5 flex flex-wrap gap-1.5" :aria-label="t('production.revisions.viewsLabel')">
       <button
         v-for="item in VIEWS"
         :key="item.key"
@@ -155,7 +159,7 @@ function isOverdue(row: RevisionRow) {
           : 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground'"
         @click="selectView(item.key)"
       >
-        {{ item.label }}
+        {{ t(item.labelKey) }}
         <span v-if="item.status" class="ml-1 tabular-nums opacity-60">
           {{ counts.get(item.status) ?? 0 }}
         </span>
@@ -172,7 +176,7 @@ function isOverdue(row: RevisionRow) {
 
     <div class="mb-4 flex flex-wrap items-center justify-end gap-3">
 
-      <EntityToolbar :crud="crud" create-label="Новая правка" :can-manage="canManage" />
+      <EntityToolbar :crud="crud" :create-label="t('production.revisions.createLabel')" :can-manage="canManage" />
 
     </div>
 
@@ -184,10 +188,10 @@ function isOverdue(row: RevisionRow) {
       :pending="pending"
       :error-message="loadError"
       row-clickable
-      search-placeholder="Поиск недоступен в этом разделе"
+      :search-placeholder="t('production.revisions.searchUnavailable')"
       empty-icon="lucide:rotate-ccw"
-      empty-title="Правок нет"
-      empty-body="Правки создаются, когда согласование возвращает версию на доработку."
+      :empty-title="t('production.revisions.emptyTitle')"
+      :empty-body="t('production.revisions.emptyBody')"
       @update:page="page = $event"
       @retry="refresh"
       @row-click="openEntity('revision', $event.id)"
@@ -196,10 +200,10 @@ function isOverdue(row: RevisionRow) {
         <select
           v-model="projectId"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Фильтр по проекту"
+          :aria-label="t('production.revisions.projectFilter')"
           @change="page = 1"
         >
-          <option value="">Все проекты</option>
+          <option value="">{{ t('production.revisions.allProjects') }}</option>
           <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.code }}</option>
         </select>
       </template>
@@ -218,7 +222,7 @@ function isOverdue(row: RevisionRow) {
           >
             {{ row.task.title }}
           </button>
-          <span v-if="row.requestedBy">от {{ row.requestedBy.firstName }}</span>
+          <span v-if="row.requestedBy">{{ t('production.revisions.from', { name: row.requestedBy.firstName }) }}</span>
         </p>
       </template>
 
@@ -233,7 +237,7 @@ function isOverdue(row: RevisionRow) {
 
       <template #cell-assignee="{ row }">
         <span v-if="row.assignedTo">{{ row.assignedTo.firstName }} {{ row.assignedTo.lastName }}</span>
-        <span v-else class="text-muted-foreground">не назначен</span>
+        <span v-else class="text-muted-foreground">{{ t('production.revisions.notAssigned') }}</span>
       </template>
 
       <template #cell-deadline="{ row }">
@@ -246,7 +250,7 @@ function isOverdue(row: RevisionRow) {
           :value="row.status"
           :disabled="busyId === row.id"
           class="h-8 w-full rounded-md border bg-background px-2 text-xs outline-none focus:border-ring"
-          :aria-label="'Статус правки ' + row.title"
+          :aria-label="t('production.revisions.statusOf', { title: row.title })"
           @change="changeStatus(row, ($event.target as HTMLSelectElement).value)"
         >
           <option v-for="s in STATUSES" :key="s" :value="s">{{ enumLabel(REVISION_STATUS_LABEL, s) }}</option>

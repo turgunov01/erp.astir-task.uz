@@ -10,6 +10,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{ (e: 'close'): void, (e: 'created', id: string): void }>()
 
+const { t } = useI18n()
 const submitting = ref(false)
 const errorMessage = ref('')
 const fieldErrors = ref<Record<string, string[]>>({})
@@ -114,7 +115,7 @@ async function submit() {
     emit('created', created.data.id)
     emit('close')
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось создать задачу')
+    errorMessage.value = apiErrorMessage(err, t('production.task.create.failed'))
     const details = (err as { data?: { error?: { details?: Record<string, string[]> } } })
       ?.data?.error?.details
     if (details) fieldErrors.value = details
@@ -145,16 +146,16 @@ onMounted(() => {
       <header class="flex items-center justify-between gap-3 border-b px-5 py-3.5">
         <div>
           <h2 id="create-task-title" class="text-base font-semibold tracking-tight">
-            Новая задача
+            {{ t('production.task.create.title') }}
           </h2>
           <p class="mt-0.5 text-xs text-muted-foreground">
-            Исполнитель получит уведомление о назначении
+            {{ t('production.task.fields.assigneeNotified') }}
           </p>
         </div>
         <button
           type="button"
           class="rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground"
-          aria-label="Закрыть"
+          :aria-label="t('common.actions.close')"
           @click="emit('close')"
         >
           <Icon name="lucide:x" class="size-4" />
@@ -171,13 +172,13 @@ onMounted(() => {
 
       <form id="create-task-form" class="flex-1 space-y-6 overflow-y-auto px-5 py-5" @submit.prevent="submit">
         <div class="space-y-1.5">
-          <label for="ct-title" class="text-sm font-medium">Название</label>
+          <label for="ct-title" class="text-sm font-medium">{{ t('production.task.create.name') }}</label>
           <input
             id="ct-title"
             v-model="form.title"
             required
             maxlength="200"
-            placeholder="Анимация SH014"
+            :placeholder="t('production.task.create.namePlaceholder')"
             class="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:border-ring"
           >
           <p v-if="fieldErrors.title" class="pt-0.5 text-xs text-destructive">
@@ -187,14 +188,14 @@ onMounted(() => {
 
         <div class="grid gap-x-5 gap-y-5 sm:grid-cols-2">
           <div class="space-y-1.5">
-            <label for="ct-project" class="text-sm font-medium">Проект</label>
+            <label for="ct-project" class="text-sm font-medium">{{ t('production.task.create.project') }}</label>
             <select
               id="ct-project"
               v-model="form.projectId"
               required
               class="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:border-ring"
             >
-              <option value="" disabled>Выберите проект</option>
+              <option value="" disabled>{{ t('production.task.create.chooseProject') }}</option>
               <option v-for="p in projects" :key="p.id" :value="p.id">
                 {{ p.code }} — {{ p.name }}
               </option>
@@ -205,14 +206,14 @@ onMounted(() => {
           </div>
 
           <div class="space-y-1.5">
-            <label for="ct-stage" class="text-sm font-medium">Стадия пайплайна</label>
+            <label for="ct-stage" class="text-sm font-medium">{{ t('production.task.create.stage') }}</label>
             <select
               id="ct-stage"
               v-model="form.stageId"
               :disabled="!form.projectId"
               class="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:border-ring disabled:opacity-50"
             >
-              <option value="">Без стадии</option>
+              <option value="">{{ t('production.task.create.noStage') }}</option>
               <option v-for="s in stages" :key="s.id" :value="s.id">
                 {{ s.order }}. {{ s.name }}
               </option>
@@ -220,26 +221,26 @@ onMounted(() => {
           </div>
 
           <div class="space-y-1.5">
-            <label for="ct-shot" class="text-sm font-medium">Шот</label>
+            <label for="ct-shot" class="text-sm font-medium">{{ t('production.task.create.shot') }}</label>
             <select
               id="ct-shot"
               v-model="form.shotId"
               :disabled="!form.projectId"
               class="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:border-ring disabled:opacity-50"
             >
-              <option value="">Без привязки к шоту</option>
+              <option value="">{{ t('production.task.create.noShot') }}</option>
               <option v-for="s in shots" :key="s.id" :value="s.id">{{ s.code }}</option>
             </select>
           </div>
 
           <div class="space-y-1.5">
-            <label for="ct-assignee" class="text-sm font-medium">Исполнитель</label>
+            <label for="ct-assignee" class="text-sm font-medium">{{ t('production.task.fields.assignee') }}</label>
             <select
               id="ct-assignee"
               v-model="form.assigneeId"
               class="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:border-ring"
             >
-              <option value="">Не назначен</option>
+              <option value="">{{ t('production.task.fields.unassigned') }}</option>
               <option v-for="s in staff" :key="s.userId" :value="s.userId">
                 {{ s.user.firstName }} {{ s.user.lastName }}
               </option>
@@ -247,13 +248,13 @@ onMounted(() => {
           </div>
 
           <div class="space-y-1.5">
-            <label for="ct-reviewer" class="text-sm font-medium">Проверяющий</label>
+            <label for="ct-reviewer" class="text-sm font-medium">{{ t('production.task.create.reviewer') }}</label>
             <select
               id="ct-reviewer"
               v-model="form.reviewerId"
               class="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:border-ring"
             >
-              <option value="">Не назначен</option>
+              <option value="">{{ t('production.task.fields.unassigned') }}</option>
               <option v-for="s in reviewers" :key="s.userId" :value="s.userId">
                 {{ s.user.firstName }} {{ s.user.lastName }}
               </option>
@@ -261,7 +262,7 @@ onMounted(() => {
           </div>
 
           <div class="space-y-1.5">
-            <label for="ct-hours" class="text-sm font-medium">Оценка, часов</label>
+            <label for="ct-hours" class="text-sm font-medium">{{ t('production.task.create.estimate') }}</label>
             <input
               id="ct-hours"
               v-model="form.estimatedHours"
@@ -276,7 +277,7 @@ onMounted(() => {
 
         <div class="grid gap-x-5 gap-y-5 sm:grid-cols-2">
           <div class="space-y-1.5">
-            <label for="ct-status" class="text-sm font-medium">Статус</label>
+            <label for="ct-status" class="text-sm font-medium">{{ t('production.task.fields.status') }}</label>
             <select
               id="ct-status"
               v-model="form.status"
@@ -287,7 +288,7 @@ onMounted(() => {
           </div>
 
           <div class="space-y-1.5">
-            <label for="ct-priority" class="text-sm font-medium">Приоритет</label>
+            <label for="ct-priority" class="text-sm font-medium">{{ t('production.task.fields.priority') }}</label>
             <select
               id="ct-priority"
               v-model="form.priority"
@@ -298,7 +299,7 @@ onMounted(() => {
           </div>
 
           <div class="space-y-1.5">
-            <label for="ct-start" class="text-sm font-medium">Начало</label>
+            <label for="ct-start" class="text-sm font-medium">{{ t('production.task.create.start') }}</label>
             <input
               id="ct-start"
               v-model="form.startDate"
@@ -308,7 +309,7 @@ onMounted(() => {
           </div>
 
           <div class="space-y-1.5">
-            <label for="ct-deadline" class="text-sm font-medium">Дедлайн</label>
+            <label for="ct-deadline" class="text-sm font-medium">{{ t('production.task.fields.deadline') }}</label>
             <input
               id="ct-deadline"
               v-model="form.deadline"
@@ -322,12 +323,12 @@ onMounted(() => {
         </div>
 
         <div class="space-y-1.5">
-          <label for="ct-description" class="text-sm font-medium">Описание</label>
+          <label for="ct-description" class="text-sm font-medium">{{ t('production.task.fields.description') }}</label>
           <textarea
             id="ct-description"
             v-model="form.description"
             rows="4"
-            placeholder="Что нужно сделать, ссылки на референсы, требования..."
+            :placeholder="t('production.task.create.descriptionPlaceholder')"
             class="w-full rounded-md border bg-background px-3 py-2 text-sm leading-relaxed outline-none focus:border-ring"
           />
         </div>
@@ -339,7 +340,7 @@ onMounted(() => {
           class="px-2 py-2 text-sm text-muted-foreground hover:text-foreground"
           @click="emit('close')"
         >
-          Отмена
+          {{ t('common.actions.cancel') }}
         </button>
         <button
           type="submit"
@@ -347,7 +348,7 @@ onMounted(() => {
           class="h-10 rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
           :disabled="submitting || !canSubmit"
         >
-          {{ submitting ? 'Создание...' : 'Создать задачу' }}
+          {{ submitting ? t('production.task.create.creating') : t('production.task.create.submit') }}
         </button>
       </footer>
     </aside>

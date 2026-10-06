@@ -7,7 +7,9 @@ import { useEntityCrud } from '~/composables/useEntityCrud'
 import { ASSET_FORM } from '~/utils/entity-forms'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Библиотека ассетов' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('shell.nav.assets')) })
 
 const route = useRoute()
 const { openEntity } = useTaskPanels()
@@ -58,37 +60,37 @@ const STATUSES = Object.values(PRODUCTION_STATUS)
 const crud = useEntityCrud({
   endpoint: '/api/assets',
   refresh: () => refresh(),
-  entityLabel: 'ассет',
+  entityLabel: () => t('production.assets.deleteEntity'),
   archivedView
 })
 
 // Switching between the working set and the archive starts from page one.
 watch(archivedView, () => { page.value = 1 })
 
-const columns: Column[] = [
-  { key: 'name', label: 'Ассет', width: '34%' },
-  { key: 'type', label: 'Тип', width: '16%' },
-  { key: 'project', label: 'Проект', width: '14%' },
-  { key: 'owner', label: 'Владелец', width: '18%' },
-  { key: 'versions', label: 'Версий', width: '8%', numeric: true },
-  { key: 'status', label: 'Статус', width: '10%' },
+const columns = computed<Column[]>(() => [
+  { key: 'name', label: t('production.assets.columns.name'), width: '34%' },
+  { key: 'type', label: t('production.assets.columns.type'), width: '16%' },
+  { key: 'project', label: t('production.assets.columns.project'), width: '14%' },
+  { key: 'owner', label: t('production.assets.columns.owner'), width: '18%' },
+  { key: 'versions', label: t('production.assets.columns.versions'), width: '8%', numeric: true },
+  { key: 'status', label: t('production.assets.columns.status'), width: '10%' },
   { key: 'actions', label: '', width: '56px' }
-]
+])
 </script>
 
 <template>
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
       <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-        Производство
+        {{ t('shell.nav.production') }}
       </p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Библиотека ассетов</h1>
-      <p class="mt-1 text-sm text-muted-foreground">{{ countLabel(meta.total, 'ассет', 'ассета', 'ассетов') }}</p>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('shell.nav.assets') }}</h1>
+      <p class="mt-1 text-sm text-muted-foreground">{{ countLabel(meta.total, 'production.assets.count') }}</p>
     </header>
 
     <div class="mb-4 flex flex-wrap items-center justify-end gap-3">
 
-      <EntityToolbar :crud="crud" create-label="Новый ассет" :can-manage="canManage" />
+      <EntityToolbar :crud="crud" :create-label="t('production.assets.createLabel')" :can-manage="canManage" />
 
     </div>
 
@@ -101,10 +103,10 @@ const columns: Column[] = [
       :pending="pending"
       :error-message="errorMessage"
       row-clickable
-      search-placeholder="Поиск по названию..."
+      :search-placeholder="t('production.assets.searchPlaceholder')"
       empty-icon="lucide:box"
-      empty-title="Библиотека пуста"
-      empty-body="Персонажи, окружения, пропсы и риги будут здесь."
+      :empty-title="t('production.assets.emptyTitle')"
+      :empty-body="t('production.assets.emptyBody')"
       @update:page="page = $event"
       @update:search="page = 1"
       @retry="refresh"
@@ -114,19 +116,19 @@ const columns: Column[] = [
         <select
           v-model="type"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Фильтр по типу"
+          :aria-label="t('production.assets.filters.typeAria')"
           @change="page = 1"
         >
-          <option value="">Все типы</option>
-          <option v-for="t in TYPES" :key="t" :value="t">{{ labelOf(ASSET_TYPE_LABEL, t) }}</option>
+          <option value="">{{ t('production.assets.filters.allTypes') }}</option>
+          <option v-for="typeValue in TYPES" :key="typeValue" :value="typeValue">{{ labelOf(ASSET_TYPE_LABEL, typeValue) }}</option>
         </select>
         <select
           v-model="projectId"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Фильтр по проекту"
+          :aria-label="t('production.assets.filters.projectAria')"
           @change="page = 1"
         >
-          <option value="">Все проекты</option>
+          <option value="">{{ t('production.assets.filters.allProjects') }}</option>
           <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.code }}</option>
         </select>
       </template>
@@ -154,7 +156,7 @@ const columns: Column[] = [
         <NuxtLink v-if="row.project" :to="'/projects/' + row.project.id" class="hover:underline">
           {{ row.project.code }}
         </NuxtLink>
-        <span v-else class="text-muted-foreground">общий</span>
+        <span v-else class="text-muted-foreground">{{ t('production.detail.shared') }}</span>
       </template>
 
       <template #cell-owner="{ row }">

@@ -1,3 +1,759 @@
 {
-  "production": {}
+  "production": {
+    "assetDetail": {
+      "description": "Description",
+      "fallbackTitle": "Asset",
+      "noVersions": "This asset has no versions yet.",
+      "openThumbnail": "Open the cover of {name}",
+      "panelLabel": "Asset details",
+      "thumbnailCaption": "Asset cover",
+      "versions": "Versions",
+      "versionsCount": "{n} version | {n} versions"
+    },
+    "assets": {
+      "columns": {
+        "name": "Asset",
+        "owner": "Owner",
+        "project": "Project",
+        "status": "Status",
+        "type": "Type",
+        "versions": "Versions"
+      },
+      "count": "{n} asset | {n} assets",
+      "createLabel": "New asset",
+      "deleteEntity": "asset",
+      "emptyBody": "Characters, environments, props and rigs will live here.",
+      "emptyTitle": "The library is empty",
+      "filters": {
+        "allProjects": "All projects",
+        "allTypes": "All types",
+        "projectAria": "Filter by project",
+        "typeAria": "Filter by type"
+      },
+      "searchPlaceholder": "Search by name..."
+    },
+    "board": {
+      "allProjects": "All projects",
+      "atLimit": "Showing the first {n} tasks — narrow it down with the project filter",
+      "dragHint": "drag cards between columns",
+      "emptyColumn": "Empty",
+      "listView": "List",
+      "loadFailed": "Couldn’t load the board",
+      "moveFailed": "Couldn’t move the task",
+      "movedComment": "Moved on the board: {change}",
+      "openColumn": "Open column {name}",
+      "projectAria": "Filter by project",
+      "title": "Task board",
+      "unassigned": "unassigned"
+    },
+    "calendar": {
+      "deliveriesCount": "{n} project delivery | {n} project deliveries",
+      "deliveryLabel": "{code} · delivery",
+      "eyebrow": "Planning",
+      "legend": {
+        "delivery": "project delivery",
+        "milestone": "milestone",
+        "task": "task"
+      },
+      "loadFailed": "Couldn’t load the calendar",
+      "milestonesCount": "{n} milestone | {n} milestones",
+      "more": "+{n} more",
+      "nextMonth": "Next month",
+      "prevMonth": "Previous month",
+      "summary": "{deliveries} · {milestones} · {tasks} this month",
+      "title": "Calendar",
+      "today": "Today"
+    },
+    "comments": {
+      "deleteFailed": "Could not delete the comment",
+      "deletedUser": "Deleted user",
+      "empty": "No discussion yet. Write the first comment.",
+      "loadFailed": "Could not load the discussion",
+      "newComment": "New comment",
+      "placeholder": "Write a comment...",
+      "reply": "Reply",
+      "replyPlaceholder": "Reply...",
+      "send": "Send",
+      "sendFailed": "Could not send the comment",
+      "sending": "Sending...",
+      "title": "Discussion"
+    },
+    "crud": {
+      "activeView": "Active",
+      "archive": "Archive",
+      "archiveFailed": "Could not archive",
+      "archiveView": "Archive",
+      "deleteDetail": "The record will disappear from the lists and cannot be brought back from the interface. To hide it reversibly, archive it instead.",
+      "deleteFailed": "Could not delete",
+      "deleteQuestion": "Delete {entity} “{name}”?",
+      "deleteTitle": "Delete",
+      "edit": "Edit",
+      "noRights": "Not enough permissions",
+      "recordSet": "Record set",
+      "rowActions": "Actions",
+      "rowActionsFor": "Actions: {name}",
+      "unarchive": "Restore from archive",
+      "unarchiveFailed": "Could not restore from the archive"
+    },
+    "detail": {
+      "created": "Created",
+      "frames": "Frames",
+      "node": "Node",
+      "openVersionFile": "Open the file of version {label}",
+      "owner": "Owner",
+      "project": "Project",
+      "shared": "shared",
+      "shot": "Shot",
+      "status": "Status",
+      "unassigned": "unassigned",
+      "updated": "Updated",
+      "version": "Version"
+    },
+    "entity": {
+      "cancelUpload": "Cancel",
+      "fileFailed": "{name} ({error})",
+      "missingRequired": "Fill in the required fields: {fields}",
+      "notSelected": "Not selected",
+      "pickFiles": "Choose a photo, video, audio or document (up to 1 GB)",
+      "removeFile": "Remove {name}",
+      "saving": "Saving...",
+      "tooBig": "Over 1 GB, not added: {files}",
+      "uploadCancelled": "The record is saved; the file upload was cancelled",
+      "uploadError": "error",
+      "uploadFailed": "The record is saved, but these files did not upload: {files}",
+      "uploading": "Uploading: {name}",
+      "yes": "Yes"
+    },
+    "episodes": {
+      "columns": {
+        "episode": "Episode",
+        "progress": "Progress",
+        "project": "Project",
+        "scenes": "Scenes",
+        "shots": "Shots",
+        "status": "Status"
+      },
+      "count": "{n} episode | {n} episodes",
+      "create": "New episode",
+      "deleteEntity": "episode",
+      "emptyBody": "Episodes are created on the project page, in the “Episodes” tab.",
+      "emptyTitle": "No episodes yet",
+      "filters": {
+        "allProjects": "All projects",
+        "allStatuses": "All statuses",
+        "byProject": "Filter by project",
+        "byStatus": "Filter by status"
+      },
+      "searchPlaceholder": "Search by title..."
+    },
+    "forms": {
+      "asset": {
+        "createTitle": "New asset",
+        "editTitle": "Edit asset"
+      },
+      "budget": {
+        "createTitle": "Project budget",
+        "editTitle": "Edit budget"
+      },
+      "client": {
+        "createTitle": "New client",
+        "editTitle": "Edit client"
+      },
+      "department": {
+        "createTitle": "New department",
+        "editTitle": "Edit department"
+      },
+      "document": {
+        "createTitle": "New document",
+        "editTitle": "Edit document"
+      },
+      "employee": {
+        "createTitle": "New employee",
+        "editTitle": "Edit employee"
+      },
+      "episode": {
+        "createTitle": "New episode",
+        "editTitle": "Edit episode"
+      },
+      "expense": {
+        "createTitle": "New expense",
+        "editTitle": "Edit expense"
+      },
+      "fields": {
+        "amount": "Amount",
+        "assignee": "Assignee",
+        "category": "Category",
+        "client": "Client",
+        "companyName": "Company",
+        "country": "Country",
+        "currency": "Currency",
+        "date": "Date",
+        "deadline": "Deadline",
+        "department": "Department",
+        "description": "Description",
+        "documentNumber": "Document number",
+        "documentUrl": "Scan link",
+        "durationSeconds": "Duration, sec",
+        "email": "Email",
+        "employee": "Employee",
+        "employmentType": "Employment",
+        "endFrame": "Last frame",
+        "episode": "Episode",
+        "errorMessage": "Error text",
+        "fee": "Bank fee",
+        "files": "Files",
+        "firstName": "First name",
+        "fps": "Frames per second",
+        "hourlyRate": "Hourly rate",
+        "invoice": "Invoice",
+        "issuedAt": "Issued",
+        "lastName": "Last name",
+        "lateMinutes": "Lateness, minutes",
+        "method": "Method",
+        "name": "Name",
+        "node": "Node",
+        "notes": "Notes",
+        "number": "Number",
+        "owner": "Owner",
+        "paidDate": "Paid on",
+        "password": "Password",
+        "payBy": "Pay by",
+        "paymentMethod": "Payment method",
+        "paymentNotes": "Note",
+        "payrollType": "Kind",
+        "period": "Payroll month",
+        "personName": "Name",
+        "phone": "Phone",
+        "plannedCost": "Planned cost",
+        "position": "Position",
+        "priority": "Priority",
+        "progress": "Progress, %",
+        "project": "Project",
+        "purpose": "Purpose",
+        "reason": "Reason / comment",
+        "reference": "Transaction number",
+        "revenue": "Planned revenue",
+        "reviewComment": "What we are discussing",
+        "reviewDeadline": "Discussion deadline",
+        "reviewType": "Review type",
+        "reviewer": "Reviewer",
+        "revision": "Revision",
+        "role": "Role",
+        "scene": "Scene",
+        "shot": "Shot",
+        "startDate": "Start",
+        "startFrame": "First frame",
+        "status": "Status",
+        "task": "Task",
+        "thumbnailUrl": "Thumbnail link",
+        "title": "Title",
+        "type": "Type",
+        "vat": "Incl. VAT",
+        "vendor": "Counterparty",
+        "version": "Version",
+        "weeklyHours": "Hours per week"
+      },
+      "hints": {
+        "budgetProject": "A project has one budget: saving over an existing one updates it.",
+        "expenseProject": "Leave studio rent, taxes and subscriptions without a project.",
+        "expenseVat": "Part of the amount, not added on top. Blank — no VAT.",
+        "files": "Photo, video, audio or document. Uploaded right after saving.",
+        "invoiceNumber": "The number is unique and goes to the client, so change it deliberately.",
+        "invoiceVat": "Part of the invoice amount. Blank — no VAT.",
+        "lateMinutes": "Only for a lateness penalty — required there.",
+        "loginEmail": "The sign-in login; it cannot be changed later",
+        "nextNumber": "Blank — the next free number",
+        "password": "At least 8 characters",
+        "paymentInvoice": "If the payment covers the invoice in full, you will be offered to mark it paid.",
+        "payrollAmount": "Always positive: the kind of entry decides whether it adds or deducts.",
+        "period": "Blank — the month of the date.",
+        "reference": "Finds the payment in the bank statement.",
+        "reviewDeadline": "If there is no decision by this date, the review gets the status “Closed”",
+        "reviewVersion": "The material put up for discussion"
+      },
+      "invoice": {
+        "createTitle": "New invoice",
+        "editTitle": "Edit invoice"
+      },
+      "payment": {
+        "createTitle": "New payment",
+        "editTitle": "Edit payment"
+      },
+      "payroll": {
+        "createTitle": "New entry: advance, penalty or bonus",
+        "editTitle": "Edit draft"
+      },
+      "placeholders": {
+        "anyTeamMember": "Anyone on the team",
+        "autoNumber": "Blank — the next one is assigned",
+        "documentKinds": "Receipt, certificate, VAT invoice",
+        "howToAddress": "How to address them",
+        "invoicePurpose": "What the invoice is for",
+        "noInvoice": "No invoice",
+        "noProject": "No project",
+        "notSpecified": "Not specified",
+        "paidTo": "Who was paid",
+        "reviewComment": "The question to discuss, what to look at first",
+        "sharedAsset": "Shared",
+        "studioCurrency": "Studio currency",
+        "studioNoProject": "Studio — no project",
+        "transactionRef": "Payment order, transaction ID",
+        "yearMonth": "YYYY-MM"
+      },
+      "render": {
+        "createTitle": "New render job",
+        "editTitle": "Edit job"
+      },
+      "review": {
+        "createTitle": "Send for review",
+        "editTitle": "Review settings"
+      },
+      "revision": {
+        "createTitle": "New revision",
+        "editTitle": "Edit revision"
+      },
+      "scene": {
+        "createTitle": "New scene",
+        "editTitle": "Edit scene"
+      },
+      "shot": {
+        "createTitle": "New shot",
+        "editTitle": "Edit shot"
+      }
+    },
+    "myTasks": {
+      "empty": {
+        "active": "No open tasks. New ones will appear here as soon as they are assigned.",
+        "completed": "No completed tasks yet.",
+        "late": "No overdue tasks — keep it up.",
+        "review": "Nothing is waiting for review right now."
+      },
+      "eyebrow": "Personal",
+      "fullList": "Full list",
+      "intro": "{name}, here is everything assigned to you — what’s burning comes first.",
+      "sections": {
+        "blocked": "Blocked",
+        "completed": "Completed",
+        "late": "Overdue",
+        "progress": "In progress",
+        "review": "In review",
+        "revision": "In revision",
+        "todo": "To do"
+      },
+      "shownOf": "Showing {shown} of {total} — nearest deadlines first.",
+      "summaryAria": "Task summary",
+      "tiles": {
+        "dueThisWeek": "Due this week",
+        "inWork": "In progress and in revision",
+        "late": "Overdue",
+        "review": "In review"
+      },
+      "title": "My tasks",
+      "views": {
+        "active": "Open",
+        "completed": "Completed",
+        "late": "Overdue",
+        "review": "In review"
+      },
+      "viewsAria": "Task views"
+    },
+    "personal": {
+      "changeStatus": "Status",
+      "day": {
+        "empty": "No tasks on this date",
+        "filtersHint": "With the calendar’s current filters applied.",
+        "loadFailed": "Couldn’t load tasks",
+        "overdue": "{n} overdue"
+      },
+      "due": {
+        "inDays": "In {n} day | In {n} days",
+        "none": "No deadline",
+        "overdueBy": "{n} day overdue | {n} days overdue",
+        "today": "Today",
+        "todayPassed": "Today, deadline passed",
+        "tomorrow": "Tomorrow"
+      }
+    },
+    "render": {
+      "columns": {
+        "frames": "Frames",
+        "node": "Node",
+        "progress": "Progress",
+        "project": "Project",
+        "shot": "Shot",
+        "status": "Status"
+      },
+      "createLabel": "New job",
+      "deleteEntity": "render job",
+      "emptyBody": "Jobs appear once shots are sent to render.",
+      "emptyTitle": "The queue is empty",
+      "nodeJobs": "{n} job | {n} jobs",
+      "nodeOffline": "offline",
+      "nodeOnline": "online",
+      "searchUnavailable": "Search isn’t available in this section",
+      "statusAria": "Job status",
+      "summary": {
+        "failed": "{n} failed",
+        "queued": "{n} queued",
+        "rendering": "{n} rendering"
+      },
+      "updateFailed": "Couldn’t update the job",
+      "views": {
+        "all": "All",
+        "completed": "Done",
+        "failed": "Failed",
+        "queue": "Queued",
+        "running": "Rendering"
+      },
+      "viewsLabel": "Render views"
+    },
+    "renderDetail": {
+      "completed": "Finished",
+      "duration": "Duration",
+      "errorTitle": "Render error",
+      "fallbackTitle": "Render job",
+      "offline": "offline",
+      "online": "online",
+      "panelLabel": "Render job details",
+      "progress": "Progress",
+      "started": "Started",
+      "submittedBy": "Submitted by"
+    },
+    "review": {
+      "approve": "Approve",
+      "attachmentsEmpty": "No materials. Attach photos, video or audio to the discussion.",
+      "attachmentsTitle": "Discussion materials",
+      "closedQuestion": "Closed",
+      "comment": "Comment",
+      "commentPlaceholder": "Comment — required when requesting changes",
+      "completed": "Review completed {date}",
+      "deadline": {
+        "daysLeft": "{date} · {n} d left",
+        "lastDay": "{date} · today is the last day",
+        "none": "no deadline",
+        "passed": "{date} · deadline passed"
+      },
+      "expiredNote": "No decision was made before the deadline, so the review was closed. To reopen the discussion, set a new deadline in the review settings.",
+      "fields": {
+        "deadline": "Discussion deadline",
+        "project": "Project",
+        "reviewer": "Reviewer",
+        "sent": "Sent",
+        "shot": "Shot",
+        "task": "Task",
+        "versionAuthor": "Version author"
+      },
+      "fileNotUploaded": "file not uploaded",
+      "fullscreen": "Full screen",
+      "loadFailed": "Could not load the review",
+      "noPreview": "No preview · {type}",
+      "notAssigned": "unassigned",
+      "openFile": "Open file",
+      "openFullscreen": "Open {label} full screen",
+      "reject": "Reject",
+      "requestChanges": "Request changes",
+      "revisionDeadline": "Revision deadline",
+      "saveFailed": "Could not save the decision",
+      "typeHeading": "{type} review"
+    },
+    "reviews": {
+      "allProjects": "All projects",
+      "columns": {
+        "author": "Author",
+        "project": "Project",
+        "reviewer": "Reviewer",
+        "status": "Status",
+        "type": "Type",
+        "version": "Version"
+      },
+      "createLabel": "Send for review",
+      "deleteEntity": "review",
+      "emptyBody": "Versions sent for review will appear here.",
+      "emptyTitle": "No reviews",
+      "notAssigned": "unassigned",
+      "projectFilter": "Filter by project",
+      "searchUnavailable": "Search is not available in this section",
+      "summary": "{inReview} in review · {changes} changes requested · {approved} approved",
+      "views": {
+        "all": "All",
+        "approved": "Approved",
+        "changes": "Changes requested",
+        "client": "Client",
+        "inReview": "In review",
+        "internal": "Internal",
+        "pending": "Pending"
+      },
+      "viewsLabel": "Review views",
+      "waitingDays": "waiting {n} d",
+      "waitingToday": "waiting since today"
+    },
+    "revision": {
+      "description": "Description",
+      "fallbackTitle": "Revision",
+      "fields": {
+        "assignee": "Assignee",
+        "author": "Author",
+        "completed": "Completed",
+        "created": "Created",
+        "deadline": "Due",
+        "project": "Project",
+        "round": "Round",
+        "shot": "Shot",
+        "status": "Status",
+        "task": "Task",
+        "updated": "Updated",
+        "version": "Version"
+      },
+      "overdue": "Overdue",
+      "panelLabel": "Revision details",
+      "subtitle": "Revision · round {round}"
+    },
+    "revisions": {
+      "allProjects": "All projects",
+      "columns": {
+        "assignee": "Assignee",
+        "deadline": "Due",
+        "project": "Project",
+        "round": "Round",
+        "status": "Status",
+        "title": "Revision"
+      },
+      "createLabel": "New revision",
+      "deleteEntity": "revision",
+      "emptyBody": "Revisions are created when a review sends a version back for changes.",
+      "emptyTitle": "No revisions",
+      "from": "from {name}",
+      "notAssigned": "unassigned",
+      "projectFilter": "Filter by project",
+      "searchUnavailable": "Search is not available in this section",
+      "statusOf": "Status of revision {title}",
+      "summary": "{open} open · {inProgress} in progress · {completed} completed",
+      "updateFailed": "Could not update the revision",
+      "views": {
+        "all": "All",
+        "completed": "Completed",
+        "inProgress": "In progress",
+        "open": "Open",
+        "ready": "In review"
+      },
+      "viewsLabel": "Revision views"
+    },
+    "scenes": {
+      "columns": {
+        "episode": "Episode",
+        "progress": "Progress",
+        "project": "Project",
+        "scene": "Scene",
+        "shots": "Shots",
+        "status": "Status"
+      },
+      "count": "{n} scene | {n} scenes",
+      "create": "New scene",
+      "deleteEntity": "scene",
+      "emptyBody": "Scenes are created on the project page, in the “Scenes” tab.",
+      "emptyTitle": "No scenes yet",
+      "filters": {
+        "allProjects": "All projects",
+        "allStatuses": "All statuses",
+        "byProject": "Filter by project",
+        "byStatus": "Filter by status"
+      },
+      "noEpisode": "no episode",
+      "searchPlaceholder": "Search by name..."
+    },
+    "shot": {
+      "assignee": "Assignee",
+      "backToList": "All shots",
+      "deadline": "due {date}",
+      "description": "Description",
+      "fallbackTitle": "Shot",
+      "fps": "{n} fps",
+      "frameRange": "{start}–{end} ({n} frame) | {start}–{end} ({n} frames)",
+      "frames": "Frames",
+      "loadFailed": "Couldn’t load the shot",
+      "notFound": "Shot not found",
+      "progress": "Progress",
+      "stageCompleted": "completed {date}",
+      "stageProgressAria": "Progress of stage {name}",
+      "stageStatusAria": "Status of stage {name}",
+      "stageUpdateFailed": "Couldn’t update the stage",
+      "stageWeight": "weight {n}",
+      "stages": "Stages",
+      "stagesActive": "{n} in progress",
+      "stagesBlocked": "{n} blocked",
+      "stagesEmptyBody": "The shot was created before the project pipeline was set up.",
+      "stagesEmptyTitle": "No stages assigned",
+      "stagesHint": "Shot progress is weighted by stage and rolls up to the scene, episode and project",
+      "stagesTitle": "Production stages",
+      "unassigned": "unassigned"
+    },
+    "shots": {
+      "columns": {
+        "assignee": "Assignee",
+        "progress": "Progress",
+        "project": "Project",
+        "scene": "Scene",
+        "shot": "Shot",
+        "status": "Status"
+      },
+      "countAllProjects": "{n} shot across all projects | {n} shots across all projects",
+      "create": "New shot",
+      "deleteEntity": "shot",
+      "emptyBody": "Shots are created inside a scene on the project page.",
+      "emptyTitle": "No shots yet",
+      "filters": {
+        "allProjects": "All projects",
+        "allStatuses": "All statuses",
+        "byProject": "Filter by project",
+        "byStatus": "Filter by status"
+      },
+      "fps": "{n} fps",
+      "searchPlaceholder": "Search by code or name...",
+      "unassigned": "unassigned",
+      "versions": "{n} version | {n} versions"
+    },
+    "task": {
+      "create": {
+        "chooseProject": "Choose a project",
+        "creating": "Creating...",
+        "descriptionPlaceholder": "What needs doing, links to references, requirements...",
+        "estimate": "Estimate, hours",
+        "failed": "Couldn’t create the task",
+        "name": "Title",
+        "namePlaceholder": "SH014 animation",
+        "noShot": "Not linked to a shot",
+        "noStage": "No stage",
+        "project": "Project",
+        "reviewer": "Reviewer",
+        "shot": "Shot",
+        "stage": "Pipeline stage",
+        "start": "Start",
+        "submit": "Create task",
+        "title": "New task"
+      },
+      "drawer": {
+        "archive": "Archive",
+        "archiveConfirm": {
+          "detail": "All data is kept; the task can be restored from the archive at any time.",
+          "message": "“{title}” will disappear from active lists and the board.",
+          "title": "Archive the task?"
+        },
+        "archiveFailed": "Couldn’t change the archive status",
+        "ariaLabel": "Task",
+        "deleteConfirm": {
+          "detail": "If the task is simply no longer needed, archive it instead — that can be undone.",
+          "message": "“{title}” will be deleted along with its dependencies and links.",
+          "title": "Delete the task?"
+        },
+        "deleteFailed": "Couldn’t delete the task",
+        "dependsOn": "Depends on",
+        "descriptionPlaceholder": "Add a description...",
+        "discard": "Discard",
+        "estimate": "Estimate, h",
+        "lateBy": "Overdue by {n} day | Overdue by {n} days",
+        "lateNotice": "The task is treated as a request: every change is sent to administration as a notification and added to the discussion below. The reason is asked for at the bottom of the panel, next to the save button.",
+        "loadFailed": "Couldn’t load the task",
+        "overdueReasonHint": "You can’t save without a reason — it goes to administration and into the discussion",
+        "overdueReasonPlaceholder": "Reason for editing an overdue task",
+        "overdueReasonRequired": "The task is overdue: give a reason for the edit",
+        "removeDependency": "Remove dependency {title}",
+        "removeDependencyFailed": "Couldn’t remove the dependency",
+        "saving": "Saving...",
+        "stage": "Stage",
+        "statusNoteHint": "The note goes into the task discussion",
+        "statusNotePlaceholder": "What was done — required to change the status",
+        "titleLabel": "Task title",
+        "unarchive": "Restore from archive",
+        "unsavedChanges": "You have unsaved changes"
+      },
+      "fields": {
+        "assignee": "Assignee",
+        "assigneeNotified": "The assignee will be notified of the assignment",
+        "deadline": "Deadline",
+        "description": "Description",
+        "priority": "Priority",
+        "status": "Status",
+        "statusChangeFailed": "Couldn’t change the status",
+        "statusNoteLabel": "Reason for the status change",
+        "unassigned": "Unassigned"
+      },
+      "quickStatus": {
+        "newStatus": "New status",
+        "notePlaceholder": "What was done — goes into the task discussion",
+        "reasonLabel": "Reason for the delay",
+        "reasonPlaceholder": "Why the deadline slipped — goes to administration",
+        "submit": "Change status"
+      },
+      "status": {
+        "allGood": "all tasks are assigned and on time",
+        "ariaLabel": "Tasks with status {status}",
+        "emptyBody": "Drag a card here on the board or change a task’s status.",
+        "emptyTitle": "This column is empty",
+        "loadFailed": "Couldn’t load the column",
+        "moveComment": "Moved from the status panel: {change}",
+        "moveTask": "Move task {title}",
+        "overdue": "{n} overdue",
+        "unassigned": "{n} unassigned",
+        "unassignedShort": "unassigned"
+      }
+    },
+    "taskCalendar": {
+      "boardView": "Board",
+      "dayAria": "Tasks on {date}: {n}",
+      "filters": {
+        "allAssignees": "All assignees",
+        "allProjects": "All projects",
+        "anyPriority": "Any priority",
+        "assigneeAria": "Filter by assignee",
+        "priorityAria": "Filter by priority",
+        "projectAria": "Filter by project"
+      },
+      "heading": "Deadline calendar",
+      "listView": "List",
+      "title": "Task calendar",
+      "withDeadline": "{n} with a deadline",
+      "withoutDate": "{n} without a date"
+    },
+    "tasks": {
+      "board": "Board",
+      "calendar": "Calendar",
+      "columns": {
+        "assignee": "Assignee",
+        "deadline": "Due",
+        "priority": "Priority",
+        "project": "Project",
+        "status": "Status",
+        "task": "Task"
+      },
+      "deleteEntity": "task",
+      "empty": {
+        "archiveBody": "Archived tasks appear here and can be put back to work.",
+        "archiveTitle": "The archive is empty",
+        "body": "Nothing in this view yet. Create a task with the button above.",
+        "title": "No tasks"
+      },
+      "eyebrow": "Production",
+      "filters": {
+        "allAssignees": "All assignees",
+        "allProjects": "All projects",
+        "anyPriority": "Any priority",
+        "assignee": "Filter by assignee",
+        "priority": "Filter by priority",
+        "project": "Filter by project"
+      },
+      "newTask": "New task",
+      "searchPlaceholder": "Search by title...",
+      "title": "Tasks",
+      "unassigned": "unassigned",
+      "views": {
+        "all": "All",
+        "archived": "Archive",
+        "completed": "Completed",
+        "my": "Mine",
+        "overdue": "Overdue",
+        "review": "In review"
+      },
+      "viewsLabel": "Quick views"
+    }
+  }
 }

@@ -4,6 +4,7 @@ import { useTaskPanels } from '~/composables/useTaskPanels'
 const props = defineProps<{ id: string, offset: number }>()
 const emit = defineEmits<{ (e: 'close'): void }>()
 
+const { t } = useI18n()
 const { openTask, closeAll } = useTaskPanels()
 
 interface Revision {
@@ -42,12 +43,12 @@ const isOverdue = computed(() => {
 
 <template>
   <DetailPanel
-    :title="revision?.title ?? 'Правка'"
-    :subtitle="'Правка · раунд ' + (revision?.round ?? '—')"
+    :title="revision?.title ?? t('production.revision.fallbackTitle')"
+    :subtitle="t('production.revision.subtitle', { round: revision?.round ?? '—' })"
     :offset="props.offset"
     :pending="pending"
     :error="Boolean(error)"
-    panel-label="Детали правки"
+    :panel-label="t('production.revision.panelLabel')"
     @close="emit('close')"
     @retry="refresh()"
   >
@@ -61,23 +62,23 @@ const isOverdue = computed(() => {
           v-if="isOverdue"
           class="rounded-md bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive"
         >
-          Просрочена
+          {{ t('production.revision.overdue') }}
         </span>
       </div>
 
       <section v-if="revision.description" class="border-b px-5 py-4">
         <h3 class="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          Описание
+          {{ t('production.revision.description') }}
         </h3>
         <p class="mt-2 whitespace-pre-wrap text-sm leading-relaxed">{{ revision.description }}</p>
       </section>
 
       <dl class="divide-y">
-        <DetailRow label="Статус">
+        <DetailRow :label="t('production.revision.fields.status')">
           {{ labelOf(REVISION_STATUS_LABEL, revision.status) }}
         </DetailRow>
-        <DetailRow label="Раунд">{{ revision.round }}</DetailRow>
-        <DetailRow label="Проект">
+        <DetailRow :label="t('production.revision.fields.round')">{{ revision.round }}</DetailRow>
+        <DetailRow :label="t('production.revision.fields.project')">
           <NuxtLink
             v-if="revision.project"
             :to="'/projects/' + revision.project.id"
@@ -88,7 +89,7 @@ const isOverdue = computed(() => {
           </NuxtLink>
           <span v-else class="text-muted-foreground">—</span>
         </DetailRow>
-        <DetailRow label="Шот">
+        <DetailRow :label="t('production.revision.fields.shot')">
           <NuxtLink
             v-if="revision.shot"
             :to="'/shots/' + revision.shot.id"
@@ -99,7 +100,7 @@ const isOverdue = computed(() => {
           </NuxtLink>
           <span v-else class="text-muted-foreground">—</span>
         </DetailRow>
-        <DetailRow label="Задача">
+        <DetailRow :label="t('production.revision.fields.task')">
           <button
             v-if="revision.task"
             type="button"
@@ -110,20 +111,20 @@ const isOverdue = computed(() => {
           </button>
           <span v-else class="text-muted-foreground">—</span>
         </DetailRow>
-        <DetailRow label="Версия">
+        <DetailRow :label="t('production.revision.fields.version')">
           <span v-if="revision.version">{{ revision.version.label }}</span>
           <span v-else class="text-muted-foreground">—</span>
         </DetailRow>
-        <DetailRow label="Автор">{{ fullName(revision.requestedBy) }}</DetailRow>
-        <DetailRow label="Исполнитель">{{ fullName(revision.assignedTo) }}</DetailRow>
-        <DetailRow label="Срок">
+        <DetailRow :label="t('production.revision.fields.author')">{{ fullName(revision.requestedBy) }}</DetailRow>
+        <DetailRow :label="t('production.revision.fields.assignee')">{{ fullName(revision.assignedTo) }}</DetailRow>
+        <DetailRow :label="t('production.revision.fields.deadline')">
           <span :class="isOverdue ? 'font-medium text-destructive' : ''">
             {{ formatDay(revision.deadline) }}
           </span>
         </DetailRow>
-        <DetailRow label="Создана">{{ formatDateTime(revision.createdAt) }}</DetailRow>
-        <DetailRow label="Обновлена">{{ formatDateTime(revision.updatedAt) }}</DetailRow>
-        <DetailRow label="Завершена">{{ formatDateTime(revision.completedAt) }}</DetailRow>
+        <DetailRow :label="t('production.revision.fields.created')">{{ formatDateTime(revision.createdAt) }}</DetailRow>
+        <DetailRow :label="t('production.revision.fields.updated')">{{ formatDateTime(revision.updatedAt) }}</DetailRow>
+        <DetailRow :label="t('production.revision.fields.completed')">{{ formatDateTime(revision.completedAt) }}</DetailRow>
       </dl>
     </div>
   </DetailPanel>
