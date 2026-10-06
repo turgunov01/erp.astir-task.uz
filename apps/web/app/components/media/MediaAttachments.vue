@@ -17,9 +17,13 @@ const props = withDefaults(defineProps<{
   title?: string
   emptyText?: string
 }>(), {
-  title: 'Вложения',
-  emptyText: 'Файлов нет. Прикрепление не обязательно — фото, видео или аудио по желанию.'
+  title: undefined,
+  emptyText: undefined
 })
+
+const { t } = useI18n()
+const titleText = computed(() => props.title ?? t('projects.media.attachments'))
+const emptyTextValue = computed(() => props.emptyText ?? t('projects.media.attachmentsEmpty'))
 
 interface Attachment extends DocumentLike {
   type: string
@@ -55,7 +59,7 @@ async function upload(list: FileList | null) {
     }
     await refresh()
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось загрузить файл')
+    errorMessage.value = apiErrorMessage(err, t('projects.files.uploadFailed'))
   } finally {
     uploading.value = false
     if (fileInput.value) fileInput.value.value = ''
@@ -68,7 +72,7 @@ async function remove(id: string) {
     await $fetch('/api/files/' + id, { method: 'DELETE', credentials: 'include' })
     await refresh()
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось удалить файл')
+    errorMessage.value = apiErrorMessage(err, t('projects.files.deleteFailed'))
   }
 }
 
@@ -82,7 +86,7 @@ function openViewer(file?: Attachment) {
   <section class="mt-6">
     <div class="flex items-center justify-between gap-2 px-2">
       <h3 class="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-        {{ props.title }}
+        {{ titleText }}
         <span v-if="files.length > 0" class="ml-1 tabular-nums">{{ files.length }}</span>
       </h3>
 
@@ -95,7 +99,7 @@ function openViewer(file?: Attachment) {
           @click="openViewer()"
         >
           <Icon name="lucide:images" class="size-3.5" />
-          Посмотреть
+          {{ t('projects.media.view') }}
         </button>
         <button
           v-if="props.canManage"
@@ -105,7 +109,7 @@ function openViewer(file?: Attachment) {
           @click="fileInput?.click()"
         >
           <Icon name="lucide:paperclip" class="size-3.5" />
-          {{ uploading ? 'Загрузка...' : 'Прикрепить' }}
+          {{ uploading ? t('projects.files.uploading') : t('projects.media.attach') }}
         </button>
         <input
           ref="fileInput"
@@ -130,11 +134,11 @@ function openViewer(file?: Attachment) {
       v-else-if="files.length === 0"
       class="mt-2 px-2 text-sm text-muted-foreground"
     >
-      {{ props.emptyText }}
+      {{ emptyTextValue }}
     </p>
 
     <p v-else-if="error" class="mt-2 px-2 text-sm text-destructive">
-      Не удалось загрузить вложения
+      {{ t('projects.media.attachmentsFailed') }}
     </p>
 
     <ul v-else class="mt-2 grid grid-cols-3 gap-2 px-2">
@@ -142,7 +146,7 @@ function openViewer(file?: Attachment) {
         <button
           type="button"
           class="block w-full overflow-hidden rounded-lg border bg-muted/40"
-          :aria-label="'Открыть ' + file.name"
+          :aria-label="t('projects.files.openOf', { name: file.name })"
           @click="openViewer(file)"
         >
           <span class="block h-20">
@@ -155,7 +159,7 @@ function openViewer(file?: Attachment) {
           v-if="props.canManage"
           type="button"
           class="absolute right-1 top-1 rounded-md bg-background/90 p-1 text-muted-foreground opacity-0 hover:text-destructive focus:opacity-100 group-hover:opacity-100"
-          :aria-label="'Удалить ' + file.name"
+          :aria-label="t('projects.files.deleteOf', { name: file.name })"
           @click.stop="remove(file.id)"
         >
           <Icon name="lucide:trash-2" class="size-3" />

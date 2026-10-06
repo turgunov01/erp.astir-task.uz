@@ -23,6 +23,7 @@ const props = defineProps<{
 }>()
 
 const { openTask } = useTaskPanels()
+const { t } = useI18n()
 const today = startOfDay(Date.now())
 
 const projectById = computed(() => new Map(props.projects.map(project => [project.id, project])))
@@ -85,8 +86,8 @@ const weeks = computed(() => {
 
 function range(task: TimelineTask) {
   if (task.startDate && task.deadline) return shortDay(task.startDate) + ' — ' + shortDay(task.deadline)
-  if (task.deadline) return 'до ' + shortDay(task.deadline)
-  return 'с ' + shortDay(task.startDate as string)
+  if (task.deadline) return t('projects.timeline.untilDate', { date: shortDay(task.deadline) })
+  return t('projects.timeline.fromDate', { date: shortDay(task.startDate as string) })
 }
 </script>
 
@@ -100,7 +101,7 @@ function range(task: TimelineTask) {
       />
       <h3 class="flex flex-wrap items-baseline gap-x-2 text-sm font-semibold">
         {{ shortDay(week.start) }} — {{ shortDay(week.end) }}
-        <span v-if="week.current" class="text-xs font-medium text-destructive">эта неделя</span>
+        <span v-if="week.current" class="text-xs font-medium text-destructive">{{ t('projects.timeline.thisWeek') }}</span>
         <span class="text-xs font-normal text-muted-foreground">{{ week.entries.length }}</span>
       </h3>
 
@@ -117,7 +118,7 @@ function range(task: TimelineTask) {
             />
             <span class="min-w-0 flex-1 truncate text-sm font-medium">{{ entry.name }}</span>
             <span class="shrink-0 text-xs text-muted-foreground">
-              {{ entry.code }} · веха · {{ shortDay(entry.date) }}
+              {{ entry.code }} · {{ t('projects.timeline.milestone') }} · {{ shortDay(entry.date) }}
             </span>
           </div>
 
@@ -145,7 +146,7 @@ function range(task: TimelineTask) {
                 ? 'bg-destructive/12 text-destructive'
                 : 'bg-secondary text-secondary-foreground'"
             >
-              {{ isLate(entry.task, today) ? 'Просрочена' : enumLabel(TASK_STATUS_LABEL, entry.task.status) }}
+              {{ isLate(entry.task, today) ? t('projects.timeline.lateBadge') : enumLabel(TASK_STATUS_LABEL, entry.task.status) }}
             </span>
           </button>
         </li>

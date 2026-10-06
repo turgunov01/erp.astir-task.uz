@@ -7,6 +7,7 @@
  * Range requests), volume, fullscreen and picture-in-picture well.
  */
 const props = defineProps<{ src: string, name: string }>()
+const { t } = useI18n()
 const emit = defineEmits<{
   meta: [value: { width: number, height: number, duration: number }]
 }>()
@@ -120,8 +121,8 @@ defineExpose({ handleKey })
       />
       <div v-else class="max-w-sm text-center text-white/70">
         <Icon name="lucide:file-video" class="mx-auto size-12 text-white/40" />
-        <p class="mt-3 text-sm">Браузер не умеет воспроизводить этот формат.</p>
-        <p class="mt-1 text-xs text-white/50">Скачайте файл и откройте его в плеере или монтажной программе.</p>
+        <p class="mt-3 text-sm">{{ t('projects.media.videoUnsupported') }}</p>
+        <p class="mt-1 text-xs text-white/50">{{ t('projects.media.videoUnsupportedHint') }}</p>
       </div>
     </div>
 
@@ -129,32 +130,32 @@ defineExpose({ handleKey })
       v-if="!failed"
       class="flex flex-wrap items-center justify-center gap-1 rounded-lg bg-black/60 p-1 text-white"
       role="toolbar"
-      aria-label="Покадровый просмотр"
+      :aria-label="t('projects.media.frameByFrame')"
     >
-      <button type="button" :class="TOOL" aria-label="Кадр назад (,)" @click="stepFrame(-1)">
+      <button type="button" :class="TOOL" :aria-label="t('projects.media.framePrev')" @click="stepFrame(-1)">
         <Icon name="lucide:step-back" class="size-4" />
       </button>
-      <span class="min-w-[6.5rem] text-center font-mono text-xs tabular-nums" :title="'Кадр ' + frame">
+      <span class="min-w-[6.5rem] text-center font-mono text-xs tabular-nums" :title="t('projects.media.frame', { n: frame })">
         {{ timecode }}
       </span>
-      <button type="button" :class="TOOL" aria-label="Кадр вперёд (.)" @click="stepFrame(1)">
+      <button type="button" :class="TOOL" :aria-label="t('projects.media.frameNext')" @click="stepFrame(1)">
         <Icon name="lucide:step-forward" class="size-4" />
       </button>
 
       <span class="mx-1 h-4 w-px bg-white/20" aria-hidden="true" />
 
       <label class="inline-flex items-center gap-1 text-xs text-white/70">
-        <span class="sr-only">Частота кадров</span>
+        <span class="sr-only">{{ t('projects.media.frameRate') }}</span>
         <select
           v-model.number="fps"
           class="h-8 rounded-md bg-transparent px-1 text-xs text-white outline-none hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-white"
         >
-          <option v-for="rate in FRAME_RATES" :key="rate" :value="rate" class="text-black">{{ rate }} к/с</option>
+          <option v-for="rate in FRAME_RATES" :key="rate" :value="rate" class="text-black">{{ t('projects.shots.fps', { n: rate }) }}</option>
         </select>
       </label>
       <label class="inline-flex items-center gap-1 text-xs text-white/70">
         <Icon name="lucide:gauge" class="size-4" aria-hidden="true" />
-        <span class="sr-only">Скорость воспроизведения (&lt; и &gt;)</span>
+        <span class="sr-only">{{ t('projects.media.speed') }}</span>
         <select
           v-model.number="speed"
           class="h-8 rounded-md bg-transparent px-1 text-xs text-white outline-none hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-white"
@@ -166,7 +167,7 @@ defineExpose({ handleKey })
         type="button"
         :class="TOOL"
         :aria-pressed="loop"
-        aria-label="Повторять"
+        :aria-label="t('projects.media.loop')"
         @click="loop = !loop"
       >
         <Icon name="lucide:repeat" class="size-4" />

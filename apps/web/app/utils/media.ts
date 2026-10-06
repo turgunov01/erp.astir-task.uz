@@ -62,14 +62,13 @@ export function fileFormat(name: string | null | undefined) {
   return match ? match[1]!.toUpperCase() : ''
 }
 
-export const MEDIA_KIND_LABEL: Record<MediaKind, string> = {
-  image: 'Изображение',
-  video: 'Видео',
-  audio: 'Аудио',
-  pdf: 'PDF',
-  text: 'Текст',
-  file: 'Файл'
-}
+/** Kind names in the current language; each read is a lookup, so they follow a language switch. */
+export const MEDIA_KIND_LABEL: Record<MediaKind, string> = Object.freeze(
+  (['image', 'video', 'audio', 'pdf', 'text', 'file'] as const).reduce((map, kind) => Object.defineProperty(map, kind, {
+    enumerable: true,
+    get: () => translate('projects.media.kind.' + kind)
+  }), {} as Record<MediaKind, string>)
+)
 
 export function formatBytes(bytes: string | number | null | undefined) {
   if (bytes === null || bytes === undefined || bytes === '') return ''

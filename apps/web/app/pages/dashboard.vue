@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Обзор' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('projects.dashboard.title')) })
 
 const auth = useAuthStore()
 
@@ -48,13 +50,17 @@ const stats = computed(() => data.value?.data)
 const kpis = computed(() => {
   const kpi = stats.value?.kpi
   return [
-    { label: 'Активные проекты', value: kpi?.activeProjects ?? 0, icon: 'lucide:folder-kanban', hint: 'в производстве', to: '/projects', signal: false },
-    { label: 'Проекты в риске', value: kpi?.atRisk ?? 0, icon: 'lucide:triangle-alert', hint: 'отставание от графика', to: '/projects', signal: true },
-    { label: 'Просроченные задачи', value: kpi?.overdueTasks ?? 0, icon: 'lucide:clock-alert', hint: 'дедлайн прошёл', to: '/tasks?view=overdue', signal: true },
-    { label: 'Ждут согласования', value: kpi?.pendingReviews ?? 0, icon: 'lucide:eye', hint: 'версии на согласовании', to: '/reviews', signal: false },
-    { label: 'Шоты в работе', value: kpi?.activeShots ?? 0, icon: 'lucide:camera', hint: 'активное производство', to: '/shots', signal: false },
-    { label: 'Открытые правки', value: kpi?.openRevisions ?? 0, icon: 'lucide:rotate-ccw', hint: 'запросы на доработку', to: '/revisions', signal: false }
-  ]
+    { key: 'activeProjects', value: kpi?.activeProjects ?? 0, icon: 'lucide:folder-kanban', to: '/projects', signal: false },
+    { key: 'atRisk', value: kpi?.atRisk ?? 0, icon: 'lucide:triangle-alert', to: '/projects', signal: true },
+    { key: 'overdueTasks', value: kpi?.overdueTasks ?? 0, icon: 'lucide:clock-alert', to: '/tasks?view=overdue', signal: true },
+    { key: 'pendingReviews', value: kpi?.pendingReviews ?? 0, icon: 'lucide:eye', to: '/reviews', signal: false },
+    { key: 'activeShots', value: kpi?.activeShots ?? 0, icon: 'lucide:camera', to: '/shots', signal: false },
+    { key: 'openRevisions', value: kpi?.openRevisions ?? 0, icon: 'lucide:rotate-ccw', to: '/revisions', signal: false }
+  ].map(item => ({
+    ...item,
+    label: t('projects.dashboard.kpi.' + item.key + '.label'),
+    hint: t('projects.dashboard.kpi.' + item.key + '.hint')
+  }))
 })
 
 const maxPipeline = computed(() =>
@@ -62,8 +68,7 @@ const maxPipeline = computed(() =>
 )
 
 function formatDate(value: string | null) {
-  if (!value) return '—'
-  return new Date(value).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' })
+  return value ? shortDay(value) : '—'
 }
 
 </script>
@@ -72,36 +77,36 @@ function formatDate(value: string | null) {
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-8">
       <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-        Обзор
+        {{ t('projects.dashboard.title') }}
       </p>
       <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">
-        Добрый день, {{ auth.user?.firstName }}
+        {{ t('projects.dashboard.greeting', { name: auth.user?.firstName ?? '' }) }}
       </h1>
       <p class="mt-1 text-sm text-muted-foreground">
-        Обзор производства студии на сегодня.
+        {{ t('projects.dashboard.lead') }}
       </p>
     </header>
 
     <div v-if="error" class="rounded-xl border bg-card px-6 py-16 text-center">
       <Icon name="lucide:triangle-alert" class="size-8 text-destructive" />
-      <p class="mt-3 text-sm font-medium">Не удалось загрузить сводку</p>
+      <p class="mt-3 text-sm font-medium">{{ t('projects.dashboard.loadFailed') }}</p>
       <button
         type="button"
         class="mt-4 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
         @click="refresh()"
       >
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
     <template v-else>
       <section
-        aria-label="Ключевые показатели"
+        :aria-label="t('projects.dashboard.kpiLabel')"
         class="grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border lg:grid-cols-3"
       >
         <NuxtLink
           v-for="kpi in kpis"
-          :key="kpi.label"
+          :key="kpi.key"
           :to="kpi.to"
           class="bg-card px-4 py-3 hover:bg-secondary/40 sm:px-5 sm:py-4"
         >
@@ -127,9 +132,9 @@ function formatDate(value: string | null) {
       <div class="mt-6 grid gap-6 lg:grid-cols-3">
         <section class="rounded-xl border bg-card lg:col-span-2">
           <header class="flex items-center justify-between border-b px-5 py-3.5">
-            <h2 class="text-sm font-medium">Прогресс проектов</h2>
+            <h2 class="text-sm font-medium">{{ t('projects.dashboard.progress') }}</h2>
             <NuxtLink to="/projects" class="text-xs text-muted-foreground hover:text-foreground">
-              Все проекты
+              {{ t('projects.documents.allProjects') }}
             </NuxtLink>
           </header>
 
@@ -145,7 +150,7 @@ function formatDate(value: string | null) {
             class="grid place-items-center px-5 py-16 text-center"
           >
             <Icon name="lucide:folder-open" class="size-8 text-muted-foreground/50" />
-            <p class="mt-3 text-sm font-medium">Пока нет активных проектов</p>
+            <p class="mt-3 text-sm font-medium">{{ t('projects.dashboard.noActive') }}</p>
           </div>
 
           <ul v-else class="divide-y">
@@ -159,7 +164,7 @@ function formatDate(value: string | null) {
                   {{ project.code }} — {{ project.name }}
                 </NuxtLink>
                 <p class="mt-0.5 text-xs text-muted-foreground">
-                  {{ project.client?.name ?? 'Без клиента' }} · дедлайн {{ formatDate(project.deadline) }}
+                  {{ project.client?.name ?? t('projects.detail.noClient') }} · {{ t('projects.dashboard.deadline', { date: formatDate(project.deadline) }) }}
                 </p>
               </div>
               <ProgressBar :value="project.progress" :risk="project.risk" />
@@ -170,7 +175,7 @@ function formatDate(value: string | null) {
 
         <section class="rounded-xl border bg-card">
           <header class="border-b px-5 py-3.5">
-            <h2 class="text-sm font-medium">Производственный конвейер</h2>
+            <h2 class="text-sm font-medium">{{ t('projects.dashboard.pipeline') }}</h2>
           </header>
           <ul class="divide-y">
             <li
@@ -194,13 +199,13 @@ function formatDate(value: string | null) {
       <div class="mt-6 grid gap-6 lg:grid-cols-2">
         <section class="rounded-xl border bg-card">
           <header class="border-b px-5 py-3.5">
-            <h2 class="text-sm font-medium">Ближайшие дедлайны</h2>
+            <h2 class="text-sm font-medium">{{ t('projects.dashboard.upcoming') }}</h2>
           </header>
           <p
             v-if="(stats?.deadlines.length ?? 0) === 0"
             class="px-5 py-10 text-center text-sm text-muted-foreground"
           >
-            В ближайшие две недели дедлайнов нет
+            {{ t('projects.dashboard.noUpcoming') }}
           </p>
           <ul v-else class="divide-y">
             <li
@@ -220,16 +225,16 @@ function formatDate(value: string | null) {
 
         <section class="rounded-xl border bg-card">
           <header class="flex items-center justify-between border-b px-5 py-3.5">
-            <h2 class="text-sm font-medium">Последние события</h2>
+            <h2 class="text-sm font-medium">{{ t('projects.dashboard.activity') }}</h2>
             <NuxtLink to="/activity" class="text-xs text-muted-foreground hover:text-foreground">
-              Вся лента
+              {{ t('projects.dashboard.allActivity') }}
             </NuxtLink>
           </header>
           <p
             v-if="(stats?.activity.length ?? 0) === 0"
             class="px-5 py-10 text-center text-sm text-muted-foreground"
           >
-            Событий пока нет
+            {{ t('projects.dashboard.noActivity') }}
           </p>
           <ul v-else class="divide-y">
             <li
@@ -239,9 +244,9 @@ function formatDate(value: string | null) {
             >
               <span class="min-w-0 truncate">
                 <span class="text-muted-foreground">
-                  {{ event.actor ? event.actor.firstName + ' ' + event.actor.lastName : 'Система' }}
+                  {{ event.actor ? event.actor.firstName + ' ' + event.actor.lastName : t('projects.dashboard.system') }}
                 </span>
-                — {{ labelOf(ACTIVITY_ACTION_LABEL, event.action, 'выполнил действие') }}
+                — {{ labelOf(ACTIVITY_ACTION_LABEL, event.action, t('projects.dashboard.didSomething')) }}
               </span>
               <span class="shrink-0 text-xs text-muted-foreground">
                 {{ timeAgo(event.createdAt) }}

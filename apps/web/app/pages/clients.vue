@@ -6,7 +6,9 @@ import { CLIENT_FORM } from '~/utils/entity-forms'
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Клиенты' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('projects.clients.title')) })
 
 const route = useRoute()
 const page = ref(Number(route.query.page ?? 1))
@@ -41,31 +43,31 @@ const { items, meta, pending, errorMessage, refresh } =
 const crud = useEntityCrud({
   endpoint: '/api/clients',
   refresh: () => refresh(),
-  entityLabel: 'клиента',
+  get entityLabel() { return t('projects.clients.entity') },
   archivedView
 })
 
 // Switching between the working set and the archive starts from page one.
 watch(archivedView, () => { page.value = 1 })
 
-const columns: Column[] = [
-  { key: 'name', label: 'Клиент', width: '28%' },
-  { key: 'email', label: 'Почта', width: '24%' },
-  { key: 'country', label: 'Страна', width: '16%' },
-  { key: 'projects', label: 'Проекты', width: '12%', numeric: true },
-  { key: 'status', label: 'Статус', width: '14%' },
+const columns = computed<Column[]>(() => [
+  { key: 'name', label: t('projects.clients.columns.name'), width: '28%' },
+  { key: 'email', label: t('projects.clients.columns.email'), width: '24%' },
+  { key: 'country', label: t('projects.clients.columns.country'), width: '16%' },
+  { key: 'projects', label: t('projects.clients.columns.projects'), width: '12%', numeric: true },
+  { key: 'status', label: t('projects.list.columns.status'), width: '14%' },
   { key: 'actions', label: '', width: '56px' }
-]
+])
 </script>
 
 <template>
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Коммерция</p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Клиенты</h1>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{{ t('projects.clients.eyebrow') }}</p>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('projects.clients.title') }}</h1>
       <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
-        <p class="text-sm text-muted-foreground">{{ countLabel(meta.total, 'клиент', 'клиента', 'клиентов') }}</p>
-        <EntityToolbar :crud="crud" create-label="Новый клиент" :can-manage="canManage" />
+        <p class="text-sm text-muted-foreground">{{ countLabel(meta.total, 'projects.count.clients') }}</p>
+        <EntityToolbar :crud="crud" :create-label="t('projects.clients.newClient')" :can-manage="canManage" />
       </div>
     </header>
 
@@ -76,10 +78,10 @@ const columns: Column[] = [
       :meta="meta"
       :pending="pending"
       :error-message="errorMessage"
-      search-placeholder="Поиск по имени, компании, почте..."
+      :search-placeholder="t('projects.clients.searchPlaceholder')"
       empty-icon="lucide:handshake"
-      empty-title="Пока нет клиентов"
-      empty-body="Клиент — владелец проектов и получатель поставки."
+      :empty-title="t('projects.clients.emptyTitle')"
+      :empty-body="t('projects.clients.emptyBody')"
       @update:page="page = $event"
       @update:search="page = 1"
       @retry="refresh"

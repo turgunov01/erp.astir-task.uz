@@ -20,6 +20,7 @@ interface Episode {
 const props = defineProps<{ projectId: string }>()
 const emit = defineEmits<{ (event: 'changed'): void }>()
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const canManage = computed(() => auth.can(PERMISSION.PRODUCTION_MANAGE))
 
@@ -56,7 +57,7 @@ async function createEpisode() {
     await refresh()
     emit('changed')
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось создать эпизод')
+    errorMessage.value = apiErrorMessage(err, t('projects.episodes.createFailed'))
   } finally {
     submitting.value = false
   }
@@ -70,7 +71,7 @@ async function changeStatus(episode: Episode, status: string) {
     await refresh()
     emit('changed')
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось обновить эпизод')
+    errorMessage.value = apiErrorMessage(err, t('projects.episodes.updateFailed'))
   } finally {
     busyId.value = ''
   }
@@ -84,7 +85,7 @@ async function removeEpisode(episode: Episode) {
     await refresh()
     emit('changed')
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось удалить эпизод')
+    errorMessage.value = apiErrorMessage(err, t('projects.episodes.deleteFailed'))
   } finally {
     busyId.value = ''
   }
@@ -99,12 +100,12 @@ function pad(value: number) {
   <section class="rounded-xl border bg-card">
     <header class="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4">
       <div>
-        <h2 class="text-sm font-medium">Эпизоды</h2>
-        <p class="mt-1 text-xs text-muted-foreground">{{ countLabel(episodes.length, 'эпизод', 'эпизода', 'эпизодов') }}</p>
+        <h2 class="text-sm font-medium">{{ t('projects.detail.tabs.episodes') }}</h2>
+        <p class="mt-1 text-xs text-muted-foreground">{{ countLabel(episodes.length, 'projects.count.episodes') }}</p>
       </div>
       <Button v-if="canManage" size="sm" class="h-8" @click="showForm = !showForm">
         <Icon :name="showForm ? 'lucide:x' : 'lucide:plus'" class="mr-1.5 size-3.5" />
-        {{ showForm ? 'Отмена' : 'Эпизод' }}
+        {{ showForm ? t('common.actions.cancel') : t('projects.episodes.add') }}
       </Button>
     </header>
 
@@ -119,24 +120,24 @@ function pad(value: number) {
     <form v-if="showForm" class="space-y-4 border-b bg-muted/20 px-5 py-5" @submit.prevent="createEpisode">
       <div class="grid gap-x-5 gap-y-4 sm:grid-cols-2">
         <div class="space-y-1.5">
-          <Label for="ep-title">Название</Label>
-          <Input id="ep-title" v-model="form.title" required maxlength="200" class="h-9" placeholder="Например, Пилотная серия" />
-          <p class="pt-0.5 text-xs text-muted-foreground">Номер присваивается автоматически.</p>
+          <Label for="ep-title">{{ t('projects.form.name') }}</Label>
+          <Input id="ep-title" v-model="form.title" required maxlength="200" class="h-9" :placeholder="t('projects.episodes.namePlaceholder')" />
+          <p class="pt-0.5 text-xs text-muted-foreground">{{ t('projects.episodes.numberHint') }}</p>
         </div>
         <div class="space-y-1.5">
-          <Label for="ep-deadline">Дедлайн</Label>
+          <Label for="ep-deadline">{{ t('projects.form.deadline') }}</Label>
           <Input id="ep-deadline" v-model="form.deadline" type="date" class="h-9" />
         </div>
       </div>
       <Button type="submit" size="sm" :disabled="submitting">
-        {{ submitting ? 'Создание...' : 'Создать эпизод' }}
+        {{ submitting ? t('projects.form.creating') : t('projects.episodes.create') }}
       </Button>
     </form>
 
     <div v-if="error" class="px-5 py-14 text-center">
-      <p class="text-sm text-muted-foreground">Не удалось загрузить эпизоды</p>
+      <p class="text-sm text-muted-foreground">{{ t('projects.episodes.loadFailed') }}</p>
       <button type="button" class="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary" @click="refresh()">
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
@@ -149,9 +150,9 @@ function pad(value: number) {
 
     <div v-else-if="episodes.length === 0" class="grid place-items-center px-6 py-14 text-center">
       <Icon name="lucide:tv" class="size-7 text-muted-foreground/50" />
-      <h3 class="mt-3 text-sm font-medium">Эпизодов пока нет</h3>
+      <h3 class="mt-3 text-sm font-medium">{{ t('projects.episodes.emptyTitle') }}</h3>
       <p class="mt-1.5 max-w-sm text-sm text-muted-foreground">
-        Эпизод — верхний уровень структуры: внутри него живут сцены и шоты.
+        {{ t('projects.episodes.emptyBody') }}
       </p>
     </div>
 
@@ -169,7 +170,7 @@ function pad(value: number) {
         <div class="min-w-0 flex-1">
           <p class="truncate text-sm font-medium">{{ episode.title }}</p>
           <p class="mt-0.5 text-xs text-muted-foreground">
-            {{ countLabel(episode._count.scenes, 'сцена', 'сцены', 'сцен') }} · {{ countLabel(episode._count.shots, 'шот', 'шота', 'шотов') }}
+            {{ countLabel(episode._count.scenes, 'projects.count.scenes') }} · {{ countLabel(episode._count.shots, 'projects.count.shots') }}
           </p>
         </div>
 
@@ -180,7 +181,7 @@ function pad(value: number) {
           :value="episode.status"
           :disabled="busyId === episode.id"
           class="h-8 rounded-md border bg-background px-2 text-xs outline-none focus:border-ring"
-          :aria-label="'Статус эпизода ' + episode.title"
+          :aria-label="t('projects.episodes.statusOf', { name: episode.title })"
           @change="changeStatus(episode, ($event.target as HTMLSelectElement).value)"
         >
           <option v-for="s in STATUSES" :key="s" :value="s">{{ labelOf(PRODUCTION_STATUS_LABEL, s) }}</option>
@@ -192,7 +193,7 @@ function pad(value: number) {
           type="button"
           class="shrink-0 rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-destructive"
           :disabled="busyId === episode.id"
-          :aria-label="'Удалить эпизод ' + episode.title"
+          :aria-label="t('projects.episodes.deleteOf', { name: episode.title })"
           @click="removeEpisode(episode)"
         >
           <Icon name="lucide:trash-2" class="size-3.5" />

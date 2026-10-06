@@ -2,6 +2,7 @@
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
@@ -37,10 +38,10 @@ const { data, pending, error, refresh } = await useFetch<{ data: ProjectDetail }
 const project = computed(() => data.value?.data)
 
 if (!pending.value && !project.value) {
-  throw createError({ statusCode: 404, statusMessage: 'Проект не найден' })
+  throw createError({ statusCode: 404, statusMessage: t('projects.form.notFound') })
 }
 
-useHead({ title: computed(() => (project.value?.code ?? 'Проект') + '') })
+useHead({ title: computed(() => project.value?.code ?? t('projects.detail.fallbackTitle')) })
 
 /**
  * Tabs live in a query param rather than nested routes: the panels are part of
@@ -48,14 +49,14 @@ useHead({ title: computed(() => (project.value?.code ?? 'Проект') + '') })
  * that could 404.
  */
 const TABS = [
-  { key: 'overview', label: 'Обзор', icon: 'lucide:layout-dashboard' },
-  { key: 'pipeline', label: 'Пайплайн', icon: 'lucide:git-branch' },
-  { key: 'episodes', label: 'Эпизоды', icon: 'lucide:tv' },
-  { key: 'scenes', label: 'Сцены', icon: 'lucide:film' },
-  { key: 'shots', label: 'Шоты', icon: 'lucide:camera' },
-  { key: 'tasks', label: 'Задачи', icon: 'lucide:list-checks' },
-  { key: 'team', label: 'Команда', icon: 'lucide:users' },
-  { key: 'files', label: 'Файлы', icon: 'lucide:folder' }
+  { key: 'overview', icon: 'lucide:layout-dashboard' },
+  { key: 'pipeline', icon: 'lucide:git-branch' },
+  { key: 'episodes', icon: 'lucide:tv' },
+  { key: 'scenes', icon: 'lucide:film' },
+  { key: 'shots', icon: 'lucide:camera' },
+  { key: 'tasks', icon: 'lucide:list-checks' },
+  { key: 'team', icon: 'lucide:users' },
+  { key: 'files', icon: 'lucide:folder' }
 ] as const
 
 const activeTab = computed(() => {
@@ -69,17 +70,12 @@ function selectTab(key: string) {
 }
 
 function formatDate(value: string | null) {
-  if (!value) return '—'
-  return new Date(value).toLocaleDateString('ru-RU', {
-    day: '2-digit', month: 'short', year: 'numeric'
-  })
+  return fullDay(value)
 }
 
-function formatMoney(value: string | null, currency: string) {
-  if (value === null) return '—'
-  return new Intl.NumberFormat('ru-RU', {
-    style: 'currency', currency, maximumFractionDigits: 0
-  }).format(Number(value))
+/** Whole units: a headline budget to the cent is false precision. */
+function money(value: string | null, currency: string) {
+  return value === null ? '—' : formatMoney(Number(value), currency, 0)
 }
 
 /**
@@ -104,18 +100,18 @@ function onPanelChanged() {
       class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
     >
       <Icon name="lucide:arrow-left" class="size-3.5" />
-      К проектам
+      {{ t('projects.form.backToList') }}
     </NuxtLink>
 
     <div v-if="error" class="mt-8 rounded-xl border bg-card px-6 py-16 text-center">
       <Icon name="lucide:triangle-alert" class="size-8 text-destructive" />
-      <p class="mt-3 text-sm font-medium">Не удалось загрузить проект</p>
+      <p class="mt-3 text-sm font-medium">{{ t('projects.detail.loadFailed') }}</p>
       <button
         type="button"
         class="mt-4 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
         @click="refresh()"
       >
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
@@ -127,9 +123,9 @@ function onPanelChanged() {
           </p>
           <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ project.name }}</h1>
           <p class="mt-1 text-sm text-muted-foreground">
-            {{ project.client?.name ?? 'Без клиента' }}
+            {{ project.client?.name ?? t('projects.detail.noClient') }}
             <template v-if="project.projectManager">
-              · PM {{ project.projectManager.firstName }} {{ project.projectManager.lastName }}
+              · {{ t('projects.detail.pm', { name: project.projectManager.firstName + ' ' + project.projectManager.lastName }) }}
             </template>
           </p>
         </div>
@@ -143,42 +139,42 @@ function onPanelChanged() {
             class="inline-flex h-9 items-center gap-2 rounded-md border px-3 text-sm hover:bg-secondary"
           >
             <Icon name="lucide:pencil" class="size-3.5" />
-            Редактировать
+            {{ t('projects.detail.edit') }}
           </NuxtLink>
         </div>
       </header>
 
       <section class="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border lg:grid-cols-4">
         <div class="bg-card px-5 py-4">
-          <p class="text-xs uppercase tracking-wider text-muted-foreground">Прогресс</p>
+          <p class="text-xs uppercase tracking-wider text-muted-foreground">{{ t('projects.detail.progress') }}</p>
           <p class="mt-1.5 text-2xl font-semibold tabular-nums">{{ project.progress }}%</p>
           <ProgressBar class="mt-2" :value="project.progress" :risk="project.risk" />
         </div>
         <div class="bg-card px-5 py-4">
-          <p class="text-xs uppercase tracking-wider text-muted-foreground">Дедлайн</p>
+          <p class="text-xs uppercase tracking-wider text-muted-foreground">{{ t('projects.form.deadline') }}</p>
           <p class="mt-1.5 text-lg font-medium">{{ formatDate(project.deadline) }}</p>
-          <p class="mt-1 text-xs text-muted-foreground">старт {{ formatDate(project.startDate) }}</p>
+          <p class="mt-1 text-xs text-muted-foreground">{{ t('projects.detail.start', { date: formatDate(project.startDate) }) }}</p>
         </div>
         <div class="bg-card px-5 py-4">
-          <p class="text-xs uppercase tracking-wider text-muted-foreground">Бюджет</p>
-          <p class="mt-1.5 text-lg font-medium">{{ formatMoney(project.budget, project.currency) }}</p>
+          <p class="text-xs uppercase tracking-wider text-muted-foreground">{{ t('projects.form.budget') }}</p>
+          <p class="mt-1.5 text-lg font-medium">{{ money(project.budget, project.currency) }}</p>
           <p class="mt-1 text-xs text-muted-foreground">
             <template v-if="hasActualCost">
-              факт {{ formatMoney(project.budgetRecord!.actualCost, project.currency) }}
+              {{ t('projects.detail.actualCost', { amount: money(project.budgetRecord!.actualCost, project.currency) }) }}
             </template>
-            <template v-else>факт не рассчитан</template>
+            <template v-else>{{ t('projects.detail.actualCostUnknown') }}</template>
           </p>
         </div>
         <div class="bg-card px-5 py-4">
-          <p class="text-xs uppercase tracking-wider text-muted-foreground">Объём</p>
-          <p class="mt-1.5 text-lg font-medium tabular-nums">{{ countLabel(project._count.shots, 'шот', 'шота', 'шотов') }}</p>
+          <p class="text-xs uppercase tracking-wider text-muted-foreground">{{ t('projects.detail.scope') }}</p>
+          <p class="mt-1.5 text-lg font-medium tabular-nums">{{ countLabel(project._count.shots, 'projects.count.shots') }}</p>
           <p class="mt-1 text-xs text-muted-foreground">
-            {{ countLabel(project._count.episodes, 'эпизод', 'эпизода', 'эпизодов') }} · {{ countLabel(project._count.tasks, 'задача', 'задачи', 'задач') }}
+            {{ countLabel(project._count.episodes, 'projects.count.episodes') }} · {{ countLabel(project._count.tasks, 'common.count.tasks') }}
           </p>
         </div>
       </section>
 
-      <nav ref="tabStrip" class="scrollbar-none -mx-6 mt-8 flex gap-1 overflow-x-auto border-b px-6 sm:mx-0 sm:px-0" aria-label="Разделы проекта">
+      <nav ref="tabStrip" class="scrollbar-none -mx-6 mt-8 flex gap-1 overflow-x-auto border-b px-6 sm:mx-0 sm:px-0" :aria-label="t('projects.detail.sections')">
         <button
           v-for="tab in TABS"
           :key="tab.key"
@@ -189,7 +185,7 @@ function onPanelChanged() {
           @click="selectTab(tab.key)"
         >
           <Icon :name="tab.icon" class="size-4" />
-          {{ tab.label }}
+          {{ t('projects.detail.tabs.' + tab.key) }}
         </button>
       </nav>
 
@@ -197,29 +193,29 @@ function onPanelChanged() {
         <section v-if="activeTab === 'overview'" class="grid gap-5 lg:grid-cols-3">
           <div class="rounded-xl border bg-card lg:col-span-2">
             <header class="border-b px-5 py-4">
-              <h2 class="text-sm font-medium">Описание</h2>
+              <h2 class="text-sm font-medium">{{ t('projects.form.description') }}</h2>
             </header>
             <div class="px-5 py-5">
               <p v-if="project.description" class="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
                 {{ project.description }}
               </p>
               <p v-else class="text-sm text-muted-foreground">
-                Описание не заполнено.
+                {{ t('projects.detail.noDescription') }}
               </p>
             </div>
           </div>
 
           <div class="rounded-xl border bg-card">
             <header class="border-b px-5 py-4">
-              <h2 class="text-sm font-medium">Команда</h2>
+              <h2 class="text-sm font-medium">{{ t('projects.detail.tabs.team') }}</h2>
             </header>
             <dl class="divide-y text-sm">
               <div class="flex items-center justify-between px-5 py-3">
-                <dt class="text-muted-foreground">Клиент</dt>
+                <dt class="text-muted-foreground">{{ t('projects.form.client') }}</dt>
                 <dd class="font-medium">{{ project.client?.name ?? '—' }}</dd>
               </div>
               <div class="flex items-center justify-between px-5 py-3">
-                <dt class="text-muted-foreground">Менеджер</dt>
+                <dt class="text-muted-foreground">{{ t('projects.detail.manager') }}</dt>
                 <dd class="font-medium">
                   {{ project.projectManager
                     ? project.projectManager.firstName + ' ' + project.projectManager.lastName
@@ -227,7 +223,7 @@ function onPanelChanged() {
                 </dd>
               </div>
               <div class="flex items-center justify-between px-5 py-3">
-                <dt class="text-muted-foreground">Продюсер</dt>
+                <dt class="text-muted-foreground">{{ t('projects.detail.producer') }}</dt>
                 <dd class="font-medium">
                   {{ project.producer
                     ? project.producer.firstName + ' ' + project.producer.lastName
@@ -235,7 +231,7 @@ function onPanelChanged() {
                 </dd>
               </div>
               <div class="flex items-center justify-between px-5 py-3">
-                <dt class="text-muted-foreground">Приоритет</dt>
+                <dt class="text-muted-foreground">{{ t('projects.form.priority') }}</dt>
                 <dd><StatusBadge :status="project.priority" kind="priority" /></dd>
               </div>
             </dl>

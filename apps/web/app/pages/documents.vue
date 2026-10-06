@@ -8,7 +8,9 @@ import { DOCUMENT_FORM } from '~/utils/entity-forms'
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Документы' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('projects.documents.headTitle')) })
 
 const route = useRoute()
 const { openTask } = useTaskPanels()
@@ -70,22 +72,22 @@ function openGallery() {
 const crud = useEntityCrud({
   endpoint: '/api/files',
   refresh: () => refresh(),
-  entityLabel: 'документ',
+  get entityLabel() { return t('projects.documents.entity') },
   archivedView
 })
 
 // Switching between the working set and the archive starts from page one.
 watch(archivedView, () => { page.value = 1 })
 
-const columns: Column[] = [
-  { key: 'name', label: 'Файл', width: '32%' },
-  { key: 'task', label: 'Задача', width: '24%' },
-  { key: 'project', label: 'Проект', width: '12%' },
-  { key: 'type', label: 'Тип', width: '12%' },
-  { key: 'size', label: 'Размер', width: '10%', numeric: true },
-  { key: 'author', label: 'Загрузил', width: '10%' },
+const columns = computed<Column[]>(() => [
+  { key: 'name', label: t('projects.documents.columns.name'), width: '32%' },
+  { key: 'task', label: t('projects.documents.columns.task'), width: '24%' },
+  { key: 'project', label: t('projects.list.columns.name'), width: '12%' },
+  { key: 'type', label: t('projects.form.type'), width: '12%' },
+  { key: 'size', label: t('projects.documents.columns.size'), width: '10%', numeric: true },
+  { key: 'author', label: t('projects.documents.columns.author'), width: '10%' },
   { key: 'actions', label: '', width: '56px' }
-]
+])
 
 function formatSize(bytes: string | null) {
   return formatBytes(bytes) || '—'
@@ -97,11 +99,11 @@ function formatSize(bytes: string | null) {
     <header class="mb-6 flex flex-wrap items-start justify-between gap-4">
       <div>
         <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-          Библиотека
+          {{ t('projects.documents.eyebrow') }}
         </p>
-        <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Документы и медиа</h1>
+        <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('projects.documents.title') }}</h1>
         <p class="mt-1 text-sm text-muted-foreground">
-          {{ countLabel(meta.total, 'файл', 'файла', 'файлов') }} · {{ media.length }} медиа на странице
+          {{ countLabel(meta.total, 'projects.count.files') }} · {{ t('projects.documents.mediaOnPage', { n: media.length }) }}
         </p>
       </div>
       <button
@@ -111,13 +113,13 @@ function formatSize(bytes: string | null) {
         @click="openGallery"
       >
         <Icon name="lucide:images" class="size-4" />
-        Посмотреть галерею
+        {{ t('projects.documents.gallery') }}
       </button>
     </header>
 
     <div class="mb-4 flex flex-wrap items-center justify-end gap-3">
 
-      <EntityToolbar :crud="crud" create-label="Новый документ" :can-manage="canManage" />
+      <EntityToolbar :crud="crud" :create-label="t('projects.documents.newDocument')" :can-manage="canManage" />
 
     </div>
 
@@ -129,10 +131,10 @@ function formatSize(bytes: string | null) {
       :meta="meta"
       :pending="pending"
       :error-message="errorMessage"
-      search-placeholder="Поиск по названию файла..."
+      :search-placeholder="t('projects.documents.searchPlaceholder')"
       empty-icon="lucide:folder"
-      empty-title="Файлов пока нет"
-      empty-body="Прикрепите файлы к задаче или проекту — они появятся здесь."
+      :empty-title="t('projects.files.emptyTitle')"
+      :empty-body="t('projects.documents.emptyBody')"
       @update:page="page = $event"
       @update:search="page = 1"
       @retry="refresh"
@@ -141,15 +143,15 @@ function formatSize(bytes: string | null) {
         <select
           v-model="projectId"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Фильтр по проекту"
+          :aria-label="t('projects.documents.projectFilter')"
           @change="page = 1"
         >
-          <option value="">Все проекты</option>
+          <option value="">{{ t('projects.documents.allProjects') }}</option>
           <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.code }}</option>
         </select>
         <label class="inline-flex items-center gap-2 text-sm text-muted-foreground">
           <input v-model="mediaOnly" type="checkbox" class="size-4 accent-primary" @change="page = 1">
-          Только медиа
+          {{ t('projects.documents.mediaOnly') }}
         </label>
       </template>
 
@@ -157,7 +159,7 @@ function formatSize(bytes: string | null) {
         <button
           type="button"
           class="flex w-full items-center gap-2.5 text-left"
-          :aria-label="'Открыть ' + row.name"
+          :aria-label="t('projects.files.openOf', { name: row.name })"
           @click="openRow(row)"
         >
           <span class="block size-9 shrink-0 overflow-hidden rounded-md bg-secondary">
@@ -176,7 +178,7 @@ function formatSize(bytes: string | null) {
         >
           {{ row.task.title }}
         </button>
-        <span v-else class="text-muted-foreground">не привязан</span>
+        <span v-else class="text-muted-foreground">{{ t('projects.documents.notLinked') }}</span>
       </template>
 
       <template #cell-project="{ row }">

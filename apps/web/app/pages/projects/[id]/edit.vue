@@ -7,12 +7,13 @@ import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 
+const { t } = useI18n()
 const route = useRoute()
 const auth = useAuthStore()
 const projectId = computed(() => String(route.params.id))
 
 if (!auth.can(PERMISSION.PROJECT_UPDATE)) {
-  throw createError({ statusCode: 403, statusMessage: 'Нет прав на изменение проекта' })
+  throw createError({ statusCode: 403, statusMessage: t('projects.form.noEditRights') })
 }
 
 interface ProjectDetail {
@@ -39,10 +40,10 @@ const { data } = await useFetch<{ data: ProjectDetail }>(
 
 const project = computed(() => data.value?.data)
 if (!project.value) {
-  throw createError({ statusCode: 404, statusMessage: 'Проект не найден' })
+  throw createError({ statusCode: 404, statusMessage: t('projects.form.notFound') })
 }
 
-useHead({ title: computed(() => 'Редактирование ' + (project.value?.code ?? '') + '') })
+useHead({ title: computed(() => t('projects.form.editHeadTitle', { code: project.value?.code ?? '' })) })
 
 const { data: clientsResponse } = useFetch<{ data: Array<{ id: string, name: string }> }>(
   '/api/clients',
@@ -111,7 +112,7 @@ async function onSubmit() {
     await apiRequest('/api/projects/' + projectId.value, { method: 'PATCH', body: payload })
     await navigateTo('/projects/' + projectId.value)
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось сохранить изменения')
+    errorMessage.value = apiErrorMessage(err, t('projects.form.saveFailed'))
     const details = (err as { data?: { error?: { details?: Record<string, string[]> } } })
       ?.data?.error?.details
     if (details) fieldErrors.value = details
@@ -128,16 +129,16 @@ async function onSubmit() {
       class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
     >
       <Icon name="lucide:arrow-left" class="size-3.5" />
-      К проекту
+      {{ t('projects.form.backToProject') }}
     </NuxtLink>
 
     <header class="mt-6 border-b pb-6">
       <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
         {{ project?.code }}
       </p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Редактирование проекта</h1>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('projects.form.editTitle') }}</h1>
       <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
-        Код проекта не меняется. Прогресс и риск считаются автоматически.
+        {{ t('projects.form.editLead') }}
       </p>
     </header>
 
@@ -152,14 +153,14 @@ async function onSubmit() {
 
     <form class="mt-8 space-y-5" @submit.prevent="onSubmit">
       <fieldset class="overflow-hidden rounded-xl border bg-card">
-        <legend class="sr-only">Основные сведения</legend>
+        <legend class="sr-only">{{ t('projects.form.mainLegend') }}</legend>
         <div class="border-b bg-muted/30 px-6 py-4">
-          <h2 class="text-sm font-medium">Основное</h2>
+          <h2 class="text-sm font-medium">{{ t('projects.form.main') }}</h2>
         </div>
 
         <div class="space-y-6 px-6 py-6">
           <div class="space-y-1.5">
-            <Label for="name">Название</Label>
+            <Label for="name">{{ t('projects.form.name') }}</Label>
             <Input id="name" v-model="form.name" required class="h-10" />
             <p v-if="fieldErrors.name" class="pt-0.5 text-xs text-destructive">
               {{ fieldErrors.name[0] }}
@@ -167,7 +168,7 @@ async function onSubmit() {
           </div>
 
           <div class="space-y-1.5">
-            <Label for="description">Описание</Label>
+            <Label for="description">{{ t('projects.form.description') }}</Label>
             <textarea
               id="description"
               v-model="form.description"
@@ -178,7 +179,7 @@ async function onSubmit() {
 
           <div class="grid gap-x-5 gap-y-6 sm:grid-cols-2">
             <div class="space-y-1.5">
-              <Label for="client">Клиент</Label>
+              <Label for="client">{{ t('projects.form.client') }}</Label>
               <select
                 id="client"
                 v-model="form.clientId"
@@ -190,13 +191,13 @@ async function onSubmit() {
             </div>
 
             <div class="space-y-1.5">
-              <Label for="pm">Менеджер проекта</Label>
+              <Label for="pm">{{ t('projects.form.manager') }}</Label>
               <select
                 id="pm"
                 v-model="form.projectManagerId"
                 class="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:border-ring"
               >
-                <option value="">Не назначен</option>
+                <option value="">{{ t('projects.form.unassigned') }}</option>
                 <option v-for="m in managers" :key="m.userId" :value="m.userId">
                   {{ m.user.firstName }} {{ m.user.lastName }}
                 </option>
@@ -206,19 +207,19 @@ async function onSubmit() {
 
           <div class="grid gap-x-5 gap-y-6 sm:grid-cols-3">
             <div class="space-y-1.5">
-              <Label for="type">Тип</Label>
+              <Label for="type">{{ t('projects.form.type') }}</Label>
               <select
                 id="type"
                 v-model="form.projectType"
                 class="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:border-ring"
               >
-                <option v-for="t in projectTypes" :key="t" :value="t">
-                  {{ enumLabel(PROJECT_TYPE_LABEL, t) }}
+                <option v-for="type in projectTypes" :key="type" :value="type">
+                  {{ enumLabel(PROJECT_TYPE_LABEL, type) }}
                 </option>
               </select>
             </div>
             <div class="space-y-1.5">
-              <Label for="status">Статус</Label>
+              <Label for="status">{{ t('projects.form.status') }}</Label>
               <select
                 id="status"
                 v-model="form.status"
@@ -230,7 +231,7 @@ async function onSubmit() {
               </select>
             </div>
             <div class="space-y-1.5">
-              <Label for="priority">Приоритет</Label>
+              <Label for="priority">{{ t('projects.form.priority') }}</Label>
               <select
                 id="priority"
                 v-model="form.priority"
@@ -244,19 +245,19 @@ async function onSubmit() {
       </fieldset>
 
       <fieldset class="overflow-hidden rounded-xl border bg-card">
-        <legend class="sr-only">Сроки и бюджет</legend>
+        <legend class="sr-only">{{ t('projects.form.schedule') }}</legend>
         <div class="border-b bg-muted/30 px-6 py-4">
-          <h2 class="text-sm font-medium">Сроки и бюджет</h2>
+          <h2 class="text-sm font-medium">{{ t('projects.form.schedule') }}</h2>
         </div>
 
         <div class="space-y-6 px-6 py-6">
           <div class="grid gap-x-5 gap-y-6 sm:grid-cols-2">
             <div class="space-y-1.5">
-              <Label for="start">Дата начала</Label>
+              <Label for="start">{{ t('projects.form.startDate') }}</Label>
               <Input id="start" v-model="form.startDate" type="date" class="h-10" />
             </div>
             <div class="space-y-1.5">
-              <Label for="deadline">Дедлайн</Label>
+              <Label for="deadline">{{ t('projects.form.deadline') }}</Label>
               <Input id="deadline" v-model="form.deadline" type="date" class="h-10" />
               <p v-if="fieldErrors.deadline" class="pt-0.5 text-xs text-destructive">
                 {{ fieldErrors.deadline[0] }}
@@ -266,11 +267,11 @@ async function onSubmit() {
 
           <div class="grid gap-x-5 gap-y-6 sm:grid-cols-3">
             <div class="space-y-1.5 sm:col-span-2">
-              <Label for="budget">Бюджет</Label>
+              <Label for="budget">{{ t('projects.form.budget') }}</Label>
               <Input id="budget" v-model="form.budget" type="number" min="0" step="1000" class="h-10" />
             </div>
             <div class="space-y-1.5">
-              <Label for="currency">Валюта</Label>
+              <Label for="currency">{{ t('projects.form.currency') }}</Label>
               <Input id="currency" v-model="form.currency" maxlength="3" class="h-10 uppercase" />
             </div>
           </div>
@@ -279,13 +280,13 @@ async function onSubmit() {
 
       <div class="flex flex-wrap items-center gap-3 pt-3">
         <Button type="submit" class="h-10 px-5" :disabled="submitting">
-          {{ submitting ? 'Сохранение...' : 'Сохранить' }}
+          {{ submitting ? t('projects.form.saving') : t('common.actions.save') }}
         </Button>
         <NuxtLink
           :to="'/projects/' + projectId"
           class="px-2 py-2 text-sm text-muted-foreground hover:text-foreground"
         >
-          Отмена
+          {{ t('common.actions.cancel') }}
         </NuxtLink>
       </div>
     </form>

@@ -20,6 +20,7 @@ interface Scene {
 const props = defineProps<{ projectId: string }>()
 const emit = defineEmits<{ (event: 'changed'): void }>()
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const canManage = computed(() => auth.can(PERMISSION.PRODUCTION_MANAGE))
 
@@ -70,7 +71,7 @@ async function createScene() {
     await refresh()
     emit('changed')
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось создать сцену')
+    errorMessage.value = apiErrorMessage(err, t('projects.scenes.createFailed'))
   } finally {
     submitting.value = false
   }
@@ -84,7 +85,7 @@ async function changeStatus(scene: Scene, status: string) {
     await refresh()
     emit('changed')
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось обновить сцену')
+    errorMessage.value = apiErrorMessage(err, t('projects.scenes.updateFailed'))
   } finally {
     busyId.value = ''
   }
@@ -98,7 +99,7 @@ async function removeScene(scene: Scene) {
     await refresh()
     emit('changed')
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось удалить сцену')
+    errorMessage.value = apiErrorMessage(err, t('projects.scenes.deleteFailed'))
   } finally {
     busyId.value = ''
   }
@@ -113,23 +114,23 @@ function pad(value: number) {
   <section class="rounded-xl border bg-card">
     <header class="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4">
       <div>
-        <h2 class="text-sm font-medium">Сцены</h2>
-        <p class="mt-1 text-xs text-muted-foreground">{{ scenes.length }} сцен(ы)</p>
+        <h2 class="text-sm font-medium">{{ t('projects.detail.tabs.scenes') }}</h2>
+        <p class="mt-1 text-xs text-muted-foreground">{{ countLabel(scenes.length, 'projects.count.scenes') }}</p>
       </div>
       <div class="flex items-center gap-2">
         <select
           v-model="episodeFilter"
           class="h-8 rounded-md border bg-background px-2 text-xs outline-none focus:border-ring"
-          aria-label="Фильтр по эпизоду"
+          :aria-label="t('projects.scenes.episodeFilter')"
         >
-          <option value="">Все эпизоды</option>
+          <option value="">{{ t('projects.scenes.allEpisodes') }}</option>
           <option v-for="ep in episodes" :key="ep.id" :value="ep.id">
             EP{{ pad(ep.number) }} — {{ ep.title }}
           </option>
         </select>
         <Button v-if="canManage" size="sm" class="h-8" @click="showForm = !showForm">
           <Icon :name="showForm ? 'lucide:x' : 'lucide:plus'" class="mr-1.5 size-3.5" />
-          {{ showForm ? 'Отмена' : 'Сцена' }}
+          {{ showForm ? t('common.actions.cancel') : t('projects.scenes.add') }}
         </Button>
       </div>
     </header>
@@ -145,27 +146,27 @@ function pad(value: number) {
     <form v-if="showForm" class="space-y-4 border-b bg-muted/20 px-5 py-5" @submit.prevent="createScene">
       <div class="grid gap-x-5 gap-y-4 sm:grid-cols-2">
         <div class="space-y-1.5">
-          <Label for="sc-name">Название</Label>
+          <Label for="sc-name">{{ t('projects.form.name') }}</Label>
           <Input
             id="sc-name"
             v-model="form.name"
             required
             maxlength="200"
             class="h-9"
-            placeholder="Погоня по крышам"
+            :placeholder="t('projects.scenes.namePlaceholder')"
           />
           <p class="pt-0.5 text-xs text-muted-foreground">
-            Номер сцены присваивается автоматически.
+            {{ t('projects.scenes.numberHint') }}
           </p>
         </div>
         <div class="space-y-1.5">
-          <Label for="sc-episode">Эпизод</Label>
+          <Label for="sc-episode">{{ t('projects.scenes.episode') }}</Label>
           <select
             id="sc-episode"
             v-model="form.episodeId"
             class="h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
           >
-            <option value="">Без эпизода</option>
+            <option value="">{{ t('projects.scenes.noEpisode') }}</option>
             <option v-for="ep in episodes" :key="ep.id" :value="ep.id">
               EP{{ pad(ep.number) }} — {{ ep.title }}
             </option>
@@ -173,18 +174,18 @@ function pad(value: number) {
         </div>
       </div>
       <Button type="submit" size="sm" :disabled="submitting">
-        {{ submitting ? 'Создание...' : 'Создать сцену' }}
+        {{ submitting ? t('projects.form.creating') : t('projects.scenes.create') }}
       </Button>
     </form>
 
     <div v-if="error" class="px-5 py-14 text-center">
-      <p class="text-sm text-muted-foreground">Не удалось загрузить сцены</p>
+      <p class="text-sm text-muted-foreground">{{ t('projects.scenes.loadFailed') }}</p>
       <button
         type="button"
         class="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
         @click="refresh()"
       >
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
@@ -197,9 +198,9 @@ function pad(value: number) {
 
     <div v-else-if="scenes.length === 0" class="grid place-items-center px-6 py-14 text-center">
       <Icon name="lucide:film" class="size-7 text-muted-foreground/50" />
-      <h3 class="mt-3 text-sm font-medium">Сцен пока нет</h3>
+      <h3 class="mt-3 text-sm font-medium">{{ t('projects.scenes.emptyTitle') }}</h3>
       <p class="mt-1.5 max-w-sm text-sm text-muted-foreground">
-        Сцена группирует шоты внутри эпизода и задаёт их нумерацию.
+        {{ t('projects.scenes.emptyBody') }}
       </p>
     </div>
 
@@ -217,7 +218,7 @@ function pad(value: number) {
         <div class="min-w-0 flex-1">
           <p class="truncate text-sm font-medium">{{ scene.name }}</p>
           <p class="mt-0.5 text-xs text-muted-foreground">
-            {{ countLabel(scene._count.shots, 'шот', 'шота', 'шотов') }} · {{ countLabel(scene._count.tasks, 'задача', 'задачи', 'задач') }}
+            {{ countLabel(scene._count.shots, 'projects.count.shots') }} · {{ countLabel(scene._count.tasks, 'common.count.tasks') }}
           </p>
         </div>
 
@@ -228,7 +229,7 @@ function pad(value: number) {
           :value="scene.status"
           :disabled="busyId === scene.id"
           class="h-8 rounded-md border bg-background px-2 text-xs outline-none focus:border-ring"
-          :aria-label="'Статус сцены ' + scene.name"
+          :aria-label="t('projects.scenes.statusOf', { name: scene.name })"
           @change="changeStatus(scene, ($event.target as HTMLSelectElement).value)"
         >
           <option v-for="s in STATUSES" :key="s" :value="s">{{ labelOf(PRODUCTION_STATUS_LABEL, s) }}</option>
@@ -240,7 +241,7 @@ function pad(value: number) {
           type="button"
           class="shrink-0 rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-destructive"
           :disabled="busyId === scene.id"
-          :aria-label="'Удалить сцену ' + scene.name"
+          :aria-label="t('projects.scenes.deleteOf', { name: scene.name })"
           @click="removeScene(scene)"
         >
           <Icon name="lucide:trash-2" class="size-3.5" />

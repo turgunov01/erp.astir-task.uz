@@ -17,7 +17,9 @@ import {
   type TimelineScale
 } from '~/utils/timeline'
 
-useHead({ title: 'Таймлайн' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('projects.timeline.title')) })
 
 const state = useTimelineState()
 const {
@@ -73,7 +75,7 @@ const people = computed(() => {
   }
   return [...map.entries()]
     .map(([id, name]) => ({ id, name }))
-    .sort((a, b) => a.name.localeCompare(b.name, 'ru'))
+    .sort((a, b) => a.name.localeCompare(b.name, intlTag()))
 })
 
 /** Scale fitted to the span on screen unless the user picked one. */
@@ -97,10 +99,10 @@ const scale = computed<TimelineScale>(() => {
 const lateCount = computed(() => (payload.value?.tasks ?? []).filter(task => isLate(task, today)).length)
 
 const subtitle = computed(() => {
-  if (!payload.value) return 'Задачи, этапы, зависимости и вехи на одной шкале'
+  if (!payload.value) return t('projects.timeline.lead')
   const picked = projects.value.find(item => item.id === projectId.value)
-  const scope = picked ? picked.code + ' · ' + picked.name : 'Все проекты'
-  return scope + ' · ' + tasksWord(tasks.value.length) + ' на шкале'
+  const scope = picked ? picked.code + ' · ' + picked.name : t('projects.documents.allProjects')
+  return scope + ' · ' + t('projects.timeline.onScale', { tasks: tasksWord(tasks.value.length) })
 })
 
 function onlyStatus(status: string) {
@@ -114,15 +116,15 @@ const selectClass = 'h-9 min-w-0 rounded-md border bg-background px-2.5 text-sm 
   <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
     <header class="mb-5">
       <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-        Планирование
+        {{ t('projects.timeline.eyebrow') }}
       </p>
       <div class="mt-1.5 flex flex-wrap items-end justify-between gap-3">
         <div class="min-w-0">
-          <h1 class="text-2xl font-semibold tracking-tight">Таймлайн</h1>
+          <h1 class="text-2xl font-semibold tracking-tight">{{ t('projects.timeline.title') }}</h1>
           <p class="mt-1 truncate text-sm text-muted-foreground">{{ subtitle }}</p>
         </div>
 
-        <div class="inline-flex rounded-lg border bg-muted/40 p-0.5" role="tablist" aria-label="Вид">
+        <div class="inline-flex rounded-lg border bg-muted/40 p-0.5" role="tablist" :aria-label="t('projects.timeline.viewLabel')">
           <button
             v-for="item in TIMELINE_VIEWS"
             :key="item.key"
@@ -142,30 +144,30 @@ const selectClass = 'h-9 min-w-0 rounded-md border bg-background px-2.5 text-sm 
       </div>
     </header>
 
-    <section class="mb-4 space-y-3 rounded-xl border bg-card p-3 sm:p-4" aria-label="Настройка таймлайна">
+    <section class="mb-4 space-y-3 rounded-xl border bg-card p-3 sm:p-4" :aria-label="t('projects.timeline.settings')">
       <div class="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
-        <select v-model="projectId" :class="selectClass" aria-label="Проект">
-          <option value="">Все проекты</option>
+        <select v-model="projectId" :class="selectClass" :aria-label="t('projects.list.columns.name')">
+          <option value="">{{ t('projects.documents.allProjects') }}</option>
           <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.code }} · {{ p.name }}</option>
         </select>
 
-        <select v-model="assigneeId" :class="selectClass" aria-label="Исполнитель">
-          <option value="">Все исполнители</option>
+        <select v-model="assigneeId" :class="selectClass" :aria-label="t('projects.tasks.assignee')">
+          <option value="">{{ t('projects.timeline.allAssignees') }}</option>
           <option v-for="person in people" :key="person.id" :value="person.id">{{ person.name }}</option>
         </select>
 
         <label class="flex items-center gap-1.5 text-xs text-muted-foreground">
-          с
-          <input v-model="from" type="date" :max="to || undefined" :class="selectClass" class="flex-1" aria-label="Начало периода">
+          {{ t('projects.timeline.from') }}
+          <input v-model="from" type="date" :max="to || undefined" :class="selectClass" class="flex-1" :aria-label="t('projects.timeline.periodStart')">
         </label>
         <label class="flex items-center gap-1.5 text-xs text-muted-foreground">
-          по
-          <input v-model="to" type="date" :min="from || undefined" :class="selectClass" class="flex-1" aria-label="Конец периода">
+          {{ t('projects.timeline.to') }}
+          <input v-model="to" type="date" :min="from || undefined" :class="selectClass" class="flex-1" :aria-label="t('projects.timeline.periodEnd')">
         </label>
 
         <label class="col-span-2 inline-flex h-9 cursor-pointer items-center gap-2 rounded-md border px-3 text-sm hover:bg-secondary sm:col-span-1">
           <input v-model="lateOnly" type="checkbox" class="accent-destructive">
-          Только просроченные
+          {{ t('projects.timeline.lateOnly') }}
           <span v-if="lateCount > 0" class="tabular-nums text-destructive">{{ lateCount }}</span>
         </label>
 
@@ -176,12 +178,12 @@ const selectClass = 'h-9 min-w-0 rounded-md border bg-background px-2.5 text-sm 
           @click="state.resetFilters()"
         >
           <Icon name="lucide:x" class="size-4" />
-          Сбросить
+          {{ t('common.actions.reset') }}
         </button>
       </div>
 
       <div class="flex flex-wrap items-center gap-x-4 gap-y-3">
-        <div class="flex flex-wrap gap-1.5" role="group" aria-label="Статусы">
+        <div class="flex flex-wrap gap-1.5" role="group" :aria-label="t('projects.timeline.statuses')">
           <button
             v-for="status in TIMELINE_STATUS_ORDER"
             :key="status"
@@ -199,11 +201,11 @@ const selectClass = 'h-9 min-w-0 rounded-md border bg-background px-2.5 text-sm 
         </div>
 
         <div v-if="view !== 'line'" class="flex flex-wrap items-center gap-2 sm:ml-auto">
-          <select v-model="group" :class="selectClass" aria-label="Группировка">
+          <select v-model="group" :class="selectClass" :aria-label="t('projects.timeline.grouping')">
             <option v-for="item in TIMELINE_GROUPS" :key="item.key" :value="item.key">{{ item.label }}</option>
           </select>
 
-          <div v-if="view === 'gantt'" class="inline-flex rounded-md border p-0.5" role="group" aria-label="Масштаб">
+          <div v-if="view === 'gantt'" class="inline-flex rounded-md border p-0.5" role="group" :aria-label="t('projects.timeline.scale')">
             <button
               v-for="item in TIMELINE_SCALES"
               :key="item.key"
@@ -226,9 +228,9 @@ const selectClass = 'h-9 min-w-0 rounded-md border bg-background px-2.5 text-sm 
       v-if="projects.length === 0 && !payload?.tasks.length"
       class="rounded-xl border bg-card px-6 py-16 text-center text-sm text-muted-foreground"
     >
-      Ни одного проекта ещё нет — размещать на шкале нечего.
+      {{ t('projects.timeline.noProjects') }}
       <NuxtLink to="/projects/create" class="text-foreground underline underline-offset-4">
-        Создать проект
+        {{ t('projects.form.submit') }}
       </NuxtLink>
     </p>
 
@@ -237,13 +239,13 @@ const selectClass = 'h-9 min-w-0 rounded-md border bg-background px-2.5 text-sm 
       class="grid place-items-center rounded-xl border bg-card px-6 py-16 text-center"
     >
       <Icon name="lucide:triangle-alert" class="size-7 text-destructive" />
-      <p class="mt-3 text-sm">Не удалось загрузить таймлайн</p>
+      <p class="mt-3 text-sm">{{ t('projects.timeline.loadFailed') }}</p>
       <button
         type="button"
         class="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
         @click="refresh()"
       >
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
@@ -256,13 +258,13 @@ const selectClass = 'h-9 min-w-0 rounded-md border bg-background px-2.5 text-sm 
       class="rounded-xl border bg-card px-6 py-16 text-center text-sm text-muted-foreground"
     >
       <template v-if="hasFilters">
-        Под эти фильтры не попала ни одна задача с датами.
+        {{ t('projects.timeline.noMatches') }}
         <button type="button" class="text-foreground underline underline-offset-4" @click="state.resetFilters()">
-          Сбросить фильтры
+          {{ t('projects.timeline.resetFilters') }}
         </button>
       </template>
       <template v-else>
-        У задач пока нет ни дат начала, ни сроков — разместить их на шкале не на чем.
+        {{ t('projects.timeline.noDates') }}
       </template>
     </div>
 
@@ -290,15 +292,13 @@ const selectClass = 'h-9 min-w-0 rounded-md border bg-background px-2.5 text-sm 
 
     <div class="mt-3 space-y-1 text-xs text-muted-foreground">
       <p v-if="view === 'gantt'">
-        Красная вертикаль — сегодня. Красная обводка и пунктирный хвост — просроченная задача,
-        стрелки — зависимости (красный пунктир — задача начинается раньше, чем закончится та, от которой она зависит).
-        Ромбы — вехи. Клик по полосе открывает задачу.
+        {{ t('projects.timeline.ganttLegend') }}
       </p>
       <p v-if="payload && payload.undated > 0">
-        Без дат и потому не на шкале: {{ tasksWord(payload.undated) }} — им не назначены ни начало, ни срок.
+        {{ t('projects.timeline.undated', { tasks: tasksWord(payload.undated) }) }}
       </p>
       <p v-if="payload?.truncated" class="text-destructive">
-        Показаны первые {{ countLabel(payload.limit, 'задача', 'задачи', 'задач') }} — сузьте период или выберите проект.
+        {{ t('projects.timeline.truncated', { tasks: tasksWord(payload.limit) }) }}
       </p>
     </div>
   </div>

@@ -20,6 +20,7 @@ interface Stage {
 const props = defineProps<{ projectId: string }>()
 const emit = defineEmits<{ (event: 'changed'): void }>()
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const canEdit = computed(() => auth.can(PERMISSION.PRODUCTION_MANAGE))
 
@@ -50,7 +51,7 @@ async function patchStage(stage: Stage, payload: Record<string, unknown>) {
     // Progress rolls up to the project, so the header needs to reload too.
     emit('changed')
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось обновить стадию')
+    errorMessage.value = apiErrorMessage(err, t('projects.pipeline.updateFailed'))
   } finally {
     savingId.value = ''
   }
@@ -61,16 +62,16 @@ async function patchStage(stage: Stage, payload: Record<string, unknown>) {
   <section class="rounded-xl border bg-card">
     <header class="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4">
       <div>
-        <h2 class="text-sm font-medium">Пайплайн</h2>
+        <h2 class="text-sm font-medium">{{ t('projects.detail.tabs.pipeline') }}</h2>
         <p class="mt-1 text-xs text-muted-foreground">
-          {{ summary.done }} из {{ summary.total }} завершено
+          {{ t('projects.pipeline.done', { done: summary.done, total: summary.total }) }}
           <span v-if="summary.blocked > 0" class="text-destructive">
-            · {{ summary.blocked }} заблокировано
+            · {{ t('projects.pipeline.blocked', { n: summary.blocked }) }}
           </span>
         </p>
       </div>
       <p v-if="canEdit" class="text-xs text-muted-foreground">
-        Прогресс проекта пересчитывается автоматически
+        {{ t('projects.pipeline.autoProgress') }}
       </p>
     </header>
 
@@ -79,9 +80,9 @@ async function patchStage(stage: Stage, payload: Record<string, unknown>) {
     </p>
 
     <div v-if="error" class="px-5 py-14 text-center">
-      <p class="text-sm text-muted-foreground">Не удалось загрузить пайплайн</p>
+      <p class="text-sm text-muted-foreground">{{ t('projects.pipeline.loadFailed') }}</p>
       <button type="button" class="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary" @click="refresh()">
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
@@ -95,9 +96,9 @@ async function patchStage(stage: Stage, payload: Record<string, unknown>) {
 
     <div v-else-if="stages.length === 0" class="grid place-items-center px-6 py-14 text-center">
       <Icon name="lucide:git-branch" class="size-7 text-muted-foreground/50" />
-      <h3 class="mt-3 text-sm font-medium">Пайплайн не настроен</h3>
+      <h3 class="mt-3 text-sm font-medium">{{ t('projects.pipeline.emptyTitle') }}</h3>
       <p class="mt-1.5 max-w-sm text-sm text-muted-foreground">
-        Проект создан без шаблона — стадии можно добавить вручную.
+        {{ t('projects.pipeline.emptyBody') }}
       </p>
     </div>
 
@@ -113,9 +114,9 @@ async function patchStage(stage: Stage, payload: Record<string, unknown>) {
         <div class="min-w-0 flex-1">
           <p class="truncate text-sm font-medium">{{ stage.name }}</p>
           <p class="mt-0.5 text-xs text-muted-foreground">
-            вес {{ stage.weight }}
+            {{ t('projects.pipeline.weight', { n: stage.weight }) }}
             <template v-if="stage.department"> · {{ stage.department.name }}</template>
-            <template v-if="stage._count.tasks > 0"> · {{ countLabel(stage._count.tasks, 'задача', 'задачи', 'задач') }}</template>
+            <template v-if="stage._count.tasks > 0"> · {{ countLabel(stage._count.tasks, 'common.count.tasks') }}</template>
           </p>
         </div>
 
@@ -129,7 +130,7 @@ async function patchStage(stage: Stage, payload: Record<string, unknown>) {
             :value="stage.progress"
             :disabled="stage.status === 'DONE' || savingId === stage.id"
             class="h-1.5 w-28 cursor-pointer accent-primary disabled:cursor-not-allowed"
-            :aria-label="'Прогресс стадии ' + stage.name"
+            :aria-label="t('projects.pipeline.progressOf', { name: stage.name })"
             @change="patchStage(stage, { progress: Number(($event.target as HTMLInputElement).value) })"
           >
           <span class="w-9 text-right text-xs tabular-nums text-muted-foreground">
@@ -141,7 +142,7 @@ async function patchStage(stage: Stage, payload: Record<string, unknown>) {
             :value="stage.status"
             :disabled="savingId === stage.id"
             class="h-8 rounded-md border bg-background px-2 text-xs outline-none focus:border-ring"
-            :aria-label="'Статус стадии ' + stage.name"
+            :aria-label="t('projects.pipeline.statusOf', { name: stage.name })"
             @change="patchStage(stage, { status: ($event.target as HTMLSelectElement).value })"
           >
             <option v-for="s in STATUSES" :key="s" :value="s">{{ labelOf(STAGE_STATUS_LABEL, s) }}</option>
