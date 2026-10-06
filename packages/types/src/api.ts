@@ -61,4 +61,6 @@ export interface AuthUser {
   role: import('./enums').Role
   avatarUrl: string | null
   clientId: string | null
+  /** Own interface language; null means the studio default. */
+  locale: import('./i18n').Locale | null
 }

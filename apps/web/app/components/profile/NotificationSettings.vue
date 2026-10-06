@@ -19,6 +19,7 @@ interface Preference {
 
 type Channel = 'IN_APP' | 'EMAIL'
 
+const { t } = useI18n()
 const auth = useAuthStore()
 
 const { data, pending, error: loadError, refresh } = await useFetch<{ data: Preference[] }>(
@@ -60,7 +61,7 @@ async function toggle(row: Preference, channel: Channel) {
     data.value = result
   } catch (err) {
     replaceRow(row.type, { [key]: previous })
-    saveError.value = apiErrorMessage(err, 'Не удалось сохранить настройку')
+    saveError.value = apiErrorMessage(err, t('team.notificationSettings.saveFailed'))
   } finally {
     saving.value = ''
   }
@@ -73,10 +74,9 @@ function label(type: string) {
 
 <template>
   <section class="mb-6 rounded-xl border bg-card p-5" aria-labelledby="notification-settings">
-    <h2 id="notification-settings" class="text-sm font-medium">Уведомления</h2>
+    <h2 id="notification-settings" class="text-sm font-medium">{{ t('team.notificationSettings.title') }}</h2>
     <p class="mt-1 text-sm text-muted-foreground">
-      Что приходит в колокольчик и что — письмом на {{ auth.user?.email }}.
-      Изменения сохраняются сразу.
+      {{ t('team.notificationSettings.intro', { email: auth.user?.email ?? '' }) }}
     </p>
 
     <p v-if="saveError" role="alert" class="mt-4 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm text-destructive">
@@ -88,18 +88,18 @@ function label(type: string) {
     </div>
 
     <div v-else-if="loadError" class="mt-4 flex flex-wrap items-center gap-3 text-sm text-destructive">
-      Не удалось загрузить настройки уведомлений.
+      {{ t('team.notificationSettings.loadFailed') }}
       <button type="button" class="h-8 rounded-md border px-3 text-foreground hover:bg-secondary" @click="refresh()">
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
     <table v-else class="mt-4 w-full text-sm">
       <thead>
         <tr class="text-xs text-muted-foreground">
-          <th scope="col" class="pb-2 text-left font-normal">Событие</th>
-          <th scope="col" class="w-20 pb-2 text-center font-normal sm:w-28">В приложении</th>
-          <th scope="col" class="w-16 pb-2 text-center font-normal sm:w-24">Почта</th>
+          <th scope="col" class="pb-2 text-left font-normal">{{ t('team.notificationSettings.event') }}</th>
+          <th scope="col" class="w-20 pb-2 text-center font-normal sm:w-28">{{ t('team.notificationSettings.inApp') }}</th>
+          <th scope="col" class="w-16 pb-2 text-center font-normal sm:w-24">{{ t('team.notificationSettings.email') }}</th>
         </tr>
       </thead>
       <tbody class="divide-y">
@@ -113,7 +113,7 @@ function label(type: string) {
               type="button"
               role="switch"
               :aria-checked="row.inApp"
-              :aria-label="label(row.type).title + ': в приложении'"
+              :aria-label="t('team.notificationSettings.inAppAria', { title: label(row.type).title })"
               class="pref-switch"
               :disabled="saving === row.type + ':IN_APP'"
               @click="toggle(row, 'IN_APP')"
@@ -127,14 +127,14 @@ function label(type: string) {
               type="button"
               role="switch"
               :aria-checked="row.email"
-              :aria-label="label(row.type).title + ': письмом'"
+              :aria-label="t('team.notificationSettings.emailAria', { title: label(row.type).title })"
               class="pref-switch"
               :disabled="saving === row.type + ':EMAIL'"
               @click="toggle(row, 'EMAIL')"
             >
               <span class="pref-switch-thumb" />
             </button>
-            <span v-else class="text-xs text-muted-foreground" title="Для этого события письма не отправляются">—</span>
+            <span v-else class="text-xs text-muted-foreground" :title="t('team.notificationSettings.noEmail')">—</span>
           </td>
         </tr>
       </tbody>

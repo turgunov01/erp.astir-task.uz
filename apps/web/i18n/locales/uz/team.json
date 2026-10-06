@@ -1,0 +1,76 @@
+{
+  "team": {
+    "profile": {
+      "eyebrow": "Hisob",
+      "title": "Profil",
+      "role": "Rol: {role} — uni administrator sozlamalarda o‘zgartiradi.",
+      "personal": "Shaxsiy ma’lumotlar",
+      "firstName": "Ism",
+      "lastName": "Familiya",
+      "phone": "Telefon",
+      "avatarUrl": "Avatar havolasi",
+      "avatarPlaceholder": "Rasm havolasi",
+      "saveFailed": "Profilni saqlab bo‘lmadi",
+      "language": {
+        "title": "Interfeys tili",
+        "hint": "Interfeys, xatlar va eksportlar siz uchun shu tilda bo‘ladi. «Studiyadagidek» — studiya sozlamalaridagi standart til.",
+        "studioDefault": "Studiyadagidek ({language})",
+        "saved": "Til saqlandi."
+      },
+      "password": {
+        "title": "Parolni o‘zgartirish",
+        "why": "Joriy parol ochiq seansda ham kerak — aks holda qarovsiz qolgan ekran orqali sizni o‘z hisobingizdan chiqarib qo‘yish mumkin bo‘lardi.",
+        "current": "Joriy",
+        "next": "Yangi",
+        "repeat": "Yangisini takrorlang",
+        "submit": "Parolni o‘zgartirish",
+        "submitting": "O‘zgartirilmoqda...",
+        "done": "Parol o‘zgartirildi.",
+        "failed": "Parolni o‘zgartirib bo‘lmadi",
+        "enterCurrent": "Joriy parolni kiriting",
+        "tooShort": "Yangi parol 8 belgidan qisqa",
+        "mismatch": "Yangi parol va takrori mos kelmadi"
+      }
+    },
+    "notificationSettings": {
+      "title": "Bildirishnomalar",
+      "intro": "Qo‘ng‘iroqchaga nima keladi va {email} manziliga xat bilan nima keladi. O‘zgarishlar darhol saqlanadi.",
+      "loadFailed": "Bildirishnoma sozlamalarini yuklab bo‘lmadi.",
+      "saveFailed": "Sozlamani saqlab bo‘lmadi",
+      "event": "Voqea",
+      "inApp": "Ilovada",
+      "email": "Pochta",
+      "inAppAria": "{title}: ilovada",
+      "emailAria": "{title}: xat orqali",
+      "noEmail": "Bu voqea uchun xat yuborilmaydi"
+    },
+    "settings": {
+      "eyebrow": "Boshqaruv",
+      "title": "Sozlamalar",
+      "readOnly": "Sizda faqat ko‘rish huquqi bor: maydonlar ko‘rinadi, lekin o‘zgarishlarni saqlab bo‘lmaydi.",
+      "saveFailed": "Sozlamalarni saqlab bo‘lmadi",
+      "tabs": {
+        "studio": "Studiya",
+        "schedule": "Ish jadvali",
+        "mail": "Pochta",
+        "templates": "Pipeline shablonlari",
+        "users": "Foydalanuvchilar",
+        "roles": "Rollar va ruxsatlar"
+      },
+      "studio": {
+        "name": "Studiya nomi",
+        "legalName": "Yuridik nomi",
+        "email": "Pochta",
+        "phone": "Telefon",
+        "website": "Sayt",
+        "address": "Manzil",
+        "currency": "Standart valyuta",
+        "timezone": "Vaqt mintaqasi",
+        "invoicePrefix": "Hisob-faktura prefiksi",
+        "invoicePrefixHint": "Masalan, INV- INV-0001 ni beradi.",
+        "defaultLanguage": "Standart til",
+        "defaultLanguageHint": "Profilda til tanlamaganlar uchun, shuningdek kirish sahifasi, xatlar va eksportlar uchun."
+      }
+    }
+  }
+}

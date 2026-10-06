@@ -4,6 +4,8 @@ import { prisma } from '../../lib/prisma'
 import { AppError, invalidCredentials, forbidden, unauthenticated } from '../../lib/errors'
 import { consumeLoginCode, issueLoginCode } from '../../lib/otp'
 import { notePresence } from '../attendance/presence'
+import { rememberUserLocale } from '../../lib/request-context'
+import { t } from '../../i18n'
 import {
   generateRefreshToken,
   hashRefreshToken,
@@ -36,7 +38,8 @@ const USER_FIELDS = {
   lastName: true,
   role: true,
   avatarUrl: true,
-  clientId: true
+  clientId: true,
+  locale: true
 } as const
 
 async function issueSession(
@@ -85,7 +88,9 @@ export async function login(
   const passwordMatches = await bcrypt.compare(password, hash)
 
   if (!record || !passwordMatches) throw invalidCredentials()
-  if (!record.isActive) throw forbidden('Учётная запись отключена')
+  // Proven who they are: answer in their own language from here on.
+  rememberUserLocale(record.locale)
+  if (!record.isActive) throw forbidden(t('common.errors.accountDisabled'))
 
   /*
    * An address nobody has proven yet does not get a session.
@@ -99,7 +104,7 @@ export async function login(
     throw new AppError(
       403,
       ERROR_CODE.EMAIL_NOT_VERIFIED,
-      'Подтвердите почту: код отправлен на ' + record.email,
+      t('auth.verifyEmailSent', { email: record.email }),
       { retryAfter: [String(issued.retryAfter)] }
     )
   }
@@ -149,10 +154,11 @@ export async function refresh(
     include: { user: { select: { ...USER_FIELDS, isActive: true, deletedAt: true } } }
   })
 
-  if (!stored || stored.revokedAt) throw unauthenticated('Сессия больше не действует, войдите заново')
-  if (stored.expiresAt.getTime() < Date.now()) throw unauthenticated('Сессия истекла, войдите заново')
-  if (!stored.user || stored.user.deletedAt) throw unauthenticated('Учётная запись больше не существует')
-  if (!stored.user.isActive) throw forbidden('Учётная запись отключена')
+  if (!stored || stored.revokedAt) throw unauthenticated(t('common.errors.sessionRevoked'))
+  if (stored.expiresAt.getTime() < Date.now()) throw unauthenticated(t('common.errors.tokenExpired'))
+  if (!stored.user || stored.user.deletedAt) throw unauthenticated(t('common.errors.accountGone'))
+  rememberUserLocale(stored.user.locale)
+  if (!stored.user.isActive) throw forbidden(t('common.errors.accountDisabled'))
 
   const { isActive: _active, deletedAt: _deleted, ...user } = stored.user
 
@@ -200,7 +206,8 @@ export async function verifyLoginCode(
   const hash = record?.passwordHash ?? '$2a$12$invalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidin'
   const passwordMatches = await bcrypt.compare(password, hash)
   if (!record || !passwordMatches) throw invalidCredentials()
-  if (!record.isActive) throw forbidden('Учётная запись отключена')
+  rememberUserLocale(record.locale)
+  if (!record.isActive) throw forbidden(t('common.errors.accountDisabled'))
 
   await consumeLoginCode(record.id, code)
 
@@ -239,7 +246,7 @@ export async function verifyLoginCode(
 export async function resendLoginCode(email: string): Promise<{ retryAfter: number }> {
   const record = await prisma.user.findFirst({
     where: { email, deletedAt: null, emailVerifiedAt: null },
-    select: { id: true, email: true, firstName: true }
+    select: { id: true, email: true, firstName: true, locale: true }
   })
   if (!record) return { retryAfter: 60 }
   const issued = await issueLoginCode(record)

@@ -22,6 +22,7 @@
     "test": "pnpm -r test",
     "check:routes": "node scripts/check-routes.mjs",
     "check:encoding": "node scripts/check-encoding.mjs",
+    "check:i18n": "node scripts/check-i18n.mjs",
     "test:api": "node scripts/smoke-api.mjs"
   }
 }

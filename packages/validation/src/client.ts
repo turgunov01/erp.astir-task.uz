@@ -4,9 +4,9 @@ import { listQuerySchema, partialUpdate } from './common'
 const CLIENT_STATUS = ['ACTIVE', 'INACTIVE', 'ARCHIVED'] as const
 
 export const createClientSchema = z.object({
-  name: z.string().trim().min(2, 'Name must be at least 2 characters').max(160),
+  name: z.string().trim().min(2).max(160),
   companyName: z.string().trim().max(160).optional().nullable(),
-  email: z.string().trim().toLowerCase().email('Enter a valid email').optional().nullable(),
+  email: z.string().trim().toLowerCase().email('i18n:common.validation.invalidEmail').optional().nullable(),
   phone: z.string().trim().max(40).optional().nullable(),
   country: z.string().trim().max(80).optional().nullable(),
   status: z.enum(CLIENT_STATUS).default('ACTIVE'),

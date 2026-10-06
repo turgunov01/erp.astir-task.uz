@@ -9,10 +9,13 @@ const props = withDefaults(defineProps<{
   tone?: 'danger' | 'neutral'
   pending?: boolean
 }>(), {
-  confirmLabel: 'Подтвердить',
-  cancelLabel: 'Отмена',
+  // Worded per language below when the caller does not name the buttons.
+  confirmLabel: undefined,
+  cancelLabel: undefined,
   tone: 'danger'
 })
+
+const { t } = useI18n()
 
 const emit = defineEmits<{ (e: 'confirm'): void, (e: 'cancel'): void }>()
 
@@ -70,7 +73,7 @@ onMounted(() => {
           class="rounded-md px-3 py-2 text-sm text-muted-foreground hover:text-foreground"
           @click="emit('cancel')"
         >
-          {{ props.cancelLabel }}
+          {{ props.cancelLabel ?? t('common.actions.cancel') }}
         </button>
         <button
           ref="confirmButton"
@@ -80,7 +83,7 @@ onMounted(() => {
           :disabled="props.pending"
           @click="emit('confirm')"
         >
-          {{ props.pending ? 'Выполняется...' : props.confirmLabel }}
+          {{ props.pending ? t('common.actions.running') : (props.confirmLabel ?? t('common.actions.confirm')) }}
         </button>
       </footer>
     </div>

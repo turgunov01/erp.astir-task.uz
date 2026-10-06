@@ -75,13 +75,13 @@ export function formatBytes(bytes: string | number | null | undefined) {
   if (bytes === null || bytes === undefined || bytes === '') return ''
   const value = Number(bytes)
   if (!Number.isFinite(value)) return ''
-  // Russian decimals use a comma: «2,2 МБ», not «2.2 МБ».
-  const ru = (n: number, digits: number) =>
-    n.toLocaleString('ru-RU', { maximumFractionDigits: digits, minimumFractionDigits: digits })
-  if (value < 1024) return value + ' Б'
-  if (value < 1024 * 1024) return Math.round(value / 1024) + ' КБ'
-  if (value < 1024 * 1024 * 1024) return ru(value / (1024 * 1024), 1) + ' МБ'
-  return ru(value / (1024 * 1024 * 1024), 2) + ' ГБ'
+  // Decimals in the reader's convention: «2,2 МБ» in Russian, «2.2 MB» in English.
+  const local = (n: number, digits: number) =>
+    n.toLocaleString(intlTag(), { maximumFractionDigits: digits, minimumFractionDigits: digits })
+  if (value < 1024) return translate('common.units.bytes', { n: value })
+  if (value < 1024 * 1024) return translate('common.units.kilobytes', { n: Math.round(value / 1024) })
+  if (value < 1024 * 1024 * 1024) return translate('common.units.megabytes', { n: local(value / (1024 * 1024), 1) })
+  return translate('common.units.gigabytes', { n: local(value / (1024 * 1024 * 1024), 2) })
 }
 
 /**

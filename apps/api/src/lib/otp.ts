@@ -1,9 +1,10 @@
 import { createHash, randomInt } from 'node:crypto'
 import { prisma } from './prisma'
-import { sendMail } from './mailer'
+import { sendMail, type Mail } from './mailer'
 import { badRequest } from './errors'
 import { env } from '../config/env'
 import { studioSettings } from './settings'
+import { recipientLocale, t, translatorFor, type Locale } from '../i18n'
 
 /**
  * One-time codes emailed to prove an address.
@@ -46,6 +47,8 @@ export async function issueLoginCode(user: {
   id: string
   email: string
   firstName: string
+  /** The recipient's own language; the letter falls back to the studio default. */
+  locale?: string | null
 }): Promise<IssueResult> {
   const recent = await prisma.emailCode.findFirst({
     where: { userId: user.id, purpose: OTP_PURPOSE, consumedAt: null },
@@ -80,25 +83,39 @@ export async function issueLoginCode(user: {
    * right after the password, and only on the first login. Without that line
    * the reader is left holding six digits and no idea what to do with them.
    */
-  const { name: studio } = await studioSettings()
-  const { delivered } = await sendMail({
-    to: user.email,
-    subject: 'Подтверждение почты — ' + studio,
-    text: [
-      user.firstName + ', здравствуйте.',
-      '',
-      'Ваш код для подтверждения почты: ' + code,
-      '',
-      'Введите его на странице входа в ' + studio + ' сразу после пароля:',
-      new URL('/login', env.APP_URL).href,
-      '',
-      'Код нужен только при первом входе, действует ' + CODE_TTL_MINUTES +
-        ' минут и вводится один раз.',
-      'Если вход выполняли не вы — сообщите администратору студии.'
-    ].join('\n')
-  })
+  const { delivered } = await sendMail(
+    await renderLoginCodeEmail(user, code, await recipientLocale(user.locale))
+  )
 
   return { delivered, retryAfter: RESEND_COOLDOWN_SECONDS }
+}
+
+/**
+ * The code letter, in the recipient's language (their own choice, else the
+ * studio default) — never the language of whoever triggered it.
+ */
+export async function renderLoginCodeEmail(
+  user: { email: string, firstName: string },
+  code: string,
+  locale: Locale
+): Promise<Mail> {
+  const { name: studio } = await studioSettings()
+  const t = translatorFor(locale)
+  return {
+    to: user.email,
+    subject: t('auth.codeEmail.subject', { studio }),
+    text: [
+      t('auth.codeEmail.greeting', { name: user.firstName }),
+      '',
+      t('auth.codeEmail.yourCode', { code }),
+      '',
+      t('auth.codeEmail.whereToEnter', { studio }),
+      new URL('/login', env.APP_URL).href,
+      '',
+      t('auth.codeEmail.validity', { minutes: CODE_TTL_MINUTES }),
+      t('auth.codeEmail.notYou')
+    ].join('\n')
+  }
 }
 
 /**
@@ -113,11 +130,11 @@ export async function consumeLoginCode(userId: string, code: string): Promise<vo
     orderBy: { createdAt: 'desc' }
   })
 
-  if (!record) throw badRequest('Код не запрашивался или уже использован')
+  if (!record) throw badRequest(t('auth.code.notRequested'))
 
   if (record.expiresAt < new Date()) {
     await prisma.emailCode.delete({ where: { id: record.id } })
-    throw badRequest('Срок действия кода истёк, запросите новый')
+    throw badRequest(t('auth.code.expired'))
   }
 
   /*
@@ -127,7 +144,7 @@ export async function consumeLoginCode(userId: string, code: string): Promise<vo
    */
   if (record.attempts >= MAX_ATTEMPTS) {
     await prisma.emailCode.delete({ where: { id: record.id } })
-    throw badRequest('Слишком много попыток, запросите новый код')
+    throw badRequest(t('auth.code.tooManyAttempts'))
   }
 
   if (record.codeHash !== hash(code.trim())) {
@@ -135,7 +152,7 @@ export async function consumeLoginCode(userId: string, code: string): Promise<vo
       where: { id: record.id },
       data: { attempts: { increment: 1 } }
     })
-    throw badRequest('Неверный код')
+    throw badRequest(t('auth.code.wrong'))
   }
 
   await prisma.emailCode.update({

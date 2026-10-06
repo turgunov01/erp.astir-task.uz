@@ -133,5 +133,5 @@ export function currentKey(kind: 'month' | 'quarter' | 'year', now = new Date())
 /** "окт. 2026" for a YYYY-MM chart axis. */
 export function shortMonth(month: string) {
   const [year, index] = month.split('-').map(Number) as [number, number]
-  return new Date(year, index - 1, 1).toLocaleDateString('ru-RU', { month: 'short', year: '2-digit' })
+  return new Date(year, index - 1, 1).toLocaleDateString(intlTag(), { month: 'short', year: '2-digit' })
 }

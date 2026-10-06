@@ -9,45 +9,45 @@ import { z } from 'zod'
  */
 export const passwordSchema = z
   .string()
-  .min(8, 'Password must be at least 8 characters')
-  .max(128, 'Password must be at most 128 characters')
+  .min(8)
+  .max(128)
 
 export const loginSchema = z.object({
-  email: z.string().trim().toLowerCase().email('Enter a valid email'),
-  password: z.string().min(1, 'Password is required'),
+  email: z.string().trim().toLowerCase().email('i18n:common.validation.invalidEmail'),
+  password: z.string().min(1, 'i18n:common.validation.required'),
   rememberMe: z.boolean().optional().default(false)
 })
 export type LoginInput = z.infer<typeof loginSchema>
 
 export const forgotPasswordSchema = z.object({
-  email: z.string().trim().toLowerCase().email('Enter a valid email')
+  email: z.string().trim().toLowerCase().email('i18n:common.validation.invalidEmail')
 })
 
 export const resetPasswordSchema = z
   .object({
-    token: z.string().min(16, 'Invalid reset token'),
+    token: z.string().min(16, 'i18n:common.validation.invalidFormat'),
     password: passwordSchema,
     confirmPassword: z.string()
   })
   .refine(data => data.password === data.confirmPassword, {
-    message: 'Пароли не совпадают',
+    message: 'i18n:common.validation.passwordsMismatch',
     path: ['confirmPassword']
   })
 
 export const changePasswordSchema = z
   .object({
-    currentPassword: z.string().min(1, 'Current password is required'),
+    currentPassword: z.string().min(1, 'i18n:common.validation.required'),
     password: passwordSchema,
     confirmPassword: z.string()
   })
   .refine(data => data.password === data.confirmPassword, {
-    message: 'Пароли не совпадают',
+    message: 'i18n:common.validation.passwordsMismatch',
     path: ['confirmPassword']
   })
 
 /** Finishing a login that was stopped for email verification. */
 export const verifyCodeSchema = loginSchema.extend({
-  code: z.string().trim().regex(/^[0-9]{6}$/, 'Код состоит из шести цифр')
+  code: z.string().trim().regex(/^[0-9]{6}$/, 'i18n:common.validation.codeSixDigits')
 })
 
 export const resendCodeSchema = z.object({

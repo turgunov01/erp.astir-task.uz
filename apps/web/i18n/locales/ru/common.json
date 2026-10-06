@@ -1,0 +1,572 @@
+{
+  "common": {
+    "actions": {
+      "save": "Сохранить",
+      "saving": "Сохраняю...",
+      "cancel": "Отмена",
+      "close": "Закрыть",
+      "back": "Назад",
+      "delete": "Удалить",
+      "edit": "Изменить",
+      "create": "Создать",
+      "add": "Добавить",
+      "open": "Открыть",
+      "retry": "Повторить",
+      "apply": "Применить",
+      "reset": "Сбросить",
+      "confirm": "Подтвердить",
+      "more": "Ещё",
+      "later": "Позже",
+      "search": "Поиск",
+      "download": "Скачать",
+      "running": "Выполняется...",
+      "searchPlaceholder": "Поиск..."
+    },
+    "table": {
+      "loadFailed": "Не удалось загрузить данные",
+      "range": "{from}–{to} из {total}",
+      "pagination": "Страницы таблицы",
+      "previous": "Предыдущая страница",
+      "next": "Следующая страница",
+      "page": "Страница {n}"
+    },
+    "states": {
+      "loading": "Загрузка...",
+      "saved": "Сохранено.",
+      "empty": "Ничего не найдено"
+    },
+    "errors": {
+      "generic": "Что-то пошло не так",
+      "loadFailed": "Не удалось загрузить данные",
+      "saveFailed": "Не удалось сохранить",
+      "serviceUnavailable": "База данных недоступна. Попробуйте ещё раз, когда соединение восстановится.",
+      "invalidCredentials": "Неверная почта или пароль",
+      "unauthenticated": "Сессия истекла, войдите заново",
+      "forbidden": "Недостаточно прав для этого действия",
+      "rateLimited": "Слишком много попыток, подождите немного",
+      "internal": "Внутренняя ошибка сервера"
+    },
+    "yes": "да",
+    "no": "нет",
+    "unknown": "Не указано",
+    "time": {
+      "justNow": "только что",
+      "minutesAgo": "{n} мин назад",
+      "hoursAgo": "{n} ч назад",
+      "daysAgo": "{n} дн назад"
+    },
+    "units": {
+      "bytes": "{n} Б",
+      "kilobytes": "{n} КБ",
+      "megabytes": "{n} МБ",
+      "gigabytes": "{n} ГБ",
+      "minutes": "{m} мин",
+      "hoursMinutes": "{h} ч {m} мин"
+    },
+    "weekdayShort": {
+      "1": "Пн",
+      "2": "Вт",
+      "3": "Ср",
+      "4": "Чт",
+      "5": "Пт",
+      "6": "Сб",
+      "7": "Вс"
+    },
+    "noWorkdays": "нет рабочих дней",
+    "count": {
+      "tasks": "{n} задача | {n} задачи | {n} задач"
+    },
+    "statusChange": "«{from}» → «{to}»",
+    "enum": {
+      "assetType": {
+        "CHARACTER": "Персонаж",
+        "ENVIRONMENT": "Окружение",
+        "PROP": "Пропс",
+        "MODEL": "Модель",
+        "RIG": "Риг",
+        "TEXTURE": "Текстура",
+        "ANIMATION": "Анимация",
+        "AUDIO": "Звук",
+        "REFERENCE": "Референс",
+        "TEMPLATE": "Шаблон",
+        "OTHER": "Прочее"
+      },
+      "priority": {
+        "LOW": "Низкий",
+        "NORMAL": "Обычный",
+        "HIGH": "Высокий",
+        "URGENT": "Срочный"
+      },
+      "revisionStatus": {
+        "OPEN": "Открыта",
+        "IN_PROGRESS": "В работе",
+        "READY_FOR_REVIEW": "На проверке",
+        "COMPLETED": "Завершена",
+        "CANCELLED": "Отменена"
+      },
+      "renderStatus": {
+        "QUEUED": "В очереди",
+        "RENDERING": "Рендерится",
+        "COMPLETED": "Готово",
+        "FAILED": "Ошибка",
+        "CANCELLED": "Отменено"
+      },
+      "productionStatus": {
+        "NOT_STARTED": "Не начато",
+        "IN_PROGRESS": "В работе",
+        "REVIEW": "На проверке",
+        "REVISION": "На правках",
+        "APPROVED": "Утверждено",
+        "COMPLETED": "Завершено",
+        "ON_HOLD": "Приостановлено"
+      },
+      "clientStatus": {
+        "ACTIVE": "Активен",
+        "INACTIVE": "Неактивен",
+        "ARCHIVED": "В архиве"
+      },
+      "role": {
+        "OWNER": "Владелец",
+        "ADMIN": "Администратор",
+        "PRODUCER": "Продюсер",
+        "PROJECT_MANAGER": "Менеджер проекта",
+        "ART_DIRECTOR": "Арт-директор",
+        "ARTIST": "Художник",
+        "CLIENT": "Клиент",
+        "FINANCE": "Финансы"
+      },
+      "notificationType": {
+        "TASK_ASSIGNED": {
+          "title": "Новая задача",
+          "hint": "Вас назначили исполнителем задачи"
+        },
+        "PROJECT_ASSIGNED": {
+          "title": "Новый проект",
+          "hint": "Вас добавили в команду проекта"
+        },
+        "TASK_REVIEW": {
+          "title": "Задача на проверку",
+          "hint": "Задачу передали вам на проверку"
+        },
+        "TASK_OVERDUE": {
+          "title": "Просрочка",
+          "hint": "Задача вышла за срок"
+        },
+        "COMMENT_MENTION": {
+          "title": "Упоминание",
+          "hint": "Вас упомянули в комментарии"
+        },
+        "VERSION_SUBMITTED": {
+          "title": "Новая версия",
+          "hint": "Загружена версия на просмотр"
+        },
+        "VERSION_APPROVED": {
+          "title": "Версия утверждена",
+          "hint": "Вашу версию приняли"
+        },
+        "CHANGES_REQUESTED": {
+          "title": "Нужны правки",
+          "hint": "По версии запросили изменения"
+        },
+        "REVISION_CREATED": {
+          "title": "Новая правка",
+          "hint": "Создана правка по вашей работе"
+        },
+        "PROJECT_DEADLINE": {
+          "title": "Срок проекта",
+          "hint": "Приближается дедлайн проекта"
+        },
+        "SHOT_DEADLINE": {
+          "title": "Срок шота",
+          "hint": "Приближается дедлайн шота"
+        },
+        "RENDER_FAILED": {
+          "title": "Ошибка рендера",
+          "hint": "Рендер завершился с ошибкой"
+        }
+      },
+      "employmentType": {
+        "FULL_TIME": "Полная занятость",
+        "PART_TIME": "Частичная занятость",
+        "FREELANCE": "Фриланс",
+        "INTERN": "Стажировка"
+      },
+      "employeeStatus": {
+        "ACTIVE": "Работает",
+        "ON_LEAVE": "В отпуске",
+        "INACTIVE": "Не работает"
+      },
+      "documentType": {
+        "CONTRACT": "Договор",
+        "BRIEF": "Бриф",
+        "SPECIFICATION": "Спецификация",
+        "INVOICE": "Счёт",
+        "ACT": "Акт",
+        "NDA": "NDA",
+        "OTHER": "Прочее"
+      },
+      "reviewStatus": {
+        "PENDING": "Ожидает",
+        "IN_REVIEW": "На обсуждении",
+        "CHANGES_REQUESTED": "Нужны правки",
+        "APPROVED": "Согласовано",
+        "REJECTED": "Отклонено",
+        "EXPIRED": "Вопрос закрыт"
+      },
+      "reviewType": {
+        "INTERNAL": "Внутреннее",
+        "ART_DIRECTOR": "Арт-директор",
+        "CLIENT": "Клиентское",
+        "FINAL": "Финальное"
+      },
+      "projectStatus": {
+        "DRAFT": "Черновик",
+        "PLANNING": "Планирование",
+        "PRE_PRODUCTION": "Препродакшен",
+        "PRODUCTION": "Продакшен",
+        "POST_PRODUCTION": "Постпродакшен",
+        "CLIENT_REVIEW": "У клиента",
+        "DELIVERY": "Сдача",
+        "COMPLETED": "Завершён",
+        "ON_HOLD": "Приостановлен",
+        "CANCELLED": "Отменён",
+        "ARCHIVED": "В архиве"
+      },
+      "projectType": {
+        "2D_ANIMATION": "2D-анимация",
+        "3D_ANIMATION": "3D-анимация",
+        "MOTION_DESIGN": "Моушн-дизайн",
+        "COMMERCIAL": "Реклама",
+        "SHORT_FILM": "Короткий метр",
+        "SERIES": "Сериал",
+        "FEATURE_FILM": "Полный метр",
+        "OTHER": "Прочее"
+      },
+      "taskStatus": {
+        "BACKLOG": "Бэклог",
+        "READY": "Готова к работе",
+        "IN_PROGRESS": "В работе",
+        "REVIEW": "На проверке",
+        "REVISION": "На правках",
+        "APPROVED": "Утверждена",
+        "DONE": "Завершена",
+        "BLOCKED": "Заблокирована"
+      },
+      "stageStatus": {
+        "NOT_STARTED": "Не начат",
+        "READY": "Готов к работе",
+        "IN_PROGRESS": "В работе",
+        "REVIEW": "На проверке",
+        "BLOCKED": "Заблокирован",
+        "DONE": "Завершён"
+      },
+      "versionStatus": {
+        "WORKING": "В работе",
+        "SUBMITTED": "Отправлена",
+        "IN_REVIEW": "На обсуждении",
+        "CHANGES_REQUESTED": "Нужны правки",
+        "APPROVED": "Утверждена",
+        "REJECTED": "Отклонена",
+        "SUPERSEDED": "Заменена новой"
+      },
+      "notificationChannel": {
+        "IN_APP": "В приложении",
+        "EMAIL": "Почта",
+        "TELEGRAM": "Telegram"
+      },
+      "expenseCategory": {
+        "EMPLOYEE": "Штат",
+        "FREELANCER": "Подряд",
+        "RENDER": "Рендер",
+        "SOFTWARE": "Софт",
+        "HARDWARE": "Железо",
+        "AUDIO": "Звук",
+        "PRODUCTION": "Продакшн",
+        "OFFICE": "Аренда и офис",
+        "TAXES": "Налоги и сборы",
+        "MARKETING": "Маркетинг",
+        "OTHER": "Прочее"
+      },
+      "paymentMethod": {
+        "BANK_TRANSFER": "Перечисление",
+        "CASH": "Наличные",
+        "CARD": "Карта",
+        "OTHER": "Другое"
+      },
+      "paymentStatus": {
+        "PENDING": "Ожидает оплаты",
+        "PARTIALLY_PAID": "Оплачен частично",
+        "PAID": "Оплачен",
+        "OVERDUE": "Просрочен",
+        "CANCELLED": "Отменён"
+      },
+      "payrollType": {
+        "ADVANCE": "Аванс",
+        "BONUS": "Премия",
+        "PENALTY": "Штраф",
+        "LATENESS": "Штраф за опоздание",
+        "DEDUCTION": "Удержание",
+        "OTHER_ACCRUAL": "Прочее начисление"
+      },
+      "payrollStatus": {
+        "DRAFT": "Черновик",
+        "APPROVED": "Утверждено",
+        "PAID": "Выплачено",
+        "CANCELLED": "Отменено"
+      },
+      "payrollSource": {
+        "MANUAL": "Вручную",
+        "TIMESHEET": "Из табеля и посещаемости",
+        "EXTERNAL": "Из внешней системы"
+      },
+      "risk": {
+        "LOW": "Низкий",
+        "MEDIUM": "Средний",
+        "HIGH": "Высокий",
+        "CRITICAL": "Критический"
+      },
+      "activityAction": {
+        "created": "создано",
+        "updated": "изменено",
+        "deleted": "удалено",
+        "project": {
+          "created": "создал проект",
+          "status_changed": "сменил статус проекта",
+          "archived": "архивировал проект",
+          "hard_deleted": "удалил проект без возврата"
+        },
+        "member": {
+          "added": "добавил участника в проект",
+          "removed": "убрал участника из проекта"
+        },
+        "stage": {
+          "created": "создал этап",
+          "status_changed": "сменил статус этапа"
+        },
+        "episode": {
+          "created": "создал эпизод",
+          "status_changed": "сменил статус эпизода"
+        },
+        "scene": {
+          "created": "создал сцену",
+          "status_changed": "сменил статус сцены"
+        },
+        "shot": {
+          "created": "создал шот",
+          "status_changed": "сменил статус шота"
+        },
+        "shot_stage": {
+          "status_changed": "сменил статус этапа шота"
+        },
+        "task": {
+          "created": "создал задачу",
+          "assigned": "назначил исполнителя",
+          "status_changed": "сменил статус задачи",
+          "archived": "архивировал задачу",
+          "unarchived": "вернул задачу из архива",
+          "deleted": "удалил задачу"
+        },
+        "version": {
+          "created": "загрузил версию",
+          "submitted": "отправил версию на согласование",
+          "deleted": "удалил версию"
+        },
+        "revision": {
+          "created": "завёл правку",
+          "status_changed": "сменил статус правки",
+          "deleted": "удалил правку"
+        },
+        "render": {
+          "queued": "поставил задачу в очередь рендера"
+        },
+        "asset": {
+          "created": "добавил ассет"
+        },
+        "file": {
+          "uploaded": "загрузил файл"
+        },
+        "review": {
+          "approved": "утвердил версию",
+          "changes_requested": "запросил правки по версии",
+          "rejected": "отклонил версию"
+        },
+        "finance": {
+          "budget_saved": "сохранил бюджет проекта",
+          "budget_deleted": "удалил бюджет проекта",
+          "expense_created": "добавил расход",
+          "expense_updated": "изменил расход",
+          "expense_deleted": "удалил расход",
+          "invoice_created": "выставил счёт",
+          "invoice_updated": "изменил счёт",
+          "invoice_deleted": "удалил счёт",
+          "payment_created": "провёл платёж",
+          "payment_updated": "изменил платёж",
+          "payment_deleted": "удалил платёж"
+        },
+        "settings": {
+          "updated": "изменил настройки студии",
+          "template_created": "создал шаблон пайплайна",
+          "template_updated": "изменил шаблон пайплайна",
+          "template_deleted": "удалил шаблон пайплайна",
+          "mail_tested": "проверил почтовые настройки"
+        },
+        "client": {
+          "created": "создал клиента",
+          "updated": "изменил клиента",
+          "archived": "архивировал клиента"
+        },
+        "department": {
+          "created": "создал отдел",
+          "updated": "изменил отдел",
+          "deleted": "удалил отдел"
+        },
+        "employee": {
+          "updated": "изменил сотрудника",
+          "email_verified_manually": "подтвердил почту сотрудника вручную"
+        },
+        "user": {
+          "created": "завёл пользователя",
+          "role_changed": "сменил роль пользователя",
+          "deactivated": "отключил пользователя"
+        },
+        "attendance": {
+          "checked_in": "отметился о приходе",
+          "checked_out": "отметил уход с работы"
+        }
+      },
+      "activityFamily": {
+        "created": "Создание",
+        "updated": "Изменение",
+        "deleted": "Удаление",
+        "project": "Проекты",
+        "member": "Команды проектов",
+        "stage": "Этапы",
+        "episode": "Эпизоды",
+        "scene": "Сцены",
+        "shot": "Шоты",
+        "shot_stage": "Этапы шотов",
+        "task": "Задачи",
+        "version": "Версии",
+        "review": "Согласование",
+        "revision": "Правки",
+        "render": "Рендер",
+        "asset": "Ассеты",
+        "file": "Файлы",
+        "finance": "Финансы",
+        "settings": "Настройки",
+        "client": "Клиенты",
+        "department": "Отделы",
+        "employee": "Сотрудники",
+        "user": "Пользователи",
+        "payroll": "Зарплата",
+        "attendance": "Посещаемость",
+        "comment": "Комментарии",
+        "timesheet": "Табель"
+      },
+      "entityType": {
+        "Project": "Проект",
+        "ProjectStage": "Этап",
+        "ProjectMember": "Участник",
+        "Episode": "Эпизод",
+        "Scene": "Сцена",
+        "Shot": "Шот",
+        "ShotStage": "Этап шота",
+        "Task": "Задача",
+        "Version": "Версия",
+        "Review": "Согласование",
+        "Revision": "Правка",
+        "RenderJob": "Рендер",
+        "Asset": "Ассет",
+        "Document": "Документ",
+        "Client": "Клиент",
+        "Department": "Отдел",
+        "Employee": "Сотрудник",
+        "User": "Пользователь",
+        "ProjectBudget": "Бюджет",
+        "Expense": "Расход",
+        "Invoice": "Счёт",
+        "Payment": "Платёж",
+        "StudioSettings": "Настройки студии",
+        "PipelineTemplate": "Шаблон пайплайна"
+      }
+    },
+    "permission": {
+      "group": {
+        "dashboard": "Панель управления",
+        "projects": "Проекты",
+        "production": "Производство: эпизоды, сцены, шоты, календарь",
+        "tasks": "Задачи",
+        "versions": "Версии",
+        "reviews": "Согласование",
+        "revisions": "Правки",
+        "assets": "Библиотека ассетов",
+        "render": "Очередь рендера",
+        "team": "Команда",
+        "attendance": "Посещаемость: приход, опоздания",
+        "time": "Учёт времени",
+        "clients": "Клиенты",
+        "finance": "Финансы",
+        "payroll": "Зарплата: авансы, штрафы, премии",
+        "reports": "Отчёты",
+        "documents": "Документы",
+        "activity": "Лента событий и аудит",
+        "settings": "Настройки"
+      },
+      "item": {
+        "dashboard_view": "Открывать панель",
+        "project_view": "Видеть проекты",
+        "project_create": "Создавать",
+        "project_update": "Редактировать",
+        "project_archive": "Архивировать",
+        "project_delete": "Удалять",
+        "production_view": "Видеть",
+        "production_manage": "Управлять",
+        "pipeline_manage": "Настраивать конвейер",
+        "task_view_own": "Видеть свои задачи (открывает раздел)",
+        "task_view": "Видеть все задачи",
+        "task_create": "Создавать",
+        "task_update": "Изменять",
+        "task_assign": "Назначать исполнителей",
+        "version_view": "Видеть",
+        "version_upload": "Загружать",
+        "version_delete_approved": "Удалять утверждённые",
+        "review_view": "Видеть",
+        "review_internal": "Внутреннее ревью",
+        "review_client": "Клиентское ревью",
+        "review_approve": "Утверждать",
+        "revision_view": "Видеть",
+        "revision_manage": "Управлять",
+        "asset_view": "Видеть",
+        "asset_manage": "Управлять",
+        "render_view": "Видеть",
+        "render_manage": "Управлять",
+        "team_view": "Видеть сотрудников и отделы",
+        "team_manage": "Управлять сотрудниками",
+        "workload_view": "Видеть загрузку",
+        "attendance_view": "Видеть, кто пришёл и кто опоздал (открывает раздел)",
+        "attendance_self": "Отмечаться кнопкой «Я приехал» / «Я ушёл»",
+        "attendance_manage": "Исправлять дни и начислять штрафы за опоздания",
+        "timesheet_view_own": "Видеть свой табель (открывает раздел)",
+        "timesheet_view_all": "Видеть табели всех",
+        "timesheet_submit": "Заполнять табель",
+        "client_view": "Видеть",
+        "client_manage": "Управлять",
+        "finance_view": "Видеть финансы",
+        "finance_manage": "Управлять",
+        "budget_view": "Видеть бюджеты",
+        "payroll_view_own": "Видеть свои начисления (открывает раздел)",
+        "payroll_view": "Видеть начисления всех",
+        "payroll_manage": "Вносить, утверждать и выплачивать",
+        "report_view": "Видеть отчёты",
+        "document_view": "Видеть",
+        "document_manage": "Управлять",
+        "activity_view": "Видеть ленту",
+        "audit_view": "Видеть журнал аудита",
+        "settings_view": "Открывать настройки",
+        "settings_manage": "Менять настройки",
+        "user_manage": "Управлять пользователями",
+        "permission_manage": "Редактировать права ролей"
+      }
+    }
+  }
+}

@@ -3,14 +3,26 @@ import { prisma } from './prisma'
 import { logger } from './logger'
 import { afterCommit } from './after-commit'
 import { deliverNotificationEmail, hasEmailChannel } from './notify-email'
+import {
+  formatDateFor,
+  recipientLocale,
+  renderText,
+  translatorFor,
+  type LocalizedText
+} from '../i18n'
 
 type Tx = Prisma.TransactionClient | typeof prisma
 
 export interface NotificationInput {
   userId: string
   type: string
-  title: string
-  body?: string | null
+  /**
+   * Worded for the recipient: pass `t => t('team.notifications.x', params)`
+   * so the sentence comes out in their language, not the actor's. A plain
+   * string is stored as it is (user-written text).
+   */
+  title: LocalizedText
+  body?: LocalizedText | null
   linkUrl?: string | null
   entityType?: string
   entityId?: string
@@ -48,6 +60,11 @@ async function isMuted(input: NotificationInput, tx: Tx): Promise<boolean> {
  * transaction commits and gated by the EMAIL preference (notify-email.ts).
  * Telegram can be added the same way without touching the call sites.
  *
+ * The text is worded once, here, in the recipient's language (their own
+ * choice, else the studio default): the bell and the letter then say the same
+ * thing, and a Turkish-speaking artist assigned by a Russian-speaking producer
+ * reads Turkish.
+ *
  * Never let a notification failure break the action that triggered it: being
  * unable to tell someone about an assignment must not roll back the
  * assignment itself.
@@ -58,13 +75,22 @@ export async function notify(input: NotificationInput, tx: Tx = prisma): Promise
   try {
     if (inTransaction) await tx.$executeRawUnsafe('SAVEPOINT ' + SAVEPOINT)
 
+    const recipient = await tx.user.findUnique({
+      where: { id: input.userId },
+      select: { locale: true }
+    })
+    const locale = await recipientLocale(recipient?.locale)
+    const translate = translatorFor(locale)
+    const title = renderText(input.title, translate)
+    const body = input.body ? renderText(input.body, translate) : null
+
     if (!(await isMuted(input, tx))) {
       await tx.notification.create({
         data: {
           userId: input.userId,
           type: input.type as never,
-          title: input.title,
-          body: input.body ?? null,
+          title,
+          body,
           linkUrl: input.linkUrl ?? null,
           entityType: input.entityType,
           entityId: input.entityId
@@ -78,7 +104,15 @@ export async function notify(input: NotificationInput, tx: Tx = prisma): Promise
     // not silence it. It leaves only once the caller's write has committed.
     if (hasEmailChannel(input.type)) {
       afterCommit(inTransaction ? tx : null, () => {
-        void deliverNotificationEmail(input)
+        void deliverNotificationEmail({
+          userId: input.userId,
+          type: input.type,
+          title,
+          body,
+          linkUrl: input.linkUrl,
+          entityType: input.entityType,
+          locale
+        })
       })
     }
   } catch (err) {
@@ -89,10 +123,6 @@ export async function notify(input: NotificationInput, tx: Tx = prisma): Promise
       })
     }
   }
-}
-
-function formatDate(date: Date): string {
-  return date.toLocaleDateString('ru-RU')
 }
 
 /** "AST-001 · Name", from whichever parts are known. */
@@ -117,17 +147,20 @@ export function notifyTaskAssigned(
   // Assigning work to yourself does not need an announcement.
   if (params.actorId && params.actorId === params.assigneeId) return Promise.resolve()
 
-  const parts: string[] = []
   const project = projectLabel(params.projectCode, params.projectName)
-  if (project) parts.push(project)
-  if (params.deadline) parts.push('срок ' + formatDate(params.deadline))
+  const deadline = params.deadline
 
   return notify(
     {
       userId: params.assigneeId,
       type: 'TASK_ASSIGNED',
-      title: 'Вам назначена задача: ' + params.taskTitle,
-      body: parts.length > 0 ? parts.join(' · ') : null,
+      title: t => t('team.notifications.taskAssigned', { title: params.taskTitle }),
+      body: (t) => {
+        const parts: string[] = []
+        if (project) parts.push(project)
+        if (deadline) parts.push(t('team.notifications.deadline', { date: formatDateFor(t.locale, deadline) }))
+        return parts.join(' · ')
+      },
       linkUrl: '/tasks?task=' + params.taskId,
       entityType: 'Task',
       entityId: params.taskId
@@ -144,8 +177,8 @@ export function notifyProjectAssigned(
     projectId: string
     projectCode: string
     projectName: string
-    /** What they are on the project as: a member role label, "Менеджер проекта". */
-    roleLabel?: string | null
+    /** What they are on the project as: a member's role, or the lead roles. */
+    roleLabel?: LocalizedText | null
     deadline?: Date | null
   },
   tx: Tx = prisma
@@ -153,16 +186,19 @@ export function notifyProjectAssigned(
   // Adding yourself to a project does not need an announcement either.
   if (params.actorId && params.actorId === params.userId) return Promise.resolve()
 
-  const parts: string[] = [params.projectCode]
-  if (params.roleLabel) parts.push(params.roleLabel)
-  if (params.deadline) parts.push('срок ' + formatDate(params.deadline))
+  const deadline = params.deadline
 
   return notify(
     {
       userId: params.userId,
       type: 'PROJECT_ASSIGNED',
-      title: 'Вас добавили в проект: ' + params.projectName,
-      body: parts.join(' · '),
+      title: t => t('team.notifications.projectAssigned', { name: params.projectName }),
+      body: (t) => {
+        const parts: string[] = [params.projectCode]
+        if (params.roleLabel) parts.push(renderText(params.roleLabel, t))
+        if (deadline) parts.push(t('team.notifications.deadline', { date: formatDateFor(t.locale, deadline) }))
+        return parts.join(' · ')
+      },
       linkUrl: '/projects/' + params.projectId,
       entityType: 'Project',
       entityId: params.projectId

@@ -4,7 +4,9 @@ import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 
 definePageMeta({ layout: false })
-useHead({ title: 'Восстановление пароля' })
+
+const { t } = useI18n()
+useHead({ title: computed(() => t('auth.forgot.title')) })
 
 const email = ref('')
 const submitted = ref(false)
@@ -25,27 +27,27 @@ function onSubmit() {
         class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <Icon name="lucide:arrow-left" class="size-3.5" />
-        Назад ко входу
+        {{ t('auth.forgot.backToLogin') }}
       </NuxtLink>
 
-      <h1 class="mt-6 text-2xl font-semibold tracking-tight">Восстановление пароля</h1>
+      <h1 class="mt-6 text-2xl font-semibold tracking-tight">{{ t('auth.forgot.title') }}</h1>
       <p class="mt-2 text-sm text-muted-foreground">
-        Укажите рабочую почту — мы пришлём ссылку для сброса пароля.
+        {{ t('auth.forgot.intro') }}
       </p>
 
       <p
         v-if="submitted"
         class="mt-6 rounded-md border bg-secondary px-3 py-2.5 text-sm text-secondary-foreground"
       >
-        Если такой адрес есть в системе, письмо со ссылкой уже в пути.
+        {{ t('auth.forgot.sent') }}
       </p>
 
       <form v-else class="mt-6 space-y-4" @submit.prevent="onSubmit">
         <div class="space-y-2">
-          <Label for="email">Почта</Label>
+          <Label for="email">{{ t('auth.forgot.email') }}</Label>
           <Input id="email" v-model="email" type="email" autocomplete="email" required />
         </div>
-        <Button type="submit" class="w-full">Отправить ссылку</Button>
+        <Button type="submit" class="w-full">{{ t('auth.forgot.submit') }}</Button>
       </form>
     </div>
   </main>

@@ -12,7 +12,7 @@ const STAGE_STATUS = [
 
 const optionalDate = z
   .string()
-  .refine(value => !Number.isNaN(Date.parse(value)), 'Invalid date')
+  .refine(value => !Number.isNaN(Date.parse(value)), 'i18n:common.validation.invalidDate')
   .optional()
   .nullable()
 

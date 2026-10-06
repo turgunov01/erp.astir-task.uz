@@ -83,28 +83,32 @@ export const ATTENDANCE_SOURCE_LABEL: Record<string, string> = {
   EXTERNAL: 'Из системы контроля доступа'
 }
 
-export const WEEKDAY_SHORT = ['', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'] as const
+/** Short weekday name for an ISO weekday (1 = Monday ... 7 = Sunday), in the current language. */
+export function weekdayShort(isoDay: number): string {
+  return translate('common.weekdayShort.' + isoDay)
+}
 
 const clockFormatters = new Map<string, Intl.DateTimeFormat>()
 
 /** HH:MM of an instant on the studio's clock, not the browser's. */
 export function studioClock(value: string | null | undefined, timeZone: string): string {
   if (!value) return '—'
-  let formatter = clockFormatters.get(timeZone)
+  const cacheKey = intlTag() + '|' + timeZone
+  let formatter = clockFormatters.get(cacheKey)
   if (!formatter) {
-    formatter = new Intl.DateTimeFormat('ru-RU', { timeZone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
-    clockFormatters.set(timeZone, formatter)
+    formatter = new Intl.DateTimeFormat(intlTag(), { timeZone, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+    clockFormatters.set(cacheKey, formatter)
   }
   return formatter.format(new Date(value))
 }
 
-/** 485 -> "8 ч 05 мин"; 0 -> "—". */
+/** 485 -> "8 ч 05 мин" (in the current language); 0 -> "—". */
 export function formatMinutes(minutes: number | null | undefined): string {
   if (!minutes) return '—'
   const hours = Math.floor(minutes / 60)
   const rest = minutes % 60
-  if (hours === 0) return rest + ' мин'
-  return hours + ' ч ' + String(rest).padStart(2, '0') + ' мин'
+  if (hours === 0) return translate('common.units.minutes', { m: rest })
+  return translate('common.units.hoursMinutes', { h: hours, m: String(rest).padStart(2, '0') })
 }
 
 /** ISO weekday of a YYYY-MM-DD date. */
@@ -113,9 +117,9 @@ export function isoWeekday(date: string): number {
   return day === 0 ? 7 : day
 }
 
-/** "2026-10-06" -> "06.10, Вт". */
+/** "2026-10-06" -> "06.10, Вт" (weekday in the current language). */
 export function shortDate(date: string): string {
-  return date.slice(8, 10) + '.' + date.slice(5, 7) + ', ' + WEEKDAY_SHORT[isoWeekday(date)]
+  return date.slice(8, 10) + '.' + date.slice(5, 7) + ', ' + weekdayShort(isoWeekday(date))
 }
 
 /** Shift a YYYY-MM-DD date by whole days. */
@@ -131,13 +135,13 @@ export function weekStart(date: string): string {
 
 /** Working weekdays as text: [1..5] -> "Пн–Пт". */
 export function weekdaysLabel(days: number[]): string {
-  if (days.length === 0) return 'нет рабочих дней'
+  if (days.length === 0) return translate('common.noWorkdays')
   const sorted = [...days].sort((a, b) => a - b)
   const contiguous = sorted.every((day, index) => index === 0 || day === (sorted[index - 1] ?? 0) + 1)
   if (contiguous && sorted.length > 2) {
-    return WEEKDAY_SHORT[sorted[0] ?? 1] + '–' + WEEKDAY_SHORT[sorted[sorted.length - 1] ?? 7]
+    return weekdayShort(sorted[0] ?? 1) + '–' + weekdayShort(sorted[sorted.length - 1] ?? 7)
   }
-  return sorted.map(day => WEEKDAY_SHORT[day]).join(', ')
+  return sorted.map(day => weekdayShort(day)).join(', ')
 }
 
 export function personInitials(person: { firstName: string, lastName: string }): string {

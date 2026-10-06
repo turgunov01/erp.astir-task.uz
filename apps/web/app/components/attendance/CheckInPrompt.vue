@@ -9,6 +9,7 @@ import { useMyAttendance } from '~/composables/useMyAttendance'
  * day — the header button stays for whoever still needs it.
  */
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const { day, busy, checkIn } = useMyAttendance()
 
@@ -47,7 +48,9 @@ function later() {
 }
 
 const startLine = computed(() =>
-  day.value?.isWorkingDay ? 'Рабочий день начинается в ' + day.value.start + '.' : 'Сегодня выходной по графику.'
+  day.value?.isWorkingDay
+    ? t('shell.checkInPrompt.workdayStarts', { start: day.value.start })
+    : t('shell.checkInPrompt.dayOff')
 )
 </script>
 
@@ -70,9 +73,9 @@ const startLine = computed(() =>
           <Icon name="lucide:map-pin-check" class="size-5" />
         </span>
         <div class="min-w-0 flex-1">
-          <p id="check-in-prompt-title" class="text-sm font-semibold">Отметьтесь: «Я приехал»</p>
+          <p id="check-in-prompt-title" class="text-sm font-semibold">{{ t('shell.checkInPrompt.title') }}</p>
           <p class="mt-0.5 text-xs text-muted-foreground">
-            Нажмите, когда пришли на работу, — время запишется по часам сервера. {{ startLine }}
+            {{ t('shell.checkInPrompt.body') }} {{ startLine }}
           </p>
         </div>
       </div>
@@ -82,7 +85,7 @@ const startLine = computed(() =>
           class="h-8 rounded-md px-3 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground"
           @click="later()"
         >
-          Позже
+          {{ t('common.actions.later') }}
         </button>
         <button
           type="button"
@@ -91,7 +94,7 @@ const startLine = computed(() =>
           @click="checkIn()"
         >
           <Icon name="lucide:map-pin-check" class="size-4" />
-          Я приехал
+          {{ t('shell.checkIn.button') }}
         </button>
       </div>
     </aside>

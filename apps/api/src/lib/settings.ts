@@ -44,6 +44,15 @@ export async function saveStudioSettings(
   return cached
 }
 
+/**
+ * The cached row without waiting for the database, or null before the first
+ * read. For synchronous callers such as the translator's studio-default
+ * fallback; the request middleware warms the cache.
+ */
+export function cachedStudioSettings(): StudioSettings | null {
+  return cached
+}
+
 /** Drop the cache so the next read sees somebody else's write. */
 export function forgetStudioSettings() {
   cached = null

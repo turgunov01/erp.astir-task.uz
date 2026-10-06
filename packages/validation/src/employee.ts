@@ -10,10 +10,10 @@ const ROLE = [
 
 /** Creating an employee also provisions the login it belongs to. */
 export const createEmployeeSchema = z.object({
-  email: z.string().trim().toLowerCase().email('Enter a valid email'),
+  email: z.string().trim().toLowerCase().email('i18n:common.validation.invalidEmail'),
   firstName: z.string().trim().min(1).max(80),
   lastName: z.string().trim().min(1).max(80),
-  password: z.string().min(8, 'Password must be at least 8 characters').max(128),
+  password: z.string().min(8).max(128),
   role: z.enum(ROLE).default('ARTIST'),
 
   departmentId: uuidSchema.optional().nullable(),

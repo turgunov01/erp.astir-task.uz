@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from 'express'
 import { effectivePermissions } from '../../lib/rbac'
 import { sendItem, sendNoContent } from '../../lib/http'
 import { unauthenticated } from '../../lib/errors'
+import { t } from '../../i18n'
 import * as authService from './auth.service'
 import {
   ACCESS_COOKIE,
@@ -42,7 +43,7 @@ export async function loginHandler(req: Request, res: Response, next: NextFuncti
 export async function refreshHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const presented = req.cookies?.[REFRESH_COOKIE] ?? req.body?.refreshToken
-    if (!presented) throw unauthenticated('Сессия не найдена, войдите заново')
+    if (!presented) throw unauthenticated(t('common.errors.sessionNotFound'))
 
     const result = await authService.refresh(presented, sessionContext(req))
     setSessionCookies(res, result)

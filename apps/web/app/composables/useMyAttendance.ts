@@ -74,7 +74,7 @@ export function useMyAttendance() {
     busy,
     error,
     load,
-    checkIn: () => mark('check-in', 'Не удалось отметить приход'),
-    checkOut: () => mark('check-out', 'Не удалось отметить уход')
+    checkIn: () => mark('check-in', translate('shell.checkIn.checkInFailed')),
+    checkOut: () => mark('check-out', translate('shell.checkIn.checkOutFailed'))
   }
 }

@@ -15,15 +15,15 @@ const PRIORITY = ['LOW', 'NORMAL', 'HIGH', 'URGENT'] as const
 
 const optionalDate = z
   .string()
-  .refine(value => !Number.isNaN(Date.parse(value)), 'Invalid date')
+  .refine(value => !Number.isNaN(Date.parse(value)), 'i18n:common.validation.invalidDate')
   .optional()
   .nullable()
 
 export const createProjectSchema = z
   .object({
-    name: z.string().trim().min(2, 'Name must be at least 2 characters').max(200),
+    name: z.string().trim().min(2).max(200),
     // Left blank the service derives the next AST-nnn code.
-    code: z.string().trim().regex(/^[A-Z0-9-]{3,20}$/, 'Use uppercase letters, digits and dashes').optional(),
+    code: z.string().trim().regex(/^[A-Z0-9-]{3,20}$/, 'i18n:common.validation.projectCodeFormat').optional(),
     description: z.string().trim().max(4000).optional().nullable(),
 
     clientId: uuidSchema,
@@ -48,7 +48,7 @@ export const createProjectSchema = z
       !data.startDate ||
       !data.deadline ||
       Date.parse(data.startDate) <= Date.parse(data.deadline),
-    { message: 'Дедлайн не может быть раньше даты старта', path: ['deadline'] }
+    { message: 'i18n:common.validation.deadlineBeforeStart', path: ['deadline'] }
   )
 
 export type CreateProjectInput = z.infer<typeof createProjectSchema>

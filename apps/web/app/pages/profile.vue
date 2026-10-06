@@ -1,10 +1,36 @@
 <script setup lang="ts">
 import { apiErrorMessage, apiRequest } from '~/composables/useApi'
 import { useAuthStore } from '~/stores/auth'
+import LocaleSelect from '~/components/locale/LocaleSelect.vue'
+import { LOCALE_NATIVE_NAME, type Locale } from '@astir/types'
 
-useHead({ title: 'Профиль' })
+const { t } = useI18n()
+useHead({ title: computed(() => t('team.profile.title')) })
 
 const auth = useAuthStore()
+const brand = useBrand()
+
+/* ----------------------------------------------------------- language */
+
+/*
+ * The account's own language, or null for «Как в студии». Bound to the
+ * account rather than to the screen: the screen may be showing the studio
+ * default because nothing was chosen.
+ */
+const { choose, busy: languageBusy, error: languageError } = useAppLocale()
+const languageSaved = ref(false)
+const language = computed({
+  get: () => auth.user?.locale ?? null,
+  set: (code: Locale | null) => { void changeLanguage(code) }
+})
+const studioLanguageLabel = computed(() =>
+  t('team.profile.language.studioDefault', { language: LOCALE_NATIVE_NAME[brand.value.defaultLocale] })
+)
+
+async function changeLanguage(code: Locale | null) {
+  languageSaved.value = false
+  languageSaved.value = await choose(code)
+}
 
 const form = reactive({
   firstName: auth.user?.firstName ?? '',
@@ -51,7 +77,7 @@ async function saveProfile() {
     await auth.refresh()
     saved.value = true
   } catch (err) {
-    saveError.value = apiErrorMessage(err, 'Не удалось сохранить профиль')
+    saveError.value = apiErrorMessage(err, t('team.profile.saveFailed'))
   } finally {
     saving.value = false
   }
@@ -65,9 +91,9 @@ const passwordDone = ref(false)
 const changing = ref(false)
 
 const passwordProblem = computed(() => {
-  if (!password.current) return 'Введите текущий пароль'
-  if (password.next.length < 8) return 'Новый пароль короче 8 символов'
-  if (password.next !== password.repeat) return 'Новый пароль и повтор не совпадают'
+  if (!password.current) return t('team.profile.password.enterCurrent')
+  if (password.next.length < 8) return t('team.profile.password.tooShort')
+  if (password.next !== password.repeat) return t('team.profile.password.mismatch')
   return ''
 })
 
@@ -89,7 +115,7 @@ async function changePassword() {
     password.repeat = ''
     passwordDone.value = true
   } catch (err) {
-    passwordError.value = apiErrorMessage(err, 'Не удалось сменить пароль')
+    passwordError.value = apiErrorMessage(err, t('team.profile.password.failed'))
   } finally {
     changing.value = false
   }
@@ -103,8 +129,8 @@ const initials = computed(() =>
 <template>
   <div class="mx-auto max-w-3xl px-6 py-8">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Аккаунт</p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Профиль</h1>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{{ t('team.profile.eyebrow') }}</p>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('team.profile.title') }}</h1>
     </header>
 
     <section class="mb-4 flex items-center gap-4 rounded-xl border bg-card p-5">
@@ -116,38 +142,37 @@ const initials = computed(() =>
         <p class="font-medium">{{ auth.user?.firstName }} {{ auth.user?.lastName }}</p>
         <p class="mt-0.5 text-sm text-muted-foreground">{{ auth.user?.email }}</p>
         <p class="mt-1 text-xs text-muted-foreground">
-          Роль: {{ enumLabel(ROLE_LABEL, auth.user?.role ?? '') }} — её меняет администратор
-          в настройках.
+          {{ t('team.profile.role', { role: enumLabel(ROLE_LABEL, auth.user?.role ?? '') }) }}
         </p>
       </div>
     </section>
 
     <section class="mb-6 space-y-4 rounded-xl border bg-card p-5">
-      <h2 class="text-sm font-medium">Личные данные</h2>
+      <h2 class="text-sm font-medium">{{ t('team.profile.personal') }}</h2>
 
       <p v-if="saveError" role="alert" class="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm text-destructive">
         {{ saveError }}
       </p>
       <p v-else-if="saved" class="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-sm">
-        Сохранено.
+        {{ t('common.states.saved') }}
       </p>
 
       <div class="grid gap-4 sm:grid-cols-2">
         <label class="block">
-          <span class="text-sm font-medium">Имя</span>
+          <span class="text-sm font-medium">{{ t('team.profile.firstName') }}</span>
           <input v-model="form.firstName" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring">
         </label>
         <label class="block">
-          <span class="text-sm font-medium">Фамилия</span>
+          <span class="text-sm font-medium">{{ t('team.profile.lastName') }}</span>
           <input v-model="form.lastName" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring">
         </label>
         <label class="block">
-          <span class="text-sm font-medium">Телефон</span>
+          <span class="text-sm font-medium">{{ t('team.profile.phone') }}</span>
           <input v-model="form.phone" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring">
         </label>
         <label class="block">
-          <span class="text-sm font-medium">Ссылка на аватар</span>
-          <input v-model="form.avatarUrl" placeholder="Ссылка на изображение" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring">
+          <span class="text-sm font-medium">{{ t('team.profile.avatarUrl') }}</span>
+          <input v-model="form.avatarUrl" :placeholder="t('team.profile.avatarPlaceholder')" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring">
         </label>
       </div>
 
@@ -157,37 +182,58 @@ const initials = computed(() =>
         :disabled="saving || !form.firstName.trim() || !form.lastName.trim()"
         @click="saveProfile()"
       >
-        {{ saving ? 'Сохраняю...' : 'Сохранить' }}
+        {{ saving ? t('common.actions.saving') : t('common.actions.save') }}
       </button>
+    </section>
+
+    <section class="mb-6 space-y-3 rounded-xl border bg-card p-5" aria-labelledby="profile-language">
+      <div>
+        <h2 id="profile-language" class="text-sm font-medium">{{ t('team.profile.language.title') }}</h2>
+        <p class="mt-1 text-sm text-muted-foreground">{{ t('team.profile.language.hint') }}</p>
+      </div>
+      <div class="max-w-xs">
+        <LocaleSelect
+          id="profile-language-select"
+          v-model="language"
+          :default-label="studioLanguageLabel"
+          :disabled="languageBusy"
+          :aria-label="t('team.profile.language.title')"
+        />
+      </div>
+      <p v-if="languageError" role="alert" class="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm text-destructive">
+        {{ languageError }}
+      </p>
+      <p v-else-if="languageSaved" role="status" class="text-sm text-emerald-700 dark:text-emerald-300">
+        {{ t('team.profile.language.saved') }}
+      </p>
     </section>
 
     <ProfileNotificationSettings />
 
     <section class="space-y-4 rounded-xl border bg-card p-5">
-      <h2 class="text-sm font-medium">Смена пароля</h2>
+      <h2 class="text-sm font-medium">{{ t('team.profile.password.title') }}</h2>
       <p class="text-sm text-muted-foreground">
-        Текущий пароль нужен даже при открытой сессии — иначе оставленный без
-        присмотра экран позволил бы запереть вас из вашей же учётной записи.
+        {{ t('team.profile.password.why') }}
       </p>
 
       <p v-if="passwordError" role="alert" class="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm text-destructive">
         {{ passwordError }}
       </p>
       <p v-else-if="passwordDone" class="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-sm">
-        Пароль изменён.
+        {{ t('team.profile.password.done') }}
       </p>
 
       <div class="grid gap-4 sm:grid-cols-3">
         <label class="block">
-          <span class="text-sm font-medium">Текущий</span>
+          <span class="text-sm font-medium">{{ t('team.profile.password.current') }}</span>
           <input v-model="password.current" type="password" autocomplete="current-password" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring">
         </label>
         <label class="block">
-          <span class="text-sm font-medium">Новый</span>
+          <span class="text-sm font-medium">{{ t('team.profile.password.next') }}</span>
           <input v-model="password.next" type="password" autocomplete="new-password" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring">
         </label>
         <label class="block">
-          <span class="text-sm font-medium">Повторите новый</span>
+          <span class="text-sm font-medium">{{ t('team.profile.password.repeat') }}</span>
           <input v-model="password.repeat" type="password" autocomplete="new-password" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring">
         </label>
       </div>
@@ -198,7 +244,7 @@ const initials = computed(() =>
         :disabled="changing || Boolean(passwordProblem)"
         @click="changePassword()"
       >
-        {{ changing ? 'Меняю...' : 'Сменить пароль' }}
+        {{ changing ? t('team.profile.password.submitting') : t('team.profile.password.submit') }}
       </button>
     </section>
   </div>

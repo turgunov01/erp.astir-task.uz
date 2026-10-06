@@ -1,0 +1,117 @@
+{
+  "shell": {
+    "tagline": "Управление производством",
+    "nav": {
+      "dashboard": "Панель управления",
+      "attendance": "Посещаемость",
+      "myTasks": "Мои задачи",
+      "projects": "Проекты",
+      "production": "Производство",
+      "episodes": "Эпизоды",
+      "scenes": "Сцены",
+      "shots": "Шоты",
+      "tasks": "Задачи",
+      "reviews": "Согласование",
+      "revisions": "Правки",
+      "render": "Очередь рендера",
+      "assets": "Библиотека ассетов",
+      "calendar": "Календарь",
+      "team": "Команда",
+      "employees": "Сотрудники",
+      "departments": "Отделы",
+      "workload": "Загрузка",
+      "timesheets": "Учёт времени",
+      "timeline": "Таймлайн",
+      "clients": "Клиенты",
+      "finance": "Финансы",
+      "financeOverview": "Обзор",
+      "budgets": "Бюджеты",
+      "expenses": "Расходы",
+      "payments": "Платежи",
+      "invoices": "Счета",
+      "payroll": "Зарплата",
+      "reports": "Отчёты",
+      "reportProduction": "Производство",
+      "reportFinance": "Финансы",
+      "reportTime": "Время и люди",
+      "reportClients": "Клиенты",
+      "documents": "Документы",
+      "activity": "Лента событий",
+      "settings": "Настройки"
+    },
+    "phoneTab": {
+      "dashboard": "Панель",
+      "myTasks": "Мои",
+      "attendance": "Посещаемость",
+      "finance": "Финансы",
+      "activity": "События"
+    },
+    "layout": {
+      "mainNavigation": "Основная навигация",
+      "phoneNavigation": "Основные разделы",
+      "collapse": "Свернуть",
+      "more": "Ещё",
+      "close": "Закрыть",
+      "closeMenu": "Закрыть меню",
+      "navigation": "Навигация"
+    },
+    "search": {
+      "placeholder": "Поиск по проектам, шотам, задачам...",
+      "shortcut": "Ctrl K"
+    },
+    "userMenu": {
+      "open": "Меню пользователя",
+      "profile": "Профиль",
+      "language": "Язык",
+      "logout": "Выйти"
+    },
+    "language": {
+      "label": "Язык",
+      "saveFailed": "Не удалось сохранить язык"
+    },
+    "bell": {
+      "title": "Уведомления",
+      "markAll": "Прочитать все",
+      "empty": "Пока нет уведомлений",
+      "unread": "{n} непрочитанное уведомление | {n} непрочитанных уведомления | {n} непрочитанных уведомлений"
+    },
+    "checkIn": {
+      "button": "Я приехал",
+      "buttonAria": "Я приехал — отметить приход на работу",
+      "buttonTitle": "Отметить приход на работу",
+      "corrected": "День исправлен",
+      "correctedShort": "Исправлен",
+      "leftAt": "Ушёл в {time}",
+      "leftShort": "Ушёл {time}",
+      "atWorkSince": "На работе с {time}",
+      "sinceShort": "с {time}",
+      "today": "Сегодня, {date}",
+      "arrival": "Приход",
+      "departure": "Уход",
+      "late": "опоздание {duration}",
+      "onTime": "вовремя, начало в {start}",
+      "stillAtWork": "ещё на работе",
+      "correctedNote": "День исправлен администратором — отметки по кнопкам не нужны.",
+      "checkOut": "Я ушёл",
+      "checkInFailed": "Не удалось отметить приход",
+      "checkOutFailed": "Не удалось отметить уход"
+    },
+    "checkInPrompt": {
+      "title": "Отметьтесь: «Я приехал»",
+      "body": "Нажмите, когда пришли на работу, — время запишется по часам сервера.",
+      "workdayStarts": "Рабочий день начинается в {start}.",
+      "dayOff": "Сегодня выходной по графику."
+    },
+    "errorPage": {
+      "notFoundTitle": "Страница не найдена",
+      "errorTitle": "Ошибка",
+      "somethingWrong": "Что-то пошло не так",
+      "notFoundBody": "Возможно, этот раздел ещё не реализован или ссылка устарела.",
+      "forbiddenTitle": "Нет доступа",
+      "forbiddenBody": "У вас нет доступа к этому разделу",
+      "unexpected": "Непредвиденная ошибка сервера.",
+      "toStart": "На главную",
+      "back": "Назад"
+    }
+  }
+}

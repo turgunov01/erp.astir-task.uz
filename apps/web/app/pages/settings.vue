@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { apiErrorMessage, apiRequest, useListResource } from '~/composables/useApi'
-import { PERMISSION, ROLE, type Permission } from '@astir/types'
+import { DEFAULT_LOCALE, LOCALE_COOKIE, PERMISSION, ROLE, type Locale, type Permission } from '@astir/types'
+import LocaleSelect from '~/components/locale/LocaleSelect.vue'
 import RoleMatrix from '~/components/settings/RoleMatrix.vue'
 import WorkSchedule from '~/components/settings/WorkSchedule.vue'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Настройки' })
+const { t, locale, setLocale } = useI18n()
+const localeCookie = useCookie<string | null>(LOCALE_COOKIE)
+useHead({ title: computed(() => t('team.settings.title')) })
 
 const auth = useAuthStore()
 const route = useRoute()
@@ -16,20 +19,20 @@ const canManage = computed(() => auth.can(PERMISSION.SETTINGS_MANAGE))
 const canManageUsers = computed(() => auth.can(PERMISSION.USER_MANAGE))
 
 interface SettingsTab {
+  /** Also the message key under team.settings.tabs. */
   key: string
-  label: string
   /** Narrower than the page itself; the tab is hidden without it. */
   permission?: Permission
 }
 
 /** Tabs live in the URL so a link can point at the one being discussed. */
 const TABS: SettingsTab[] = [
-  { key: 'studio', label: 'Студия' },
-  { key: 'schedule', label: 'Рабочий график' },
-  { key: 'mail', label: 'Почта' },
-  { key: 'templates', label: 'Шаблоны пайплайна' },
-  { key: 'users', label: 'Пользователи', permission: PERMISSION.USER_MANAGE },
-  { key: 'roles', label: 'Роли и доступ', permission: PERMISSION.PERMISSION_MANAGE }
+  { key: 'studio' },
+  { key: 'schedule' },
+  { key: 'mail' },
+  { key: 'templates' },
+  { key: 'users', permission: PERMISSION.USER_MANAGE },
+  { key: 'roles', permission: PERMISSION.PERMISSION_MANAGE }
 ]
 
 const canEditRoles = computed(() => auth.can(PERMISSION.PERMISSION_MANAGE))
@@ -57,6 +60,8 @@ interface Settings {
   currency: string
   timezone: string
   invoicePrefix: string
+  /** Language for everyone without their own choice, and for the sign-in page. */
+  defaultLocale: Locale
   smtpHost: string | null
   smtpPort: number | null
   smtpUser: string | null
@@ -97,13 +102,22 @@ async function save(fields: string[]) {
     }
 
     const response = await apiRequest<{ data: Settings }>('/api/settings', { method: 'PATCH', body })
-    // The sidebar and tab titles read the name from here; keep them current.
-    brand.value = { name: response.data.name, logoUrl: response.data.logoUrl ?? null }
+    // The sidebar, tab titles and the language fallback read from here; keep them current.
+    brand.value = {
+      name: response.data.name,
+      logoUrl: response.data.logoUrl ?? null,
+      defaultLocale: response.data.defaultLocale ?? DEFAULT_LOCALE,
+      loaded: true
+    }
+    // Someone with no language of their own (account or this browser) sees the new default at once.
+    if (!auth.user?.locale && !localeCookie.value && locale.value !== brand.value.defaultLocale) {
+      await setLocale(brand.value.defaultLocale)
+    }
     smtpPassword.value = ''
     saved.value = true
     await refreshSettings()
   } catch (err) {
-    saveError.value = apiErrorMessage(err, 'Не удалось сохранить настройки')
+    saveError.value = apiErrorMessage(err, t('team.settings.saveFailed'))
   } finally {
     saving.value = false
   }
@@ -111,8 +125,14 @@ async function save(fields: string[]) {
 
 const STUDIO_FIELDS = [
   'name', 'legalName', 'email', 'phone', 'website', 'address',
-  'currency', 'timezone', 'invoicePrefix'
+  'currency', 'timezone', 'invoicePrefix', 'defaultLocale'
 ]
+
+/* The select works with null for «no choice»; the studio always has one. */
+const defaultLanguage = computed({
+  get: () => form.defaultLocale ?? DEFAULT_LOCALE,
+  set: (code: Locale | null) => { form.defaultLocale = code ?? DEFAULT_LOCALE }
+})
 const MAIL_FIELDS = ['smtpHost', 'smtpPort', 'smtpUser', 'smtpFrom']
 
 /* ------------------------------------------------------------------- mail */
@@ -271,10 +291,10 @@ const isSelf = (row: Account) => row.id === auth.user?.id
 <template>
   <div class="mx-auto max-w-5xl px-6 py-8">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Администрирование</p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Настройки</h1>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{{ t('team.settings.eyebrow') }}</p>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('team.settings.title') }}</h1>
       <p v-if="!canManage" class="mt-1 text-sm text-muted-foreground">
-        У вас доступ на просмотр: поля видны, но сохранить изменения нельзя.
+        {{ t('team.settings.readOnly') }}
       </p>
 
       <nav ref="tabStrip" class="scrollbar-none -mx-6 mt-4 flex gap-1 overflow-x-auto border-b px-6 sm:mx-0 sm:px-0">
@@ -289,7 +309,7 @@ const isSelf = (row: Account) => row.id === auth.user?.id
           :aria-current="tab === entry.key ? 'page' : undefined"
           @click="tab = entry.key"
         >
-          {{ entry.label }}
+          {{ t('team.settings.tabs.' + entry.key) }}
         </button>
       </nav>
     </header>
@@ -305,52 +325,60 @@ const isSelf = (row: Account) => row.id === auth.user?.id
       v-else-if="saved"
       class="mb-4 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-sm"
     >
-      Сохранено.
+      {{ t('common.states.saved') }}
     </p>
 
     <!-- ----------------------------------------------------------- studio -->
     <section v-if="tab === 'studio'" class="space-y-4">
       <div class="grid gap-4 rounded-xl border bg-card p-5 sm:grid-cols-2">
         <label class="block">
-          <span class="text-sm font-medium">Название студии</span>
+          <span class="text-sm font-medium">{{ t('team.settings.studio.name') }}</span>
           <input v-model="form.name" :disabled="!canManage" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring disabled:opacity-60">
         </label>
         <label class="block">
-          <span class="text-sm font-medium">Юридическое название</span>
+          <span class="text-sm font-medium">{{ t('team.settings.studio.legalName') }}</span>
           <input v-model="form.legalName" :disabled="!canManage" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring disabled:opacity-60">
         </label>
         <label class="block">
-          <span class="text-sm font-medium">Почта</span>
+          <span class="text-sm font-medium">{{ t('team.settings.studio.email') }}</span>
           <input v-model="form.email" :disabled="!canManage" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring disabled:opacity-60">
         </label>
         <label class="block">
-          <span class="text-sm font-medium">Телефон</span>
+          <span class="text-sm font-medium">{{ t('team.settings.studio.phone') }}</span>
           <input v-model="form.phone" :disabled="!canManage" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring disabled:opacity-60">
         </label>
         <label class="block">
-          <span class="text-sm font-medium">Сайт</span>
+          <span class="text-sm font-medium">{{ t('team.settings.studio.website') }}</span>
           <input v-model="form.website" :disabled="!canManage" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring disabled:opacity-60">
         </label>
         <label class="block sm:col-span-2">
-          <span class="text-sm font-medium">Адрес</span>
+          <span class="text-sm font-medium">{{ t('team.settings.studio.address') }}</span>
           <textarea v-model="form.address" :disabled="!canManage" rows="2" class="mt-1.5 w-full rounded-md border bg-background px-2.5 py-2 text-sm outline-none focus:border-ring disabled:opacity-60" />
         </label>
       </div>
 
       <div class="grid gap-4 rounded-xl border bg-card p-5 sm:grid-cols-3">
         <label class="block">
-          <span class="text-sm font-medium">Валюта по умолчанию</span>
+          <span class="text-sm font-medium">{{ t('team.settings.studio.currency') }}</span>
           <input v-model="form.currency" :disabled="!canManage" maxlength="3" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm uppercase outline-none focus:border-ring disabled:opacity-60">
         </label>
         <label class="block">
-          <span class="text-sm font-medium">Часовой пояс</span>
+          <span class="text-sm font-medium">{{ t('team.settings.studio.timezone') }}</span>
           <input v-model="form.timezone" :disabled="!canManage" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring disabled:opacity-60">
         </label>
         <label class="block">
-          <span class="text-sm font-medium">Префикс счетов</span>
+          <span class="text-sm font-medium">{{ t('team.settings.studio.invoicePrefix') }}</span>
           <input v-model="form.invoicePrefix" :disabled="!canManage" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring disabled:opacity-60">
-          <span class="mt-1 block text-xs text-muted-foreground">Например, INV- даёт INV-0001.</span>
+          <span class="mt-1 block text-xs text-muted-foreground">{{ t('team.settings.studio.invoicePrefixHint') }}</span>
         </label>
+      </div>
+
+      <div class="rounded-xl border bg-card p-5">
+        <label for="settings-default-language" class="text-sm font-medium">{{ t('team.settings.studio.defaultLanguage') }}</label>
+        <div class="mt-1.5 max-w-xs">
+          <LocaleSelect id="settings-default-language" v-model="defaultLanguage" :disabled="!canManage" />
+        </div>
+        <p class="mt-1.5 text-xs text-muted-foreground">{{ t('team.settings.studio.defaultLanguageHint') }}</p>
       </div>
 
       <button
@@ -360,7 +388,7 @@ const isSelf = (row: Account) => row.id === auth.user?.id
         :disabled="saving"
         @click="save(STUDIO_FIELDS)"
       >
-        {{ saving ? 'Сохраняю...' : 'Сохранить' }}
+        {{ saving ? t('common.actions.saving') : t('common.actions.save') }}
       </button>
     </section>
 

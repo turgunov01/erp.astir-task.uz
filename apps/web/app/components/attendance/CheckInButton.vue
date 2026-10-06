@@ -18,6 +18,7 @@ import {
  * arrival, any lateness, and «Я ушёл».
  */
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const { day, enabled, busy, error, load, checkIn, checkOut } = useMyAttendance()
 
@@ -30,9 +31,17 @@ const isLate = computed(() => (day.value?.lateMinutes ?? 0) > 0)
 /** The trigger's words, full on a desktop and short on a phone. */
 const status = computed(() => {
   const current = day.value
-  if (!current?.checkedIn) return { full: 'День исправлен', short: 'Исправлен' }
-  if (current.checkedOut) return { full: 'Ушёл в ' + departure.value, short: 'Ушёл ' + departure.value }
-  return { full: 'На работе с ' + arrival.value, short: 'с ' + arrival.value }
+  if (!current?.checkedIn) return { full: t('shell.checkIn.corrected'), short: t('shell.checkIn.correctedShort') }
+  if (current.checkedOut) {
+    return {
+      full: t('shell.checkIn.leftAt', { time: departure.value }),
+      short: t('shell.checkIn.leftShort', { time: departure.value })
+    }
+  }
+  return {
+    full: t('shell.checkIn.atWorkSince', { time: arrival.value }),
+    short: t('shell.checkIn.sinceShort', { time: arrival.value })
+  }
 })
 
 /* A page left open overnight must not keep showing yesterday's marks. */
@@ -62,8 +71,8 @@ watch(error, (message) => {
       type="button"
       class="group relative flex h-9 items-center gap-1.5 rounded-md bg-signal px-2.5 text-sm font-semibold text-signal-foreground shadow-sm transition-[transform,filter] hover:brightness-105 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-70 sm:px-3"
       :disabled="busy"
-      aria-label="Я приехал — отметить приход на работу"
-      title="Отметить приход на работу"
+      :aria-label="t('shell.checkIn.buttonAria')"
+      :title="t('shell.checkIn.buttonTitle')"
       @click="checkIn()"
     >
       <span class="absolute -right-1 -top-1 flex size-2.5" aria-hidden="true">
@@ -71,7 +80,7 @@ watch(error, (message) => {
         <span class="relative inline-flex size-2.5 rounded-full border-2 border-card bg-signal" />
       </span>
       <Icon :name="busy ? 'lucide:loader-circle' : 'lucide:map-pin-check'" class="size-4" :class="busy ? 'motion-safe:animate-spin' : ''" />
-      <span class="whitespace-nowrap">Я приехал</span>
+      <span class="whitespace-nowrap">{{ t('shell.checkIn.button') }}</span>
     </button>
 
     <DropdownMenu v-else>
@@ -93,11 +102,11 @@ watch(error, (message) => {
 
       <DropdownMenuContent align="end" class="w-60">
         <DropdownMenuLabel class="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          Сегодня, {{ shortDate(day.date) }}
+          {{ t('shell.checkIn.today', { date: shortDate(day.date) }) }}
         </DropdownMenuLabel>
         <div class="space-y-1.5 px-2 pb-2 text-sm">
           <div class="flex items-baseline justify-between gap-3">
-            <span class="text-muted-foreground">Приход</span>
+            <span class="text-muted-foreground">{{ t('shell.checkIn.arrival') }}</span>
             <span class="tabular-nums font-medium">{{ arrival }}</span>
           </div>
           <p
@@ -105,23 +114,23 @@ watch(error, (message) => {
             class="-mt-1 text-right text-xs"
             :class="isLate ? 'font-medium text-amber-700 dark:text-amber-300' : 'text-emerald-700 dark:text-emerald-300'"
           >
-            {{ isLate ? 'опоздание ' + formatMinutes(day.lateMinutes) : 'вовремя, начало в ' + day.start }}
+            {{ isLate ? t('shell.checkIn.late', { duration: formatMinutes(day.lateMinutes) }) : t('shell.checkIn.onTime', { start: day.start }) }}
           </p>
           <div class="flex items-baseline justify-between gap-3">
-            <span class="text-muted-foreground">Уход</span>
+            <span class="text-muted-foreground">{{ t('shell.checkIn.departure') }}</span>
             <span class="tabular-nums" :class="day.checkedOut ? 'font-medium' : 'text-muted-foreground'">
-              {{ day.checkedOut ? departure : 'ещё на работе' }}
+              {{ day.checkedOut ? departure : t('shell.checkIn.stillAtWork') }}
             </span>
           </div>
         </div>
         <p v-if="day.corrected" class="px-2 pb-2 text-xs text-muted-foreground">
-          День исправлен администратором — отметки по кнопкам не нужны.
+          {{ t('shell.checkIn.correctedNote') }}
         </p>
         <template v-if="!day.checkedOut && !day.corrected">
           <DropdownMenuSeparator />
           <DropdownMenuItem :disabled="busy" @select="checkOut()">
             <Icon name="lucide:log-out" class="size-4" />
-            Я ушёл
+            {{ t('shell.checkIn.checkOut') }}
           </DropdownMenuItem>
         </template>
       </DropdownMenuContent>

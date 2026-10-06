@@ -1,0 +1,120 @@
+import type { Messages } from '../../types'
+import type ru from '../ru/common'
+
+export default {
+  errors: {
+    unauthenticated: 'Tizimga kiring',
+    invalidCredentials: 'Pochta yoki parol noto‘g‘ri',
+    tokenExpired: 'Seans muddati tugadi, qaytadan kiring',
+    sessionInvalid: 'Seans yaroqsiz, qaytadan kiring',
+    sessionNotFound: 'Seans topilmadi, qaytadan kiring',
+    sessionRevoked: 'Seans endi amal qilmaydi, qaytadan kiring',
+    accountGone: 'Bu hisob endi mavjud emas',
+    accountDisabled: 'Hisob o‘chirib qo‘yilgan',
+    forbidden: 'Bu amal uchun huquqingiz yetarli emas',
+    rateLimited: 'So‘rovlar juda ko‘p. Bir daqiqa kutib, qayta urinib ko‘ring.',
+    loginRateLimited: 'Kirishga urinishlar juda ko‘p. Keyinroq urinib ko‘ring.',
+    routeNotFound: '{method} {path} manzili mavjud emas',
+    fileTooLargeForOneRequest: 'Fayl bitta so‘rov uchun juda katta — uni /api/uploads orqali qismlarga bo‘lib yuklang',
+    checkFields: 'Maydonlar to‘ldirilishini tekshiring',
+    duplicate: 'Bunday qiymatli yozuv allaqachon mavjud ({target})',
+    recordNotFound: 'Yozuv topilmadi',
+    relatedConflict: 'Bog‘liq yozuv topilmadi yoki hali ishlatilmoqda',
+    databaseUnavailable: 'Ma’lumotlar bazasi mavjud emas. Ulanish tiklangach, qayta urinib ko‘ring.',
+    internal: 'Serverning ichki xatosi',
+    unknown: 'Noma’lum xato'
+  },
+  notFound: {
+    asset: 'Asset topilmadi',
+    budget: 'Byudjet topilmadi',
+    client: 'Mijoz topilmadi',
+    comment: 'Izoh topilmadi',
+    parentComment: 'Siz javob berayotgan izoh topilmadi',
+    department: 'Bo‘lim topilmadi',
+    document: 'Hujjat topilmadi',
+    employee: 'Xodim topilmadi',
+    episode: 'Epizod topilmadi',
+    expense: 'Xarajat topilmadi',
+    invoice: 'Hisob-faktura topilmadi',
+    payment: 'To‘lov topilmadi',
+    notification: 'Bildirishnoma topilmadi',
+    payrollEntry: 'Hisoblash topilmadi',
+    pipelineTemplate: 'Pipeline shabloni topilmadi',
+    prerequisiteTask: 'Oldingi vazifa topilmadi',
+    project: 'Loyiha topilmadi',
+    projectMember: 'Loyiha ishtirokchisi topilmadi',
+    renderJob: 'Render vazifasi topilmadi',
+    review: 'Kelishuv topilmadi',
+    revision: 'Tuzatish topilmadi',
+    role: 'Rol topilmadi',
+    scene: 'Sahna topilmadi',
+    shot: 'Shot topilmadi',
+    shotStage: 'Shot bosqichi topilmadi',
+    stage: 'Bosqich topilmadi',
+    target: 'Obyekt topilmadi',
+    task: 'Vazifa topilmadi',
+    timesheetEntry: 'Tabel yozuvi topilmadi',
+    uploadSession: 'Yuklash topilmadi yoki allaqachon tugagan',
+    user: 'Foydalanuvchi topilmadi',
+    version: 'Versiya topilmadi'
+  },
+  validation: {
+    required: 'Majburiy maydon',
+    invalidFormat: 'Qiymat formati noto‘g‘ri',
+    chooseFromList: 'Ro‘yxatdan qiymat tanlang',
+    invalidEmail: 'Pochta manzili noto‘g‘ri',
+    invalidId: 'Identifikator noto‘g‘ri',
+    invalidUrl: 'Havola noto‘g‘ri',
+    invalidDate: 'Sana noto‘g‘ri',
+    fillIn: 'Maydonni to‘ldiring',
+    minLength: 'Kamida {count} ta belgi',
+    maxLength: 'Ko‘pi bilan {count} ta belgi',
+    minValue: 'Qiymat {limit} dan kam bo‘lmasin',
+    maxValue: 'Qiymat {limit} dan oshmasin',
+    minItems: 'Kamida {limit} ta tanlang',
+    maxItems: 'Ko‘pi bilan {limit} ta',
+    timeFormat: 'Vaqt SS:DD ko‘rinishida bo‘lishi kerak',
+    passwordsMismatch: 'Parollar mos kelmadi',
+    codeSixDigits: 'Kod olti raqamdan iborat',
+    commentEmpty: 'Izoh bo‘sh bo‘lishi mumkin emas',
+    nothingToSave: 'Saqlash uchun o‘zgarish yo‘q',
+    deadlineBeforeStart: 'Muddat boshlanish sanasidan oldin bo‘lishi mumkin emas',
+    describeChanges: 'Nimani tuzatish kerakligini yozing',
+    attachOrDescribe: 'Fayl biriktiring yoki nima qilinganini yozing',
+    fileOver1Gb: 'Fayl 1 GB dan katta',
+    projectCodeFormat: 'Faqat lotin bosh harflari, raqamlar va chiziqcha'
+  },
+  yes: 'ha',
+  no: 'yo‘q',
+  unknownValue: 'Ko‘rsatilmagan',
+  enum: {
+    taskStatus: {
+      BACKLOG: 'Beklog', READY: 'Ishga tayyor', IN_PROGRESS: 'Jarayonda', REVIEW: 'Tekshiruvda',
+      REVISION: 'Tuzatishda', APPROVED: 'Tasdiqlangan', DONE: 'Bajarilgan', BLOCKED: 'Bloklangan'
+    },
+    projectStatus: {
+      DRAFT: 'Qoralama', PLANNING: 'Rejalashtirish', PRE_PRODUCTION: 'Preprodakshn',
+      PRODUCTION: 'Prodakshn', POST_PRODUCTION: 'Postprodakshn', CLIENT_REVIEW: 'Mijozda',
+      DELIVERY: 'Topshirish', COMPLETED: 'Yakunlangan', ON_HOLD: 'To‘xtatilgan',
+      CANCELLED: 'Bekor qilingan', ARCHIVED: 'Arxivda'
+    },
+    risk: { LOW: 'Past', MEDIUM: 'O‘rta', HIGH: 'Yuqori', CRITICAL: 'Jiddiy' },
+    clientStatus: { ACTIVE: 'Faol', INACTIVE: 'Nofaol', ARCHIVED: 'Arxivda' },
+    paymentMethod: { BANK_TRANSFER: 'Bank o‘tkazmasi', CASH: 'Naqd pul', CARD: 'Karta', OTHER: 'Boshqa' },
+    paymentStatus: {
+      PENDING: 'To‘lov kutilmoqda', PARTIALLY_PAID: 'Qisman to‘langan', PAID: 'To‘langan',
+      OVERDUE: 'Muddati o‘tgan', CANCELLED: 'Bekor qilingan'
+    },
+    expenseCategory: {
+      EMPLOYEE: 'Shtat', FREELANCER: 'Pudrat', RENDER: 'Render', SOFTWARE: 'Dasturlar',
+      HARDWARE: 'Uskunalar', AUDIO: 'Ovoz', PRODUCTION: 'Prodakshn', OFFICE: 'Ijara va ofis',
+      TAXES: 'Soliq va yig‘imlar', MARKETING: 'Marketing', OTHER: 'Boshqa'
+    },
+    role: {
+      OWNER: 'Egasi', ADMIN: 'Administrator', PRODUCER: 'Prodyuser',
+      PROJECT_MANAGER: 'Loyiha menejeri', ART_DIRECTOR: 'Art-direktor',
+      ARTIST: 'Rassom', CLIENT: 'Mijoz', FINANCE: 'Moliya'
+    }
+  },
+  statusChange: '«{from}» → «{to}»'
+} satisfies Messages<typeof ru>

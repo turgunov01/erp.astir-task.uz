@@ -129,7 +129,7 @@ function goTo(page: number) {
         <input
           v-model="searchValue"
           type="search"
-          :placeholder="searchPlaceholder || 'Поиск...'"
+          :placeholder="searchPlaceholder || $t('common.actions.searchPlaceholder')"
           class="h-9 w-full rounded-md border bg-background pl-8 pr-3 text-sm outline-none focus:border-ring"
         >
       </div>
@@ -141,14 +141,14 @@ function goTo(page: number) {
       <span class="grid size-11 place-items-center rounded-lg bg-destructive/10 text-destructive">
         <Icon name="lucide:triangle-alert" class="size-5" />
       </span>
-      <h3 class="mt-4 text-sm font-medium">Не удалось загрузить данные</h3>
+      <h3 class="mt-4 text-sm font-medium">{{ $t('common.table.loadFailed') }}</h3>
       <p class="mt-1.5 max-w-sm text-sm text-muted-foreground">{{ errorMessage }}</p>
       <button
         type="button"
         class="mt-5 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
         @click="emit('retry')"
       >
-        Повторить
+        {{ $t('common.actions.retry') }}
       </button>
     </div>
 
@@ -221,14 +221,14 @@ function goTo(page: number) {
       class="flex flex-wrap items-center justify-between gap-3 border-t px-4 py-3 text-sm"
     >
       <p class="text-muted-foreground">
-        {{ from }}–{{ to }} из {{ meta.total }}
+        {{ $t('common.table.range', { from, to, total: meta.total }) }}
       </p>
-      <nav class="flex items-center gap-1" aria-label="Страницы таблицы">
+      <nav class="flex items-center gap-1" :aria-label="$t('common.table.pagination')">
         <button
           type="button"
           class="rounded-md border px-2.5 py-1.5 disabled:opacity-40 enabled:hover:bg-secondary"
           :disabled="meta.page <= 1"
-          aria-label="Предыдущая страница"
+          :aria-label="$t('common.table.previous')"
           @click="goTo(meta.page - 1)"
         >
           <Icon name="lucide:chevron-left" class="size-4" />
@@ -250,7 +250,7 @@ function goTo(page: number) {
               ? 'border-primary bg-primary text-primary-foreground font-medium'
               : 'hover:bg-secondary'"
             :aria-current="slot.page === meta.page ? 'page' : undefined"
-            :aria-label="'Страница ' + slot.page"
+            :aria-label="$t('common.table.page', { n: slot.page })"
             @click="goTo(slot.page)"
           >
             {{ slot.page }}
@@ -261,7 +261,7 @@ function goTo(page: number) {
           type="button"
           class="rounded-md border px-2.5 py-1.5 disabled:opacity-40 enabled:hover:bg-secondary"
           :disabled="meta.page >= meta.pages"
-          aria-label="Следующая страница"
+          :aria-label="$t('common.table.next')"
           @click="goTo(meta.page + 1)"
         >
           <Icon name="lucide:chevron-right" class="size-4" />

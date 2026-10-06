@@ -6,13 +6,15 @@ import { ERROR_CODE } from '@astir/types'
 import { AppError } from '../lib/errors'
 import { logger } from '../lib/logger'
 import { isProduction } from '../config/env'
+import { t, translateMaybeKey } from '../i18n'
 
 /** Collapse a ZodError into the field-keyed details shape (spec 67). */
 function zodDetails(error: ZodError): Record<string, string[]> {
   const details: Record<string, string[]> = {}
   for (const issue of error.issues) {
     const key = issue.path.join('.') || '_'
-    details[key] = [...(details[key] ?? []), issue.message]
+    // Shared schemas carry message keys (i18n:...); word them for this request.
+    details[key] = [...(details[key] ?? []), translateMaybeKey(issue.message)]
   }
   return details
 }
@@ -29,7 +31,7 @@ function firstLine(message: string) {
     .split(String.fromCharCode(10))
     .map(part => part.trim())
     .find(part => part.length > 0)
-  return (line ?? 'Неизвестная ошибка').slice(0, 200)
+  return (line ?? t('common.errors.unknown')).slice(0, 200)
 }
 
 export function notFoundHandler(req: Request, res: Response) {
@@ -37,7 +39,7 @@ export function notFoundHandler(req: Request, res: Response) {
     success: false,
     error: {
       code: ERROR_CODE.NOT_FOUND,
-      message: 'Адрес ' + req.method + ' ' + req.path + ' не существует'
+      message: t('common.errors.routeNotFound', { method: req.method, path: req.path })
     }
   })
 }
@@ -64,7 +66,7 @@ export function errorHandler(
       success: false,
       error: {
         code: ERROR_CODE.VALIDATION_FAILED,
-        message: 'Файл слишком большой для одного запроса — загрузите его по частям через /api/uploads'
+        message: t('common.errors.fileTooLargeForOneRequest')
       }
     })
   }
@@ -74,7 +76,7 @@ export function errorHandler(
       success: false,
       error: {
         code: ERROR_CODE.VALIDATION_FAILED,
-        message: 'Проверьте заполнение полей',
+        message: t('common.errors.checkFields'),
         details: zodDetails(err)
       }
     })
@@ -85,19 +87,19 @@ export function errorHandler(
       const target = (err.meta?.target as string[] | undefined)?.join(', ') ?? 'field'
       return res.status(409).json({
         success: false,
-        error: { code: ERROR_CODE.CONFLICT, message: 'Запись с таким значением уже существует (' + target + ')' }
+        error: { code: ERROR_CODE.CONFLICT, message: t('common.errors.duplicate', { target }) }
       })
     }
     if (err.code === 'P2025') {
       return res.status(404).json({
         success: false,
-        error: { code: ERROR_CODE.NOT_FOUND, message: 'Запись не найдена' }
+        error: { code: ERROR_CODE.NOT_FOUND, message: t('common.errors.recordNotFound') }
       })
     }
     if (err.code === 'P2003') {
       return res.status(409).json({
         success: false,
-        error: { code: ERROR_CODE.CONFLICT, message: 'Связанная запись не найдена или ещё используется' }
+        error: { code: ERROR_CODE.CONFLICT, message: t('common.errors.relatedConflict') }
       })
     }
   }
@@ -120,7 +122,7 @@ export function errorHandler(
       success: false,
       error: {
         code: ERROR_CODE.SERVICE_UNAVAILABLE,
-        message: 'База данных недоступна. Попробуйте ещё раз, когда соединение восстановится.'
+        message: t('common.errors.databaseUnavailable')
       }
     })
   }
@@ -134,10 +136,10 @@ export function errorHandler(
       // Outside production the message helps debugging, but a Prisma error
       // embeds the source path and query, so those are cut to one line.
       message: isProduction
-        ? 'Внутренняя ошибка сервера'
+        ? t('common.errors.internal')
         : err instanceof Error
           ? firstLine(err.message)
-          : 'Неизвестная ошибка'
+          : t('common.errors.unknown')
     }
   })
 }

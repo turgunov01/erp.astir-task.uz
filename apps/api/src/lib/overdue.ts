@@ -1,6 +1,7 @@
 import { prisma } from './prisma'
 import { notify } from './notify'
 import { recordActivity } from './activity'
+import { currentLocale, renderText, translatorFor, type LocalizedText } from '../i18n'
 
 /** Statuses that mean the work is finished, so a past deadline no longer matters. */
 const CLOSED = new Set(['DONE', 'APPROVED'])
@@ -49,7 +50,8 @@ export interface OverdueEditInput {
   actorName?: string
   /** What the editor said they are changing and why. */
   reason: string
-  change: string
+  /** Worded for each administrator in their own language. */
+  change: LocalizedText
 }
 
 /**
@@ -90,7 +92,8 @@ export async function announceOverdueEdit(input: OverdueEditInput): Promise<void
     metadata: {
       title: input.taskTitle,
       daysLate: late,
-      change: input.change,
+      // The feed keeps one wording: the editor's language at the time.
+      change: renderText(input.change, translatorFor(currentLocale())),
       reason: input.reason
     }
   })
@@ -100,12 +103,12 @@ export async function announceOverdueEdit(input: OverdueEditInput): Promise<void
       notify({
         userId: admin.id,
         type: 'TASK_OVERDUE',
-        title: 'Правка просроченной задачи: ' + input.taskTitle,
-        body:
+        title: t => t('team.notifications.overdueEdited', { title: input.taskTitle }),
+        body: t =>
           (input.projectCode ? input.projectCode + ' · ' : '') +
-          'просрочка ' + late + ' дн · ' + input.change +
+          t('team.notifications.overdueEditedBody', { days: late, change: renderText(input.change, t) }) +
           (input.actorName ? ' · ' + input.actorName : '') +
-          ' · причина: ' + input.reason,
+          ' · ' + t('team.notifications.overdueReason', { reason: input.reason }),
         linkUrl: '/tasks?task=' + input.taskId,
         entityType: 'Task',
         entityId: input.taskId

@@ -246,7 +246,7 @@ export async function submit(
     await notify({
       userId: input.reviewerId,
       type: 'VERSION_SUBMITTED',
-      title: 'На согласование: ' + version.label,
+      title: t => t('team.notifications.versionSubmitted', { label: version.label }),
       body: version.project.code,
       linkUrl: '/reviews',
       entityType: 'Version',

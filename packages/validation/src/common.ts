@@ -1,6 +1,14 @@
 import { z } from 'zod'
 
-export const uuidSchema = z.string().uuid('Invalid identifier')
+/*
+ * Custom messages here are i18n message keys with an `i18n:` prefix
+ * (`i18n:common.validation.invalidEmail`): this package is shared and cannot
+ * import a translator, so the API words them for the request when it builds
+ * the error envelope (apps/api/src/middleware/error.ts). Messages zod words
+ * itself come from the API's locale-aware error map.
+ */
+
+export const uuidSchema = z.string().uuid('i18n:common.validation.invalidId')
 
 /** Shared list query for every paginated endpoint (spec 66). */
 export const listQuerySchema = z.object({
@@ -18,7 +26,7 @@ export const idParamSchema = z.object({ id: uuidSchema })
 /** ISO date string that must parse to a real date. */
 export const dateStringSchema = z
   .string()
-  .refine(value => !Number.isNaN(Date.parse(value)), 'Invalid date')
+  .refine(value => !Number.isNaN(Date.parse(value)), 'i18n:common.validation.invalidDate')
 
 /**
  * A partial schema for updates, built from a create schema.

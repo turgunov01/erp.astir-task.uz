@@ -7,8 +7,9 @@ import { validate, validatedQuery } from '../../middleware/validate'
 import { sendItem } from '../../lib/http'
 import { sendCsv } from '../../lib/csv'
 import {
-  CLIENT_STATUS_RU, EXPENSE_CATEGORY_RU, PROJECT_STATUS_RU, RISK_RU, labelRu
-} from '../../lib/labels-ru'
+  enumLabel
+} from '../../lib/labels'
+import { t } from '../../i18n'
 import * as service from './reports.service'
 
 export const reportsRouter = Router()
@@ -52,19 +53,19 @@ reportsRouter.get(
 
       if (query.format === 'csv') {
         return sendCsv(res, 'production', [
-          { header: 'Код', value: row => row.code },
-          { header: 'Проект', value: row => row.name },
-          { header: 'Статус', value: row => labelRu(PROJECT_STATUS_RU, row.status) },
-          { header: 'Риск', value: row => labelRu(RISK_RU, row.risk) },
-          { header: 'Прогресс, %', value: row => row.progress },
-          { header: 'Дедлайн', value: row => row.deadline },
-          { header: 'Просрочен', value: row => (row.late ? 'да' : 'нет') },
-          { header: 'Этапов всего', value: row => row.stagesTotal },
-          { header: 'Этапов готово', value: row => row.stagesDone },
-          { header: 'Задач всего', value: row => row.tasksTotal },
-          { header: 'Задач готово', value: row => row.tasksDone },
-          { header: 'Задач просрочено', value: row => row.tasksOverdue },
-          { header: 'Открытых правок', value: row => row.revisionsOpen }
+          { header: t('finance.csv.code'), value: row => row.code },
+          { header: t('finance.csv.project'), value: row => row.name },
+          { header: t('finance.csv.status'), value: row => enumLabel('projectStatus', row.status) },
+          { header: t('finance.csv.risk'), value: row => enumLabel('risk', row.risk) },
+          { header: t('finance.csv.progress'), value: row => row.progress },
+          { header: t('finance.csv.deadline'), value: row => row.deadline },
+          { header: t('finance.csv.late'), value: row => (row.late ? t('common.yes') : t('common.no')) },
+          { header: t('finance.csv.stagesTotal'), value: row => row.stagesTotal },
+          { header: t('finance.csv.stagesDone'), value: row => row.stagesDone },
+          { header: t('finance.csv.tasksTotal'), value: row => row.tasksTotal },
+          { header: t('finance.csv.tasksDone'), value: row => row.tasksDone },
+          { header: t('finance.csv.tasksOverdue'), value: row => row.tasksOverdue },
+          { header: t('finance.csv.revisionsOpen'), value: row => row.revisionsOpen }
         ], rows)
       }
 
@@ -89,23 +90,23 @@ reportsRouter.get(
       if (query.format === 'csv') {
         if (query.section === 'categories') {
           return sendCsv(res, 'expenses-by-category', [
-            { header: 'Категория', value: row => labelRu(EXPENSE_CATEGORY_RU, row.category) },
-            { header: 'Сумма', value: row => row.amount }
+            { header: t('finance.csv.category'), value: row => enumLabel('expenseCategory', row.category) },
+            { header: t('finance.csv.amount'), value: row => row.amount }
           ], report.byCategory)
         }
         if (query.section === 'ageing') {
           return sendCsv(res, 'receivables-ageing', [
-            { header: 'Срок', value: row => row.label },
-            { header: 'Счетов', value: row => row.count },
-            { header: 'Сумма', value: row => row.amount }
+            { header: t('finance.csv.term'), value: row => row.label },
+            { header: t('finance.csv.invoicesCount'), value: row => row.count },
+            { header: t('finance.csv.amount'), value: row => row.amount }
           ], report.ageing)
         }
         return sendCsv(res, 'financial-by-month', [
-          { header: 'Месяц', value: row => row.month },
-          { header: 'Выставлено', value: row => row.invoiced },
-          { header: 'Получено', value: row => row.collected },
-          { header: 'Потрачено', value: row => row.spent },
-          { header: 'Итого', value: row => row.net }
+          { header: t('finance.csv.month'), value: row => row.month },
+          { header: t('finance.csv.invoiced'), value: row => row.invoiced },
+          { header: t('finance.csv.collected'), value: row => row.collected },
+          { header: t('finance.csv.spent'), value: row => row.spent },
+          { header: t('finance.csv.net'), value: row => row.net }
         ], report.byMonth)
       }
 
@@ -129,14 +130,14 @@ reportsRouter.get(
 
       if (query.format === 'csv') {
         return sendCsv(res, 'time', [
-          { header: 'Сотрудник', value: row => row.name },
-          { header: 'Должность', value: row => row.position },
-          { header: 'Отдел', value: row => row.department },
-          { header: 'Ставка', value: row => row.hourlyRate },
-          { header: 'Часов', value: row => row.hours },
-          { header: 'Часов без ставки', value: row => row.unpricedHours },
-          { header: 'Стоимость', value: row => row.cost },
-          { header: 'Проектов', value: row => row.projects }
+          { header: t('finance.csv.employee'), value: row => row.name },
+          { header: t('finance.csv.position'), value: row => row.position },
+          { header: t('finance.csv.department'), value: row => row.department },
+          { header: t('finance.csv.rate'), value: row => row.hourlyRate },
+          { header: t('finance.csv.hours'), value: row => row.hours },
+          { header: t('finance.csv.unpricedHours'), value: row => row.unpricedHours },
+          { header: t('finance.csv.cost'), value: row => row.cost },
+          { header: t('finance.csv.projectsCount'), value: row => row.projects }
         ], report.rows)
       }
 
@@ -160,15 +161,15 @@ reportsRouter.get(
 
       if (query.format === 'csv') {
         return sendCsv(res, 'clients', [
-          { header: 'Клиент', value: row => row.name },
-          { header: 'Статус', value: row => labelRu(CLIENT_STATUS_RU, row.status) },
-          { header: 'Проектов', value: row => row.projects },
-          { header: 'Счетов', value: row => row.invoices },
-          { header: 'Валюта', value: row => row.currency },
-          { header: 'Выставлено', value: row => row.invoiced },
-          { header: 'Оплачено', value: row => row.collected },
-          { header: 'Остаток', value: row => row.outstanding },
-          { header: 'Средний срок оплаты, дней', value: row => row.avgDaysToPay }
+          { header: t('finance.csv.client'), value: row => row.name },
+          { header: t('finance.csv.status'), value: row => enumLabel('clientStatus', row.status) },
+          { header: t('finance.csv.projectsCount'), value: row => row.projects },
+          { header: t('finance.csv.invoicesCount'), value: row => row.invoices },
+          { header: t('finance.csv.currency'), value: row => row.currency },
+          { header: t('finance.csv.invoiced'), value: row => row.invoiced },
+          { header: t('finance.csv.paid'), value: row => row.collected },
+          { header: t('finance.csv.outstanding'), value: row => row.outstanding },
+          { header: t('finance.csv.avgDaysToPay'), value: row => row.avgDaysToPay }
         ], rows)
       }
 

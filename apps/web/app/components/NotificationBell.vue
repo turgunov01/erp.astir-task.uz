@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { apiRequest } from '~/composables/useApi'
 
+const { t } = useI18n()
+
 interface Notification {
   id: string
   type: string
@@ -44,15 +46,9 @@ async function follow(item: Notification) {
   if (item.linkUrl) await navigateTo(item.linkUrl)
 }
 
-/** Russian needs three plural forms, not the English one-or-many. */
+/** Plural forms per language come from shell.bell.unread (Russian has three). */
 function pluralUnread(count: number) {
-  const mod10 = count % 10
-  const mod100 = count % 100
-  if (mod10 === 1 && mod100 !== 11) return count + ' непрочитанное уведомление'
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
-    return count + ' непрочитанных уведомления'
-  }
-  return count + ' непрочитанных уведомлений'
+  return t('shell.bell.unread', count)
 }
 
 function iconFor(type: string) {
@@ -69,7 +65,7 @@ function iconFor(type: string) {
     <button
       type="button"
       class="relative grid size-9 place-items-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground"
-      :aria-label="unread > 0 ? pluralUnread(unread) : 'Уведомления'"
+      :aria-label="unread > 0 ? pluralUnread(unread) : t('shell.bell.title')"
       @click="open = !open"
     >
       <Icon name="lucide:bell" class="size-4" />
@@ -88,19 +84,19 @@ function iconFor(type: string) {
       class="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-xl border bg-popover shadow-lg"
     >
       <header class="flex items-center justify-between border-b px-4 py-2.5">
-        <h2 class="text-sm font-medium">Уведомления</h2>
+        <h2 class="text-sm font-medium">{{ t('shell.bell.title') }}</h2>
         <button
           v-if="unread > 0"
           type="button"
           class="text-xs text-muted-foreground hover:text-foreground"
           @click="markAll"
         >
-          Прочитать все
+          {{ t('shell.bell.markAll') }}
         </button>
       </header>
 
       <p v-if="notifications.length === 0" class="px-4 py-10 text-center text-sm text-muted-foreground">
-        Пока нет уведомлений
+        {{ t('shell.bell.empty') }}
       </p>
 
       <ul v-else class="max-h-96 divide-y overflow-y-auto">
