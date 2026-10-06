@@ -14,10 +14,14 @@ export interface TaskListParams {
   priority?: string
   assigneeId?: string
   overdue?: boolean
+  state?: 'active' | 'completed'
   archived?: boolean
   sort: string
   order: 'asc' | 'desc'
 }
+
+/** Statuses that close a task; everything else is still open work. */
+const FINISHED_STATUSES: Array<'DONE' | 'APPROVED'> = ['DONE', 'APPROVED']
 
 const SORTABLE = new Set(['title', 'createdAt', 'deadline', 'status', 'priority'])
 
@@ -34,10 +38,13 @@ export function buildWhere(params: Partial<TaskListParams>): Prisma.TaskWhereInp
   if (params.stageId) where.stageId = params.stageId
   if (params.assigneeId) where.assigneeId = params.assigneeId
   if (params.status) where.status = params.status as Prisma.TaskWhereInput['status']
+  // An exact status is the narrower ask, so it wins over the open/finished split.
+  else if (params.state === 'active') where.status = { notIn: FINISHED_STATUSES }
+  else if (params.state === 'completed') where.status = { in: FINISHED_STATUSES }
   if (params.priority) where.priority = params.priority as Prisma.TaskWhereInput['priority']
   if (params.overdue) {
     where.deadline = { lt: new Date() }
-    where.status = { notIn: ['DONE', 'APPROVED'] }
+    where.status = { notIn: FINISHED_STATUSES }
   }
   if (params.search) {
     where.OR = [

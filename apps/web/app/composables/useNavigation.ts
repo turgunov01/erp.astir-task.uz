@@ -19,6 +19,9 @@ export interface NavItem {
  */
 export const NAVIGATION: NavItem[] = [
   { label: 'Панель управления', to: '/dashboard', icon: 'lucide:layout-dashboard', permission: PERMISSION.DASHBOARD_VIEW },
+  // Everyone with tasks of their own gets them one click away; for the people
+  // doing the work this is also where a session starts (auth store homePath).
+  { label: 'Мои задачи', to: '/tasks/my', icon: 'lucide:list-todo', permission: PERMISSION.TASK_VIEW_OWN },
   { label: 'Проекты', to: '/projects', icon: 'lucide:folder-kanban', permission: PERMISSION.PROJECT_VIEW },
   {
     label: 'Производство',

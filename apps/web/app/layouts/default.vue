@@ -80,11 +80,14 @@ const flatNav = computed(() =>
  */
 const PHONE_TAB_LABEL: Record<string, string> = {
   '/dashboard': 'Панель',
+  '/tasks/my': 'Мои',
   '/finance': 'Финансы',
   '/activity': 'События'
 }
 
-const PHONE_TABS = ['/dashboard', '/projects', '/tasks', '/calendar', '/finance', '/activity']
+// Own tasks come before the full task list: on a phone the person checking in
+// is far more often looking for their next job than browsing everyone's.
+const PHONE_TABS = ['/dashboard', '/tasks/my', '/projects', '/calendar', '/tasks', '/finance', '/activity']
 
 const bottomTabs = computed(() => {
   const byPath = new Map(flatNav.value.map(item => [item.to, item]))
