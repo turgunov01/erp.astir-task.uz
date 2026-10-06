@@ -196,7 +196,18 @@ export const EXPENSE_CATEGORY_LABEL: Record<string, string> = {
   HARDWARE: 'Железо',
   AUDIO: 'Звук',
   PRODUCTION: 'Продакшн',
+  OFFICE: 'Аренда и офис',
+  TAXES: 'Налоги и сборы',
+  MARKETING: 'Маркетинг',
   OTHER: 'Прочее'
+}
+
+/** How money moved, for payments and expenses alike. */
+export const PAYMENT_METHOD_LABEL: Record<string, string> = {
+  BANK_TRANSFER: 'Перечисление',
+  CASH: 'Наличные',
+  CARD: 'Карта',
+  OTHER: 'Другое'
 }
 
 /*
