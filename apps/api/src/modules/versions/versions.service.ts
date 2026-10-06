@@ -6,6 +6,7 @@ import { recordActivity } from '../../lib/activity'
 import { notify } from '../../lib/notify'
 import { storage } from '../../lib/storage'
 import type { IncomingFile } from '../files/files.service'
+import { t } from '../../i18n'
 
 const INCLUDE = {
   project: { select: { id: true, code: true, name: true } },
@@ -212,7 +213,7 @@ export async function submit(
 ) {
   const version = await getById(id)
   if (['SUBMITTED', 'IN_REVIEW', 'APPROVED'].includes(version.status)) {
-    throw conflict('Эта версия уже отправлена на согласование')
+    throw conflict(t('production.versions.alreadySubmitted'))
   }
 
   await prisma.$transaction(async tx => {
@@ -265,7 +266,7 @@ export async function remove(id: string, role: string | undefined, actorId?: str
   const version = await getById(id)
   const privileged = ['OWNER', 'ADMIN', 'PRODUCER', 'PROJECT_MANAGER'].includes(role ?? '')
   if (version.status === 'APPROVED' && !privileged) {
-    throw forbidden('Согласованную версию может удалить только продакшн')
+    throw forbidden(t('production.versions.approvedDeleteByProduction'))
   }
 
   await prisma.version.delete({ where: { id } })

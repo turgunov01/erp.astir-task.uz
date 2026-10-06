@@ -22,7 +22,9 @@ export default {
     relatedConflict: 'İlişkili kayıt bulunamadı veya hâlâ kullanılıyor',
     databaseUnavailable: 'Veritabanına ulaşılamıyor. Bağlantı geri geldiğinde tekrar deneyin.',
     internal: 'Sunucu iç hatası',
-    unknown: 'Bilinmeyen hata'
+    unknown: 'Bilinmeyen hata',
+    periodReversed: 'Dönemin başlangıcı bitişinden sonra',
+    periodTooLong: 'Dönem {count} günden uzun olamaz'
   },
   notFound: {
     asset: 'Varlık bulunamadı',
@@ -82,7 +84,12 @@ export default {
     describeChanges: 'Neyin düzeltilmesi gerektiğini yazın',
     attachOrDescribe: 'Bir dosya ekleyin veya ne yapıldığını yazın',
     fileOver1Gb: 'Dosya 1 GB’tan büyük',
-    projectCodeFormat: 'Yalnızca büyük Latin harfleri, rakamlar ve tire kullanın'
+    projectCodeFormat: 'Yalnızca büyük Latin harfleri, rakamlar ve tire kullanın',
+    dateFormat: 'Tarih YYYY-AA-GG biçiminde olmalı',
+    monthFormat: 'Ay YYYY-AA biçiminde bekleniyor',
+    invalidDateValue: 'Geçersiz tarih: {value}',
+    httpLink: 'Bağlantı http:// veya https:// ile başlamalı',
+    bothBounds: 'Dönemin her iki sınırını da belirtin'
   },
   yes: 'evet',
   no: 'hayır',

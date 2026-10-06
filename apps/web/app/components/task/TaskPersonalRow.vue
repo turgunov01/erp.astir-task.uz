@@ -28,6 +28,7 @@ const props = defineProps<{
 const emit = defineEmits<{ changed: [] }>()
 
 const { openTask } = useTaskPanels()
+const { t } = useI18n()
 
 const DAY_MS = 86_400_000
 const FINISHED = ['DONE', 'APPROVED']
@@ -50,12 +51,14 @@ const daysLeft = computed(() => {
 
 const dueLabel = computed(() => {
   const days = daysLeft.value
-  if (days === null) return 'Без срока'
+  if (days === null) return t('production.personal.due.none')
   if (FINISHED.includes(props.task.status)) return formatDate(props.task.deadline as string)
-  if (late.value && days <= 0) return days === 0 ? 'Сегодня, срок прошёл' : 'Просрочено на ' + -days + ' дн.'
-  if (days === 0) return 'Сегодня'
-  if (days === 1) return 'Завтра'
-  return 'Через ' + days + ' дн.'
+  if (late.value && days <= 0) {
+    return days === 0 ? t('production.personal.due.todayPassed') : t('production.personal.due.overdueBy', -days)
+  }
+  if (days === 0) return t('production.personal.due.today')
+  if (days === 1) return t('production.personal.due.tomorrow')
+  return t('production.personal.due.inDays', days)
 })
 
 /** Due within three days is worth a glance even before it is late. */
@@ -63,7 +66,7 @@ const dueSoon = computed(() => !late.value && daysLeft.value !== null && daysLef
   !FINISHED.includes(props.task.status))
 
 function formatDate(value: string) {
-  return new Date(value).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' })
+  return new Date(value).toLocaleDateString(intlTag(), { day: '2-digit', month: 'short' })
 }
 
 function onChanged() {
@@ -126,7 +129,7 @@ function onChanged() {
           @click="changing = true"
         >
           <Icon name="lucide:arrow-right-left" class="size-3.5" />
-          Статус
+          {{ t('production.personal.changeStatus') }}
         </button>
       </div>
     </div>

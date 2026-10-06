@@ -6,6 +6,7 @@ import { useAuthStore } from '~/stores/auth'
 const props = defineProps<{ id: string, offset: number }>()
 const emit = defineEmits<{ (e: 'close'): void, (e: 'changed'): void }>()
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const { openTask } = useTaskPanels()
 
@@ -59,11 +60,12 @@ const isExpired = computed(() => review.value?.status === 'EXPIRED')
 /** How much of the discussion window is left, once there is one. */
 const deadlineNote = computed(() => {
   const value = review.value?.deadline
-  if (!value) return 'без срока'
+  if (!value) return t('production.review.deadline.none')
   const days = Math.ceil((new Date(value).getTime() - Date.now()) / 86400000)
-  if (days < 0) return formatDay(value) + ' · срок прошёл'
-  if (days === 0) return formatDay(value) + ' · сегодня последний день'
-  return formatDay(value) + ' · осталось ' + days + ' дн.'
+  const date = formatDay(value)
+  if (days < 0) return t('production.review.deadline.passed', { date })
+  if (days === 0) return t('production.review.deadline.lastDay', { date })
+  return t('production.review.deadline.daysLeft', { date, n: days })
 })
 
 /**
@@ -118,7 +120,7 @@ async function decide(decision: 'APPROVED' | 'CHANGES_REQUESTED' | 'REJECTED') {
     await refresh()
     emit('changed')
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось сохранить решение')
+    errorMessage.value = apiErrorMessage(err, t('production.review.saveFailed'))
   } finally {
     saving.value = ''
   }
@@ -133,12 +135,12 @@ async function decide(decision: 'APPROVED' | 'CHANGES_REQUESTED' | 'REJECTED') {
     :style="{ marginRight: props.offset * 28 + 'px' }"
     role="dialog"
     aria-modal="true"
-    aria-label="Согласование"
+    :aria-label="t('shell.nav.reviews')"
   >
     <header class="flex items-start justify-between gap-3 border-b px-5 py-3.5">
       <div class="min-w-0">
         <p class="text-xs text-muted-foreground">
-          {{ review ? labelOf(REVIEW_TYPE_LABEL, review.reviewType) : '' }} согласование
+          {{ review ? t('production.review.typeHeading', { type: labelOf(REVIEW_TYPE_LABEL, review.reviewType) }) : '' }}
         </p>
         <h2 class="mt-0.5 truncate font-mono text-sm font-semibold">
           {{ review?.version.label }}
@@ -149,13 +151,13 @@ async function decide(decision: 'APPROVED' | 'CHANGES_REQUESTED' | 'REJECTED') {
           v-if="isExpired"
           class="rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground"
         >
-          Вопрос закрыт
+          {{ t('production.review.closedQuestion') }}
         </span>
         <StatusBadge v-else-if="review" :status="review.status" />
         <button
           type="button"
           class="rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground"
-          aria-label="Закрыть"
+          :aria-label="t('common.actions.close')"
           @click="emit('close')"
         >
           <Icon name="lucide:x" class="size-4" />
@@ -179,9 +181,9 @@ async function decide(decision: 'APPROVED' | 'CHANGES_REQUESTED' | 'REJECTED') {
     <div v-else-if="error" class="grid flex-1 place-items-center px-6 text-center">
       <div>
         <Icon name="lucide:triangle-alert" class="size-7 text-destructive" />
-        <p class="mt-3 text-sm">Не удалось загрузить согласование</p>
+        <p class="mt-3 text-sm">{{ t('production.review.loadFailed') }}</p>
         <button type="button" class="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary" @click="refresh()">
-          Повторить
+          {{ t('common.actions.retry') }}
         </button>
       </div>
     </div>
@@ -192,7 +194,7 @@ async function decide(decision: 'APPROVED' | 'CHANGES_REQUESTED' | 'REJECTED') {
           v-if="isImage && review.version.fileUrl"
           type="button"
           class="size-full cursor-zoom-in"
-          :aria-label="'Открыть ' + review.version.label + ' на весь экран'"
+          :aria-label="t('production.review.openFullscreen', { label: review.version.label })"
           @click="openVersion"
         >
           <img
@@ -210,7 +212,9 @@ async function decide(decision: 'APPROVED' | 'CHANGES_REQUESTED' | 'REJECTED') {
         <div v-else class="text-center">
           <Icon name="lucide:film" class="size-8 text-muted-foreground/50" />
           <p class="mt-2 text-xs text-muted-foreground">
-            Превью недоступно · {{ review.version.mimeType ?? 'файл не загружен' }}
+            {{ t('production.review.noPreview', {
+              type: review.version.mimeType ?? t('production.review.fileNotUploaded')
+            }) }}
           </p>
         </div>
 
@@ -221,13 +225,13 @@ async function decide(decision: 'APPROVED' | 'CHANGES_REQUESTED' | 'REJECTED') {
           @click="openVersion"
         >
           <Icon name="lucide:maximize-2" class="size-3.5" />
-          {{ isImage || isVideo ? 'На весь экран' : 'Открыть файл' }}
+          {{ isImage || isVideo ? t('production.review.fullscreen') : t('production.review.openFile') }}
         </button>
       </div>
 
       <dl class="divide-y text-sm">
         <div class="flex items-center justify-between gap-3 px-5 py-2.5">
-          <dt class="text-muted-foreground">Проект</dt>
+          <dt class="text-muted-foreground">{{ t('production.review.fields.project') }}</dt>
           <dd>
             <NuxtLink :to="'/projects/' + review.version.project.id" class="hover:underline">
               {{ review.version.project.code }}
@@ -235,7 +239,7 @@ async function decide(decision: 'APPROVED' | 'CHANGES_REQUESTED' | 'REJECTED') {
           </dd>
         </div>
         <div v-if="review.version.shot" class="flex items-center justify-between gap-3 px-5 py-2.5">
-          <dt class="text-muted-foreground">Шот</dt>
+          <dt class="text-muted-foreground">{{ t('production.review.fields.shot') }}</dt>
           <dd>
             <NuxtLink :to="'/shots/' + review.version.shot.id" class="font-mono hover:underline">
               {{ review.version.shot.code }}
@@ -243,7 +247,7 @@ async function decide(decision: 'APPROVED' | 'CHANGES_REQUESTED' | 'REJECTED') {
           </dd>
         </div>
         <div v-if="review.version.task" class="flex items-center justify-between gap-3 px-5 py-2.5">
-          <dt class="text-muted-foreground">Задача</dt>
+          <dt class="text-muted-foreground">{{ t('production.review.fields.task') }}</dt>
           <dd>
             <button type="button" class="text-left hover:underline" @click="openTask(review.version.task.id)">
               {{ review.version.task.title }}
@@ -251,7 +255,7 @@ async function decide(decision: 'APPROVED' | 'CHANGES_REQUESTED' | 'REJECTED') {
           </dd>
         </div>
         <div class="flex items-center justify-between gap-3 px-5 py-2.5">
-          <dt class="text-muted-foreground">Автор версии</dt>
+          <dt class="text-muted-foreground">{{ t('production.review.fields.versionAuthor') }}</dt>
           <dd>
             {{ review.version.uploadedBy
               ? review.version.uploadedBy.firstName + ' ' + review.version.uploadedBy.lastName
@@ -259,31 +263,30 @@ async function decide(decision: 'APPROVED' | 'CHANGES_REQUESTED' | 'REJECTED') {
           </dd>
         </div>
         <div class="flex items-center justify-between gap-3 px-5 py-2.5">
-          <dt class="text-muted-foreground">Проверяющий</dt>
+          <dt class="text-muted-foreground">{{ t('production.review.fields.reviewer') }}</dt>
           <dd>
-            {{ review.reviewer ? review.reviewer.firstName + ' ' + review.reviewer.lastName : 'не назначен' }}
+            {{ review.reviewer ? review.reviewer.firstName + ' ' + review.reviewer.lastName : t('production.review.notAssigned') }}
           </dd>
         </div>
         <div class="flex items-center justify-between gap-3 px-5 py-2.5">
-          <dt class="text-muted-foreground">Срок обсуждения</dt>
+          <dt class="text-muted-foreground">{{ t('production.review.fields.deadline') }}</dt>
           <dd :class="isExpired ? 'text-muted-foreground' : ''">{{ deadlineNote }}</dd>
         </div>
         <div class="flex items-center justify-between gap-3 px-5 py-2.5">
-          <dt class="text-muted-foreground">Отправлено</dt>
+          <dt class="text-muted-foreground">{{ t('production.review.fields.sent') }}</dt>
           <dd class="tabular-nums text-muted-foreground">{{ formatDay(review.createdAt) }}</dd>
         </div>
       </dl>
 
       <section v-if="isExpired" class="border-t bg-muted/30 px-5 py-3">
         <p class="text-sm text-muted-foreground">
-          Решения до срока не было, поэтому вопрос закрыт. Чтобы вернуть обсуждение,
-          задайте новый срок в настройках согласования.
+          {{ t('production.review.expiredNote') }}
         </p>
       </section>
 
       <section v-if="review.comment" class="border-t px-5 py-4">
         <h3 class="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          Комментарий
+          {{ t('production.review.comment') }}
         </h3>
         <p class="mt-2 whitespace-pre-line text-sm leading-relaxed">{{ review.comment }}</p>
       </section>
@@ -293,8 +296,8 @@ async function decide(decision: 'APPROVED' | 'CHANGES_REQUESTED' | 'REJECTED') {
           owner-key="reviewId"
           :owner-id="review.id"
           :can-manage="!isClosed"
-          title="Материалы обсуждения"
-          empty-text="Материалов нет. Прикрепите фото, видео или аудио к обсуждению."
+          :title="t('production.review.attachmentsTitle')"
+          :empty-text="t('production.review.attachmentsEmpty')"
         />
 
         <CommentThread entity-type="Review" :entity-id="review.id" />
@@ -305,14 +308,14 @@ async function decide(decision: 'APPROVED' | 'CHANGES_REQUESTED' | 'REJECTED') {
       <textarea
         v-model="comment"
         rows="3"
-        placeholder="Комментарий — обязателен при возврате на доработку"
+        :placeholder="t('production.review.commentPlaceholder')"
         class="w-full rounded-md border bg-background px-3 py-2 text-sm leading-relaxed outline-none focus:border-ring"
       />
       <input
         v-model="revisionDeadline"
         type="date"
         class="h-9 w-full rounded-md border bg-background px-3 text-sm outline-none focus:border-ring"
-        aria-label="Дедлайн правок"
+        :aria-label="t('production.review.revisionDeadline')"
       >
       <div class="flex flex-wrap gap-2">
         <button
@@ -321,7 +324,7 @@ async function decide(decision: 'APPROVED' | 'CHANGES_REQUESTED' | 'REJECTED') {
           :disabled="saving !== ''"
           @click="decide('APPROVED')"
         >
-          {{ saving === 'APPROVED' ? 'Сохранение...' : 'Согласовать' }}
+          {{ saving === 'APPROVED' ? t('common.actions.saving') : t('production.review.approve') }}
         </button>
         <button
           type="button"
@@ -329,7 +332,7 @@ async function decide(decision: 'APPROVED' | 'CHANGES_REQUESTED' | 'REJECTED') {
           :disabled="saving !== ''"
           @click="decide('CHANGES_REQUESTED')"
         >
-          На доработку
+          {{ t('production.review.requestChanges') }}
         </button>
         <button
           type="button"
@@ -337,13 +340,13 @@ async function decide(decision: 'APPROVED' | 'CHANGES_REQUESTED' | 'REJECTED') {
           :disabled="saving !== ''"
           @click="decide('REJECTED')"
         >
-          Отклонить
+          {{ t('production.review.reject') }}
         </button>
       </div>
     </footer>
 
     <p v-else-if="review && isClosed" class="border-t px-5 py-4 text-center text-sm text-muted-foreground">
-      Согласование завершено {{ formatDay(review.completedAt) }}
+      {{ t('production.review.completed', { date: formatDay(review.completedAt) }) }}
     </p>
   </aside>
 </template>

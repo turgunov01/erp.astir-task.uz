@@ -2,6 +2,7 @@ import type { CreateClientInput, UpdateClientInput } from '@astir/validation'
 import { conflict, notFound } from '../../lib/errors'
 import { buildMeta, toSkipTake } from '../../lib/http'
 import * as repo from './clients.repository'
+import { t } from '../../i18n'
 
 interface ClientListQuery {
   page: number
@@ -45,7 +46,7 @@ export async function archive(id: string) {
   await getById(id)
   const active = await repo.countActiveProjects(id)
   if (active > 0) {
-    throw conflict('У клиента есть активные проекты: ' + active + '. Сначала завершите или переназначьте их.')
+    throw conflict(t('projects.clients.hasActiveProjects', { count: active }))
   }
   return repo.softDelete(id)
 }

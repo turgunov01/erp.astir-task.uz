@@ -40,6 +40,8 @@ const emit = defineEmits<{
   (e: 'unarchive'): void
   (e: 'delete'): void
 }>()
+
+const { t } = useI18n()
 </script>
 
 <template>
@@ -49,7 +51,7 @@ const emit = defineEmits<{
         <button
           type="button"
           class="rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground data-[state=open]:bg-secondary data-[state=open]:text-foreground disabled:opacity-40"
-          :aria-label="'Действия' + (props.name ? ': ' + props.name : '')"
+          :aria-label="props.name ? t('production.crud.rowActionsFor', { name: props.name }) : t('production.crud.rowActions')"
           :disabled="props.busy"
         >
           <Icon :name="props.busy ? 'lucide:loader' : 'lucide:ellipsis'" class="size-4" />
@@ -59,7 +61,7 @@ const emit = defineEmits<{
       <DropdownMenuContent align="end" class="w-48">
         <DropdownMenuItem v-if="props.canManage && !props.archived" @select="emit('edit')">
           <Icon name="lucide:pencil" />
-          Редактировать
+          {{ t('production.crud.edit') }}
         </DropdownMenuItem>
 
         <DropdownMenuItem
@@ -67,7 +69,7 @@ const emit = defineEmits<{
           @select="emit('archive')"
         >
           <Icon name="lucide:archive" />
-          Архивировать
+          {{ t('production.crud.archive') }}
         </DropdownMenuItem>
 
         <DropdownMenuItem
@@ -75,18 +77,18 @@ const emit = defineEmits<{
           @select="emit('unarchive')"
         >
           <Icon name="lucide:archive-restore" />
-          Вернуть из архива
+          {{ t('production.crud.unarchive') }}
         </DropdownMenuItem>
 
         <DropdownMenuSeparator v-if="props.canManage" />
 
         <DropdownMenuItem v-if="props.canManage" variant="destructive" @select="emit('delete')">
           <Icon name="lucide:trash-2" />
-          Удалить
+          {{ t('common.actions.delete') }}
         </DropdownMenuItem>
 
         <p v-if="!props.canManage" class="px-2 py-1.5 text-xs text-muted-foreground">
-          Недостаточно прав
+          {{ t('production.crud.noRights') }}
         </p>
       </DropdownMenuContent>
     </DropdownMenu>

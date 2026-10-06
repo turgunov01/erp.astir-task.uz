@@ -29,7 +29,7 @@ const moneyAmount = z.coerce.number().min(0).max(100000000)
 const currencyCode = z.string().trim().length(3).toUpperCase().default('USD')
 const optionalDate = z
   .string()
-  .refine(value => !Number.isNaN(Date.parse(value)), 'Неверная дата')
+  .refine(value => !Number.isNaN(Date.parse(value)), { error: () => t('common.validation.invalidDate') })
   .optional()
   .nullable()
 const optionalText = (max: number) => z.string().trim().max(max).optional().nullable()
@@ -38,7 +38,10 @@ const documentLink = z
   .string()
   .trim()
   .max(1000)
-  .refine(value => value === '' || /^https?:\/\/\S+$/i.test(value), 'Ссылка должна начинаться с http:// или https://')
+  .refine(
+    value => value === '' || /^https?:\/\/\S+$/i.test(value),
+    { error: () => t('common.validation.httpLink') }
+  )
   .optional()
   .nullable()
 
@@ -49,7 +52,7 @@ const createExpenseSchema = z.object({
   description: optionalText(500),
   amount: moneyAmount,
   currency: currencyCode,
-  date: z.string().refine(value => !Number.isNaN(Date.parse(value)), 'Неверная дата'),
+  date: z.string().refine(value => !Number.isNaN(Date.parse(value)), { error: () => t('common.validation.invalidDate') }),
   vendor: optionalText(200),
   paymentMethod: z.enum(PAYMENT_METHODS).optional().nullable(),
   documentNumber: optionalText(80),
@@ -102,20 +105,20 @@ const budgetLinesSchema = z.object({
   })).max(EXPENSE_CATEGORIES.length)
 }).refine(
   body => new Set(body.lines.map(line => line.category)).size === body.lines.length,
-  'Каждая категория указывается один раз'
+  { error: () => t('finance.budget.categoryOnce') }
 )
 
 /** A fee on a payment cannot be more than the payment itself. */
 function checkFee(body: { amount?: number, fee?: number | null }) {
   if (body.fee != null && body.amount != null && body.fee > body.amount) {
-    throw badRequest('Комиссия не может быть больше суммы платежа')
+    throw badRequest(t('finance.payments.feeTooLarge'))
   }
 }
 
 /** VAT is part of the amount, so it cannot exceed it. */
 function checkVat(body: { amount?: number, vatAmount?: number | null }) {
   if (body.vatAmount != null && body.amount != null && body.vatAmount > body.amount) {
-    throw badRequest('НДС не может быть больше суммы')
+    throw badRequest(t('finance.expenses.vatTooLarge'))
   }
 }
 
@@ -204,7 +207,7 @@ financeRouter.get(
       const fallback = currentMonth()
       const from = query.from ?? fallback.from
       const to = query.to ?? fallback.to
-      if (from > to) throw badRequest('Начало периода позже его конца')
+      if (from > to) throw badRequest(t('common.errors.periodReversed'))
       return sendItem(res, await financeOverview({ from, to, user: req.user! }))
     } catch (err) {
       next(err)

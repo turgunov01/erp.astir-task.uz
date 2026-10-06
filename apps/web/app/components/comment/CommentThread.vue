@@ -9,17 +9,19 @@ import { useAuthStore } from '~/stores/auth'
  * tasks, shots and the rest. Replies are one level deep, matching the API,
  * which flattens a reply-to-a-reply into the same thread.
  */
-const props = withDefaults(defineProps<{
+const props = defineProps<{
   entityType: 'Task' | 'Shot' | 'Version' | 'Review' | 'Revision' | 'Project' | 'Asset'
   entityId: string
   title?: string
   placeholder?: string
-}>(), {
-  title: 'Обсуждение',
-  placeholder: 'Написать комментарий...'
-})
+}>()
 
+const { t } = useI18n()
 const auth = useAuthStore()
+
+// Defaults are worded here, not in withDefaults, so they follow a language switch.
+const heading = computed(() => props.title ?? t('production.comments.title'))
+const draftPlaceholder = computed(() => props.placeholder ?? t('production.comments.placeholder'))
 
 interface Author {
   id: string
@@ -68,7 +70,7 @@ async function send(message: string, parentId: string | null) {
     })
     await refresh()
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось отправить комментарий')
+    errorMessage.value = apiErrorMessage(err, t('production.comments.sendFailed'))
   } finally {
     busy.value = false
   }
@@ -104,7 +106,7 @@ async function saveEdit(id: string) {
     editingId.value = null
     await refresh()
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось сохранить')
+    errorMessage.value = apiErrorMessage(err, t('common.errors.saveFailed'))
   } finally {
     busy.value = false
   }
@@ -117,7 +119,7 @@ async function remove(id: string) {
     await $fetch('/api/comments/' + id, { method: 'DELETE', credentials: 'include' })
     await refresh()
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось удалить комментарий')
+    errorMessage.value = apiErrorMessage(err, t('production.comments.deleteFailed'))
   } finally {
     busy.value = false
   }
@@ -137,9 +139,9 @@ function initials(author: Author | null) {
 function when(value: string) {
   const date = new Date(value)
   const minutes = Math.round((Date.now() - date.getTime()) / 60000)
-  if (minutes < 1) return 'только что'
-  if (minutes < 60) return minutes + ' мин назад'
-  if (minutes < 24 * 60) return Math.floor(minutes / 60) + ' ч назад'
+  if (minutes < 1) return t('common.time.justNow')
+  if (minutes < 60) return t('common.time.minutesAgo', { n: minutes })
+  if (minutes < 24 * 60) return t('common.time.hoursAgo', { n: Math.floor(minutes / 60) })
   return formatDateTime(value)
 }
 </script>
@@ -147,7 +149,7 @@ function when(value: string) {
 <template>
   <section class="mt-6">
     <h3 class="px-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-      {{ props.title }}
+      {{ heading }}
       <span v-if="total > 0" class="ml-1 tabular-nums">{{ total }}</span>
     </h3>
 
@@ -160,11 +162,11 @@ function when(value: string) {
     </div>
 
     <p v-else-if="error" class="mt-3 px-2 text-sm text-destructive">
-      Не удалось загрузить обсуждение
+      {{ t('production.comments.loadFailed') }}
     </p>
 
     <p v-else-if="comments.length === 0" class="mt-3 px-2 text-sm text-muted-foreground">
-      Обсуждения пока нет. Напишите первый комментарий.
+      {{ t('production.comments.empty') }}
     </p>
 
     <ul v-else class="mt-3 space-y-4 px-2">
@@ -180,7 +182,7 @@ function when(value: string) {
           <div class="min-w-0 flex-1">
             <p class="flex flex-wrap items-baseline gap-x-2">
               <span class="text-sm font-medium">
-                {{ comment.user ? comment.user.firstName + ' ' + comment.user.lastName : 'Удалённый пользователь' }}
+                {{ comment.user ? comment.user.firstName + ' ' + comment.user.lastName : t('production.comments.deletedUser') }}
               </span>
               <span class="text-xs text-muted-foreground">{{ when(comment.createdAt) }}</span>
             </p>
@@ -198,14 +200,14 @@ function when(value: string) {
                   :disabled="busy"
                   @click="saveEdit(comment.id)"
                 >
-                  Сохранить
+                  {{ t('common.actions.save') }}
                 </button>
                 <button
                   type="button"
                   class="rounded-md px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground"
                   @click="editingId = null"
                 >
-                  Отмена
+                  {{ t('common.actions.cancel') }}
                 </button>
               </div>
             </div>
@@ -216,14 +218,14 @@ function when(value: string) {
 
             <div v-if="editingId !== comment.id" class="mt-1 flex gap-3 text-xs text-muted-foreground">
               <button type="button" class="hover:text-foreground" @click="replyTo = comment.id">
-                Ответить
+                {{ t('production.comments.reply') }}
               </button>
               <template v-if="isMine(comment)">
                 <button type="button" class="hover:text-foreground" @click="startEdit(comment)">
-                  Изменить
+                  {{ t('common.actions.edit') }}
                 </button>
                 <button type="button" class="hover:text-destructive" @click="remove(comment.id)">
-                  Удалить
+                  {{ t('common.actions.delete') }}
                 </button>
               </template>
             </div>
@@ -239,7 +241,7 @@ function when(value: string) {
                 <div class="min-w-0 flex-1">
                   <p class="flex flex-wrap items-baseline gap-x-2">
                     <span class="text-sm font-medium">
-                      {{ reply.user ? reply.user.firstName + ' ' + reply.user.lastName : 'Удалённый пользователь' }}
+                      {{ reply.user ? reply.user.firstName + ' ' + reply.user.lastName : t('production.comments.deletedUser') }}
                     </span>
                     <span class="text-xs text-muted-foreground">{{ when(reply.createdAt) }}</span>
                   </p>
@@ -250,7 +252,7 @@ function when(value: string) {
                     class="mt-1 text-xs text-muted-foreground hover:text-destructive"
                     @click="remove(reply.id)"
                   >
-                    Удалить
+                    {{ t('common.actions.delete') }}
                   </button>
                 </div>
               </li>
@@ -260,7 +262,7 @@ function when(value: string) {
               <textarea
                 v-model="replyDraft"
                 rows="2"
-                placeholder="Ответить..."
+                :placeholder="t('production.comments.replyPlaceholder')"
                 class="w-full resize-y rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-ring"
               />
               <div class="mt-1.5 flex gap-2">
@@ -270,14 +272,14 @@ function when(value: string) {
                   :disabled="busy || !replyDraft.trim()"
                   @click="submitReply(comment.id)"
                 >
-                  Ответить
+                  {{ t('production.comments.reply') }}
                 </button>
                 <button
                   type="button"
                   class="rounded-md px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground"
                   @click="replyTo = null"
                 >
-                  Отмена
+                  {{ t('common.actions.cancel') }}
                 </button>
               </div>
             </div>
@@ -290,9 +292,9 @@ function when(value: string) {
       <textarea
         v-model="draft"
         rows="3"
-        :placeholder="props.placeholder"
+        :placeholder="draftPlaceholder"
         class="w-full resize-y rounded-md border bg-background px-3 py-2 text-sm outline-none focus:border-ring"
-        aria-label="Новый комментарий"
+        :aria-label="t('production.comments.newComment')"
       />
       <div class="mt-2 flex justify-end">
         <button
@@ -301,7 +303,7 @@ function when(value: string) {
           :disabled="busy || !draft.trim()"
           @click="submitRoot"
         >
-          {{ busy ? 'Отправка...' : 'Отправить' }}
+          {{ busy ? t('production.comments.sending') : t('production.comments.send') }}
         </button>
       </div>
     </div>

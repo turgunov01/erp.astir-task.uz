@@ -3,7 +3,9 @@ import { PRIORITY_LABEL, labelOf } from '~/utils/labels'
 import { PRIORITY } from '@astir/types'
 import { useTaskPanels } from '~/composables/useTaskPanels'
 
-useHead({ title: 'Календарь задач' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('production.taskCalendar.title')) })
 
 const route = useRoute()
 const router = useRouter()
@@ -123,10 +125,11 @@ const weeks = computed(() => {
   return result
 })
 
-const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+/** Monday first, matching the grid above. */
+const weekdays = computed(() => [1, 2, 3, 4, 5, 6, 7].map(day => t('common.weekdayShort.' + day)))
 
 const monthLabel = computed(() =>
-  cursor.value.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })
+  new Intl.DateTimeFormat(intlTag(), { month: 'long', year: 'numeric' }).format(cursor.value)
 )
 
 const todayKey = dayKey(new Date())
@@ -161,12 +164,12 @@ function isOverdue(task: Task) {
     <header class="mb-6 flex flex-wrap items-start justify-between gap-4">
       <div>
         <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-          Производство
+          {{ t('shell.nav.production') }}
         </p>
-        <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Календарь дедлайнов</h1>
+        <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('production.taskCalendar.heading') }}</h1>
         <p class="mt-1 text-sm text-muted-foreground">
-          {{ scheduled }} с дедлайном
-          <span v-if="unscheduled > 0">· {{ unscheduled }} без даты</span>
+          {{ t('production.taskCalendar.withDeadline', scheduled) }}
+          <span v-if="unscheduled > 0">· {{ t('production.taskCalendar.withoutDate', unscheduled) }}</span>
         </p>
       </div>
       <div class="flex items-center gap-2">
@@ -175,14 +178,14 @@ function isOverdue(task: Task) {
           class="inline-flex h-9 items-center gap-2 rounded-md border px-3.5 text-sm hover:bg-secondary"
         >
           <Icon name="lucide:list" class="size-4" />
-          Список
+          {{ t('production.taskCalendar.listView') }}
         </NuxtLink>
         <NuxtLink
           to="/tasks/board"
           class="inline-flex h-9 items-center gap-2 rounded-md border px-3.5 text-sm hover:bg-secondary"
         >
           <Icon name="lucide:columns-3" class="size-4" />
-          Доска
+          {{ t('production.taskCalendar.boardView') }}
         </NuxtLink>
       </div>
     </header>
@@ -192,7 +195,7 @@ function isOverdue(task: Task) {
         <button
           type="button"
           class="grid size-9 place-items-center rounded-md border hover:bg-secondary"
-          aria-label="Предыдущий месяц"
+          :aria-label="t('production.calendar.prevMonth')"
           @click="shiftMonth(-1)"
         >
           <Icon name="lucide:chevron-left" class="size-4" />
@@ -202,12 +205,12 @@ function isOverdue(task: Task) {
           class="h-9 rounded-md border px-3 text-sm hover:bg-secondary"
           @click="goToday"
         >
-          Сегодня
+          {{ t('production.calendar.today') }}
         </button>
         <button
           type="button"
           class="grid size-9 place-items-center rounded-md border hover:bg-secondary"
-          aria-label="Следующий месяц"
+          :aria-label="t('production.calendar.nextMonth')"
           @click="shiftMonth(1)"
         >
           <Icon name="lucide:chevron-right" class="size-4" />
@@ -219,17 +222,17 @@ function isOverdue(task: Task) {
         <select
           v-model="projectId"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Фильтр по проекту"
+          :aria-label="t('production.taskCalendar.filters.projectAria')"
         >
-          <option value="">Все проекты</option>
+          <option value="">{{ t('production.taskCalendar.filters.allProjects') }}</option>
           <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.code }}</option>
         </select>
         <select
           v-model="assigneeId"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Фильтр по исполнителю"
+          :aria-label="t('production.taskCalendar.filters.assigneeAria')"
         >
-          <option value="">Все исполнители</option>
+          <option value="">{{ t('production.taskCalendar.filters.allAssignees') }}</option>
           <option v-for="s in staff" :key="s.userId" :value="s.userId">
             {{ s.user.firstName }} {{ s.user.lastName }}
           </option>
@@ -237,30 +240,30 @@ function isOverdue(task: Task) {
         <select
           v-model="priority"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Фильтр по приоритету"
+          :aria-label="t('production.taskCalendar.filters.priorityAria')"
         >
-          <option value="">Любой приоритет</option>
+          <option value="">{{ t('production.taskCalendar.filters.anyPriority') }}</option>
           <option v-for="p in PRIORITIES" :key="p" :value="p">{{ labelOf(PRIORITY_LABEL, p) }}</option>
         </select>
       </div>
     </div>
 
     <div v-if="error" class="rounded-xl border bg-card px-6 py-16 text-center">
-      <p class="text-sm text-muted-foreground">Не удалось загрузить календарь</p>
+      <p class="text-sm text-muted-foreground">{{ t('production.calendar.loadFailed') }}</p>
       <button
         type="button"
         class="mt-4 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
         @click="refresh()"
       >
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
     <div v-else class="overflow-hidden rounded-xl border bg-card">
       <div class="grid grid-cols-7 border-b bg-muted/30">
         <div
-          v-for="day in WEEKDAYS"
-          :key="day"
+          v-for="(day, dayIndex) in weekdays"
+          :key="dayIndex"
           class="px-3 py-2 text-xs font-medium uppercase tracking-wider text-muted-foreground"
         >
           {{ day }}
@@ -288,7 +291,7 @@ function isOverdue(task: Task) {
             :role="(byDay.get(cell.key)?.length ?? 0) > 0 ? 'button' : undefined"
             :tabindex="(byDay.get(cell.key)?.length ?? 0) > 0 ? 0 : undefined"
             :aria-label="(byDay.get(cell.key)?.length ?? 0) > 0
-              ? 'Задачи на ' + cell.key + ': ' + (byDay.get(cell.key)?.length ?? 0)
+              ? t('production.taskCalendar.dayAria', { date: formatDay(cell.key), n: byDay.get(cell.key)?.length ?? 0 })
               : undefined"
             @click="(byDay.get(cell.key)?.length ?? 0) > 0 && showDay(cell.key)"
             @keydown.enter.prevent="(byDay.get(cell.key)?.length ?? 0) > 0 && showDay(cell.key)"
@@ -325,7 +328,7 @@ function isOverdue(task: Task) {
                 v-if="(byDay.get(cell.key)?.length ?? 0) > 3"
                 class="px-1 text-[10px] text-muted-foreground"
               >
-                ещё {{ (byDay.get(cell.key)?.length ?? 0) - 3 }}
+                {{ t('production.calendar.more', { n: (byDay.get(cell.key)?.length ?? 0) - 3 }) }}
               </li>
             </ul>
           </div>

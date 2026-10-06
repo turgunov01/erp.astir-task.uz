@@ -1,6 +1,7 @@
 import type { AttendanceDay, Prisma } from '@prisma/client'
 import { prisma } from '../../lib/prisma'
 import { badRequest, notFound } from '../../lib/errors'
+import { t } from '../../i18n'
 import { dayKey, dayValue, daysInRange, instantAt, localParts } from '../../lib/studio-time'
 import { figuresFor, isWorkingDay, workSchedule, type WorkSchedule } from './attendance.schedule'
 
@@ -61,9 +62,9 @@ function nextDay(date: string): string {
 }
 
 export function assertRange(from: string, to: string) {
-  if (from > to) throw badRequest('Начало периода позже его конца')
+  if (from > to) throw badRequest(t('common.errors.periodReversed'))
   if (daysInRange(from, to).length > MAX_RANGE_DAYS) {
-    throw badRequest('Период не может быть длиннее ' + MAX_RANGE_DAYS + ' дней')
+    throw badRequest(t('common.errors.periodTooLong', { count: MAX_RANGE_DAYS }))
   }
 }
 
@@ -142,7 +143,7 @@ export async function board(dateParam: string | undefined, now = new Date()) {
   const schedule = await workSchedule()
   const todayDate = today(schedule, now)
   const date = dateParam ?? todayDate
-  if (date > todayDate) throw badRequest('Этот день ещё не наступил')
+  if (date > todayDate) throw badRequest(t('team.attendance.dayNotYet'))
 
   const employees = await trackedEmployees()
   const [days, actions] = await Promise.all([
@@ -331,12 +332,12 @@ export async function correctDay(
   now = new Date()
 ) {
   const [, schedule] = await Promise.all([findEmployee(employeeId), workSchedule()])
-  if (date > today(schedule, now)) throw badRequest('Нельзя исправить день, который ещё не наступил')
+  if (date > today(schedule, now)) throw badRequest(t('team.attendance.futureDayCorrection'))
   if (input.checkIn === null && input.checkOut !== null) {
-    throw badRequest('Укажите время прихода — без него время ухода ничего не значит')
+    throw badRequest(t('team.attendance.checkInRequired'))
   }
   if (input.checkIn !== null && input.checkOut !== null && input.checkOut <= input.checkIn) {
-    throw badRequest('Уход должен быть позже прихода')
+    throw badRequest(t('team.attendance.checkOutAfterCheckIn'))
   }
 
   const checkInAt = input.checkIn === null ? null : instantAt(date, input.checkIn, schedule.timezone)
@@ -366,7 +367,7 @@ export async function resetDay(employeeId: string, date: string) {
   const [, schedule] = await Promise.all([findEmployee(employeeId), workSchedule()])
   const key = { employeeId_date: { employeeId, date: dayValue(date) } }
   const before = await prisma.attendanceDay.findUnique({ where: key })
-  if (!before || before.source !== 'MANUAL') throw badRequest('Этот день не исправлялся вручную')
+  if (!before || before.source !== 'MANUAL') throw badRequest(t('team.attendance.notCorrected'))
 
   if (!before.firstSeenAt) {
     // Nothing was observed that day: without the correction there is no day.

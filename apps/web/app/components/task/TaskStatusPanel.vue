@@ -14,6 +14,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{ (e: 'close'): void }>()
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const canUpdate = computed(() => auth.can(PERMISSION.TASK_UPDATE))
 const { openTask } = useTaskPanels()
@@ -72,11 +73,11 @@ async function moveTo(task: Task, status: string) {
   try {
     await apiRequest('/api/tasks/' + task.id + '/status', {
       method: 'POST',
-      body: { status, comment: 'Перенесено из панели статуса: ' + statusChangeText(task.status, status) }
+      body: { status, comment: t('production.task.status.moveComment', { change: statusChangeText(task.status, status) }) }
     })
     await refresh()
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось изменить статус')
+    errorMessage.value = apiErrorMessage(err, t('production.task.fields.statusChangeFailed'))
   } finally {
     busyId.value = ''
   }
@@ -84,7 +85,7 @@ async function moveTo(task: Task, status: string) {
 
 function formatDate(value: string | null) {
   if (!value) return '—'
-  return new Date(value).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' })
+  return new Date(value).toLocaleDateString(intlTag(), { day: '2-digit', month: 'short' })
 }
 
 function isOverdue(task: Task) {
@@ -107,7 +108,7 @@ function priorityDot(value: string) {
     :style="{ marginRight: props.offset * 28 + 'px' }"
     role="dialog"
     aria-modal="true"
-    :aria-label="'Задачи в статусе ' + label"
+    :aria-label="t('production.task.status.ariaLabel', { status: label })"
   >
     <header class="flex items-start justify-between gap-3 border-b px-5 py-3.5">
       <div class="min-w-0">
@@ -117,17 +118,17 @@ function priorityDot(value: string) {
         </div>
         <p class="mt-1.5 text-xs text-muted-foreground">
           <template v-if="overdue > 0">
-            <span class="text-destructive">{{ overdue }} просрочено</span>
+            <span class="text-destructive">{{ t('production.task.status.overdue', { n: overdue }) }}</span>
             <span v-if="unassigned > 0"> · </span>
           </template>
-          <template v-if="unassigned > 0">{{ unassigned }} без исполнителя</template>
-          <template v-if="overdue === 0 && unassigned === 0">все задачи назначены и в срок</template>
+          <template v-if="unassigned > 0">{{ t('production.task.status.unassigned', { n: unassigned }) }}</template>
+          <template v-if="overdue === 0 && unassigned === 0">{{ t('production.task.status.allGood') }}</template>
         </p>
       </div>
       <button
         type="button"
         class="rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground"
-        aria-label="Закрыть"
+        :aria-label="t('common.actions.close')"
         @click="emit('close')"
       >
         <Icon name="lucide:x" class="size-4" />
@@ -145,13 +146,13 @@ function priorityDot(value: string) {
     <div v-if="error" class="grid flex-1 place-items-center px-6 text-center">
       <div>
         <Icon name="lucide:triangle-alert" class="size-7 text-destructive" />
-        <p class="mt-3 text-sm">Не удалось загрузить колонку</p>
+        <p class="mt-3 text-sm">{{ t('production.task.status.loadFailed') }}</p>
         <button
           type="button"
           class="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
           @click="refresh()"
         >
-          Повторить
+          {{ t('common.actions.retry') }}
         </button>
       </div>
     </div>
@@ -163,9 +164,9 @@ function priorityDot(value: string) {
     <div v-else-if="tasks.length === 0" class="grid flex-1 place-items-center px-6 text-center">
       <div>
         <Icon name="lucide:inbox" class="size-7 text-muted-foreground/50" />
-        <p class="mt-3 text-sm font-medium">В этой колонке пусто</p>
+        <p class="mt-3 text-sm font-medium">{{ t('production.task.status.emptyTitle') }}</p>
         <p class="mt-1 text-sm text-muted-foreground">
-          Перетащите сюда карточку на доске или смените статус задачи.
+          {{ t('production.task.status.emptyBody') }}
         </p>
       </div>
     </div>
@@ -197,7 +198,7 @@ function priorityDot(value: string) {
               <span v-if="task.assignee">
                 {{ task.assignee.firstName }} {{ task.assignee.lastName }}
               </span>
-              <span v-else class="italic">не назначен</span>
+              <span v-else class="italic">{{ t('production.task.status.unassignedShort') }}</span>
               <span v-if="task.dependencies.length > 0" class="inline-flex items-center gap-1">
                 <Icon name="lucide:link" class="size-3" />{{ task.dependencies.length }}
               </span>
@@ -214,7 +215,7 @@ function priorityDot(value: string) {
           :value="task.status"
           :disabled="busyId === task.id"
           class="mt-2 h-7 w-full rounded-md border bg-background px-2 text-xs outline-none focus:border-ring"
-          :aria-label="'Перенести задачу ' + task.title"
+          :aria-label="t('production.task.status.moveTask', { title: task.title })"
           @change="moveTo(task, ($event.target as HTMLSelectElement).value)"
         >
           <option v-for="s in STATUSES" :key="s" :value="s">{{ labelOf(TASK_STATUS_LABEL, s) }}</option>

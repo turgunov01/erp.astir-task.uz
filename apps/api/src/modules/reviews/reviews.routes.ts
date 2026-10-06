@@ -15,6 +15,7 @@ import { prisma } from '../../lib/prisma'
 import { recordActivity } from '../../lib/activity'
 import * as service from './reviews.service'
 import { mountArchiveRoutes } from '../../lib/archive-routes'
+import { t } from '../../i18n'
 
 export const reviewsRouter = Router()
 
@@ -92,10 +93,10 @@ reviewsRouter.post(
       const role = req.user?.role
 
       if (isClientReview && role !== 'CLIENT' && role !== 'OWNER' && role !== 'ADMIN') {
-        throw forbidden('Клиентское согласование закрывает клиент')
+        throw forbidden(t('production.reviews.clientReviewByClient'))
       }
       if (!isClientReview && role === 'CLIENT') {
-        throw forbidden('Внутреннее согласование недоступно клиенту')
+        throw forbidden(t('production.reviews.internalNotForClient'))
       }
 
       const updated = await service.decide(

@@ -7,6 +7,7 @@ import { validate, validatedQuery } from '../../middleware/validate'
 import { sendItem } from '../../lib/http'
 import { recordActivity, recordAudit } from '../../lib/activity'
 import { parseClock } from '../../lib/studio-time'
+import { t } from '../../i18n'
 import * as service from './attendance.service'
 import { createLatenessPenalties } from './attendance.penalties'
 import * as self from './attendance.self'
@@ -27,25 +28,25 @@ export const attendanceRouter = Router()
 
 attendanceRouter.use(authenticate)
 
-const daySchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Ожидается дата ГГГГ-ММ-ДД')
-  .refine(value => !Number.isNaN(Date.parse(value)), 'Некорректная дата')
+const daySchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { error: () => t('common.validation.dateFormat') })
+  .refine(value => !Number.isNaN(Date.parse(value)), { error: () => t('common.validation.invalidDate') })
 
 const clockSchema = z.string().trim()
-  .refine(value => parseClock(value) !== null, 'Ожидается время ЧЧ:ММ')
+  .refine(value => parseClock(value) !== null, { error: () => t('common.validation.timeFormat') })
   .nullable()
 
 const boardSchema = z.object({ date: daySchema.optional() })
 const rangeSchema = z.object({ from: daySchema, to: daySchema })
 /** The period view may omit the range: it then answers month-to-date. */
 const optionalRangeSchema = z.object({ from: daySchema.optional(), to: daySchema.optional() })
-  .refine(range => Boolean(range.from) === Boolean(range.to), 'Укажите обе границы периода')
+  .refine(range => Boolean(range.from) === Boolean(range.to), { error: () => t('common.validation.bothBounds') })
 const employeeParamSchema = z.object({ employeeId: uuidSchema })
 const dayParamSchema = z.object({ employeeId: uuidSchema, date: daySchema })
 
 const correctionSchema = z.object({
   checkIn: clockSchema,
   checkOut: clockSchema,
-  comment: z.string().trim().min(3, 'Опишите причину исправления').max(500)
+  comment: z.string().trim().min(3, { error: () => t('team.attendance.correctionReason') }).max(500)
 })
 
 const clockOf = (value: Date | null | undefined) => value ? value.toISOString() : null

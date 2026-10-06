@@ -1,6 +1,7 @@
 import { Prisma, type AttendanceDay } from '@prisma/client'
 import { prisma } from '../../lib/prisma'
 import { badRequest } from '../../lib/errors'
+import { t } from '../../i18n'
 import { dayValue } from '../../lib/studio-time'
 import { figuresFor, isWorkingDay, workSchedule, type WorkSchedule } from './attendance.schedule'
 import { isMarked, today } from './attendance.service'
@@ -61,7 +62,7 @@ async function employeeIdOf(userId: string): Promise<string | null> {
 
 async function requireEmployee(userId: string): Promise<string> {
   const employeeId = await employeeIdOf(userId)
-  if (!employeeId) throw badRequest('Отметка прихода доступна только сотрудникам студии')
+  if (!employeeId) throw badRequest(t('team.attendance.staffOnly'))
   return employeeId
 }
 
@@ -159,7 +160,7 @@ export async function checkIn(userId: string, now = new Date()): Promise<MarkRes
     return { day: view(date, schedule, existing), recorded: false, employeeId }
   }
   if (existing && existing.source !== 'WEB') {
-    throw badRequest('Этот день уже исправил администратор — отмечаться не нужно')
+    throw badRequest(t('team.attendance.correctedByAdmin'))
   }
 
   let recorded = existing
@@ -180,13 +181,13 @@ export async function checkOut(userId: string, now = new Date()): Promise<MarkRe
   const existing = await prisma.attendanceDay.findUnique({ where: key })
 
   if (!existing || !isCheckedIn(existing) || !existing.checkInAt) {
-    throw badRequest('Сначала отметьте приход — нажмите «Я приехал»')
+    throw badRequest(t('team.attendance.checkInFirst'))
   }
   if (isCheckedOut(existing)) {
     return { day: view(date, schedule, existing), recorded: false, employeeId }
   }
   if (existing.source !== 'WEB') {
-    throw badRequest('Этот день исправил администратор — время ухода внесёт он')
+    throw badRequest(t('team.attendance.checkOutByAdmin'))
   }
 
   const { count } = await prisma.attendanceDay.updateMany({

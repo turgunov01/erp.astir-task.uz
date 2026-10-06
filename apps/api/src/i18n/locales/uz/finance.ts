@@ -67,5 +67,28 @@ export default {
     d60: '31-60 kun',
     d90: '61-90 kun',
     over90: '90 kundan ortiq'
+  },
+  payments: {
+    feeTooLarge: 'Komissiya to‘lov summasidan katta bo‘lishi mumkin emas'
+  },
+  expenses: {
+    vatTooLarge: 'QQS summadan katta bo‘lishi mumkin emas'
+  },
+  budget: {
+    categoryOnce: 'Har bir toifa faqat bir marta ko‘rsatiladi'
+  },
+  payroll: {
+    status: {
+      DRAFT: 'qoralama',
+      APPROVED: 'tasdiqlangan',
+      PAID: 'to‘langan',
+      CANCELLED: 'bekor qilingan'
+    },
+    employeeMissing: 'Xodim topilmadi yoki o‘chirilgan',
+    latenessMinutesRequired: 'Kechikish jarimasi uchun xodim necha daqiqa kechikkanini ko‘rsating',
+    externalIdTaken: 'Bu tashqi identifikatorli yozuv allaqachon bor',
+    onlyDraftEditable: 'Faqat qoralamani o‘zgartirish mumkin. «{status}» yozuvini avval qoralamaga qaytaring.',
+    transitionNotAllowed: 'Yozuvni «{from}» holatidan «{to}» holatiga o‘tkazib bo‘lmaydi',
+    deleteOnlyDraft: 'Faqat qoralama yoki bekor qilingan yozuvni o‘chirish mumkin. Tasdiqlanganini avval bekor qiling.'
   }
 } satisfies Messages<typeof ru>

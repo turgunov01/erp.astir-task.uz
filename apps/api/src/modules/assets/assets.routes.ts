@@ -14,6 +14,7 @@ import { conflict, notFound } from '../../lib/errors'
 import { prisma } from '../../lib/prisma'
 import { recordActivity } from '../../lib/activity'
 import { mountArchiveRoutes } from '../../lib/archive-routes'
+import { t } from '../../i18n'
 
 const INCLUDE = {
   project: { select: { id: true, code: true, name: true } },
@@ -142,7 +143,7 @@ assetsRouter.delete(
       })
       if (!asset) throw notFound('Asset')
       if (asset._count.versions > 0) {
-        throw conflict('У ассета ' + asset._count.versions + ' версий. Сначала удалите их.')
+        throw conflict(t('production.assets.hasVersions', { count: asset._count.versions }))
       }
 
       await prisma.asset.update({ where: { id }, data: { deletedAt: new Date() } })

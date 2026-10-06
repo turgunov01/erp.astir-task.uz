@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import type { Prisma } from '@prisma/client'
 import { listQuerySchema, uuidSchema } from '@astir/validation'
+import { t } from '../../i18n'
 
 /**
  * Filters shared by the finance lists, and how each list reads them.
@@ -21,8 +22,8 @@ export const PAYMENT_METHODS = ['BANK_TRANSFER', 'CASH', 'CARD', 'OTHER'] as con
 export const OPEN_INVOICE: Prisma.InvoiceWhereInput = { status: { notIn: ['PAID', 'CANCELLED'] } }
 
 /** A calendar day as YYYY-MM-DD; the period is always whole days. */
-const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Дата должна быть в формате ГГГГ-ММ-ДД')
-  .refine(value => !Number.isNaN(Date.parse(value)), 'Неверная дата')
+const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { error: () => t('common.validation.dateFormat') })
+  .refine(value => !Number.isNaN(Date.parse(value)), { error: () => t('common.validation.invalidDate') })
 
 export const currencyFilter = z.string().trim().length(3).toUpperCase()
 

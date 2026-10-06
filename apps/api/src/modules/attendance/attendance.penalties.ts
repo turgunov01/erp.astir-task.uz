@@ -1,5 +1,6 @@
 import { prisma } from '../../lib/prisma'
 import { AppError, badRequest } from '../../lib/errors'
+import { recipientLocale, t, translatorFor } from '../../i18n'
 import { dayKey, dayValue, localParts } from '../../lib/studio-time'
 import * as payroll from '../finance/payroll.service'
 import { isWorkingDay, penaltyFor, workSchedule } from './attendance.schedule'
@@ -16,7 +17,7 @@ import { assertRange, isMarked } from './attendance.service'
  *
  * Lateness counts from the «Я приехал» press. A day the employee worked
  * without pressing is not let off: its lateness counts from the first
- * activity of the day, and the entry says so («без отметки»), so the
+ * activity of the day, and the entry says so (team.attendance.penaltyUnmarked), so the
  * accountant can tell an inferred arrival from a marked one.
  */
 
@@ -36,8 +37,14 @@ export async function createLatenessPenalties(from: string, to: string, actorId:
   assertRange(from, to)
   const schedule = await workSchedule()
   if (schedule.penaltyPerDay <= 0 && schedule.penaltyPerMinute <= 0) {
-    throw badRequest('Ставка штрафа за опоздание не задана. Укажите её в Настройках → Рабочий график.')
+    throw badRequest(t('team.attendance.penaltyRateMissing'))
   }
+  /*
+   * The reason is stored on the entry as plain text that the accountant may
+   * edit, and everyone reads the same row, so it is worded once in the
+   * studio's default language rather than in whoever pressed the button.
+   */
+  const studioT = translatorFor(await recipientLocale(null))
 
   const days = await prisma.attendanceDay.findMany({
     where: {
@@ -79,9 +86,11 @@ export async function createLatenessPenalties(from: string, to: string, actorId:
         currency: schedule.currency,
         date,
         lateMinutes: day.lateMinutes,
-        reason: 'Опоздание на ' + day.lateMinutes + ' мин: приход ' + arrivalLabel +
-          ' при начале в ' + schedule.startLabel +
-          (isMarked(day) ? ' (посещаемость)' : ' (без отметки «Я приехал» — по первой активности)'),
+        reason: studioT('team.attendance.penaltyReason', {
+          minutes: day.lateMinutes,
+          arrival: arrivalLabel,
+          start: schedule.startLabel
+        }) + ' ' + studioT(isMarked(day) ? 'team.attendance.penaltyMarked' : 'team.attendance.penaltyUnmarked'),
         source: PAYROLL_SOURCE,
         externalId
       }, actorId)

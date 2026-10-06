@@ -32,6 +32,7 @@ const props = defineProps<{
 }>()
 const emit = defineEmits<{ (e: 'close'): void, (e: 'changed'): void }>()
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const canUpdate = computed(() => auth.can(PERMISSION.TASK_UPDATE))
 const canDelete = computed(() => auth.can(PERMISSION.TASK_CREATE))
@@ -192,7 +193,7 @@ watch(task, value => {
 async function save() {
   if (!task.value || !dirty.value) return
   if (reasonMissing.value) {
-    errorMessage.value = 'Задача просрочена: укажите причину правки'
+    errorMessage.value = t('production.task.drawer.overdueReasonRequired')
     return
   }
   saving.value = 'form'
@@ -208,7 +209,7 @@ async function save() {
     await refresh()
     emit('changed')
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось сохранить')
+    errorMessage.value = apiErrorMessage(err, t('common.errors.saveFailed'))
   } finally {
     saving.value = ''
   }
@@ -236,7 +237,7 @@ async function changeStatus(status: string) {
     await refresh()
     emit('changed')
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось изменить статус')
+    errorMessage.value = apiErrorMessage(err, t('production.task.fields.statusChangeFailed'))
     await refresh()
   } finally {
     saving.value = ''
@@ -257,7 +258,7 @@ async function toggleArchive() {
     await refresh()
     emit('changed')
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось изменить архивный статус')
+    errorMessage.value = apiErrorMessage(err, t('production.task.drawer.archiveFailed'))
   } finally {
     saving.value = ''
   }
@@ -270,7 +271,7 @@ async function removeTask() {
     emit('changed')
     emit('close')
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось удалить задачу')
+    errorMessage.value = apiErrorMessage(err, t('production.task.drawer.deleteFailed'))
     saving.value = ''
   }
 }
@@ -285,7 +286,7 @@ async function removeDependency(dependsOnTaskId: string) {
     await refresh()
     emit('changed')
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось снять зависимость')
+    errorMessage.value = apiErrorMessage(err, t('production.task.drawer.removeDependencyFailed'))
   } finally {
     saving.value = ''
   }
@@ -304,7 +305,7 @@ function toDateInput(value: string | null) {
     :style="{ marginRight: (props.offset ?? 0) * 28 + 'px' }"
     role="dialog"
     aria-modal="true"
-    aria-label="Задача"
+    :aria-label="t('production.task.drawer.ariaLabel')"
   >
       <header class="flex items-center justify-between gap-3 border-b px-5 py-3.5">
         <p class="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
@@ -326,7 +327,7 @@ function toDateInput(value: string | null) {
         <button
           type="button"
           class="rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground"
-          aria-label="Закрыть"
+          :aria-label="t('common.actions.close')"
           @click="emit('close')"
         >
           <Icon name="lucide:x" class="size-4" />
@@ -350,9 +351,9 @@ function toDateInput(value: string | null) {
       <div v-else-if="error" class="grid flex-1 place-items-center px-6 text-center">
         <div>
           <Icon name="lucide:triangle-alert" class="size-7 text-destructive" />
-          <p class="mt-3 text-sm">Не удалось загрузить задачу</p>
+          <p class="mt-3 text-sm">{{ t('production.task.drawer.loadFailed') }}</p>
           <button type="button" class="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary" @click="refresh()">
-            Повторить
+            {{ t('common.actions.retry') }}
           </button>
         </div>
       </div>
@@ -364,12 +365,10 @@ function toDateInput(value: string | null) {
         >
           <p class="flex items-center gap-2 text-sm font-medium text-destructive">
             <Icon name="lucide:clock-alert" class="size-4 shrink-0" />
-            Просрочена на {{ daysLate }} дн
+            {{ t('production.task.drawer.lateBy', daysLate) }}
           </p>
           <p class="mt-1.5 text-xs leading-relaxed text-muted-foreground">
-            Задача считается заявкой: любое изменение уходит уведомлением
-            администрации и попадает в обсуждение ниже. Причина запрашивается
-            внизу панели, вместе с кнопкой сохранения.
+            {{ t('production.task.drawer.lateNotice') }}
           </p>
 
         </div>
@@ -380,13 +379,13 @@ function toDateInput(value: string | null) {
           :disabled="!canUpdate || saving === 'form'"
           maxlength="200"
           class="w-full rounded-md border border-transparent bg-transparent px-2 py-1 text-xl font-semibold tracking-tight outline-none hover:border-border focus:border-ring disabled:cursor-default"
-          aria-label="Название задачи"
+          :aria-label="t('production.task.drawer.titleLabel')"
         >
 
         <dl class="mt-5 space-y-1">
           <div class="grid grid-cols-[7.5rem_1fr] items-center gap-2 rounded-md px-2 py-1.5 hover:bg-secondary/40">
             <dt class="flex items-center gap-2 text-sm text-muted-foreground">
-              <Icon name="lucide:circle-dot" class="size-3.5" /> Статус
+              <Icon name="lucide:circle-dot" class="size-3.5" /> {{ t('production.task.fields.status') }}
             </dt>
             <dd>
               <select
@@ -400,20 +399,20 @@ function toDateInput(value: string | null) {
               <input
                 v-model="statusNote"
                 maxlength="4000"
-                placeholder="Что сделано — обязательно для смены статуса"
+                :placeholder="t('production.task.drawer.statusNotePlaceholder')"
                 class="mt-2 h-9 w-full rounded-md border bg-background px-3 text-sm outline-none focus:border-ring"
                 :class="noteMissing ? 'border-destructive/40' : ''"
-                aria-label="Основание смены статуса"
+                :aria-label="t('production.task.fields.statusNoteLabel')"
               >
               <p class="mt-1 px-0.5 text-xs text-muted-foreground">
-                Запись попадёт в обсуждение задачи
+                {{ t('production.task.drawer.statusNoteHint') }}
               </p>
             </dd>
           </div>
 
           <div class="grid grid-cols-[7.5rem_1fr] items-center gap-2 rounded-md px-2 py-1.5 hover:bg-secondary/40">
             <dt class="flex items-center gap-2 text-sm text-muted-foreground">
-              <Icon name="lucide:user" class="size-3.5" /> Исполнитель
+              <Icon name="lucide:user" class="size-3.5" /> {{ t('production.task.fields.assignee') }}
             </dt>
             <dd>
               <select
@@ -421,20 +420,20 @@ function toDateInput(value: string | null) {
                 :disabled="!canAssign || saving === 'form'"
                 class="h-8 w-full rounded-md border bg-background px-2 text-sm outline-none focus:border-ring"
               >
-                <option value="">Не назначен</option>
+                <option value="">{{ t('production.task.fields.unassigned') }}</option>
                 <option v-for="option in assigneeOptions" :key="option.id" :value="option.id">
                   {{ option.name }}
                 </option>
               </select>
               <p class="mt-1 px-0.5 text-xs text-muted-foreground">
-                Исполнитель получит уведомление о назначении
+                {{ t('production.task.fields.assigneeNotified') }}
               </p>
             </dd>
           </div>
 
           <div class="grid grid-cols-[7.5rem_1fr] items-center gap-2 rounded-md px-2 py-1.5 hover:bg-secondary/40">
             <dt class="flex items-center gap-2 text-sm text-muted-foreground">
-              <Icon name="lucide:flag" class="size-3.5" /> Приоритет
+              <Icon name="lucide:flag" class="size-3.5" /> {{ t('production.task.fields.priority') }}
             </dt>
             <dd>
               <select
@@ -449,7 +448,7 @@ function toDateInput(value: string | null) {
 
           <div class="grid grid-cols-[7.5rem_1fr] items-center gap-2 rounded-md px-2 py-1.5 hover:bg-secondary/40">
             <dt class="flex items-center gap-2 text-sm text-muted-foreground">
-              <Icon name="lucide:calendar" class="size-3.5" /> Дедлайн
+              <Icon name="lucide:calendar" class="size-3.5" /> {{ t('production.task.fields.deadline') }}
             </dt>
             <dd>
               <input
@@ -463,7 +462,7 @@ function toDateInput(value: string | null) {
 
           <div class="grid grid-cols-[7.5rem_1fr] items-center gap-2 rounded-md px-2 py-1.5 hover:bg-secondary/40">
             <dt class="flex items-center gap-2 text-sm text-muted-foreground">
-              <Icon name="lucide:clock" class="size-3.5" /> Оценка, ч
+              <Icon name="lucide:clock" class="size-3.5" /> {{ t('production.task.drawer.estimate') }}
             </dt>
             <dd>
               <input
@@ -479,7 +478,7 @@ function toDateInput(value: string | null) {
 
           <div v-if="task.stage" class="grid grid-cols-[7.5rem_1fr] items-center gap-2 px-2 py-1.5">
             <dt class="flex items-center gap-2 text-sm text-muted-foreground">
-              <Icon name="lucide:git-branch" class="size-3.5" /> Стадия
+              <Icon name="lucide:git-branch" class="size-3.5" /> {{ t('production.task.drawer.stage') }}
             </dt>
             <dd class="text-sm">{{ task.stage.name }}</dd>
           </div>
@@ -487,13 +486,13 @@ function toDateInput(value: string | null) {
 
         <section class="mt-6">
           <h3 class="px-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Описание
+            {{ t('production.task.fields.description') }}
           </h3>
           <textarea
             v-model="draft.description"
             :disabled="!canUpdate || saving === 'form'"
             rows="5"
-            placeholder="Добавьте описание..."
+            :placeholder="t('production.task.drawer.descriptionPlaceholder')"
             class="mt-2 w-full rounded-md border border-transparent bg-transparent px-2 py-2 text-sm leading-relaxed outline-none hover:border-border focus:border-ring"
           />
         </section>
@@ -509,7 +508,7 @@ function toDateInput(value: string | null) {
 
         <section v-if="task.dependencies.length > 0" class="mt-6">
           <h3 class="px-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Зависит от
+            {{ t('production.task.drawer.dependsOn') }}
           </h3>
           <ul class="mt-2 space-y-1">
             <li
@@ -523,7 +522,7 @@ function toDateInput(value: string | null) {
                 v-if="canAssign"
                 type="button"
                 class="rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-destructive"
-                :aria-label="'Снять зависимость ' + dep.dependsOnTask.title"
+                :aria-label="t('production.task.drawer.removeDependency', { title: dep.dependsOnTask.title })"
                 @click="removeDependency(dep.dependsOnTaskId)"
               >
                 <Icon name="lucide:x" class="size-3.5" />
@@ -543,7 +542,7 @@ function toDateInput(value: string | null) {
       >
         <div class="min-w-0 flex-1">
           <p class="text-sm text-muted-foreground">
-            Есть несохранённые изменения
+            {{ t('production.task.drawer.unsavedChanges') }}
           </p>
           <!--
             The reason sits next to the button on purpose: it used to live at the
@@ -554,13 +553,13 @@ function toDateInput(value: string | null) {
             v-if="isLate"
             v-model="overdueReason"
             maxlength="500"
-            placeholder="Причина правки просроченной задачи"
+            :placeholder="t('production.task.drawer.overdueReasonPlaceholder')"
             class="mt-2 h-9 w-full rounded-md border bg-background px-3 text-sm outline-none focus:border-ring"
             :class="reasonMissing ? 'border-destructive/60' : ''"
-            aria-label="Причина правки просроченной задачи"
+            :aria-label="t('production.task.drawer.overdueReasonPlaceholder')"
           >
           <p v-if="isLate && reasonMissing" class="mt-1 text-xs text-destructive">
-            Без причины сохранить нельзя — она уйдёт администрации и в обсуждение
+            {{ t('production.task.drawer.overdueReasonHint') }}
           </p>
         </div>
         <div class="flex items-center gap-2">
@@ -570,7 +569,7 @@ function toDateInput(value: string | null) {
             :disabled="saving === 'form'"
             @click="cancel"
           >
-            Отменить
+            {{ t('production.task.drawer.discard') }}
           </button>
           <button
             type="button"
@@ -578,7 +577,7 @@ function toDateInput(value: string | null) {
             :disabled="saving === 'form' || reasonMissing"
             @click="save"
           >
-            {{ saving === 'form' ? 'Сохранение...' : 'Сохранить' }}
+            {{ saving === 'form' ? t('production.task.drawer.saving') : t('common.actions.save') }}
           </button>
         </div>
       </div>
@@ -592,7 +591,7 @@ function toDateInput(value: string | null) {
           @click="task.archivedAt ? toggleArchive() : confirmArchive = true"
         >
           <Icon :name="task.archivedAt ? 'lucide:archive-restore' : 'lucide:archive'" class="size-3.5" />
-          {{ task.archivedAt ? 'Вернуть из архива' : 'В архив' }}
+          {{ task.archivedAt ? t('production.task.drawer.unarchive') : t('production.task.drawer.archive') }}
         </button>
         <span v-else />
 
@@ -603,17 +602,17 @@ function toDateInput(value: string | null) {
           @click="confirmDelete = true"
         >
           <Icon name="lucide:trash-2" class="size-3.5" />
-          Удалить
+          {{ t('common.actions.delete') }}
         </button>
       </footer>
     </aside>
 
     <ConfirmDialog
       v-if="confirmArchive && task"
-      title="Архивировать задачу?"
-      :message="'«' + task.title + '» исчезнет из активных списков и доски.'"
-      detail="Все данные сохранятся, задачу можно вернуть из архива в любой момент."
-      confirm-label="В архив"
+      :title="t('production.task.drawer.archiveConfirm.title')"
+      :message="t('production.task.drawer.archiveConfirm.message', { title: task.title })"
+      :detail="t('production.task.drawer.archiveConfirm.detail')"
+      :confirm-label="t('production.task.drawer.archive')"
       tone="neutral"
       :pending="saving === 'archive'"
       @confirm="toggleArchive"
@@ -622,10 +621,10 @@ function toDateInput(value: string | null) {
 
     <ConfirmDialog
       v-if="confirmDelete && task"
-      title="Удалить задачу?"
-      :message="'«' + task.title + '» будет удалена вместе со своими зависимостями и связями.'"
-      detail="Если задача просто больше не нужна в работе — используйте архив, он обратим."
-      confirm-label="Удалить"
+      :title="t('production.task.drawer.deleteConfirm.title')"
+      :message="t('production.task.drawer.deleteConfirm.message', { title: task.title })"
+      :detail="t('production.task.drawer.deleteConfirm.detail')"
+      :confirm-label="t('common.actions.delete')"
       tone="danger"
       :pending="saving === 'delete'"
       @confirm="removeTask"

@@ -12,6 +12,7 @@ import { sendItem, sendList, sendNoContent, buildMeta, toSkipTake } from '../../
 import { badRequest, notFound, unauthenticated } from '../../lib/errors'
 import { prisma } from '../../lib/prisma'
 import { hasEmailChannel } from '../../lib/notify-email'
+import { t } from '../../i18n'
 
 const listSchema = listQuerySchema.extend({
   unreadOnly: z.coerce.boolean().optional()
@@ -114,7 +115,7 @@ notificationsRouter.put(
         item => item.channel === 'EMAIL' && !hasEmailChannel(item.type)
       )
       if (unsupported) {
-        throw badRequest('Для этого типа уведомлений письма не отправляются')
+        throw badRequest(t('team.settings.noEmailForType'))
       }
 
       await prisma.$transaction(

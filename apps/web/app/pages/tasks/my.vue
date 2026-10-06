@@ -5,7 +5,9 @@ import { useAuthStore } from '~/stores/auth'
 import { useTaskPanels } from '~/composables/useTaskPanels'
 import type { PersonalTask } from '~/components/task/TaskPersonalRow.vue'
 
-useHead({ title: 'Мои задачи' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('production.myTasks.title')) })
 
 const route = useRoute()
 const router = useRouter()
@@ -57,12 +59,12 @@ function isLate(task: PersonalTask) {
  * A task lands in the first section that claims it.
  */
 const SECTIONS = [
-  { key: 'late', title: 'Просрочено', icon: 'lucide:alarm-clock', match: isLate },
-  { key: 'revision', title: 'На правках', icon: 'lucide:rotate-ccw', match: (t: PersonalTask) => t.status === 'REVISION' },
-  { key: 'progress', title: 'В работе', icon: 'lucide:play', match: (t: PersonalTask) => t.status === 'IN_PROGRESS' },
-  { key: 'todo', title: 'К выполнению', icon: 'lucide:circle-dashed', match: (t: PersonalTask) => t.status === 'READY' || t.status === 'BACKLOG' },
-  { key: 'blocked', title: 'Заблокировано', icon: 'lucide:octagon-pause', match: (t: PersonalTask) => t.status === 'BLOCKED' },
-  { key: 'review', title: 'На проверке', icon: 'lucide:eye', match: (t: PersonalTask) => t.status === 'REVIEW' }
+  { key: 'late', icon: 'lucide:alarm-clock', match: isLate },
+  { key: 'revision', icon: 'lucide:rotate-ccw', match: (task: PersonalTask) => task.status === 'REVISION' },
+  { key: 'progress', icon: 'lucide:play', match: (task: PersonalTask) => task.status === 'IN_PROGRESS' },
+  { key: 'todo', icon: 'lucide:circle-dashed', match: (task: PersonalTask) => task.status === 'READY' || task.status === 'BACKLOG' },
+  { key: 'blocked', icon: 'lucide:octagon-pause', match: (task: PersonalTask) => task.status === 'BLOCKED' },
+  { key: 'review', icon: 'lucide:eye', match: (task: PersonalTask) => task.status === 'REVIEW' }
 ] as const
 
 type SectionKey = typeof SECTIONS[number]['key']
@@ -80,10 +82,10 @@ const countOf = (key: SectionKey) => grouped.value.find(section => section.key =
 
 /** Views as one shareable query param, like the main task page. */
 const VIEWS = [
-  { key: 'active', label: 'Открытые' },
-  { key: 'late', label: 'Просроченные' },
-  { key: 'review', label: 'На проверке' },
-  { key: 'completed', label: 'Завершённые' }
+  { key: 'active' },
+  { key: 'late' },
+  { key: 'review' },
+  { key: 'completed' }
 ] as const
 
 type ViewKey = typeof VIEWS[number]['key']
@@ -106,7 +108,7 @@ function viewCount(key: ViewKey) {
 /** Sections to draw for the current view; the active view shows them all. */
 const visibleSections = computed(() => {
   if (view.value === 'completed') {
-    return [{ key: 'completed', title: 'Завершённые', icon: 'lucide:circle-check', tasks: completed.items.value }]
+    return [{ key: 'completed', icon: 'lucide:circle-check', tasks: completed.items.value }]
   }
   const sections = grouped.value.filter(section => section.tasks.length > 0)
   return view.value === 'active' ? sections : sections.filter(section => section.key === view.value)
@@ -126,17 +128,17 @@ const dueThisWeek = computed(() => {
 })
 
 const summary = computed(() => [
-  { label: 'Просрочено', value: countOf('late'), icon: 'lucide:alarm-clock', view: 'late' as ViewKey, signal: true },
-  { label: 'В работе и на правках', value: countOf('progress') + countOf('revision'), icon: 'lucide:play', view: 'active' as ViewKey, signal: false },
-  { label: 'Срок на этой неделе', value: dueThisWeek.value, icon: 'lucide:calendar-clock', view: 'active' as ViewKey, signal: false },
-  { label: 'На проверке', value: countOf('review'), icon: 'lucide:eye', view: 'review' as ViewKey, signal: false }
+  { label: t('production.myTasks.tiles.late'), value: countOf('late'), icon: 'lucide:alarm-clock', view: 'late' as ViewKey, signal: true },
+  { label: t('production.myTasks.tiles.inWork'), value: countOf('progress') + countOf('revision'), icon: 'lucide:play', view: 'active' as ViewKey, signal: false },
+  { label: t('production.myTasks.tiles.dueThisWeek'), value: dueThisWeek.value, icon: 'lucide:calendar-clock', view: 'active' as ViewKey, signal: false },
+  { label: t('production.myTasks.tiles.review'), value: countOf('review'), icon: 'lucide:eye', view: 'review' as ViewKey, signal: false }
 ])
 
 const emptyText = computed(() => {
-  if (view.value === 'completed') return 'Завершённых задач пока нет.'
-  if (view.value === 'late') return 'Просроченных задач нет — так держать.'
-  if (view.value === 'review') return 'Сейчас ничего не ждёт проверки.'
-  return 'Открытых задач нет. Новые появятся здесь, как только их назначат.'
+  if (view.value === 'completed') return t('production.myTasks.empty.completed')
+  if (view.value === 'late') return t('production.myTasks.empty.late')
+  if (view.value === 'review') return t('production.myTasks.empty.review')
+  return t('production.myTasks.empty.active')
 })
 </script>
 
@@ -145,11 +147,11 @@ const emptyText = computed(() => {
     <header class="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div>
         <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-          Личное
+          {{ t('production.myTasks.eyebrow') }}
         </p>
-        <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Мои задачи</h1>
+        <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('production.myTasks.title') }}</h1>
         <p class="mt-1 text-sm text-muted-foreground">
-          {{ auth.user?.firstName }}, здесь всё, что назначено на вас — сначала то, что горит.
+          {{ t('production.myTasks.intro', { name: auth.user?.firstName ?? '' }) }}
         </p>
       </div>
       <NuxtLink
@@ -158,12 +160,12 @@ const emptyText = computed(() => {
         class="inline-flex h-9 items-center gap-2 rounded-md border px-3.5 text-sm hover:bg-secondary"
       >
         <Icon name="lucide:clock" class="size-4" />
-        Учёт времени
+        {{ t('shell.nav.timesheets') }}
       </NuxtLink>
     </header>
 
     <section
-      aria-label="Сводка по задачам"
+      :aria-label="t('production.myTasks.summaryAria')"
       class="grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border lg:grid-cols-4"
     >
       <button
@@ -194,7 +196,7 @@ const emptyText = computed(() => {
       </button>
     </section>
 
-    <nav class="mb-4 mt-6 flex flex-wrap gap-1.5" aria-label="Выборки задач">
+    <nav class="mb-4 mt-6 flex flex-wrap gap-1.5" :aria-label="t('production.myTasks.viewsAria')">
       <button
         v-for="item in VIEWS"
         :key="item.key"
@@ -204,7 +206,7 @@ const emptyText = computed(() => {
         :aria-pressed="view === item.key"
         @click="selectView(item.key)"
       >
-        {{ item.label }}
+        {{ t('production.myTasks.views.' + item.key) }}
         <span class="text-xs tabular-nums text-muted-foreground">{{ viewCount(item.key) }}</span>
       </button>
     </nav>
@@ -217,7 +219,7 @@ const emptyText = computed(() => {
         class="mt-4 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
         @click="refreshAll()"
       >
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
@@ -248,7 +250,7 @@ const emptyText = computed(() => {
           :class="section.key === 'late' ? 'bg-destructive/[0.06] text-destructive' : ''"
         >
           <Icon :name="section.icon" class="size-4" />
-          <h2 :id="'section-' + section.key" class="text-sm font-medium">{{ section.title }}</h2>
+          <h2 :id="'section-' + section.key" class="text-sm font-medium">{{ t('production.myTasks.sections.' + section.key) }}</h2>
           <span class="text-xs tabular-nums text-muted-foreground">{{ section.tasks.length }}</span>
         </header>
         <ul class="divide-y">
@@ -266,8 +268,8 @@ const emptyText = computed(() => {
         v-if="view !== 'completed' && active.meta.value.total > active.items.value.length"
         class="text-center text-xs text-muted-foreground"
       >
-        Показаны {{ active.items.value.length }} из {{ active.meta.value.total }} — ближайшие по сроку.
-        <NuxtLink to="/tasks?view=my" class="underline hover:text-foreground">Весь список</NuxtLink>
+        {{ t('production.myTasks.shownOf', { shown: active.items.value.length, total: active.meta.value.total }) }}
+        <NuxtLink to="/tasks?view=my" class="underline hover:text-foreground">{{ t('production.myTasks.fullList') }}</NuxtLink>
       </p>
     </div>
   </div>

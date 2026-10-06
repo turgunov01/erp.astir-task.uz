@@ -22,7 +22,9 @@ export default {
     relatedConflict: 'Bog‘liq yozuv topilmadi yoki hali ishlatilmoqda',
     databaseUnavailable: 'Ma’lumotlar bazasi mavjud emas. Ulanish tiklangach, qayta urinib ko‘ring.',
     internal: 'Serverning ichki xatosi',
-    unknown: 'Noma’lum xato'
+    unknown: 'Noma’lum xato',
+    periodReversed: 'Davr boshlanishi uning oxiridan keyin',
+    periodTooLong: 'Davr {count} kundan uzun bo‘lishi mumkin emas'
   },
   notFound: {
     asset: 'Asset topilmadi',
@@ -82,7 +84,12 @@ export default {
     describeChanges: 'Nimani tuzatish kerakligini yozing',
     attachOrDescribe: 'Fayl biriktiring yoki nima qilinganini yozing',
     fileOver1Gb: 'Fayl 1 GB dan katta',
-    projectCodeFormat: 'Faqat lotin bosh harflari, raqamlar va chiziqcha'
+    projectCodeFormat: 'Faqat lotin bosh harflari, raqamlar va chiziqcha',
+    dateFormat: 'Sana YYYY-MM-DD formatida bo‘lishi kerak',
+    monthFormat: 'Oy YYYY-MM formatida kutiladi',
+    invalidDateValue: 'Sana noto‘g‘ri: {value}',
+    httpLink: 'Havola http:// yoki https:// bilan boshlanishi kerak',
+    bothBounds: 'Davrning ikkala chegarasini ko‘rsating'
   },
   yes: 'ha',
   no: 'yo‘q',

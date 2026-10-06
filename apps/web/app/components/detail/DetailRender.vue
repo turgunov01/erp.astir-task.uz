@@ -4,6 +4,7 @@ import { useTaskPanels } from '~/composables/useTaskPanels'
 const props = defineProps<{ id: string, offset: number }>()
 const emit = defineEmits<{ (e: 'close'): void }>()
 
+const { t } = useI18n()
 const { closeAll } = useTaskPanels()
 
 interface RenderJob {
@@ -68,19 +69,19 @@ const duration = computed(() => {
   if (!item?.startedAt) return '—'
   const end = item.completedAt ? new Date(item.completedAt) : new Date()
   const minutes = Math.round((end.getTime() - new Date(item.startedAt).getTime()) / 60000)
-  if (minutes < 60) return minutes + ' мин'
-  return Math.floor(minutes / 60) + ' ч ' + (minutes % 60) + ' мин'
+  if (minutes < 60) return t('common.units.minutes', { m: minutes })
+  return t('common.units.hoursMinutes', { h: Math.floor(minutes / 60), m: minutes % 60 })
 })
 </script>
 
 <template>
   <DetailPanel
-    :title="job?.shot?.code ?? 'Задание рендера'"
-    subtitle="Очередь рендера"
+    :title="job?.shot?.code ?? t('production.renderDetail.fallbackTitle')"
+    :subtitle="t('shell.nav.render')"
     :offset="props.offset"
     :pending="pending"
     :error="Boolean(error)"
-    panel-label="Детали задания рендера"
+    :panel-label="t('production.renderDetail.panelLabel')"
     @close="emit('close')"
     @retry="refresh()"
   >
@@ -95,7 +96,7 @@ const duration = computed(() => {
       <section class="border-b px-5 py-4">
         <div class="flex items-baseline justify-between">
           <h3 class="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            Прогресс
+            {{ t('production.renderDetail.progress') }}
           </h3>
           <span class="text-sm font-medium tabular-nums">{{ job.progress }}%</span>
         </div>
@@ -113,7 +114,7 @@ const duration = computed(() => {
         class="border-b border-destructive/30 bg-destructive/5 px-5 py-4"
       >
         <h3 class="text-xs font-medium uppercase tracking-wider text-destructive">
-          Ошибка рендера
+          {{ t('production.renderDetail.errorTitle') }}
         </h3>
         <p class="mt-2 whitespace-pre-wrap font-mono text-xs leading-relaxed text-destructive">
           {{ job.errorMessage }}
@@ -121,10 +122,10 @@ const duration = computed(() => {
       </section>
 
       <dl class="divide-y">
-        <DetailRow label="Статус">
+        <DetailRow :label="t('production.detail.status')">
           {{ labelOf(RENDER_STATUS_LABEL, job.status) }}
         </DetailRow>
-        <DetailRow label="Проект">
+        <DetailRow :label="t('production.detail.project')">
           <NuxtLink
             v-if="job.project"
             :to="'/projects/' + job.project.id"
@@ -135,7 +136,7 @@ const duration = computed(() => {
           </NuxtLink>
           <span v-else class="text-muted-foreground">—</span>
         </DetailRow>
-        <DetailRow label="Шот">
+        <DetailRow :label="t('production.detail.shot')">
           <NuxtLink
             v-if="job.shot"
             :to="'/shots/' + job.shot.id"
@@ -146,12 +147,12 @@ const duration = computed(() => {
           </NuxtLink>
           <span v-else class="text-muted-foreground">—</span>
         </DetailRow>
-        <DetailRow label="Версия">
+        <DetailRow :label="t('production.detail.version')">
           <button
             v-if="job.version?.fileUrl"
             type="button"
             class="inline-flex items-center gap-1.5 text-left hover:underline"
-            :aria-label="'Открыть файл версии ' + job.version.label"
+            :aria-label="t('production.detail.openVersionFile', { label: job.version.label })"
             @click="openOutput"
           >
             <Icon :name="MEDIA_KIND_ICON[mediaKind(job.version.mimeType, job.version.fileName)]" class="size-3.5 text-muted-foreground" />
@@ -160,7 +161,7 @@ const duration = computed(() => {
           <span v-else-if="job.version">{{ job.version.label }}</span>
           <span v-else class="text-muted-foreground">—</span>
         </DetailRow>
-        <DetailRow label="Узел">
+        <DetailRow :label="t('production.detail.node')">
           <span v-if="job.node" class="inline-flex items-center gap-1.5">
             <span
               class="size-2 rounded-full"
@@ -168,22 +169,22 @@ const duration = computed(() => {
             />
             {{ job.node.name }}
             <span class="text-xs text-muted-foreground">
-              {{ job.node.isOnline ? 'онлайн' : 'офлайн' }}
+              {{ job.node.isOnline ? t('production.renderDetail.online') : t('production.renderDetail.offline') }}
             </span>
           </span>
-          <span v-else class="text-muted-foreground">не назначен</span>
+          <span v-else class="text-muted-foreground">{{ t('production.detail.unassigned') }}</span>
         </DetailRow>
-        <DetailRow label="Кадры">
+        <DetailRow :label="t('production.detail.frames')">
           <span v-if="frameCount !== null" class="tabular-nums">
             {{ job.startFrame }}–{{ job.endFrame }} ({{ frameCount }})
           </span>
           <span v-else class="text-muted-foreground">—</span>
         </DetailRow>
-        <DetailRow label="Поставил">{{ fullName(job.submittedBy) }}</DetailRow>
-        <DetailRow label="Начат">{{ formatDateTime(job.startedAt) }}</DetailRow>
-        <DetailRow label="Завершён">{{ formatDateTime(job.completedAt) }}</DetailRow>
-        <DetailRow label="Длительность">{{ duration }}</DetailRow>
-        <DetailRow label="Создан">{{ formatDateTime(job.createdAt) }}</DetailRow>
+        <DetailRow :label="t('production.renderDetail.submittedBy')">{{ fullName(job.submittedBy) }}</DetailRow>
+        <DetailRow :label="t('production.renderDetail.started')">{{ formatDateTime(job.startedAt) }}</DetailRow>
+        <DetailRow :label="t('production.renderDetail.completed')">{{ formatDateTime(job.completedAt) }}</DetailRow>
+        <DetailRow :label="t('production.renderDetail.duration')">{{ duration }}</DetailRow>
+        <DetailRow :label="t('production.detail.created')">{{ formatDateTime(job.createdAt) }}</DetailRow>
       </dl>
     </div>
   </DetailPanel>

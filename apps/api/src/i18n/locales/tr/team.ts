@@ -36,6 +36,37 @@ export default {
     mailTestBody: 'Bu e-postayı okuyorsanız {studio} e-posta gönderimi doğru ayarlanmıştır.',
     mailTestSent: 'E-posta {email} adresine gönderildi',
     mailTestLogged: 'SMTP ayarlanmamış — e-posta gönderilmedi, sunucu günlüğüne yazıldı',
-    templateNeedsStage: 'En az bir aşama gerekli'
+    templateNeedsStage: 'En az bir aşama gerekli',
+    selfLockout: 'Kendi rolünüzün ayarlara ve yetki yönetimine erişimini kaldıramazsınız',
+    beyondOwnRole: 'Kendi rolünüzde olmayan yetkileri veremezsiniz: {permissions}',
+    beyondRoleCeiling: 'Bu role şunlar verilemez: {permissions}',
+    noEmailForType: 'Bu tür bildirimler için e-posta gönderilmez'
+  },
+  employees: {
+    emailTaken: '{email} e-posta adresine sahip bir kullanıcı zaten var',
+    cannotDeleteSelf: 'Kendi hesabınızı silemezsiniz'
+  },
+  departments: {
+    hasEmployees: 'Departmanda hâlâ çalışanlar var: {count}. Önce onları başka bir departmana taşıyın.'
+  },
+  timesheets: {
+    noEmployee: 'Hesabınız bir çalışana bağlı değil, bu yüzden saat kaydedilemez',
+    ownOnly: 'Yalnızca kendi puantaj kayıtlarınızı değiştirebilirsiniz'
+  },
+  attendance: {
+    dayNotYet: 'Bu gün henüz gelmedi',
+    futureDayCorrection: 'Henüz gelmemiş bir gün düzeltilemez',
+    checkInRequired: 'Geliş saatini belirtin — o olmadan çıkış saatinin anlamı yok',
+    checkOutAfterCheckIn: 'Çıkış, gelişten sonra olmalı',
+    notCorrected: 'Bu gün elle düzeltilmedi',
+    correctionReason: 'Düzeltmenin nedenini yazın',
+    staffOnly: 'Geliş bildirimi yalnızca stüdyo çalışanlarına açıktır',
+    correctedByAdmin: 'Bu günü bir yönetici zaten düzeltti — bildirmenize gerek yok',
+    checkInFirst: 'Önce gelişinizi bildirin — “Geldim” düğmesine basın',
+    checkOutByAdmin: 'Bu günü bir yönetici düzeltti — çıkış saatini o girecek',
+    penaltyRateMissing: 'Gecikme cezası oranı belirlenmemiş. Ayarlar → Çalışma takvimi bölümünden belirleyin.',
+    penaltyReason: '{minutes} dk gecikme: iş {start} saatinde başlarken geliş {arrival}',
+    penaltyMarked: '(devam kaydı)',
+    penaltyUnmarked: '(“Geldim” bildirimi yok — ilk etkinliğe göre)'
   }
 } satisfies Messages<typeof ru>

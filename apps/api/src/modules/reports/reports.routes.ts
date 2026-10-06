@@ -18,7 +18,7 @@ reportsRouter.use(authenticate)
 
 const isoDate = z
   .string()
-  .refine(value => !Number.isNaN(Date.parse(value)), 'Неверная дата')
+  .refine(value => !Number.isNaN(Date.parse(value)), { error: () => t('common.validation.invalidDate') })
   .optional()
 
 const reportQuerySchema = z.object({

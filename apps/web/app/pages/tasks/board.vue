@@ -4,7 +4,9 @@ import { apiErrorMessage, apiRequest } from '~/composables/useApi'
 import { useAuthStore } from '~/stores/auth'
 import { useTaskPanels } from '~/composables/useTaskPanels'
 
-useHead({ title: 'Доска задач' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('production.board.title')) })
 
 const route = useRoute()
 const router = useRouter()
@@ -107,12 +109,12 @@ async function onDrop(status: string) {
       method: 'POST',
       body: {
         status,
-        comment: 'Перенесено на доске: ' + statusChangeText(task.status, status)
+        comment: t('production.board.movedComment', { change: statusChangeText(task.status, status) })
       }
     })
     await refresh()
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось перенести задачу')
+    errorMessage.value = apiErrorMessage(err, t('production.board.moveFailed'))
   } finally {
     busyId.value = ''
   }
@@ -120,7 +122,7 @@ async function onDrop(status: string) {
 
 function formatDate(value: string | null) {
   if (!value) return ''
-  return new Date(value).toLocaleDateString('ru-RU', { day: '2-digit', month: 'short' })
+  return new Date(value).toLocaleDateString(intlTag(), { day: '2-digit', month: 'short' })
 }
 
 function isOverdue(task: Task) {
@@ -135,23 +137,23 @@ function isOverdue(task: Task) {
     <header class="mb-6 flex flex-wrap items-start justify-between gap-4">
       <div>
         <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-          Производство
+          {{ t('shell.nav.production') }}
         </p>
-        <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Доска задач</h1>
+        <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('production.board.title') }}</h1>
         <p class="mt-1 text-sm text-muted-foreground">
-          {{ countLabel(tasks.length, 'задача', 'задачи', 'задач') }}<span v-if="canUpdate"> · перетаскивайте карточки между колонками</span>
+          {{ countLabel(tasks.length, 'common.count.tasks') }}<span v-if="canUpdate"> · {{ t('production.board.dragHint') }}</span>
         </p>
         <p v-if="atLimit" class="mt-1 text-xs text-signal-foreground">
-          Показаны первые 100 задач — сузьте выборку фильтром по проекту
+          {{ t('production.board.atLimit', { n: 100 }) }}
         </p>
       </div>
       <div class="flex items-center gap-2">
         <select
           v-model="projectId"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Фильтр по проекту"
+          :aria-label="t('production.board.projectAria')"
         >
-          <option value="">Все проекты</option>
+          <option value="">{{ t('production.board.allProjects') }}</option>
           <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.code }}</option>
         </select>
         <NuxtLink
@@ -159,7 +161,7 @@ function isOverdue(task: Task) {
           class="inline-flex h-9 items-center gap-2 rounded-md border px-3.5 text-sm hover:bg-secondary"
         >
           <Icon name="lucide:list" class="size-4" />
-          Список
+          {{ t('production.board.listView') }}
         </NuxtLink>
       </div>
     </header>
@@ -173,13 +175,13 @@ function isOverdue(task: Task) {
     </p>
 
     <div v-if="error" class="rounded-xl border bg-card px-6 py-16 text-center">
-      <p class="text-sm text-muted-foreground">Не удалось загрузить доску</p>
+      <p class="text-sm text-muted-foreground">{{ t('production.board.loadFailed') }}</p>
       <button
         type="button"
         class="mt-4 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
         @click="refresh()"
       >
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
@@ -199,7 +201,7 @@ function isOverdue(task: Task) {
         <button
           type="button"
           class="flex items-center justify-between gap-2 border-b px-4 py-3 text-left hover:bg-secondary/60"
-          :aria-label="'Открыть колонку ' + column.label"
+          :aria-label="t('production.board.openColumn', { name: column.label })"
           @click="openStatus({ status: column.status, projectId: projectId || undefined })"
         >
           <h2 class="text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -218,7 +220,7 @@ function isOverdue(task: Task) {
           v-else-if="column.items.length === 0"
           class="px-4 py-8 text-center text-xs text-muted-foreground"
         >
-          Пусто
+          {{ t('production.board.emptyColumn') }}
         </p>
 
         <ul v-else class="space-y-2 p-3">
@@ -255,7 +257,7 @@ function isOverdue(task: Task) {
               <span v-if="task.assignee" class="truncate text-xs text-muted-foreground">
                 {{ task.assignee.firstName }} {{ task.assignee.lastName }}
               </span>
-              <span v-else class="text-xs text-muted-foreground">не назначен</span>
+              <span v-else class="text-xs text-muted-foreground">{{ t('production.board.unassigned') }}</span>
 
               <span
                 v-if="task.deadline"

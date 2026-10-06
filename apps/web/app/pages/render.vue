@@ -7,7 +7,9 @@ import { useAuthStore } from '~/stores/auth'
 import { useEntityCrud } from '~/composables/useEntityCrud'
 import { RENDER_FORM } from '~/utils/entity-forms'
 
-useHead({ title: 'Очередь рендера' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('shell.nav.render')) })
 
 const route = useRoute()
 const router = useRouter()
@@ -16,11 +18,11 @@ const canManage = computed(() => auth.can(PERMISSION.RENDER_MANAGE))
 const { openEntity } = useTaskPanels()
 
 const VIEWS = [
-  { key: 'queue', label: 'В очереди', status: 'QUEUED' },
-  { key: 'running', label: 'Рендерится', status: 'RENDERING' },
-  { key: 'completed', label: 'Готово', status: 'COMPLETED' },
-  { key: 'failed', label: 'Ошибки', status: 'FAILED' },
-  { key: 'all', label: 'Все', status: undefined }
+  { key: 'queue', status: 'QUEUED' },
+  { key: 'running', status: 'RENDERING' },
+  { key: 'completed', status: 'COMPLETED' },
+  { key: 'failed', status: 'FAILED' },
+  { key: 'all', status: undefined }
 ] as const
 
 const view = computed(() => {
@@ -81,22 +83,22 @@ const STATUSES = Object.values(RENDER_STATUS)
 const crud = useEntityCrud({
   endpoint: '/api/render',
   refresh: () => refresh(),
-  entityLabel: 'задание',
+  entityLabel: () => t('production.render.deleteEntity'),
   archivedView
 })
 
 // Switching between the working set and the archive starts from page one.
 watch(archivedView, () => { page.value = 1 })
 
-const columns: Column[] = [
-  { key: 'shot', label: 'Шот', width: '20%' },
-  { key: 'project', label: 'Проект', width: '12%' },
-  { key: 'frames', label: 'Кадры', width: '16%' },
-  { key: 'node', label: 'Узел', width: '14%' },
-  { key: 'progress', label: 'Прогресс', width: '20%' },
-  { key: 'status', label: 'Статус', width: '18%' },
+const columns = computed<Column[]>(() => [
+  { key: 'shot', label: t('production.render.columns.shot'), width: '20%' },
+  { key: 'project', label: t('production.render.columns.project'), width: '12%' },
+  { key: 'frames', label: t('production.render.columns.frames'), width: '16%' },
+  { key: 'node', label: t('production.render.columns.node'), width: '14%' },
+  { key: 'progress', label: t('production.render.columns.progress'), width: '20%' },
+  { key: 'status', label: t('production.render.columns.status'), width: '18%' },
   { key: 'actions', label: '', width: '56px' }
-]
+])
 
 async function changeStatus(row: JobRow, status: string) {
   busyId.value = row.id
@@ -105,7 +107,7 @@ async function changeStatus(row: JobRow, status: string) {
     await apiRequest('/api/render/' + row.id, { method: 'PATCH', body: { status } })
     await Promise.all([refresh(), refreshCounts()])
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось обновить задание')
+    errorMessage.value = apiErrorMessage(err, t('production.render.updateFailed'))
   } finally {
     busyId.value = ''
   }
@@ -121,14 +123,14 @@ function frames(row: JobRow) {
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
       <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-        Производство
+        {{ t('shell.nav.production') }}
       </p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Очередь рендера</h1>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('shell.nav.render') }}</h1>
       <p class="mt-1 text-sm text-muted-foreground">
-        {{ counts.get('QUEUED') ?? 0 }} в очереди ·
-        {{ counts.get('RENDERING') ?? 0 }} рендерится ·
+        {{ t('production.render.summary.queued', { n: counts.get('QUEUED') ?? 0 }) }} ·
+        {{ t('production.render.summary.rendering', { n: counts.get('RENDERING') ?? 0 }) }} ·
         <span :class="(counts.get('FAILED') ?? 0) > 0 ? 'text-destructive' : ''">
-          {{ counts.get('FAILED') ?? 0 }} с ошибкой
+          {{ t('production.render.summary.failed', { n: counts.get('FAILED') ?? 0 }) }}
         </span>
       </p>
     </header>
@@ -143,12 +145,12 @@ function frames(row: JobRow) {
           />
         </div>
         <p class="mt-1 text-xs text-muted-foreground">
-          {{ node._count.jobs }} заданий · {{ node.isOnline ? 'в сети' : 'не в сети' }}
+          {{ t('production.render.nodeJobs', node._count.jobs) }} · {{ node.isOnline ? t('production.render.nodeOnline') : t('production.render.nodeOffline') }}
         </p>
       </div>
     </section>
 
-    <nav class="mb-5 flex flex-wrap gap-1.5" aria-label="Выборки рендера">
+    <nav class="mb-5 flex flex-wrap gap-1.5" :aria-label="t('production.render.viewsLabel')">
       <button
         v-for="item in VIEWS"
         :key="item.key"
@@ -159,7 +161,7 @@ function frames(row: JobRow) {
           : 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground'"
         @click="selectView(item.key)"
       >
-        {{ item.label }}
+        {{ t('production.render.views.' + item.key) }}
         <span v-if="item.status" class="ml-1 tabular-nums opacity-60">
           {{ counts.get(item.status) ?? 0 }}
         </span>
@@ -176,7 +178,7 @@ function frames(row: JobRow) {
 
     <div class="mb-4 flex flex-wrap items-center justify-end gap-3">
 
-      <EntityToolbar :crud="crud" create-label="Новое задание" :can-manage="canManage" />
+      <EntityToolbar :crud="crud" :create-label="t('production.render.createLabel')" :can-manage="canManage" />
 
     </div>
 
@@ -188,10 +190,10 @@ function frames(row: JobRow) {
       :pending="pending"
       :error-message="loadError"
       row-clickable
-      search-placeholder="Поиск недоступен в этом разделе"
+      :search-placeholder="t('production.render.searchUnavailable')"
       empty-icon="lucide:server"
-      empty-title="Очередь пуста"
-      empty-body="Задания появятся после отправки шотов на рендер."
+      :empty-title="t('production.render.emptyTitle')"
+      :empty-body="t('production.render.emptyBody')"
       @update:page="page = $event"
       @retry="refresh"
       @row-click="openEntity('render', $event.id)"
@@ -219,7 +221,7 @@ function frames(row: JobRow) {
 
       <template #cell-node="{ row }">
         <span v-if="row.node" class="text-xs">{{ row.node.name }}</span>
-        <span v-else class="text-xs text-muted-foreground">не назначен</span>
+        <span v-else class="text-xs text-muted-foreground">{{ t('production.detail.unassigned') }}</span>
       </template>
 
       <template #cell-progress="{ row }"><ProgressBar :value="row.progress" /></template>
@@ -230,7 +232,7 @@ function frames(row: JobRow) {
           :value="row.status"
           :disabled="busyId === row.id"
           class="h-8 w-full rounded-md border bg-background px-2 text-xs outline-none focus:border-ring"
-          aria-label="Статус задания"
+          :aria-label="t('production.render.statusAria')"
           @change="changeStatus(row, ($event.target as HTMLSelectElement).value)"
         >
           <option v-for="s in STATUSES" :key="s" :value="s">{{ enumLabel(RENDER_STATUS_LABEL, s) }}</option>

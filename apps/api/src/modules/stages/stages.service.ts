@@ -2,6 +2,7 @@ import { prisma } from '../../lib/prisma'
 import { notFound, conflict } from '../../lib/errors'
 import { recordActivity } from '../../lib/activity'
 import { recalcProject } from '../production/rollup'
+import { t } from '../../i18n'
 
 const INCLUDE = {
   assignee: { select: { id: true, firstName: true, lastName: true } },
@@ -112,7 +113,7 @@ export async function create(
 export async function remove(id: string) {
   const stage = await getById(id)
   if (stage._count.tasks > 0) {
-    throw conflict('К этапу ещё привязаны задачи: ' + stage._count.tasks + '.')
+    throw conflict(t('production.stages.hasTasks', { count: stage._count.tasks }))
   }
 
   await prisma.$transaction(async tx => {

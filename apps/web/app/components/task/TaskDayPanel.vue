@@ -13,6 +13,7 @@ const props = defineProps<{
 const emit = defineEmits<{ (e: 'close'): void }>()
 
 const { openTask } = useTaskPanels()
+const { t } = useI18n()
 
 interface Task {
   id: string
@@ -55,7 +56,7 @@ const tasks = computed(() =>
 const heading = computed(() => {
   const [year, month, day] = props.date.split('-').map(Number)
   if (!year || !month || !day) return props.date
-  return new Date(year, month - 1, day).toLocaleDateString('ru-RU', {
+  return new Date(year, month - 1, day).toLocaleDateString(intlTag(), {
     day: 'numeric', month: 'long', year: 'numeric'
   })
 })
@@ -78,16 +79,16 @@ const overdueCount = computed(() =>
       <div class="min-w-0">
         <h2 class="text-sm font-semibold capitalize tracking-tight">{{ heading }}</h2>
         <p class="mt-0.5 text-xs text-muted-foreground">
-          {{ countLabel(tasks.length, 'задача', 'задачи', 'задач') }}
+          {{ countLabel(tasks.length, 'common.count.tasks') }}
           <span v-if="overdueCount > 0" class="text-destructive">
-            · {{ overdueCount }} просрочено
+            · {{ t('production.personal.day.overdue', overdueCount) }}
           </span>
         </p>
       </div>
       <button
         type="button"
         class="rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground"
-        aria-label="Закрыть"
+        :aria-label="t('common.actions.close')"
         @click="emit('close')"
       >
         <Icon name="lucide:x" class="size-4" />
@@ -97,13 +98,13 @@ const overdueCount = computed(() =>
     <div v-if="error" class="grid flex-1 place-items-center px-6 text-center">
       <div>
         <Icon name="lucide:triangle-alert" class="size-7 text-destructive" />
-        <p class="mt-3 text-sm">Не удалось загрузить задачи</p>
+        <p class="mt-3 text-sm">{{ t('production.personal.day.loadFailed') }}</p>
         <button
           type="button"
           class="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
           @click="refresh()"
         >
-          Повторить
+          {{ t('common.actions.retry') }}
         </button>
       </div>
     </div>
@@ -115,8 +116,8 @@ const overdueCount = computed(() =>
     <div v-else-if="tasks.length === 0" class="grid flex-1 place-items-center px-6 text-center">
       <div>
         <Icon name="lucide:calendar-check" class="size-7 text-muted-foreground/50" />
-        <p class="mt-3 text-sm font-medium">На эту дату задач нет</p>
-        <p class="mt-1 text-sm text-muted-foreground">С учётом текущих фильтров календаря.</p>
+        <p class="mt-3 text-sm font-medium">{{ t('production.personal.day.empty') }}</p>
+        <p class="mt-1 text-sm text-muted-foreground">{{ t('production.personal.day.filtersHint') }}</p>
       </div>
     </div>
 

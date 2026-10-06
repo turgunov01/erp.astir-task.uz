@@ -8,7 +8,7 @@ import { announceOverdueEdit, isOverdue } from '../../lib/overdue'
 import * as comments from '../comments/comments.service'
 import { recalcProject } from '../production/rollup'
 import { taskStatusChange } from '../../lib/labels'
-import { t } from '../../i18n'
+import { t, type LocalizedText, type MessageKey } from '../../i18n'
 import * as repo from './tasks.repository'
 
 /** Statuses that count as "this task is finished" for dependency purposes. */
@@ -115,10 +115,17 @@ export async function create(input: CreateTaskInput, actorId?: string) {
  * The reason is mandatory rather than optional, because a notification
  * saying only "someone changed something" is not worth sending.
  */
-function describeChange(input: Record<string, unknown>): string {
+function describeChange(input: Record<string, unknown>): LocalizedText {
   const fields = Object.keys(input).filter(key => key !== 'overdueReason')
-  return fields.length > 0 ? fields.join(
-) : 'без изменений'
+  // Worded per administrator: field names in their language, unknown ones as they are.
+  return translate => {
+    if (fields.length === 0) return translate('production.tasks.noChanges')
+    return fields.map(field => {
+      const key = ('production.tasks.fields.' + field) as MessageKey
+      const label = translate(key)
+      return label === key ? field : label
+    }).join(', ')
+  }
 }
 
 export async function update(id: string, input: Record<string, unknown>, actorId?: string) {
@@ -128,8 +135,8 @@ export async function update(id: string, input: Record<string, unknown>, actorId
   const reason = typeof input.overdueReason === 'string' ? input.overdueReason : ''
   if (late && reason.length < 3) {
     throw badRequest(
-      'Задача просрочена. Укажите причину правки — она уйдёт администрации.',
-      { overdueReason: ['Укажите причину правки просроченной задачи'] }
+      t('production.tasks.overdueEditReason'),
+      { overdueReason: [t('production.tasks.overdueEditReasonField')] }
     )
   }
   delete input.overdueReason
@@ -206,8 +213,8 @@ export async function changeStatus(
   const late = isOverdue(task)
   if (late && !closing && (overdueReason ?? '').trim().length < 3) {
     throw badRequest(
-      'Задача просрочена. Укажите причину переноса — она уйдёт администрации.',
-      { overdueReason: ['Укажите причину'] }
+      t('production.tasks.overdueMoveReason'),
+      { overdueReason: [t('production.tasks.overdueMoveReasonField')] }
     )
   }
 
@@ -217,10 +224,9 @@ export async function changeStatus(
       .filter(prerequisite => prerequisite && !TERMINAL_STATUSES.has(prerequisite.status))
 
     if (blocking.length > 0) {
-      throw conflict(
-        'Сначала нужно закончить задачи-предшественники: ' +
-          blocking.map(item => item.title).join(', ')
-      )
+      throw conflict(t('production.tasks.prerequisitesUnfinished', {
+        tasks: blocking.map(item => item.title).join(', ')
+      }))
     }
   }
 
@@ -286,19 +292,19 @@ export async function changeStatus(
 
 export async function addDependency(id: string, dependsOnTaskId: string) {
   const task = await getById(id)
-  if (dependsOnTaskId === id) throw badRequest('Задача не может зависеть от самой себя')
+  if (dependsOnTaskId === id) throw badRequest(t('production.tasks.selfDependency'))
 
   const prerequisite = await repo.findById(dependsOnTaskId)
   if (!prerequisite) throw notFound('Prerequisite task')
   if (prerequisite.projectId !== task.projectId) {
-    throw badRequest('Зависимости возможны только внутри одного проекта')
+    throw badRequest(t('production.tasks.crossProjectDependency'))
   }
 
   // One level of cycle detection: the prerequisite must not already depend on us.
   const reverse = prerequisite.dependencies.some(
     dependency => dependency.dependsOnTaskId === id
   )
-  if (reverse) throw conflict('Та задача уже зависит от этой')
+  if (reverse) throw conflict(t('production.tasks.reverseDependency'))
 
   await prisma.taskDependency.create({
     data: { taskId: id, dependsOnTaskId }
@@ -346,7 +352,7 @@ export function boardCounts(projectId: string, assigneeId?: string | null) {
  */
 export async function archive(id: string, actorId?: string) {
   const task = await getById(id)
-  if (task.archivedAt) throw conflict('Задача уже в архиве')
+  if (task.archivedAt) throw conflict(t('production.tasks.alreadyArchived'))
 
   await prisma.$transaction(async tx => {
     await tx.task.update({ where: { id }, data: { archivedAt: new Date() } })
@@ -368,7 +374,7 @@ export async function archive(id: string, actorId?: string) {
 
 export async function unarchive(id: string, actorId?: string) {
   const task = await getById(id)
-  if (!task.archivedAt) throw conflict('Задача не в архиве')
+  if (!task.archivedAt) throw conflict(t('production.tasks.notArchived'))
 
   await prisma.$transaction(async tx => {
     await tx.task.update({ where: { id }, data: { archivedAt: null } })

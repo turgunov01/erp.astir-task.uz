@@ -12,6 +12,7 @@ import { recordActivity } from '../../lib/activity'
 import { bufferStream, isAllowedMimeType, MAX_SINGLE_REQUEST_BYTES, storage } from '../../lib/storage'
 import { mountArchiveRoutes } from '../../lib/archive-routes'
 import { createDocument, DOCUMENT_TYPES, OWNER_KEYS, type OwnerKey } from './files.service'
+import { t } from '../../i18n'
 
 /*
  * Buffered in memory so the file is validated before anything touches disk.
@@ -97,9 +98,9 @@ filesRouter.post(
   async (req, res, next) => {
     try {
       const file = req.file
-      if (!file) throw badRequest('Файл не получен')
+      if (!file) throw badRequest(t('projects.files.notReceived'))
       if (!isAllowedMimeType(file.mimetype)) {
-        throw badRequest('Этот тип файла загружать нельзя: ' + file.mimetype)
+        throw badRequest(t('projects.files.typeNotAllowed', { type: file.mimetype }))
       }
 
       // Same path a completed chunked upload takes (modules/uploads).

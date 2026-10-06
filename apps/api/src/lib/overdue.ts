@@ -1,7 +1,7 @@
 import { prisma } from './prisma'
 import { notify } from './notify'
 import { recordActivity } from './activity'
-import { currentLocale, renderText, translatorFor, type LocalizedText } from '../i18n'
+import { currentLocale, recipientLocale, renderText, tFor, translatorFor, type LocalizedText } from '../i18n'
 
 /** Statuses that mean the work is finished, so a past deadline no longer matters. */
 const CLOSED = new Set(['DONE', 'APPROVED'])
@@ -71,14 +71,18 @@ export async function announceOverdueEdit(input: OverdueEditInput): Promise<void
    * The activity log and the admin notification are for oversight; the person
    * working on the task looks at the thread, and an explanation they cannot
    * find is an explanation nobody reads.
+   *
+   * A comment is stored text the whole team reads, so its lead-in is worded
+   * once in the studio's default language; the reason stays as typed.
    */
   if (input.actorId) {
+    const studioLocale = await recipientLocale(null)
     await prisma.comment.create({
       data: {
         userId: input.actorId,
         entityType: 'Task',
         entityId: input.taskId,
-        message: 'Правка просроченной задачи (' + late + ' дн): ' + input.reason
+        message: tFor(studioLocale, 'production.tasks.overdueComment', { days: late, reason: input.reason })
       }
     })
   }

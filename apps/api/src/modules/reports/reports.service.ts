@@ -129,11 +129,12 @@ export async function production(projectId?: string) {
 /* -------------------------------------------------------------- financial */
 
 const AGEING_BUCKETS = [
-  { key: 'current', label: 'Не просрочено', upTo: 0 },
-  { key: 'd30', label: '1-30 дней', upTo: 30 },
-  { key: 'd60', label: '31-60 дней', upTo: 60 },
-  { key: 'd90', label: '61-90 дней', upTo: 90 },
-  { key: 'over90', label: 'Больше 90 дней', upTo: Number.POSITIVE_INFINITY }
+  // Labels come from finance.ageing.<key>, worded per request.
+  { key: 'current', upTo: 0 },
+  { key: 'd30', upTo: 30 },
+  { key: 'd60', upTo: 60 },
+  { key: 'd90', upTo: 90 },
+  { key: 'over90', upTo: Number.POSITIVE_INFINITY }
 ] as const
 
 /**
@@ -207,7 +208,7 @@ export async function financial(period: Period) {
   const now = Date.now()
   const ageing = AGEING_BUCKETS.map(entry => ({
     key: entry.key,
-    // Worded for the reader; the bucket list keeps only the Russian source.
+    // Worded for the reader, in the request's language.
     label: t(('finance.ageing.' + entry.key) as MessageKey),
     amount: 0,
     count: 0

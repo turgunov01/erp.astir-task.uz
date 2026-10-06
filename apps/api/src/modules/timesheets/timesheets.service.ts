@@ -2,6 +2,7 @@ import type { Prisma } from '@prisma/client'
 import { prisma } from '../../lib/prisma'
 import { badRequest, notFound } from '../../lib/errors'
 import { buildMeta, toSkipTake } from '../../lib/http'
+import { t } from '../../i18n'
 
 const INCLUDE = {
   employee: {
@@ -30,7 +31,7 @@ export interface TimesheetListQuery {
 
 function dateOnly(value: string) {
   const date = new Date(value)
-  if (Number.isNaN(date.getTime())) throw badRequest('Неверная дата: ' + value)
+  if (Number.isNaN(date.getTime())) throw badRequest(t('common.validation.invalidDateValue', { value }))
   // Entries are day-grained, so a time part would only create false mismatches.
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
 }

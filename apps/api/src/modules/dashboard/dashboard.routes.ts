@@ -4,6 +4,7 @@ import { authenticate, requirePermission } from '../../middleware/auth'
 import { sendItem } from '../../lib/http'
 import { prisma } from '../../lib/prisma'
 import { badRequest, unauthenticated } from '../../lib/errors'
+import { t, type MessageKey } from '../../i18n'
 import { activityTaskScope, taskScope } from '../../lib/task-scope'
 import { validate, validatedQuery } from '../../middleware/validate'
 import { timeline, timelineQuerySchema, type TimelineQuery } from './timeline.service'
@@ -23,15 +24,19 @@ const ACTIVE_PROJECT_STATUSES = [
   'PLANNING', 'PRE_PRODUCTION', 'PRODUCTION', 'POST_PRODUCTION', 'CLIENT_REVIEW', 'DELIVERY'
 ] as const
 
+/** The five coarse phases, in display order; names come from projects.dashboard.phase. */
+const PHASES = ['preProduction', 'production', 'postProduction', 'review', 'delivery'] as const
+type Phase = (typeof PHASES)[number]
+
 /** Coarse pipeline phase, derived from project status (spec 7). */
-const PHASE_BY_STATUS: Record<string, string> = {
-  DRAFT: 'Препродакшн',
-  PLANNING: 'Препродакшн',
-  PRE_PRODUCTION: 'Препродакшн',
-  PRODUCTION: 'Продакшн',
-  POST_PRODUCTION: 'Постпродакшн',
-  CLIENT_REVIEW: 'Согласование',
-  DELIVERY: 'Поставка'
+const PHASE_BY_STATUS: Record<string, Phase> = {
+  DRAFT: 'preProduction',
+  PLANNING: 'preProduction',
+  PRE_PRODUCTION: 'preProduction',
+  PRODUCTION: 'production',
+  POST_PRODUCTION: 'postProduction',
+  CLIENT_REVIEW: 'review',
+  DELIVERY: 'delivery'
 }
 
 dashboardRouter.get(
@@ -125,10 +130,7 @@ dashboardRouter.get(
       ])
 
       // Fold statuses into the five phases the dashboard shows.
-      const phases = new Map<string, number>([
-        ['Препродакшн', 0], ['Продакшн', 0], ['Постпродакшн', 0],
-        ['Согласование', 0], ['Поставка', 0]
-      ])
+      const phases = new Map<Phase, number>(PHASES.map(phase => [phase, 0]))
       for (const row of projectsByStatus) {
         const phase = PHASE_BY_STATUS[row.status]
         if (phase) phases.set(phase, (phases.get(phase) ?? 0) + row._count._all)
@@ -143,7 +145,12 @@ dashboardRouter.get(
           activeShots,
           openRevisions
         },
-        pipeline: [...phases.entries()].map(([name, count]) => ({ name, count })),
+        // `key` is stable for the client; `name` is worded in the request's language.
+        pipeline: [...phases.entries()].map(([key, count]) => ({
+          key,
+          name: t(('projects.dashboard.phase.' + key) as MessageKey),
+          count
+        })),
         projects: workload,
         deadlines: upcoming,
         activity
@@ -228,7 +235,7 @@ dashboardRouter.get(
   async (req, res, next) => {
     try {
       const user = req.user
-      if (!user) throw badRequest('Нет пользователя')
+      if (!user) throw badRequest(t('common.errors.sessionNotFound'))
       const query = validatedQuery<TimelineQuery>(req)
       return sendItem(res, await timeline(query, user))
     } catch (err) {

@@ -9,6 +9,7 @@ import { prisma } from '../../lib/prisma'
 import { hasPermission } from '../../lib/rbac'
 import { studioSettings } from '../../lib/settings'
 import { badRequest, conflict, notFound, unauthenticated } from '../../lib/errors'
+import { t, type MessageKey } from '../../i18n'
 
 /**
  * Employee pay adjustments (client item 7): advances, penalties incl.
@@ -36,12 +37,9 @@ const TRANSITIONS: Readonly<Record<PayrollEntryStatus, readonly PayrollEntryStat
   CANCELLED: ['DRAFT']
 }
 
-const STATUS_LABEL: Readonly<Record<PayrollEntryStatus, string>> = {
-  DRAFT: 'черновик',
-  APPROVED: 'утверждено',
-  PAID: 'выплачено',
-  CANCELLED: 'отменено'
-}
+/** An entry status as it reads inside a sentence, in the request's language. */
+const statusLabel = (status: PayrollEntryStatus) =>
+  t(('finance.payroll.status.' + status) as MessageKey)
 
 /** Matches nothing, for a caller who has no employment record. */
 const NO_EMPLOYEE = '00000000-0000-4000-8000-000000000000'
@@ -137,12 +135,12 @@ async function assertEmployee(employeeId: string) {
     where: { id: employeeId, deletedAt: null },
     select: { id: true }
   })
-  if (!employee) throw badRequest('Сотрудник не найден или удалён')
+  if (!employee) throw badRequest(t('finance.payroll.employeeMissing'))
 }
 
 function assertLateness(type: PayrollEntryType, lateMinutes: number | null | undefined) {
   if (type === 'LATENESS' && !lateMinutes) {
-    throw badRequest('Для штрафа за опоздание укажите, на сколько минут опоздал сотрудник')
+    throw badRequest(t('finance.payroll.latenessMinutesRequired'))
   }
 }
 
@@ -183,7 +181,7 @@ export async function create(input: CreateInput, actorId: string | undefined) {
     })
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
-      throw conflict('Запись с этим внешним идентификатором уже есть')
+      throw conflict(t('finance.payroll.externalIdTaken'))
     }
     throw err
   }
@@ -201,10 +199,7 @@ export type UpdateInput = Partial<Omit<CreateInput, 'source' | 'externalId'>>
 export async function update(id: string, input: UpdateInput) {
   const existing = await getById(id)
   if (existing.status !== 'DRAFT') {
-    throw badRequest(
-      'Изменять можно только черновик. Запись «' + STATUS_LABEL[existing.status] +
-      '» сначала верните в черновик.'
-    )
+    throw badRequest(t('finance.payroll.onlyDraftEditable', { status: statusLabel(existing.status) }))
   }
   if (input.employeeId) await assertEmployee(input.employeeId)
   const type = input.type ?? existing.type
@@ -231,10 +226,10 @@ export async function setStatus(id: string, status: PayrollEntryStatus, actorId:
   const existing = await getById(id)
   if (existing.status === status) return { entry: existing, from: status }
   if (!TRANSITIONS[existing.status].includes(status)) {
-    throw badRequest(
-      'Нельзя перевести запись из «' + STATUS_LABEL[existing.status] +
-      '» в «' + STATUS_LABEL[status] + '»'
-    )
+    throw badRequest(t('finance.payroll.transitionNotAllowed', {
+      from: statusLabel(existing.status),
+      to: statusLabel(status)
+    }))
   }
   const now = new Date()
   const data: Prisma.PayrollEntryUncheckedUpdateInput = { status }
@@ -256,7 +251,7 @@ export async function setStatus(id: string, status: PayrollEntryStatus, actorId:
 export async function remove(id: string) {
   const existing = await getById(id)
   if (existing.status !== 'DRAFT' && existing.status !== 'CANCELLED') {
-    throw badRequest('Удалить можно только черновик или отменённую запись. Утверждённую сначала отмените.')
+    throw badRequest(t('finance.payroll.deleteOnlyDraft'))
   }
   await prisma.payrollEntry.delete({ where: { id } })
   return existing

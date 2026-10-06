@@ -8,6 +8,7 @@ import { validate, validatedQuery } from '../../middleware/validate'
 import { buildMeta, sendItem, sendList, toSkipTake } from '../../lib/http'
 import { prisma } from '../../lib/prisma'
 import { unauthenticated } from '../../lib/errors'
+import { t } from '../../i18n'
 import { activityTaskScope } from '../../lib/task-scope'
 
 export const activityRouter = Router()
@@ -26,8 +27,8 @@ const activityQuerySchema = listQuerySchema.extend({
    * "task." answers it without naming all six task actions.
    */
   action: z.string().trim().max(60).optional(),
-  from: z.string().refine(value => !Number.isNaN(Date.parse(value)), 'Неверная дата').optional(),
-  to: z.string().refine(value => !Number.isNaN(Date.parse(value)), 'Неверная дата').optional()
+  from: z.string().refine(value => !Number.isNaN(Date.parse(value)), { error: () => t('common.validation.invalidDate') }).optional(),
+  to: z.string().refine(value => !Number.isNaN(Date.parse(value)), { error: () => t('common.validation.invalidDate') }).optional()
 })
 
 type ActivityQuery = z.infer<typeof activityQuerySchema>

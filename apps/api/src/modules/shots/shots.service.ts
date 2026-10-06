@@ -6,6 +6,7 @@ import { recordActivity } from '../../lib/activity'
 import { cascadeFromShot } from '../production/rollup'
 import * as repo from './shots.repository'
 import { buildShotCode } from './shots.code'
+import { t } from '../../i18n'
 
 export async function list(query: Parameters<typeof repo.findMany>[0] & {
   page: number
@@ -83,7 +84,7 @@ export async function create(input: CreateShotInput, actorId?: string) {
     where: { projectId: input.projectId, code },
     select: { id: true }
   })
-  if (duplicate) throw conflict('Шот ' + code + ' уже есть в этом проекте')
+  if (duplicate) throw conflict(t('production.shots.duplicate', { code }))
 
   const shot = await prisma.$transaction(async tx => {
     const created = await tx.shot.create({

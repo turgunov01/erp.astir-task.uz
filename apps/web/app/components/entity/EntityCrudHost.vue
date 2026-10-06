@@ -21,9 +21,7 @@ const props = defineProps<{
   deleteDetail?: string
 }>()
 
-const DEFAULT_DELETE_DETAIL =
-  'Запись исчезнет из списков. Вернуть её через интерфейс будет нельзя — ' +
-  'для обратимого скрытия есть архивирование.'
+const { t } = useI18n()
 </script>
 
 <template>
@@ -46,10 +44,10 @@ const DEFAULT_DELETE_DETAIL =
 
     <ConfirmDialog
       v-if="props.crud.deleteTarget"
-      title="Удаление"
+      :title="t('production.crud.deleteTitle')"
       :message="props.crud.deleteMessage"
-      :detail="props.deleteDetail ?? DEFAULT_DELETE_DETAIL"
-      confirm-label="Удалить"
+      :detail="props.deleteDetail ?? t('production.crud.deleteDetail')"
+      :confirm-label="t('common.actions.delete')"
       :pending="props.crud.deleting"
       @confirm="props.crud.confirmDelete()"
       @cancel="props.crud.cancelDelete()"
