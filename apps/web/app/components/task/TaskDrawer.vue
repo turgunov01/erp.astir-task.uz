@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PRIORITY_LABEL, TASK_STATUS_LABEL, labelOf } from '~/utils/labels'
 import { PERMISSION, PRIORITY, TASK_STATUS } from '@astir/types'
 import { apiErrorMessage, apiRequest } from '~/composables/useApi'
 import { useAuthStore } from '~/stores/auth'
@@ -394,7 +395,7 @@ function toDateInput(value: string | null) {
                 class="h-8 w-full rounded-md border bg-background px-2 text-sm outline-none focus:border-ring"
                 @change="changeStatus(($event.target as HTMLSelectElement).value)"
               >
-                <option v-for="s in STATUSES" :key="s" :value="s">{{ s.split('_').join(' ') }}</option>
+                <option v-for="s in STATUSES" :key="s" :value="s">{{ labelOf(TASK_STATUS_LABEL, s) }}</option>
               </select>
               <input
                 v-model="statusNote"
@@ -441,7 +442,7 @@ function toDateInput(value: string | null) {
                 :disabled="!canUpdate || saving === 'form'"
                 class="h-8 w-full rounded-md border bg-background px-2 text-sm outline-none focus:border-ring"
               >
-                <option v-for="p in PRIORITIES" :key="p" :value="p">{{ p }}</option>
+                <option v-for="p in PRIORITIES" :key="p" :value="p">{{ labelOf(PRIORITY_LABEL, p) }}</option>
               </select>
             </dd>
           </div>

@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { PRIORITY_LABEL, labelOf } from '~/utils/labels'
 import { PRIORITY } from '@astir/types'
 import { useTaskPanels } from '~/composables/useTaskPanels'
 
-useHead({ title: 'Calendar' })
+useHead({ title: 'Календарь задач' })
 
 const route = useRoute()
 const router = useRouter()
@@ -160,7 +161,7 @@ function isOverdue(task: Task) {
     <header class="mb-6 flex flex-wrap items-start justify-between gap-4">
       <div>
         <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-          Production
+          Производство
         </p>
         <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Календарь дедлайнов</h1>
         <p class="mt-1 text-sm text-muted-foreground">
@@ -239,7 +240,7 @@ function isOverdue(task: Task) {
           aria-label="Фильтр по приоритету"
         >
           <option value="">Любой приоритет</option>
-          <option v-for="p in PRIORITIES" :key="p" :value="p">{{ p }}</option>
+          <option v-for="p in PRIORITIES" :key="p" :value="p">{{ labelOf(PRIORITY_LABEL, p) }}</option>
         </select>
       </div>
     </div>
@@ -334,16 +335,16 @@ function isOverdue(task: Task) {
 
     <p class="mt-4 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
       <span class="inline-flex items-center gap-1.5">
-        <span class="size-1.5 rounded-full bg-destructive" /> Urgent
+        <span class="size-1.5 rounded-full bg-destructive" /> {{ PRIORITY_LABEL.URGENT }}
       </span>
       <span class="inline-flex items-center gap-1.5">
-        <span class="size-1.5 rounded-full bg-signal" /> High
+        <span class="size-1.5 rounded-full bg-signal" /> {{ PRIORITY_LABEL.HIGH }}
       </span>
       <span class="inline-flex items-center gap-1.5">
-        <span class="size-1.5 rounded-full bg-primary" /> Normal
+        <span class="size-1.5 rounded-full bg-primary" /> {{ PRIORITY_LABEL.NORMAL }}
       </span>
       <span class="inline-flex items-center gap-1.5">
-        <span class="size-1.5 rounded-full bg-muted-foreground/40" /> Low
+        <span class="size-1.5 rounded-full bg-muted-foreground/40" /> {{ PRIORITY_LABEL.LOW }}
       </span>
     </p>
   </div>

@@ -236,7 +236,7 @@ function onPanelChanged() {
               </div>
               <div class="flex items-center justify-between px-5 py-3">
                 <dt class="text-muted-foreground">Приоритет</dt>
-                <dd><StatusBadge :status="project.priority" kind="risk" /></dd>
+                <dd><StatusBadge :status="project.priority" kind="priority" /></dd>
               </div>
             </dl>
           </div>

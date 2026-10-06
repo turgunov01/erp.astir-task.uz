@@ -149,7 +149,7 @@ defineExpose({ handleKey })
           v-model.number="fps"
           class="h-8 rounded-md bg-transparent px-1 text-xs text-white outline-none hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-white"
         >
-          <option v-for="rate in FRAME_RATES" :key="rate" :value="rate" class="text-black">{{ rate }} fps</option>
+          <option v-for="rate in FRAME_RATES" :key="rate" :value="rate" class="text-black">{{ rate }} к/с</option>
         </select>
       </label>
       <label class="inline-flex items-center gap-1 text-xs text-white/70">

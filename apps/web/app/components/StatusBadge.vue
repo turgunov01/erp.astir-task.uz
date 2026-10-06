@@ -1,7 +1,10 @@
 <script setup lang="ts">
 type Tone = 'neutral' | 'info' | 'progress' | 'success' | 'warning' | 'danger'
 
-const props = defineProps<{ status: string, kind?: 'project' | 'risk' | 'payment' | 'payroll' | 'generic' }>()
+const props = defineProps<{
+  status: string
+  kind?: 'project' | 'risk' | 'priority' | 'stage' | 'payment' | 'payroll' | 'generic'
+}>()
 
 /** Semantic colour, not decorative: tone always encodes production meaning. */
 const PROJECT_TONES: Record<string, Tone> = {
@@ -21,6 +24,14 @@ const PROJECT_TONES: Record<string, Tone> = {
   ACTIVE: 'success',
   INACTIVE: 'neutral',
   ON_LEAVE: 'warning'
+}
+
+/** Priority shares the risk palette: urgent work reads like a critical risk. */
+const PRIORITY_TONES: Record<string, Tone> = {
+  LOW: 'success',
+  NORMAL: 'info',
+  HIGH: 'warning',
+  URGENT: 'danger'
 }
 
 const RISK_TONES: Record<string, Tone> = {
@@ -58,6 +69,7 @@ const TONE_CLASS: Record<Tone, string> = {
 
 const tone = computed<Tone>(() => {
   if (props.kind === 'risk') return RISK_TONES[props.status] ?? 'neutral'
+  if (props.kind === 'priority') return PRIORITY_TONES[props.status] ?? 'neutral'
   if (props.kind === 'payment') return PAYMENT_TONES[props.status] ?? 'neutral'
   if (props.kind === 'payroll') return PAYROLL_TONES[props.status] ?? 'neutral'
   return PROJECT_TONES[props.status] ?? 'neutral'
@@ -70,6 +82,8 @@ const tone = computed<Tone>(() => {
  */
 const label = computed(() => {
   if (props.kind === 'risk') return enumLabel(RISK_LABEL, props.status)
+  if (props.kind === 'priority') return enumLabel(PRIORITY_LABEL, props.status)
+  if (props.kind === 'stage') return enumLabel(STAGE_STATUS_LABEL, props.status)
   if (props.kind === 'payment') return enumLabel(PAYMENT_STATUS_LABEL, props.status)
   if (props.kind === 'payroll') return enumLabel(PAYROLL_STATUS_LABEL, props.status)
   return enumLabel(STATUS_LABEL, props.status)

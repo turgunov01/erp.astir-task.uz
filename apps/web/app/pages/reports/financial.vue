@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { printReport, reportCsvHref, useReportPeriod } from '~/composables/useReport'
 
-useHead({ title: 'Financial report' })
+useHead({ title: 'Финансовый отчёт' })
 
 const { from, to, params, reset, isFiltered } = useReportPeriod()
 
@@ -63,7 +63,7 @@ function monthLabel(month: string) {
 <template>
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Reports</p>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Отчёты</p>
       <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Финансы</h1>
       <p class="mt-1 max-w-2xl text-sm text-muted-foreground">
         Выставлено, получено и потрачено по месяцам, структура расходов и

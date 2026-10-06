@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PRIORITY_LABEL, TASK_STATUS_LABEL, labelOf } from '~/utils/labels'
 import { PERMISSION, PRIORITY, TASK_STATUS } from '@astir/types'
 import { apiErrorMessage, apiRequest } from '~/composables/useApi'
 import { useAuthStore } from '~/stores/auth'
@@ -114,7 +115,7 @@ async function changeStatus(task: Task, status: string) {
   try {
     await apiRequest('/api/tasks/' + task.id + '/status', {
       method: 'POST',
-      body: { status, comment: 'Изменено на странице проекта: ' + task.status + ' -> ' + status }
+      body: { status, comment: 'Изменено на странице проекта: ' + statusChangeText(task.status, status) }
     })
     await refresh()
     emit('changed')
@@ -151,7 +152,7 @@ function isOverdue(task: Task) {
           aria-label="Фильтр по статусу"
         >
           <option value="">Все статусы</option>
-          <option v-for="s in STATUSES" :key="s" :value="s">{{ s.split('_').join(' ') }}</option>
+          <option v-for="s in STATUSES" :key="s" :value="s">{{ labelOf(TASK_STATUS_LABEL, s) }}</option>
         </select>
         <Button v-if="canCreate" size="sm" class="h-8" @click="showForm = !showForm">
           <Icon :name="showForm ? 'lucide:x' : 'lucide:plus'" class="mr-1.5 size-3.5" />
@@ -215,7 +216,7 @@ function isOverdue(task: Task) {
             v-model="form.priority"
             class="h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
           >
-            <option v-for="p in PRIORITIES" :key="p" :value="p">{{ p }}</option>
+            <option v-for="p in PRIORITIES" :key="p" :value="p">{{ labelOf(PRIORITY_LABEL, p) }}</option>
           </select>
         </div>
 
@@ -287,7 +288,7 @@ function isOverdue(task: Task) {
           {{ formatDate(task.deadline) }}
         </span>
 
-        <StatusBadge :status="task.priority" kind="risk" />
+        <StatusBadge :status="task.priority" kind="priority" />
 
         <select
           v-if="canUpdate"
@@ -297,7 +298,7 @@ function isOverdue(task: Task) {
           :aria-label="'Статус задачи ' + task.title"
           @change="changeStatus(task, ($event.target as HTMLSelectElement).value)"
         >
-          <option v-for="s in STATUSES" :key="s" :value="s">{{ s.split('_').join(' ') }}</option>
+          <option v-for="s in STATUSES" :key="s" :value="s">{{ labelOf(TASK_STATUS_LABEL, s) }}</option>
         </select>
         <StatusBadge v-else :status="task.status" />
       </li>

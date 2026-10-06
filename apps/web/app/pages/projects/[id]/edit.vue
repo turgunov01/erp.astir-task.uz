@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PRIORITY_LABEL, labelOf } from '~/utils/labels'
 import { PERMISSION, PROJECT_STATUS, PROJECT_TYPE, PRIORITY } from '@astir/types'
 import { apiErrorMessage, apiRequest } from '~/composables/useApi'
 import { useAuthStore } from '~/stores/auth'
@@ -235,7 +236,7 @@ async function onSubmit() {
                 v-model="form.priority"
                 class="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:border-ring"
               >
-                <option v-for="p in priorities" :key="p" :value="p">{{ p }}</option>
+                <option v-for="p in priorities" :key="p" :value="p">{{ labelOf(PRIORITY_LABEL, p) }}</option>
               </select>
             </div>
           </div>

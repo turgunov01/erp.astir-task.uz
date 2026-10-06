@@ -33,7 +33,7 @@ export async function getById(id: string) {
  */
 export async function create(input: CreateEmployeeInput) {
   if (await repo.findByEmail(input.email)) {
-    throw conflict('A user with email ' + input.email + ' already exists')
+    throw conflict('Пользователь с почтой ' + input.email + ' уже существует')
   }
 
   if (input.departmentId) {

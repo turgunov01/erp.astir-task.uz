@@ -7,6 +7,7 @@ import { notifyTaskAssigned } from '../../lib/notify'
 import { announceOverdueEdit, isOverdue } from '../../lib/overdue'
 import * as comments from '../comments/comments.service'
 import { recalcProject } from '../production/rollup'
+import { taskStatusChangeRu } from '../../lib/labels-ru'
 import * as repo from './tasks.repository'
 
 /** Statuses that count as "this task is finished" for dependency purposes. */
@@ -216,7 +217,7 @@ export async function changeStatus(
 
     if (blocking.length > 0) {
       throw conflict(
-        'Blocked by unfinished prerequisite(s): ' +
+        'Сначала нужно закончить задачи-предшественники: ' +
           blocking.map(item => item.title).join(', ')
       )
     }
@@ -240,7 +241,7 @@ export async function changeStatus(
       deadline: task.deadline as Date,
       actorId,
       reason: (overdueReason ?? '').trim(),
-      change: 'статус ' + task.status + ' -> ' + status
+      change: 'статус ' + taskStatusChangeRu(task.status, status)
     })
   }
 
@@ -250,7 +251,7 @@ export async function changeStatus(
       {
         entityType: 'Task',
         entityId: id,
-        message: task.status + ' -> ' + status + ': ' + note
+        message: taskStatusChangeRu(task.status, status) + ': ' + note
       },
       actorId
     ).catch(() => undefined)
@@ -284,19 +285,19 @@ export async function changeStatus(
 
 export async function addDependency(id: string, dependsOnTaskId: string) {
   const task = await getById(id)
-  if (dependsOnTaskId === id) throw badRequest('A task cannot depend on itself')
+  if (dependsOnTaskId === id) throw badRequest('Задача не может зависеть от самой себя')
 
   const prerequisite = await repo.findById(dependsOnTaskId)
   if (!prerequisite) throw notFound('Prerequisite task')
   if (prerequisite.projectId !== task.projectId) {
-    throw badRequest('Dependencies must stay within one project')
+    throw badRequest('Зависимости возможны только внутри одного проекта')
   }
 
   // One level of cycle detection: the prerequisite must not already depend on us.
   const reverse = prerequisite.dependencies.some(
     dependency => dependency.dependsOnTaskId === id
   )
-  if (reverse) throw conflict('That task already depends on this one')
+  if (reverse) throw conflict('Та задача уже зависит от этой')
 
   await prisma.taskDependency.create({
     data: { taskId: id, dependsOnTaskId }
@@ -344,7 +345,7 @@ export function boardCounts(projectId: string, assigneeId?: string | null) {
  */
 export async function archive(id: string, actorId?: string) {
   const task = await getById(id)
-  if (task.archivedAt) throw conflict('Task is already archived')
+  if (task.archivedAt) throw conflict('Задача уже в архиве')
 
   await prisma.$transaction(async tx => {
     await tx.task.update({ where: { id }, data: { archivedAt: new Date() } })
@@ -366,7 +367,7 @@ export async function archive(id: string, actorId?: string) {
 
 export async function unarchive(id: string, actorId?: string) {
   const task = await getById(id)
-  if (!task.archivedAt) throw conflict('Task is not archived')
+  if (!task.archivedAt) throw conflict('Задача не в архиве')
 
   await prisma.$transaction(async tx => {
     await tx.task.update({ where: { id }, data: { archivedAt: null } })

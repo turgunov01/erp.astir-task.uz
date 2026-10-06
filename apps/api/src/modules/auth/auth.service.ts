@@ -85,7 +85,7 @@ export async function login(
   const passwordMatches = await bcrypt.compare(password, hash)
 
   if (!record || !passwordMatches) throw invalidCredentials()
-  if (!record.isActive) throw forbidden('Account is disabled')
+  if (!record.isActive) throw forbidden('Учётная запись отключена')
 
   /*
    * An address nobody has proven yet does not get a session.
@@ -149,10 +149,10 @@ export async function refresh(
     include: { user: { select: { ...USER_FIELDS, isActive: true, deletedAt: true } } }
   })
 
-  if (!stored || stored.revokedAt) throw unauthenticated('Session is no longer valid')
-  if (stored.expiresAt.getTime() < Date.now()) throw unauthenticated('Session expired')
-  if (!stored.user || stored.user.deletedAt) throw unauthenticated('Account no longer exists')
-  if (!stored.user.isActive) throw forbidden('Account is disabled')
+  if (!stored || stored.revokedAt) throw unauthenticated('Сессия больше не действует, войдите заново')
+  if (stored.expiresAt.getTime() < Date.now()) throw unauthenticated('Сессия истекла, войдите заново')
+  if (!stored.user || stored.user.deletedAt) throw unauthenticated('Учётная запись больше не существует')
+  if (!stored.user.isActive) throw forbidden('Учётная запись отключена')
 
   const { isActive: _active, deletedAt: _deleted, ...user } = stored.user
 
@@ -200,7 +200,7 @@ export async function verifyLoginCode(
   const hash = record?.passwordHash ?? '$2a$12$invalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidin'
   const passwordMatches = await bcrypt.compare(password, hash)
   if (!record || !passwordMatches) throw invalidCredentials()
-  if (!record.isActive) throw forbidden('Account is disabled')
+  if (!record.isActive) throw forbidden('Учётная запись отключена')
 
   await consumeLoginCode(record.id, code)
 

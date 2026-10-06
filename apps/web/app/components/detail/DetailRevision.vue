@@ -55,7 +55,7 @@ const isOverdue = computed(() => {
       <div class="flex flex-wrap items-center gap-2 border-b px-5 py-3.5">
         <StatusBadge :status="revision.status" />
         <span class="rounded-md bg-secondary px-2 py-0.5 text-xs">
-          {{ PRIORITY_LABEL[revision.priority] ?? revision.priority }}
+          {{ labelOf(PRIORITY_LABEL, revision.priority) }}
         </span>
         <span
           v-if="isOverdue"
@@ -74,7 +74,7 @@ const isOverdue = computed(() => {
 
       <dl class="divide-y">
         <DetailRow label="Статус">
-          {{ REVISION_STATUS_LABEL[revision.status] ?? revision.status }}
+          {{ labelOf(REVISION_STATUS_LABEL, revision.status) }}
         </DetailRow>
         <DetailRow label="Раунд">{{ revision.round }}</DetailRow>
         <DetailRow label="Проект">

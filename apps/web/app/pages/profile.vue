@@ -2,7 +2,7 @@
 import { apiErrorMessage, apiRequest } from '~/composables/useApi'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Profile' })
+useHead({ title: 'Профиль' })
 
 const auth = useAuthStore()
 
@@ -103,7 +103,7 @@ const initials = computed(() =>
 <template>
   <div class="mx-auto max-w-3xl px-6 py-8">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Profile</p>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Аккаунт</p>
       <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Профиль</h1>
     </header>
 
@@ -147,7 +147,7 @@ const initials = computed(() =>
         </label>
         <label class="block">
           <span class="text-sm font-medium">Ссылка на аватар</span>
-          <input v-model="form.avatarUrl" placeholder="https://..." class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring">
+          <input v-model="form.avatarUrl" placeholder="Ссылка на изображение" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring">
         </label>
       </div>
 

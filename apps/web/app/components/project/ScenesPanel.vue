@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PRODUCTION_STATUS_LABEL, labelOf } from '~/utils/labels'
 import { PERMISSION, PRODUCTION_STATUS } from '@astir/types'
 import { apiErrorMessage, apiRequest } from '~/composables/useApi'
 import { useAuthStore } from '~/stores/auth'
@@ -230,7 +231,7 @@ function pad(value: number) {
           :aria-label="'Статус сцены ' + scene.name"
           @change="changeStatus(scene, ($event.target as HTMLSelectElement).value)"
         >
-          <option v-for="s in STATUSES" :key="s" :value="s">{{ s.split('_').join(' ') }}</option>
+          <option v-for="s in STATUSES" :key="s" :value="s">{{ labelOf(PRODUCTION_STATUS_LABEL, s) }}</option>
         </select>
         <StatusBadge v-else :status="scene.status" />
 

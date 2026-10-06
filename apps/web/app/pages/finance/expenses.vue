@@ -100,7 +100,7 @@ const columns: Column[] = [
 <template>
   <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Expenses</p>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Финансы</p>
       <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Расходы</h1>
 
       <div class="mt-3 flex flex-wrap items-center justify-between gap-3">

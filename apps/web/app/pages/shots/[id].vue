@@ -163,7 +163,7 @@ function frameRange(target: ShotDetail) {
         <div class="bg-card px-5 py-4">
           <p class="text-xs uppercase tracking-wider text-muted-foreground">Кадры</p>
           <p class="mt-1.5 text-sm font-medium">{{ frameRange(shot) }}</p>
-          <p class="mt-1 text-xs text-muted-foreground">{{ shot.fps }} fps</p>
+          <p class="mt-1 text-xs text-muted-foreground">{{ shot.fps }} к/с</p>
         </div>
         <div class="bg-card px-5 py-4">
           <p class="text-xs uppercase tracking-wider text-muted-foreground">Исполнитель</p>
@@ -249,10 +249,10 @@ function frameRange(target: ShotDetail) {
               @change="patchStage(item, { status: ($event.target as HTMLSelectElement).value })"
             >
               <option v-for="s in STAGE_STATUSES" :key="s" :value="s">
-                {{ enumLabel(PRODUCTION_STATUS_LABEL, s) }}
+                {{ labelOf(STAGE_STATUS_LABEL, s) }}
               </option>
             </select>
-            <StatusBadge v-else :status="item.status" />
+            <StatusBadge v-else :status="item.status" kind="stage" />
           </li>
         </ol>
       </section>

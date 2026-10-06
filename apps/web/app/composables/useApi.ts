@@ -38,8 +38,7 @@ export function useListResource<T, S = unknown>(
 
   const errorMessage = computed(() => {
     if (!error.value) return ''
-    const body = error.value.data as { error?: { message?: string } } | undefined
-    return body?.error?.message ?? 'Не удалось загрузить данные'
+    return apiErrorMessage(error.value, 'Не удалось загрузить данные')
   })
 
   return { items, meta, summary, pending, error, errorMessage, refresh }
@@ -62,7 +61,7 @@ export async function apiRequest<T>(
  */
 const ERROR_MESSAGE_RU: Record<string, string> = {
   SERVICE_UNAVAILABLE: 'База данных недоступна. Попробуйте ещё раз, когда соединение восстановится.',
-  INVALID_CREDENTIALS: 'Неверный email или пароль',
+  INVALID_CREDENTIALS: 'Неверная почта или пароль',
   UNAUTHENTICATED: 'Сессия истекла, войдите заново',
   FORBIDDEN: 'Недостаточно прав для этого действия',
   RATE_LIMITED: 'Слишком много попыток, подождите немного',
@@ -80,9 +79,15 @@ export function apiErrorBody(err: unknown): ApiErrorBody | undefined {
   return (err as { data?: { error?: ApiErrorBody } })?.data?.error
 }
 
+/** A message is shown as is only when it is already Russian. */
+const CYRILLIC = /[А-Яа-яЁё]/
+
 export function apiErrorMessage(err: unknown, fallback = 'Что-то пошло не так'): string {
   const body = apiErrorBody(err)
   const code = body?.code
   if (code && ERROR_MESSAGE_RU[code]) return ERROR_MESSAGE_RU[code] as string
-  return body?.message ?? fallback
+  const message = body?.message
+  // An English message (an older server, a proxy, the network layer) is
+  // never put in front of the user; the caller's Russian fallback is.
+  return message && CYRILLIC.test(message) ? message : fallback
 }

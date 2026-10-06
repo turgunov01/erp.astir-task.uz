@@ -46,7 +46,7 @@ export async function remove(id: string) {
   const employees = await repo.countEmployees(id)
   if (employees > 0) {
     throw conflict(
-      'Department still has ' + employees + ' employee(s). Reassign them first.'
+      'В отделе ещё есть сотрудники: ' + employees + '. Сначала переведите их в другой отдел.'
     )
   }
   await repo.remove(id)

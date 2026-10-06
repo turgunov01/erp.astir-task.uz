@@ -13,7 +13,7 @@ const kind = computed(() => mediaKind(props.item.mimeType, props.item.name))
 
 const rows = computed(() => {
   const list: Array<{ label: string, value: string }> = [
-    { label: 'Тип', value: MEDIA_KIND_LABEL[kind.value] + (props.item.mimeType ? ' · ' + props.item.mimeType : '') }
+    { label: 'Тип', value: MEDIA_KIND_LABEL[kind.value] + (fileFormat(props.item.name) ? ' · ' + fileFormat(props.item.name) : '') }
   ]
   const size = formatBytes(props.item.size)
   if (size) list.push({ label: 'Размер', value: size })

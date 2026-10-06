@@ -177,8 +177,8 @@ export async function seedReview(
   }
 
   // ---- shot versions: animation, then compositing --------------------
-  const animation = production.stage('Animation')
-  const compositing = production.stage('Compositing')
+  const animation = production.stage('Анимация')
+  const compositing = production.stage('Композитинг')
   const total = production.shots.length
 
   async function shotVersion(shot: ShotRef, kind: 'anim' | 'comp', number: number, when: Date, status: string, uploaderKey: string, withVideo: boolean) {
@@ -292,7 +292,7 @@ export async function seedReview(
 
   // ---- the edits the client saw ---------------------------------------
   const editTask = tasks.find(t => t.title === 'Монтаж трёх роликов')
-  const clientReviewDay = production.stage('Client Review').from
+  const clientReviewDay = production.stage('Просмотр клиентом').from
   const CLIENT_NOTES: Record<number, string> = {
     1: 'Кнопка CTA должна быть фирменного зелёного, а не серого. Логотип в финале крупнее.',
     3: 'В сравнении «бот vs ИИ» логотип 24reply мелковат — увеличить в последнем кадре.'
@@ -410,11 +410,11 @@ export async function seedReview(
       }
     }))
   }
-  const rendering = production.stage('Rendering')
-  const finalRender = production.stage('Final Render')
+  const rendering = production.stage('Рендер')
+  const finalRender = production.stage('Финальный рендер')
   const FAILURES: Record<number, string> = {
-    5: 'Out of memory on frame 1043 (node render-02)',
-    17: 'Missing texture: ui_glass_roughness_4k.exr'
+    5: 'Не хватило памяти на кадре 1043 (нода render-02)',
+    17: 'Не найдена текстура: ui_glass_roughness_4k.exr'
   }
   for (const shot of production.shots) {
     const lag = Math.floor((rendering.to - rendering.from) * 0.6 * shot.index / total)

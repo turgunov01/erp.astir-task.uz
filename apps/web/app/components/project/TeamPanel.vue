@@ -5,6 +5,7 @@ import { useAuthStore } from '~/stores/auth'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
+import { ROLE_LABEL, labelOf } from '~/utils/labels'
 
 interface Member {
   id: string
@@ -183,7 +184,7 @@ function initials(member: Member) {
             v-model="form.roleLabel"
             class="h-9"
             maxlength="80"
-            placeholder="Lead Animator"
+            placeholder="Например, ведущий аниматор"
           />
           <p class="pt-0.5 text-xs text-muted-foreground">
             Описывает работу на этом проекте, права не меняет.
@@ -238,7 +239,7 @@ function initials(member: Member) {
             {{ member.user.firstName }} {{ member.user.lastName }}
           </p>
           <p class="mt-0.5 truncate text-xs text-muted-foreground">
-            {{ member.user.employee?.position ?? member.user.role.split('_').join(' ') }}
+            {{ member.user.employee?.position ?? labelOf(ROLE_LABEL, member.user.role) }}
             <template v-if="member.user.employee?.department">
               · {{ member.user.employee.department.name }}
             </template>

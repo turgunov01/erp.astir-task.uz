@@ -17,7 +17,8 @@ export interface CsvColumn<T> {
 
 function csvCell(value: CsvValue): string {
   if (value === null || value === undefined) return ''
-  if (value instanceof Date) return value.toISOString().slice(0, 10)
+  // Russian spreadsheets read dd.mm.yyyy as a date; ISO stays text there.
+  if (value instanceof Date) return value.toISOString().slice(0, 10).split('-').reverse().join('.')
   const text = String(value)
   // Quote only what would otherwise break the row apart.
   return /[",\n\r;]/.test(text) ? '"' + text.replaceAll('"', '""') + '"' : text

@@ -80,7 +80,7 @@ const columns: Column[] = [
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
       <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-        Production
+        Производство
       </p>
       <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Библиотека ассетов</h1>
       <p class="mt-1 text-sm text-muted-foreground">{{ meta.total }} ассет(ов)</p>
@@ -118,7 +118,7 @@ const columns: Column[] = [
           @change="page = 1"
         >
           <option value="">Все типы</option>
-          <option v-for="t in TYPES" :key="t" :value="t">{{ ASSET_TYPE_LABEL[t] ?? t }}</option>
+          <option v-for="t in TYPES" :key="t" :value="t">{{ labelOf(ASSET_TYPE_LABEL, t) }}</option>
         </select>
         <select
           v-model="projectId"
@@ -147,7 +147,7 @@ const columns: Column[] = [
       </template>
 
       <template #cell-type="{ row }">
-        <span class="text-xs text-muted-foreground">{{ ASSET_TYPE_LABEL[row.type] ?? row.type }}</span>
+        <span class="text-xs text-muted-foreground">{{ labelOf(ASSET_TYPE_LABEL, row.type) }}</span>
       </template>
 
       <template #cell-project="{ row }">

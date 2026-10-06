@@ -134,7 +134,7 @@ function isOverdue(row: RevisionRow) {
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
       <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-        Production
+        Производство
       </p>
       <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Правки</h1>
       <p class="mt-1 text-sm text-muted-foreground">

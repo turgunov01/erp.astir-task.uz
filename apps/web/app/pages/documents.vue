@@ -187,7 +187,7 @@ function formatSize(bytes: string | null) {
       </template>
 
       <template #cell-type="{ row }">
-        <span class="text-xs text-muted-foreground">{{ row.type }}</span>
+        <span class="text-xs text-muted-foreground">{{ labelOf(DOCUMENT_TYPE_LABEL, row.type) }}</span>
       </template>
 
       <template #cell-size="{ row }">

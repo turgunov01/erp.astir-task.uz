@@ -4,7 +4,7 @@ import { apiErrorMessage, apiRequest } from '~/composables/useApi'
 import { useAuthStore } from '~/stores/auth'
 import { useTaskPanels } from '~/composables/useTaskPanels'
 
-useHead({ title: 'Board' })
+useHead({ title: 'Доска задач' })
 
 const route = useRoute()
 const router = useRouter()
@@ -107,7 +107,7 @@ async function onDrop(status: string) {
       method: 'POST',
       body: {
         status,
-        comment: 'Перенесено на доске: ' + task.status + ' -> ' + status
+        comment: 'Перенесено на доске: ' + statusChangeText(task.status, status)
       }
     })
     await refresh()
@@ -135,7 +135,7 @@ function isOverdue(task: Task) {
     <header class="mb-6 flex flex-wrap items-start justify-between gap-4">
       <div>
         <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-          Production
+          Производство
         </p>
         <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Доска задач</h1>
         <p class="mt-1 text-sm text-muted-foreground">

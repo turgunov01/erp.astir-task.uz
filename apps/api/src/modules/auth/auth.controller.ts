@@ -42,7 +42,7 @@ export async function loginHandler(req: Request, res: Response, next: NextFuncti
 export async function refreshHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const presented = req.cookies?.[REFRESH_COOKIE] ?? req.body?.refreshToken
-    if (!presented) throw unauthenticated('No refresh token provided')
+    if (!presented) throw unauthenticated('Сессия не найдена, войдите заново')
 
     const result = await authService.refresh(presented, sessionContext(req))
     setSessionCookies(res, result)

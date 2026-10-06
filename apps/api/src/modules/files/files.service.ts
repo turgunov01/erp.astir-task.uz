@@ -68,7 +68,7 @@ async function findOwner(key: OwnerKey, id: string): Promise<OwnerRow> {
   const delegate = (prisma as unknown as Record<string, {
     findFirst(args: unknown): Promise<OwnerRow | null>
   } | undefined>)[spec.model]
-  if (!delegate) throw badRequest('Unknown attachment target: ' + key)
+  if (!delegate) throw badRequest('Неизвестно, к чему прикрепить файл: ' + key)
   const row = await delegate.findFirst({
     where: { id, deletedAt: null },
     include: key === 'reviewId' ? { version: { select: { projectId: true } } } : undefined

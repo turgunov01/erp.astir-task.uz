@@ -178,9 +178,58 @@ export const TASK_STATUS_LABEL: Record<string, string> = {
   BLOCKED: 'Заблокирована'
 }
 
-/** Fallback for an enum value with no translation yet. */
-export function enumLabel(map: Record<string, string>, value: string) {
-  return map[value] ?? value.split('_').join(' ')
+/** Shown when a value has no translation: never the raw English member. */
+export const UNKNOWN_LABEL = 'Не указано'
+
+/**
+ * The one way to put an enum value in front of a user.
+ *
+ * A missing translation must not leak `IN_PROGRESS` into a Russian interface,
+ * so an unknown member falls back to a neutral Russian word, never the raw value.
+ */
+export function labelOf(
+  map: Record<string, string>,
+  value: string | null | undefined,
+  fallback = UNKNOWN_LABEL
+) {
+  if (value === null || value === undefined || value === '') return fallback
+  return map[value] ?? fallback
+}
+
+/** Kept for existing callers; same contract as labelOf. */
+export function enumLabel(map: Record<string, string>, value: string | null | undefined) {
+  return labelOf(map, value)
+}
+
+/** «В работе» → «На проверке»: a task status move as people read it in history. */
+export function statusChangeText(from: string, to: string) {
+  return '«' + labelOf(TASK_STATUS_LABEL, from) + '» → «' + labelOf(TASK_STATUS_LABEL, to) + '»'
+}
+
+/** Pipeline stage state, shared by project stages and shot stages. */
+export const STAGE_STATUS_LABEL: Record<string, string> = {
+  NOT_STARTED: 'Не начат',
+  READY: 'Готов к работе',
+  IN_PROGRESS: 'В работе',
+  REVIEW: 'На проверке',
+  BLOCKED: 'Заблокирован',
+  DONE: 'Завершён'
+}
+
+export const VERSION_STATUS_LABEL: Record<string, string> = {
+  WORKING: 'В работе',
+  SUBMITTED: 'Отправлена',
+  IN_REVIEW: 'На обсуждении',
+  CHANGES_REQUESTED: 'Нужны правки',
+  APPROVED: 'Утверждена',
+  REJECTED: 'Отклонена',
+  SUPERSEDED: 'Заменена новой'
+}
+
+export const NOTIFICATION_CHANNEL_LABEL: Record<string, string> = {
+  IN_APP: 'В приложении',
+  EMAIL: 'Почта',
+  TELEGRAM: 'Telegram'
 }
 
 /**
@@ -201,7 +250,8 @@ export const STATUS_LABEL: Record<string, string> = {
   ...EMPLOYEE_STATUS_LABEL,
   // Version statuses, which have no map of their own.
   WORKING: 'В работе',
-  SUBMITTED: 'Отправлена'
+  SUBMITTED: 'Отправлена',
+  SUPERSEDED: 'Заменена новой'
 }
 
 export const EXPENSE_CATEGORY_LABEL: Record<string, string> = {
@@ -350,6 +400,25 @@ export const ACTIVITY_ACTION_LABEL: Record<string, string> = {
   'user.created': 'завёл пользователя',
   'user.role_changed': 'сменил роль пользователя',
   'user.deactivated': 'отключил пользователя'
+}
+
+/** The part before the dot in an action name, for the feed's filter. */
+export const ACTIVITY_FAMILY_LABEL: Record<string, string> = {
+  created: 'Создание', updated: 'Изменение', deleted: 'Удаление',
+  project: 'Проекты', member: 'Команды проектов', stage: 'Этапы', episode: 'Эпизоды',
+  scene: 'Сцены', shot: 'Шоты', shot_stage: 'Этапы шотов', task: 'Задачи',
+  version: 'Версии', review: 'Согласование', revision: 'Правки', render: 'Рендер',
+  asset: 'Ассеты', file: 'Файлы', finance: 'Финансы', settings: 'Настройки',
+  client: 'Клиенты', department: 'Отделы', employee: 'Сотрудники', user: 'Пользователи',
+  payroll: 'Зарплата', attendance: 'Посещаемость', comment: 'Комментарии', timesheet: 'Табель'
+}
+
+/** «3 задачи», «5 версий»: a count with the noun in the right form. */
+export function countLabel(count: number, one: string, few: string, many: string) {
+  const n = Math.abs(count) % 100
+  const last = n % 10
+  const word = n > 10 && n < 20 ? many : last === 1 ? one : last >= 2 && last <= 4 ? few : many
+  return count + ' ' + word
 }
 
 /** Entity names as they read in a sentence about them. */

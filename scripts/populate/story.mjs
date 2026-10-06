@@ -16,30 +16,30 @@ export function dayOnly(offset) {
 
 export const DEPARTMENTS = [
   // The studio's own files (the logo, policies) hang off this one.
-  ['Management', 'Руководство студии'],
-  ['Production', 'Продюсеры и проектные менеджеры'], ['2D', 'Раскадровка, концепт, дизайн'], ['3D', 'Лейаут и FX'],
-  ['Animation', 'Аниматоры'], ['Modeling', 'Моделинг и текстуры'], ['Rigging', 'Риггеры'], ['Lighting', 'Свет и шейдинг'],
-  ['Rendering', 'Рендер-ферма'], ['Compositing', 'Композитинг'], ['Sound', 'Звук и озвучка'], ['Editing', 'Монтаж'],
-  ['Finance', 'Финансы и документы']
+  ['Руководство', 'Руководство студии'],
+  ['Продакшн', 'Продюсеры и проектные менеджеры'], ['2D', 'Раскадровка, концепт, дизайн'], ['3D', 'Лейаут и FX'],
+  ['Анимация', 'Аниматоры'], ['Моделинг', 'Моделинг и текстуры'], ['Риггинг', 'Риггеры'], ['Свет', 'Свет и шейдинг'],
+  ['Рендер', 'Рендер-ферма'], ['Композитинг', 'Композитинг'], ['Звук', 'Звук и озвучка'], ['Монтаж', 'Монтаж'],
+  ['Финансы', 'Финансы и документы']
 ]
 
 export const STAFF = [
-  { key: 'producer', email: 'producer@astir.uz', firstName: 'Тимур', lastName: 'Юсупов', role: 'PRODUCER', position: 'Исполнительный продюсер', department: 'Production', rate: 45 },
-  { key: 'pm', email: 'pm@astir.uz', firstName: 'Камила', lastName: 'Назарова', role: 'PROJECT_MANAGER', position: 'Проектный менеджер', department: 'Production', rate: 35 },
+  { key: 'producer', email: 'producer@astir.uz', firstName: 'Тимур', lastName: 'Юсупов', role: 'PRODUCER', position: 'Исполнительный продюсер', department: 'Продакшн', rate: 45 },
+  { key: 'pm', email: 'pm@astir.uz', firstName: 'Камила', lastName: 'Назарова', role: 'PROJECT_MANAGER', position: 'Проектный менеджер', department: 'Продакшн', rate: 35 },
   { key: 'ad', email: 'art@astir.uz', firstName: 'Руслан', lastName: 'Абдуллаев', role: 'ART_DIRECTOR', position: 'Арт-директор', department: '2D', rate: 40 },
-  { key: 'finance', email: 'finance@astir.uz', firstName: 'Малика', lastName: 'Турсунова', role: 'FINANCE', position: 'Финансовый менеджер', department: 'Finance', rate: 30 },
+  { key: 'finance', email: 'finance@astir.uz', firstName: 'Малика', lastName: 'Турсунова', role: 'FINANCE', position: 'Финансовый менеджер', department: 'Финансы', rate: 30 },
   { key: 'gulnora', email: 'gulnora@astir.uz', firstName: 'Гульнора', lastName: 'Ахмедова', role: 'ARTIST', position: 'Сторибордист', department: '2D', rate: 25 },
-  { key: 'bekzod', email: 'bekzod@astir.uz', firstName: 'Бекзод', lastName: 'Исмоилов', role: 'ARTIST', position: '3D-моделлер', department: 'Modeling', rate: 25 },
-  { key: 'zilola', email: 'zilola@astir.uz', firstName: 'Зилола', lastName: 'Умарова', role: 'ARTIST', position: 'Художник по текстурам', department: 'Modeling', rate: 23, employment: 'PART_TIME', capacity: 20 },
-  { key: 'sardor', email: 'sardor@astir.uz', firstName: 'Сардор', lastName: 'Эргашев', role: 'ARTIST', position: 'Риггер', department: 'Rigging', rate: 26 },
+  { key: 'bekzod', email: 'bekzod@astir.uz', firstName: 'Бекзод', lastName: 'Исмоилов', role: 'ARTIST', position: '3D-моделлер', department: 'Моделинг', rate: 25 },
+  { key: 'zilola', email: 'zilola@astir.uz', firstName: 'Зилола', lastName: 'Умарова', role: 'ARTIST', position: 'Художник по текстурам', department: 'Моделинг', rate: 23, employment: 'PART_TIME', capacity: 20 },
+  { key: 'sardor', email: 'sardor@astir.uz', firstName: 'Сардор', lastName: 'Эргашев', role: 'ARTIST', position: 'Риггер', department: 'Риггинг', rate: 26 },
   { key: 'marat', email: 'marat@astir.uz', firstName: 'Марат', lastName: 'Юлдашев', role: 'ARTIST', position: 'Layout-артист', department: '3D', rate: 24 },
-  { key: 'anna', email: 'anna@astir.uz', firstName: 'Анна', lastName: 'Волкова', role: 'ARTIST', position: 'Старший аниматор', department: 'Animation', rate: 28 },
+  { key: 'anna', email: 'anna@astir.uz', firstName: 'Анна', lastName: 'Волкова', role: 'ARTIST', position: 'Старший аниматор', department: 'Анимация', rate: 28 },
   { key: 'shohruh', email: 'shohruh@astir.uz', firstName: 'Шохрух', lastName: 'Назаров', role: 'ARTIST', position: 'FX-артист', department: '3D', rate: 30, employment: 'FREELANCE' },
-  { key: 'nigora', email: 'nigora@astir.uz', firstName: 'Нигора', lastName: 'Саидова', role: 'ARTIST', position: 'Художник по свету', department: 'Lighting', rate: 27 },
-  { key: 'sherzod', email: 'sherzod@astir.uz', firstName: 'Шерзод', lastName: 'Мирзаев', role: 'ARTIST', position: 'Render TD', department: 'Rendering', rate: 29 },
-  { key: 'javohir', email: 'javohir@astir.uz', firstName: 'Жавохир', lastName: 'Кодиров', role: 'ARTIST', position: 'Композер', department: 'Compositing', rate: 26 },
-  { key: 'dilshod', email: 'dilshod@astir.uz', firstName: 'Дилшод', lastName: 'Рустамов', role: 'ARTIST', position: 'Саунд-дизайнер', department: 'Sound', rate: 27, employment: 'FREELANCE' },
-  { key: 'farrux', email: 'farrux@astir.uz', firstName: 'Фаррух', lastName: 'Собиров', role: 'ARTIST', position: 'Монтажёр', department: 'Editing', rate: 26 }
+  { key: 'nigora', email: 'nigora@astir.uz', firstName: 'Нигора', lastName: 'Саидова', role: 'ARTIST', position: 'Художник по свету', department: 'Свет', rate: 27 },
+  { key: 'sherzod', email: 'sherzod@astir.uz', firstName: 'Шерзод', lastName: 'Мирзаев', role: 'ARTIST', position: 'Render TD', department: 'Рендер', rate: 29 },
+  { key: 'javohir', email: 'javohir@astir.uz', firstName: 'Жавохир', lastName: 'Кодиров', role: 'ARTIST', position: 'Композер', department: 'Композитинг', rate: 26 },
+  { key: 'dilshod', email: 'dilshod@astir.uz', firstName: 'Дилшод', lastName: 'Рустамов', role: 'ARTIST', position: 'Саунд-дизайнер', department: 'Звук', rate: 27, employment: 'FREELANCE' },
+  { key: 'farrux', email: 'farrux@astir.uz', firstName: 'Фаррух', lastName: 'Собиров', role: 'ARTIST', position: 'Монтажёр', department: 'Монтаж', rate: 26 }
 ]
 
 export const DEPARTMENT_LEAD = {
@@ -55,19 +55,19 @@ export const CLIENTS = [
 
 /** Stage windows for the finished project, day offsets. */
 export const STAGE_WINDOWS = {
-  'Brief': [0, 4], 'Script': [3, 12], 'Storyboard': [10, 22], 'Animatic': [20, 28], 'Concept Art': [14, 30],
-  'Character Design': [22, 38], 'Environment Design': [26, 42], 'Modeling': [34, 56], 'Rigging': [46, 62],
-  'Layout': [52, 66], 'Animation': [60, 92], 'Simulation / FX': [78, 98], 'Lighting': [84, 104],
-  'Rendering': [92, 110], 'Compositing': [98, 114], 'Sound': [90, 112], 'Editing': [106, 116],
-  'Internal Review': [114, 117], 'Client Review': [117, 121], 'Corrections': [120, 124],
-  'Final Render': [123, 126], 'Delivery': [126, 127]
+  'Бриф': [0, 4], 'Сценарий': [3, 12], 'Раскадровка': [10, 22], 'Аниматик': [20, 28], 'Концепт-арт': [14, 30],
+  'Дизайн персонажей': [22, 38], 'Дизайн окружения': [26, 42], 'Моделинг': [34, 56], 'Риггинг': [46, 62],
+  'Лейаут': [52, 66], 'Анимация': [60, 92], 'Симуляции и FX': [78, 98], 'Свет': [84, 104],
+  'Рендер': [92, 110], 'Композитинг': [98, 114], 'Звук': [90, 112], 'Монтаж': [106, 116],
+  'Внутренний просмотр': [114, 117], 'Просмотр клиентом': [117, 121], 'Правки': [120, 124],
+  'Финальный рендер': [123, 126], 'Сдача': [126, 127]
 }
 
 export const MAIN_PROJECT = {
   code: 'AST-001',
   name: '24reply.ai — продуктовые ролики',
   client: 'reply',
-  template: '3D Animation',
+  template: '3D-анимация',
   projectType: 'COMMERCIAL',
   priority: 'HIGH',
   budget: 120000,
@@ -84,33 +84,33 @@ export const MAIN_PROJECT = {
 }
 
 export const GENERAL_TASKS = [
-  { stage: 'Brief', title: 'Бриф клиента и референсы', assignee: 'pm', reviewer: 'producer', estimate: 6, actual: 5, priority: 'HIGH' },
-  { stage: 'Script', title: 'Сценарии трёх роликов (60″ / 45″ / 30″)', assignee: 'pm', reviewer: 'ad', estimate: 24, actual: 26, after: 'Бриф клиента и референсы' },
-  { stage: 'Storyboard', title: 'Раскадровка: 27 шотов', assignee: 'gulnora', reviewer: 'ad', estimate: 40, actual: 44, after: 'Сценарии трёх роликов (60″ / 45″ / 30″)' },
-  { stage: 'Animatic', title: 'Аниматик с черновой озвучкой', assignee: 'gulnora', reviewer: 'ad', estimate: 20, actual: 18, after: 'Раскадровка: 27 шотов' },
-  { stage: 'Concept Art', title: 'Концепт: маскот «24» и стиль интерфейса', assignee: 'ad', reviewer: 'producer', estimate: 30, actual: 32, priority: 'HIGH' },
-  { stage: 'Character Design', title: 'Дизайн персонажей: маскот, менеджер, клиент', assignee: 'ad', reviewer: 'producer', estimate: 28, actual: 30, after: 'Концепт: маскот «24» и стиль интерфейса' },
-  { stage: 'Environment Design', title: 'Дизайн окружения: чат, панель менеджера, офис', assignee: 'gulnora', reviewer: 'ad', estimate: 24, actual: 22 },
-  { stage: 'Modeling', title: 'Моделинг маскота «24»', assignee: 'bekzod', reviewer: 'ad', estimate: 36, actual: 40, priority: 'HIGH', after: 'Дизайн персонажей: маскот, менеджер, клиент' },
-  { stage: 'Modeling', title: 'Моделинг смартфона Hero (high-poly)', assignee: 'bekzod', reviewer: 'ad', estimate: 24, actual: 22 },
-  { stage: 'Modeling', title: 'Текстуры и материалы UI (glass / matte)', assignee: 'zilola', reviewer: 'ad', estimate: 30, actual: 31, after: 'Моделинг маскота «24»' },
-  { stage: 'Rigging', title: 'Риг маскота: body + лицевой', assignee: 'sardor', reviewer: 'anna', estimate: 32, actual: 35, priority: 'HIGH', after: 'Моделинг маскота «24»' },
-  { stage: 'Rigging', title: 'Риг смартфона и пузырей сообщений', assignee: 'sardor', reviewer: 'anna', estimate: 12, actual: 10 },
-  { stage: 'Sound', title: 'Джингл, саунд-дизайн и озвучка UZ / RU / EN', assignee: 'dilshod', reviewer: 'pm', estimate: 40, actual: 38 },
-  { stage: 'Editing', title: 'Монтаж трёх роликов', assignee: 'farrux', reviewer: 'ad', estimate: 30, actual: 28, after: 'Джингл, саунд-дизайн и озвучка UZ / RU / EN' },
-  { stage: 'Internal Review', title: 'Внутренний просмотр с продюсером', assignee: 'pm', reviewer: 'producer', estimate: 4, actual: 4, after: 'Монтаж трёх роликов' },
-  { stage: 'Client Review', title: 'Презентация клиенту и сбор правок', assignee: 'pm', reviewer: 'producer', estimate: 6, actual: 7, priority: 'HIGH', after: 'Внутренний просмотр с продюсером' },
-  { stage: 'Corrections', title: 'Правки клиента: цвет CTA и логотип в финале', assignee: 'javohir', reviewer: 'ad', estimate: 8, actual: 6, priority: 'URGENT', after: 'Презентация клиенту и сбор правок' },
-  { stage: 'Final Render', title: 'Финальный рендер 4K и мастеринг', assignee: 'sherzod', reviewer: 'pm', estimate: 16, actual: 14, priority: 'HIGH', after: 'Правки клиента: цвет CTA и логотип в финале' },
-  { stage: 'Delivery', title: 'Сдача мастер-файлов и исходников', assignee: 'pm', reviewer: 'producer', estimate: 4, actual: 3, after: 'Финальный рендер 4K и мастеринг' }
+  { stage: 'Бриф', title: 'Бриф клиента и референсы', assignee: 'pm', reviewer: 'producer', estimate: 6, actual: 5, priority: 'HIGH' },
+  { stage: 'Сценарий', title: 'Сценарии трёх роликов (60″ / 45″ / 30″)', assignee: 'pm', reviewer: 'ad', estimate: 24, actual: 26, after: 'Бриф клиента и референсы' },
+  { stage: 'Раскадровка', title: 'Раскадровка: 27 шотов', assignee: 'gulnora', reviewer: 'ad', estimate: 40, actual: 44, after: 'Сценарии трёх роликов (60″ / 45″ / 30″)' },
+  { stage: 'Аниматик', title: 'Аниматик с черновой озвучкой', assignee: 'gulnora', reviewer: 'ad', estimate: 20, actual: 18, after: 'Раскадровка: 27 шотов' },
+  { stage: 'Концепт-арт', title: 'Концепт: маскот «24» и стиль интерфейса', assignee: 'ad', reviewer: 'producer', estimate: 30, actual: 32, priority: 'HIGH' },
+  { stage: 'Дизайн персонажей', title: 'Дизайн персонажей: маскот, менеджер, клиент', assignee: 'ad', reviewer: 'producer', estimate: 28, actual: 30, after: 'Концепт: маскот «24» и стиль интерфейса' },
+  { stage: 'Дизайн окружения', title: 'Дизайн окружения: чат, панель менеджера, офис', assignee: 'gulnora', reviewer: 'ad', estimate: 24, actual: 22 },
+  { stage: 'Моделинг', title: 'Моделинг маскота «24»', assignee: 'bekzod', reviewer: 'ad', estimate: 36, actual: 40, priority: 'HIGH', after: 'Дизайн персонажей: маскот, менеджер, клиент' },
+  { stage: 'Моделинг', title: 'Моделинг смартфона Hero (high-poly)', assignee: 'bekzod', reviewer: 'ad', estimate: 24, actual: 22 },
+  { stage: 'Моделинг', title: 'Текстуры и материалы UI (glass / matte)', assignee: 'zilola', reviewer: 'ad', estimate: 30, actual: 31, after: 'Моделинг маскота «24»' },
+  { stage: 'Риггинг', title: 'Риг маскота: body + лицевой', assignee: 'sardor', reviewer: 'anna', estimate: 32, actual: 35, priority: 'HIGH', after: 'Моделинг маскота «24»' },
+  { stage: 'Риггинг', title: 'Риг смартфона и пузырей сообщений', assignee: 'sardor', reviewer: 'anna', estimate: 12, actual: 10 },
+  { stage: 'Звук', title: 'Джингл, саунд-дизайн и озвучка UZ / RU / EN', assignee: 'dilshod', reviewer: 'pm', estimate: 40, actual: 38 },
+  { stage: 'Монтаж', title: 'Монтаж трёх роликов', assignee: 'farrux', reviewer: 'ad', estimate: 30, actual: 28, after: 'Джингл, саунд-дизайн и озвучка UZ / RU / EN' },
+  { stage: 'Внутренний просмотр', title: 'Внутренний просмотр с продюсером', assignee: 'pm', reviewer: 'producer', estimate: 4, actual: 4, after: 'Монтаж трёх роликов' },
+  { stage: 'Просмотр клиентом', title: 'Презентация клиенту и сбор правок', assignee: 'pm', reviewer: 'producer', estimate: 6, actual: 7, priority: 'HIGH', after: 'Внутренний просмотр с продюсером' },
+  { stage: 'Правки', title: 'Правки клиента: цвет CTA и логотип в финале', assignee: 'javohir', reviewer: 'ad', estimate: 8, actual: 6, priority: 'URGENT', after: 'Презентация клиенту и сбор правок' },
+  { stage: 'Финальный рендер', title: 'Финальный рендер 4K и мастеринг', assignee: 'sherzod', reviewer: 'pm', estimate: 16, actual: 14, priority: 'HIGH', after: 'Правки клиента: цвет CTA и логотип в финале' },
+  { stage: 'Сдача', title: 'Сдача мастер-файлов и исходников', assignee: 'pm', reviewer: 'producer', estimate: 4, actual: 3, after: 'Финальный рендер 4K и мастеринг' }
 ]
 
 export const PER_SCENE_TASKS = [
-  { stage: 'Layout', prefix: 'Лейаут', assignee: 'marat', estimate: 12 },
-  { stage: 'Animation', prefix: 'Анимация', assignee: null, estimate: 34 },
-  { stage: 'Simulation / FX', prefix: 'FX: частицы и свечение', assignee: 'shohruh', estimate: 14, only: [1, 4, 7] },
-  { stage: 'Lighting', prefix: 'Свет и шейдинг', assignee: 'nigora', estimate: 16 },
-  { stage: 'Compositing', prefix: 'Композитинг', assignee: 'javohir', estimate: 14 }
+  { stage: 'Лейаут', prefix: 'Лейаут', assignee: 'marat', estimate: 12 },
+  { stage: 'Анимация', prefix: 'Анимация', assignee: null, estimate: 34 },
+  { stage: 'Симуляции и FX', prefix: 'FX: частицы и свечение', assignee: 'shohruh', estimate: 14, only: [1, 4, 7] },
+  { stage: 'Свет', prefix: 'Свет и шейдинг', assignee: 'nigora', estimate: 16 },
+  { stage: 'Композитинг', prefix: 'Композитинг', assignee: 'javohir', estimate: 14 }
 ]
 
 export const TASK_COMMENTS = {
@@ -183,36 +183,36 @@ export const DOCUMENTS = [
 /** Two more jobs in flight, so the dashboard has live work on it. */
 export const SIDE_PROJECTS = [
   {
-    code: 'AST-002', name: 'Nur Bank — брендовый ролик', client: 'nurbank', template: 'Commercial', projectType: 'COMMERCIAL',
+    code: 'AST-002', name: 'Nur Bank — брендовый ролик', client: 'nurbank', template: 'Рекламный ролик', projectType: 'COMMERCIAL',
     priority: 'URGENT', budget: 85000, startDay: 90, deadlineDay: 150, status: 'PRODUCTION',
     description: 'Имиджевый ролик 45″ к запуску нового мобильного приложения банка. Смешанная техника: 3D-интерфейс и 2D-персонажи.',
-    doneStages: 4, currentStage: 'Animation',
+    doneStages: 4, currentStage: 'Анимация',
     shots: 6,
     tasks: [
-      { stage: 'Brief', title: 'Бриф и позиционирование', assignee: 'pm', status: 'DONE', estimate: 6 },
-      { stage: 'Script', title: 'Сценарий 45″', assignee: 'pm', status: 'DONE', estimate: 16 },
-      { stage: 'Storyboard', title: 'Раскадровка ролика банка', assignee: 'gulnora', status: 'DONE', estimate: 24 },
-      { stage: 'Animatic', title: 'Аниматик с музыкой', assignee: 'gulnora', status: 'DONE', estimate: 12 },
-      { stage: 'Animation', title: 'Анимация сцены с приложением', assignee: 'anna', status: 'IN_PROGRESS', estimate: 40, priority: 'HIGH' },
-      { stage: 'Animation', title: 'Анимация персонажей у банкомата', assignee: 'marat', status: 'REVIEW', estimate: 30 },
-      { stage: 'Animation', title: 'Переходы между сценами', assignee: 'anna', status: 'READY', estimate: 12 },
-      { stage: 'Compositing', title: 'Композ: интерфейс приложения', assignee: 'javohir', status: 'BACKLOG', estimate: 18 },
-      { stage: 'Sound', title: 'Музыка и диктор', assignee: 'dilshod', status: 'IN_PROGRESS', estimate: 20, overdue: true },
-      { stage: 'Editing', title: 'Монтаж ролика', assignee: 'farrux', status: 'BACKLOG', estimate: 16 }
+      { stage: 'Бриф', title: 'Бриф и позиционирование', assignee: 'pm', status: 'DONE', estimate: 6 },
+      { stage: 'Сценарий', title: 'Сценарий 45″', assignee: 'pm', status: 'DONE', estimate: 16 },
+      { stage: 'Раскадровка', title: 'Раскадровка ролика банка', assignee: 'gulnora', status: 'DONE', estimate: 24 },
+      { stage: 'Аниматик', title: 'Аниматик с музыкой', assignee: 'gulnora', status: 'DONE', estimate: 12 },
+      { stage: 'Анимация', title: 'Анимация сцены с приложением', assignee: 'anna', status: 'IN_PROGRESS', estimate: 40, priority: 'HIGH' },
+      { stage: 'Анимация', title: 'Анимация персонажей у банкомата', assignee: 'marat', status: 'REVIEW', estimate: 30 },
+      { stage: 'Анимация', title: 'Переходы между сценами', assignee: 'anna', status: 'READY', estimate: 12 },
+      { stage: 'Композитинг', title: 'Композ: интерфейс приложения', assignee: 'javohir', status: 'BACKLOG', estimate: 18 },
+      { stage: 'Звук', title: 'Музыка и диктор', assignee: 'dilshod', status: 'IN_PROGRESS', estimate: 20, overdue: true },
+      { stage: 'Монтаж', title: 'Монтаж ролика', assignee: 'farrux', status: 'BACKLOG', estimate: 16 }
     ]
   },
   {
-    code: 'AST-003', name: 'Bright Kids — обучающие шорты', client: 'kids', template: '2D Animation', projectType: '2D_ANIMATION',
+    code: 'AST-003', name: 'Bright Kids — обучающие шорты', client: 'kids', template: '2D-анимация', projectType: '2D_ANIMATION',
     priority: 'NORMAL', budget: 130000, startDay: 118, deadlineDay: 240, status: 'PRE_PRODUCTION',
     description: 'Шесть 2D-роликов по 90 секунд для детского телеканала: буквы, цифры, цвета. Яркий стиль, простые формы.',
-    doneStages: 2, currentStage: 'Storyboard',
+    doneStages: 2, currentStage: 'Раскадровка',
     shots: 0,
     tasks: [
-      { stage: 'Brief', title: 'Бриф канала и педагогические требования', assignee: 'pm', status: 'DONE', estimate: 8 },
-      { stage: 'Script', title: 'Сценарии шести серий', assignee: 'pm', status: 'DONE', estimate: 30 },
-      { stage: 'Storyboard', title: 'Раскадровка серии «Буквы»', assignee: 'gulnora', status: 'IN_PROGRESS', estimate: 20 },
-      { stage: 'Concept Art', title: 'Персонажи: Лис, Сова, Робот', assignee: 'ad', status: 'IN_PROGRESS', estimate: 36, priority: 'HIGH' },
-      { stage: 'Character Design', title: 'Листы персонажей с эмоциями', assignee: 'ad', status: 'BACKLOG', estimate: 24 }
+      { stage: 'Бриф', title: 'Бриф канала и педагогические требования', assignee: 'pm', status: 'DONE', estimate: 8 },
+      { stage: 'Сценарий', title: 'Сценарии шести серий', assignee: 'pm', status: 'DONE', estimate: 30 },
+      { stage: 'Раскадровка', title: 'Раскадровка серии «Буквы»', assignee: 'gulnora', status: 'IN_PROGRESS', estimate: 20 },
+      { stage: 'Концепт-арт', title: 'Персонажи: Лис, Сова, Робот', assignee: 'ad', status: 'IN_PROGRESS', estimate: 36, priority: 'HIGH' },
+      { stage: 'Дизайн персонажей', title: 'Листы персонажей с эмоциями', assignee: 'ad', status: 'BACKLOG', estimate: 24 }
     ]
   }
 ]
@@ -230,9 +230,9 @@ export const STUDIO = {
 }
 
 export const TEMPLATES = {
-  '2D Animation': ['Brief', 'Script', 'Storyboard', 'Animatic', 'Concept Art', 'Character Design', 'Environment Design', 'Animation', 'Compositing', 'Sound', 'Editing', 'Internal Review', 'Client Review', 'Corrections', 'Final Render', 'Delivery'],
-  '3D Animation': ['Brief', 'Script', 'Storyboard', 'Animatic', 'Concept Art', 'Character Design', 'Environment Design', 'Modeling', 'Rigging', 'Layout', 'Animation', 'Simulation / FX', 'Lighting', 'Rendering', 'Compositing', 'Sound', 'Editing', 'Internal Review', 'Client Review', 'Corrections', 'Final Render', 'Delivery'],
-  'Commercial': ['Brief', 'Script', 'Storyboard', 'Animatic', 'Animation', 'Compositing', 'Sound', 'Editing', 'Internal Review', 'Client Review', 'Corrections', 'Final Render', 'Delivery'],
-  'Motion Design': ['Brief', 'Script', 'Storyboard', 'Animation', 'Compositing', 'Sound', 'Editing', 'Internal Review', 'Client Review', 'Corrections', 'Delivery'],
-  'Series Episode': ['Brief', 'Storyboard', 'Animatic', 'Layout', 'Animation', 'Lighting', 'Rendering', 'Compositing', 'Sound', 'Editing', 'Internal Review', 'Client Review', 'Corrections', 'Final Render', 'Delivery']
+  '2D-анимация': ['Бриф', 'Сценарий', 'Раскадровка', 'Аниматик', 'Концепт-арт', 'Дизайн персонажей', 'Дизайн окружения', 'Анимация', 'Композитинг', 'Звук', 'Монтаж', 'Внутренний просмотр', 'Просмотр клиентом', 'Правки', 'Финальный рендер', 'Сдача'],
+  '3D-анимация': ['Бриф', 'Сценарий', 'Раскадровка', 'Аниматик', 'Концепт-арт', 'Дизайн персонажей', 'Дизайн окружения', 'Моделинг', 'Риггинг', 'Лейаут', 'Анимация', 'Симуляции и FX', 'Свет', 'Рендер', 'Композитинг', 'Звук', 'Монтаж', 'Внутренний просмотр', 'Просмотр клиентом', 'Правки', 'Финальный рендер', 'Сдача'],
+  'Рекламный ролик': ['Бриф', 'Сценарий', 'Раскадровка', 'Аниматик', 'Анимация', 'Композитинг', 'Звук', 'Монтаж', 'Внутренний просмотр', 'Просмотр клиентом', 'Правки', 'Финальный рендер', 'Сдача'],
+  'Моушн-дизайн': ['Бриф', 'Сценарий', 'Раскадровка', 'Анимация', 'Композитинг', 'Звук', 'Монтаж', 'Внутренний просмотр', 'Просмотр клиентом', 'Правки', 'Сдача'],
+  'Серия сериала': ['Бриф', 'Раскадровка', 'Аниматик', 'Лейаут', 'Анимация', 'Свет', 'Рендер', 'Композитинг', 'Звук', 'Монтаж', 'Внутренний просмотр', 'Просмотр клиентом', 'Правки', 'Финальный рендер', 'Сдача']
 }

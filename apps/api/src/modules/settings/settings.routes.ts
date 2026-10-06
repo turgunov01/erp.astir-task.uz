@@ -148,7 +148,7 @@ settingsRouter.post(
   async (req, res, next) => {
     try {
       const to = req.user?.email
-      if (!to) throw badRequest('Current account has no email address')
+      if (!to) throw badRequest('У текущей учётной записи нет почты')
 
       const settings = await studioSettings()
       const result = await sendMail({
@@ -346,7 +346,7 @@ settingsRouter.put(
     try {
       const role = req.params.role as Role
       const permissions = req.body.permissions as Permission[]
-      if (!req.user) throw badRequest('No session')
+      if (!req.user) throw badRequest('Сессия не найдена, войдите заново')
 
       if (req.user.role === role) {
         const missing = SELF_LOCKOUT_GUARD.filter(p => !permissions.includes(p))

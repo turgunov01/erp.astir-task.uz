@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PRODUCTION_STATUS_LABEL, labelOf } from '~/utils/labels'
 import { PERMISSION, PRODUCTION_STATUS } from '@astir/types'
 import { apiErrorMessage, apiRequest } from '~/composables/useApi'
 import { useAuthStore } from '~/stores/auth'
@@ -119,7 +120,7 @@ function pad(value: number) {
       <div class="grid gap-x-5 gap-y-4 sm:grid-cols-2">
         <div class="space-y-1.5">
           <Label for="ep-title">Название</Label>
-          <Input id="ep-title" v-model="form.title" required maxlength="200" class="h-9" placeholder="Episode One" />
+          <Input id="ep-title" v-model="form.title" required maxlength="200" class="h-9" placeholder="Например, Пилотная серия" />
           <p class="pt-0.5 text-xs text-muted-foreground">Номер присваивается автоматически.</p>
         </div>
         <div class="space-y-1.5">
@@ -182,7 +183,7 @@ function pad(value: number) {
           :aria-label="'Статус эпизода ' + episode.title"
           @change="changeStatus(episode, ($event.target as HTMLSelectElement).value)"
         >
-          <option v-for="s in STATUSES" :key="s" :value="s">{{ s.split('_').join(' ') }}</option>
+          <option v-for="s in STATUSES" :key="s" :value="s">{{ labelOf(PRODUCTION_STATUS_LABEL, s) }}</option>
         </select>
         <StatusBadge v-else :status="episode.status" />
 

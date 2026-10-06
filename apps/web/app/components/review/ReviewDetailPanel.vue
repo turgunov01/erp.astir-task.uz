@@ -138,7 +138,7 @@ async function decide(decision: 'APPROVED' | 'CHANGES_REQUESTED' | 'REJECTED') {
     <header class="flex items-start justify-between gap-3 border-b px-5 py-3.5">
       <div class="min-w-0">
         <p class="text-xs text-muted-foreground">
-          {{ review ? REVIEW_TYPE_LABEL[review.reviewType] ?? review.reviewType : '' }} согласование
+          {{ review ? labelOf(REVIEW_TYPE_LABEL, review.reviewType) : '' }} согласование
         </p>
         <h2 class="mt-0.5 truncate font-mono text-sm font-semibold">
           {{ review?.version.label }}

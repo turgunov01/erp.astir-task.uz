@@ -7,7 +7,7 @@ import { Label } from '~/components/ui/label'
 import { apiErrorBody, apiErrorMessage } from '~/composables/useApi'
 
 definePageMeta({ layout: false })
-useHead({ title: 'Sign in' })
+useHead({ title: 'Вход' })
 
 const auth = useAuthStore()
 const route = useRoute()
@@ -115,10 +115,10 @@ function back() {
           </template>
           <template v-else>
             <h1 class="mt-2 text-3xl font-semibold tracking-tight">
-              Sign in
+              Вход
             </h1>
             <p class="mt-2 text-sm text-muted-foreground">
-              Production ERP for the studio pipeline.
+              Производственная система студии: проекты, задачи, сроки.
             </p>
           </template>
         </div>
@@ -197,25 +197,25 @@ function back() {
 
         <form v-else class="space-y-5" @submit.prevent="onSubmit">
           <div class="space-y-2">
-            <Label for="email">Email</Label>
+            <Label for="email">Почта</Label>
             <Input
               id="email"
               v-model="email"
               type="email"
               autocomplete="email"
-              placeholder="owner@aster.studio"
+              placeholder="Рабочая почта"
               required
             />
           </div>
 
           <div class="space-y-2">
             <div class="flex items-center justify-between">
-              <Label for="password">Password</Label>
+              <Label for="password">Пароль</Label>
               <NuxtLink
                 to="/forgot-password"
                 class="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
               >
-                Forgot password?
+                Забыли пароль?
               </NuxtLink>
             </div>
             <Input
@@ -236,7 +236,7 @@ function back() {
           </p>
 
           <Button type="submit" class="w-full" :disabled="auth.pending">
-            {{ auth.pending ? 'Signing in...' : 'Sign in' }}
+            {{ auth.pending ? 'Входим...' : 'Войти' }}
           </Button>
         </form>
       </div>
@@ -255,7 +255,7 @@ function back() {
         </blockquote>
         <div class="mt-8 flex flex-wrap gap-2">
           <span
-            v-for="stage in ['Shot', 'Stage', 'Version', 'Review', 'Delivery']"
+            v-for="stage in ['Шот', 'Этап', 'Версия', 'Согласование', 'Сдача']"
             :key="stage"
             class="rounded-md bg-primary-foreground/10 px-2.5 py-1 text-xs font-medium text-primary-foreground/80"
           >

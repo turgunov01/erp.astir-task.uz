@@ -1,3 +1,5 @@
+// First: every schema built after this answers in Russian.
+import './lib/zod-ru'
 import express from 'express'
 import helmet from 'helmet'
 import cors from 'cors'

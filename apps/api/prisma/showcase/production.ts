@@ -11,28 +11,28 @@ import { DEPARTMENT_LEAD, type ClientInfo, type Staff } from './people'
  * the script is still being polished, sound runs alongside lighting.
  */
 export const STAGE_WINDOWS: Record<string, [number, number]> = {
-  'Brief': [0, 4],
-  'Script': [3, 12],
-  'Storyboard': [10, 22],
-  'Animatic': [20, 28],
-  'Concept Art': [14, 30],
-  'Character Design': [22, 38],
-  'Environment Design': [26, 42],
-  'Modeling': [34, 56],
-  'Rigging': [46, 62],
-  'Layout': [52, 66],
-  'Animation': [60, 92],
-  'Simulation / FX': [78, 98],
-  'Lighting': [84, 104],
-  'Rendering': [92, 110],
-  'Compositing': [98, 114],
-  'Sound': [90, 112],
-  'Editing': [106, 116],
-  'Internal Review': [114, 117],
-  'Client Review': [117, 121],
-  'Corrections': [120, 124],
-  'Final Render': [123, 126],
-  'Delivery': [126, 127]
+  'Бриф': [0, 4],
+  'Сценарий': [3, 12],
+  'Раскадровка': [10, 22],
+  'Аниматик': [20, 28],
+  'Концепт-арт': [14, 30],
+  'Дизайн персонажей': [22, 38],
+  'Дизайн окружения': [26, 42],
+  'Моделинг': [34, 56],
+  'Риггинг': [46, 62],
+  'Лейаут': [52, 66],
+  'Анимация': [60, 92],
+  'Симуляции и FX': [78, 98],
+  'Свет': [84, 104],
+  'Рендер': [92, 110],
+  'Композитинг': [98, 114],
+  'Звук': [90, 112],
+  'Монтаж': [106, 116],
+  'Внутренний просмотр': [114, 117],
+  'Просмотр клиентом': [117, 121],
+  'Правки': [120, 124],
+  'Финальный рендер': [123, 126],
+  'Сдача': [126, 127]
 }
 
 /** The day the masters were handed over; the deadline was two days later. */
@@ -133,14 +133,14 @@ export async function seedProduction(staff: Staff, client: ClientInfo): Promise<
   // Pipeline: the 3D template, every stage closed inside its window.
   const departments = await prisma.department.findMany({ select: { id: true, name: true } })
   const departmentId = new Map(departments.map(d => [d.name, d.id]))
-  const names = PROJECT_TEMPLATES['3D Animation'] ?? []
+  const names = PROJECT_TEMPLATES['3D-анимация'] ?? []
   const template = DEFAULT_PIPELINE.filter(stage => names.includes(stage.name))
 
   const stages: StageRef[] = []
   let previousId: string | null = null
   for (const [index, stage] of template.entries()) {
     const [from, to] = STAGE_WINDOWS[stage.name] ?? [0, 1]
-    const assigneeKey = DEPARTMENT_LEAD[stage.department ?? 'Production'] ?? 'pm'
+    const assigneeKey = DEPARTMENT_LEAD[stage.department ?? 'Продакшн'] ?? 'pm'
     const row: { id: string } = await prisma.projectStage.create({
       select: { id: true },
       data: {

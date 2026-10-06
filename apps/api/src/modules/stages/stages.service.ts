@@ -112,7 +112,7 @@ export async function create(
 export async function remove(id: string) {
   const stage = await getById(id)
   if (stage._count.tasks > 0) {
-    throw conflict('Stage still has ' + stage._count.tasks + ' task(s) attached.')
+    throw conflict('К этапу ещё привязаны задачи: ' + stage._count.tasks + '.')
   }
 
   await prisma.$transaction(async tx => {

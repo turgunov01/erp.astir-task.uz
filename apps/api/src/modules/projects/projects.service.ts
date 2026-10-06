@@ -76,7 +76,7 @@ export async function create(input: CreateProjectInput, actorId?: string) {
   if (!client) throw notFound('Client')
 
   const code = input.code ?? (await nextProjectCode())
-  if (await repo.findByCode(code)) throw conflict('Project code ' + code + ' is already in use')
+  if (await repo.findByCode(code)) throw conflict('Код проекта ' + code + ' уже занят')
 
   const stages = input.template ? await templateStages(input.template) : []
 
@@ -254,7 +254,7 @@ export async function hardDelete(id: string, confirmCode: string) {
   if (!project) throw notFound('Project')
 
   if (confirmCode.trim().toUpperCase() !== project.code.toUpperCase()) {
-    throw badRequest('Type the project code to confirm permanent deletion')
+    throw badRequest('Введите код проекта, чтобы подтвердить удаление без возврата')
   }
 
   const documents = await prisma.document.findMany({

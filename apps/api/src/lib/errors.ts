@@ -28,20 +28,62 @@ export class AppError extends Error {
 export const badRequest = (message: string, details?: Record<string, string[]>) =>
   new AppError(400, ERROR_CODE.VALIDATION_FAILED, message, details)
 
-export const unauthenticated = (message = 'Authentication required') =>
+export const unauthenticated = (message = 'Нужно войти в систему') =>
   new AppError(401, ERROR_CODE.UNAUTHENTICATED, message)
 
-export const invalidCredentials = (message = 'Invalid email or password') =>
+export const invalidCredentials = (message = 'Неверная почта или пароль') =>
   new AppError(401, ERROR_CODE.INVALID_CREDENTIALS, message)
 
-export const tokenExpired = (message = 'Session expired') =>
+export const tokenExpired = (message = 'Сессия истекла, войдите заново') =>
   new AppError(401, ERROR_CODE.TOKEN_EXPIRED, message)
 
-export const forbidden = (message = 'You do not have access to this resource') =>
+export const forbidden = (message = 'Недостаточно прав для этого действия') =>
   new AppError(403, ERROR_CODE.FORBIDDEN, message)
 
-export const notFound = (resource = 'Resource') =>
-  new AppError(404, ERROR_CODE.NOT_FOUND, resource + ' not found')
+/**
+ * What the user reads when a record is missing.
+ *
+ * Callers name the resource the way the code does (`Project`, `Render job`);
+ * the interface is Russian, so the sentence comes from this table and an
+ * unlisted name falls back to a neutral phrase rather than leaking English.
+ */
+const NOT_FOUND_MESSAGE: Record<string, string> = {
+  Asset: 'Ассет не найден',
+  Budget: 'Бюджет не найден',
+  Client: 'Клиент не найден',
+  Comment: 'Комментарий не найден',
+  'Parent comment': 'Комментарий, на который вы отвечаете, не найден',
+  Department: 'Отдел не найден',
+  Document: 'Документ не найден',
+  Employee: 'Сотрудник не найден',
+  Episode: 'Эпизод не найден',
+  Expense: 'Расход не найден',
+  Invoice: 'Счёт не найден',
+  Payment: 'Платёж не найден',
+  Notification: 'Уведомление не найдено',
+  'Payroll entry': 'Начисление не найдено',
+  PipelineTemplate: 'Шаблон пайплайна не найден',
+  'Prerequisite task': 'Задача-предшественник не найдена',
+  Project: 'Проект не найден',
+  'Project member': 'Участник проекта не найден',
+  'Render job': 'Задание рендера не найдено',
+  Review: 'Согласование не найдено',
+  Revision: 'Правка не найдена',
+  Role: 'Роль не найдена',
+  Scene: 'Сцена не найдена',
+  Shot: 'Шот не найден',
+  'Shot stage': 'Этап шота не найден',
+  Stage: 'Этап не найден',
+  Target: 'Объект не найден',
+  Task: 'Задача не найдена',
+  'Timesheet entry': 'Запись табеля не найдена',
+  'Upload session': 'Загрузка не найдена или уже завершена',
+  User: 'Пользователь не найден',
+  Version: 'Версия не найдена'
+}
+
+export const notFound = (resource = '') =>
+  new AppError(404, ERROR_CODE.NOT_FOUND, NOT_FOUND_MESSAGE[resource] ?? 'Запись не найдена')
 
 export const conflict = (message: string) =>
   new AppError(409, ERROR_CODE.CONFLICT, message)

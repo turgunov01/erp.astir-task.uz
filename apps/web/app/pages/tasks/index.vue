@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PRIORITY_LABEL, labelOf } from '~/utils/labels'
 import type { Column } from '~/components/DataTable.vue'
 import { useListResource, apiErrorMessage, apiRequest } from '~/composables/useApi'
 import { PERMISSION, PRIORITY, TASK_STATUS } from '@astir/types'
@@ -6,7 +7,7 @@ import { useAuthStore } from '~/stores/auth'
 import { useTaskPanels } from '~/composables/useTaskPanels'
 import { useEntityCrud } from '~/composables/useEntityCrud'
 
-useHead({ title: 'Tasks' })
+useHead({ title: 'Задачи' })
 
 const route = useRoute()
 const router = useRouter()
@@ -123,12 +124,12 @@ const crud = useEntityCrud({
 })
 
 const columns: Column[] = [
-  { key: 'title', label: 'Task', width: '34%' },
-  { key: 'project', label: 'Project', width: '11%' },
-  { key: 'assignee', label: 'Assignee', width: '17%' },
-  { key: 'deadline', label: 'Deadline', width: '13%' },
-  { key: 'priority', label: 'Priority', width: '12%' },
-  { key: 'status', label: 'Status', width: '13%' },
+  { key: 'title', label: 'Задача', width: '34%' },
+  { key: 'project', label: 'Проект', width: '11%' },
+  { key: 'assignee', label: 'Исполнитель', width: '17%' },
+  { key: 'deadline', label: 'Срок', width: '13%' },
+  { key: 'priority', label: 'Приоритет', width: '12%' },
+  { key: 'status', label: 'Статус', width: '13%' },
   { key: 'actions', label: '', width: '56px' }
 ]
 
@@ -162,7 +163,7 @@ function isOverdue(row: TaskRow) {
     <header class="mb-6 flex flex-wrap items-start justify-between gap-4">
       <div>
         <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-          Production
+          Производство
         </p>
         <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Задачи</h1>
         <p class="mt-1 text-sm text-muted-foreground">{{ meta.total }} задач(и)</p>
@@ -254,7 +255,7 @@ function isOverdue(row: TaskRow) {
           @change="page = 1; updateQuery({ priority: priority || undefined })"
         >
           <option value="">Любой приоритет</option>
-          <option v-for="p in PRIORITIES" :key="p" :value="p">{{ p }}</option>
+          <option v-for="p in PRIORITIES" :key="p" :value="p">{{ labelOf(PRIORITY_LABEL, p) }}</option>
         </select>
       </template>
 
@@ -300,7 +301,7 @@ function isOverdue(row: TaskRow) {
       </template>
 
       <template #cell-priority="{ row }">
-        <StatusBadge :status="row.priority" kind="risk" />
+        <StatusBadge :status="row.priority" kind="priority" />
       </template>
 
       <template #cell-status="{ row }">

@@ -88,7 +88,7 @@ const duration = computed(() => {
       <div class="flex flex-wrap items-center gap-2 border-b px-5 py-3.5">
         <StatusBadge :status="job.status" />
         <span class="rounded-md bg-secondary px-2 py-0.5 text-xs">
-          {{ PRIORITY_LABEL[job.priority] ?? job.priority }}
+          {{ labelOf(PRIORITY_LABEL, job.priority) }}
         </span>
       </div>
 
@@ -122,7 +122,7 @@ const duration = computed(() => {
 
       <dl class="divide-y">
         <DetailRow label="Статус">
-          {{ RENDER_STATUS_LABEL[job.status] ?? job.status }}
+          {{ labelOf(RENDER_STATUS_LABEL, job.status) }}
         </DetailRow>
         <DetailRow label="Проект">
           <NuxtLink

@@ -97,9 +97,9 @@ filesRouter.post(
   async (req, res, next) => {
     try {
       const file = req.file
-      if (!file) throw badRequest('No file received under field "file"')
+      if (!file) throw badRequest('Файл не получен')
       if (!isAllowedMimeType(file.mimetype)) {
-        throw badRequest('File type ' + file.mimetype + ' is not allowed')
+        throw badRequest('Этот тип файла загружать нельзя: ' + file.mimetype)
       }
 
       // Same path a completed chunked upload takes (modules/uploads).

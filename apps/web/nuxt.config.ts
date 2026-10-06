@@ -8,6 +8,14 @@ export default defineNuxtConfig({
 
   devtools: { enabled: true },
 
+  // The interface is Russian-only: lang drives hyphenation, screen readers and
+  // the browser's own widgets (date pickers, spell check) to Russian.
+  app: {
+    head: {
+      htmlAttrs: { lang: 'ru' }
+    }
+  },
+
   css: ['~/assets/css/tailwind.css'],
 
   // Порт закреплён: dev-сервер всегда поднимается на 9990.

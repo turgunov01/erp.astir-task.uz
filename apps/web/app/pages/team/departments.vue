@@ -6,7 +6,7 @@ import { DEPARTMENT_FORM } from '~/utils/entity-forms'
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Departments' })
+useHead({ title: 'Отделы' })
 
 const page = ref(1)
 const search = ref('')
@@ -44,9 +44,9 @@ const crud = useEntityCrud({
 watch(archivedView, () => { page.value = 1 })
 
 const columns: Column[] = [
-  { key: 'name', label: 'Department', width: '34%' },
-  { key: 'description', label: 'Description', width: '46%' },
-  { key: 'employees', label: 'Employees', width: '20%', numeric: true },
+  { key: 'name', label: 'Отдел', width: '34%' },
+  { key: 'description', label: 'Описание', width: '46%' },
+  { key: 'employees', label: 'Сотрудники', width: '20%', numeric: true },
   { key: 'actions', label: '', width: '56px' }
 ]
 </script>
@@ -54,7 +54,7 @@ const columns: Column[] = [
 <template>
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Team</p>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Команда</p>
       <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Отделы</h1>
       <p class="mt-1 text-sm text-muted-foreground">{{ meta.total }} отдел(ов)</p>
     </header>

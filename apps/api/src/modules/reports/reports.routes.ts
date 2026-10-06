@@ -6,6 +6,9 @@ import { authenticate, requirePermission } from '../../middleware/auth'
 import { validate, validatedQuery } from '../../middleware/validate'
 import { sendItem } from '../../lib/http'
 import { sendCsv } from '../../lib/csv'
+import {
+  CLIENT_STATUS_RU, EXPENSE_CATEGORY_RU, PROJECT_STATUS_RU, RISK_RU, labelRu
+} from '../../lib/labels-ru'
 import * as service from './reports.service'
 
 export const reportsRouter = Router()
@@ -14,7 +17,7 @@ reportsRouter.use(authenticate)
 
 const isoDate = z
   .string()
-  .refine(value => !Number.isNaN(Date.parse(value)), 'Invalid date')
+  .refine(value => !Number.isNaN(Date.parse(value)), 'Неверная дата')
   .optional()
 
 const reportQuerySchema = z.object({
@@ -51,8 +54,8 @@ reportsRouter.get(
         return sendCsv(res, 'production', [
           { header: 'Код', value: row => row.code },
           { header: 'Проект', value: row => row.name },
-          { header: 'Статус', value: row => row.status },
-          { header: 'Риск', value: row => row.risk },
+          { header: 'Статус', value: row => labelRu(PROJECT_STATUS_RU, row.status) },
+          { header: 'Риск', value: row => labelRu(RISK_RU, row.risk) },
           { header: 'Прогресс, %', value: row => row.progress },
           { header: 'Дедлайн', value: row => row.deadline },
           { header: 'Просрочен', value: row => (row.late ? 'да' : 'нет') },
@@ -86,7 +89,7 @@ reportsRouter.get(
       if (query.format === 'csv') {
         if (query.section === 'categories') {
           return sendCsv(res, 'expenses-by-category', [
-            { header: 'Категория', value: row => row.category },
+            { header: 'Категория', value: row => labelRu(EXPENSE_CATEGORY_RU, row.category) },
             { header: 'Сумма', value: row => row.amount }
           ], report.byCategory)
         }
@@ -158,7 +161,7 @@ reportsRouter.get(
       if (query.format === 'csv') {
         return sendCsv(res, 'clients', [
           { header: 'Клиент', value: row => row.name },
-          { header: 'Статус', value: row => row.status },
+          { header: 'Статус', value: row => labelRu(CLIENT_STATUS_RU, row.status) },
           { header: 'Проектов', value: row => row.projects },
           { header: 'Счетов', value: row => row.invoices },
           { header: 'Валюта', value: row => row.currency },

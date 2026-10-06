@@ -9,6 +9,9 @@ import {
   buildMeta, sendItem, sendList, sendListWithSummary, sendNoContent, toSkipTake
 } from '../../lib/http'
 import { sendCsv } from '../../lib/csv'
+import {
+  EXPENSE_CATEGORY_RU, PAYMENT_METHOD_RU, PAYMENT_STATUS_RU, labelRu
+} from '../../lib/labels-ru'
 import { badRequest } from '../../lib/errors'
 import { prisma } from '../../lib/prisma'
 import { recordAudit } from '../../lib/activity'
@@ -25,7 +28,7 @@ const moneyAmount = z.coerce.number().min(0).max(100000000)
 const currencyCode = z.string().trim().length(3).toUpperCase().default('USD')
 const optionalDate = z
   .string()
-  .refine(value => !Number.isNaN(Date.parse(value)), 'Invalid date')
+  .refine(value => !Number.isNaN(Date.parse(value)), 'Неверная дата')
   .optional()
   .nullable()
 const optionalText = (max: number) => z.string().trim().max(max).optional().nullable()
@@ -45,7 +48,7 @@ const createExpenseSchema = z.object({
   description: optionalText(500),
   amount: moneyAmount,
   currency: currencyCode,
-  date: z.string().refine(value => !Number.isNaN(Date.parse(value)), 'Invalid date'),
+  date: z.string().refine(value => !Number.isNaN(Date.parse(value)), 'Неверная дата'),
   vendor: optionalText(200),
   paymentMethod: z.enum(PAYMENT_METHODS).optional().nullable(),
   documentNumber: optionalText(80),
@@ -125,20 +128,10 @@ function currentMonth(): { from: string, to: string } {
   return { from: prefix + '-01', to: prefix + '-' + String(last).padStart(2, '0') }
 }
 
-const methodLabel: Record<string, string> = {
-  BANK_TRANSFER: 'Перечисление', CASH: 'Наличные', CARD: 'Карта', OTHER: 'Другое'
-}
-const statusLabel: Record<string, string> = {
-  PENDING: 'Ожидает', PARTIALLY_PAID: 'Частично оплачен', PAID: 'Оплачен',
-  OVERDUE: 'Просрочен', CANCELLED: 'Отменён'
-}
-const categoryLabel: Record<string, string> = {
-  EMPLOYEE: 'Штат', FREELANCER: 'Подряд', RENDER: 'Рендер', SOFTWARE: 'Софт',
-  HARDWARE: 'Железо', AUDIO: 'Звук', PRODUCTION: 'Продакшн', OFFICE: 'Аренда и офис',
-  TAXES: 'Налоги и сборы', MARKETING: 'Маркетинг', OTHER: 'Прочее'
-}
-const label = (map: Record<string, string>, value: string | null | undefined) =>
-  value ? map[value] ?? value : ''
+const methodLabel = PAYMENT_METHOD_RU
+const statusLabel = PAYMENT_STATUS_RU
+const categoryLabel = EXPENSE_CATEGORY_RU
+const label = labelRu
 
 /** An emptied link field is cleared, not stored as an empty string. */
 function expenseData<T extends Record<string, unknown>>(body: T): T {

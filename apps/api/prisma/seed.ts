@@ -24,17 +24,17 @@ interface SeedUser {
 }
 
 const SEED_USERS: SeedUser[] = [
-  { email: 'owner@aster.studio', firstName: 'Aziz', lastName: 'Karimov', role: 'OWNER', position: 'Studio Owner', department: 'Management' },
-  { email: 'admin@aster.studio', firstName: 'Dilnoza', lastName: 'Rashidova', role: 'ADMIN', position: 'Studio Administrator', department: 'Management' },
-  { email: 'producer@aster.studio', firstName: 'Timur', lastName: 'Yusupov', role: 'PRODUCER', position: 'Executive Producer', department: 'Production', hourlyRate: 45 },
-  { email: 'pm@aster.studio', firstName: 'Kamila', lastName: 'Nazarova', role: 'PROJECT_MANAGER', position: 'Project Manager', department: 'Production', hourlyRate: 35 },
+  { email: 'owner@aster.studio', firstName: 'Aziz', lastName: 'Karimov', role: 'OWNER', position: 'Studio Owner', department: 'Руководство' },
+  { email: 'admin@aster.studio', firstName: 'Dilnoza', lastName: 'Rashidova', role: 'ADMIN', position: 'Studio Administrator', department: 'Руководство' },
+  { email: 'producer@aster.studio', firstName: 'Timur', lastName: 'Yusupov', role: 'PRODUCER', position: 'Executive Producer', department: 'Продакшн', hourlyRate: 45 },
+  { email: 'pm@aster.studio', firstName: 'Kamila', lastName: 'Nazarova', role: 'PROJECT_MANAGER', position: 'Project Manager', department: 'Продакшн', hourlyRate: 35 },
   { email: 'art@aster.studio', firstName: 'Ruslan', lastName: 'Abdullaev', role: 'ART_DIRECTOR', position: 'Art Director', department: '2D', hourlyRate: 40 },
-  { email: 'finance@aster.studio', firstName: 'Malika', lastName: 'Tursunova', role: 'FINANCE', position: 'Finance Manager', department: 'Finance', hourlyRate: 30 },
-  { email: 'anna@aster.studio', firstName: 'Anna', lastName: 'Volkova', role: 'ARTIST', position: 'Senior Animator', department: 'Animation', hourlyRate: 28 },
-  { email: 'bekzod@aster.studio', firstName: 'Bekzod', lastName: 'Ismoilov', role: 'ARTIST', position: '3D Modeler', department: 'Modeling', hourlyRate: 25 },
-  { email: 'sardor@aster.studio', firstName: 'Sardor', lastName: 'Ergashev', role: 'ARTIST', position: 'Rigging Artist', department: 'Rigging', hourlyRate: 26 },
-  { email: 'nigora@aster.studio', firstName: 'Nigora', lastName: 'Saidova', role: 'ARTIST', position: 'Lighting Artist', department: 'Lighting', hourlyRate: 27 },
-  { email: 'javohir@aster.studio', firstName: 'Javohir', lastName: 'Qodirov', role: 'ARTIST', position: 'Compositor', department: 'Compositing', hourlyRate: 26 }
+  { email: 'finance@aster.studio', firstName: 'Malika', lastName: 'Tursunova', role: 'FINANCE', position: 'Finance Manager', department: 'Финансы', hourlyRate: 30 },
+  { email: 'anna@aster.studio', firstName: 'Anna', lastName: 'Volkova', role: 'ARTIST', position: 'Senior Animator', department: 'Анимация', hourlyRate: 28 },
+  { email: 'bekzod@aster.studio', firstName: 'Bekzod', lastName: 'Ismoilov', role: 'ARTIST', position: '3D Modeler', department: 'Моделинг', hourlyRate: 25 },
+  { email: 'sardor@aster.studio', firstName: 'Sardor', lastName: 'Ergashev', role: 'ARTIST', position: 'Rigging Artist', department: 'Риггинг', hourlyRate: 26 },
+  { email: 'nigora@aster.studio', firstName: 'Nigora', lastName: 'Saidova', role: 'ARTIST', position: 'Lighting Artist', department: 'Свет', hourlyRate: 27 },
+  { email: 'javohir@aster.studio', firstName: 'Javohir', lastName: 'Qodirov', role: 'ARTIST', position: 'Compositor', department: 'Композитинг', hourlyRate: 26 }
 ]
 
 const SEED_CLIENTS = [

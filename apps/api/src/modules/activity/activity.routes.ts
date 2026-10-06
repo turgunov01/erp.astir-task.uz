@@ -26,8 +26,8 @@ const activityQuerySchema = listQuerySchema.extend({
    * "task." answers it without naming all six task actions.
    */
   action: z.string().trim().max(60).optional(),
-  from: z.string().refine(value => !Number.isNaN(Date.parse(value)), 'Invalid date').optional(),
-  to: z.string().refine(value => !Number.isNaN(Date.parse(value)), 'Invalid date').optional()
+  from: z.string().refine(value => !Number.isNaN(Date.parse(value)), 'Неверная дата').optional(),
+  to: z.string().refine(value => !Number.isNaN(Date.parse(value)), 'Неверная дата').optional()
 })
 
 type ActivityQuery = z.infer<typeof activityQuerySchema>

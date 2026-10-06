@@ -54,13 +54,13 @@ export async function add(
 
   if (!project) throw notFound('Project')
   if (!user) throw notFound('User')
-  if (!user.isActive) throw conflict('That account is disabled')
+  if (!user.isActive) throw conflict('Эта учётная запись отключена')
 
   const existing = await prisma.projectMember.findUnique({
     where: { projectId_userId: { projectId, userId: input.userId } },
     select: { id: true }
   })
-  if (existing) throw conflict('This person is already on the project')
+  if (existing) throw conflict('Этот человек уже в команде проекта')
 
   return prisma.$transaction(async tx => {
     const member = await tx.projectMember.create({
@@ -141,7 +141,7 @@ export async function remove(projectId: string, userId: string, actorId?: string
   })
   if (openTasks > 0) {
     throw conflict(
-      'This person still has ' + openTasks + ' open task(s). Reassign them first.'
+      'У этого человека ещё есть открытые задачи: ' + openTasks + '. Сначала переназначьте их.'
     )
   }
 

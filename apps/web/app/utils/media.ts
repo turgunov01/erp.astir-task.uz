@@ -52,6 +52,16 @@ export const MEDIA_KIND_ICON: Record<MediaKind, string> = {
   file: 'lucide:file'
 }
 
+/**
+ * The format as people name it — «DOCX», «MP4» — from the file extension.
+ * A MIME type like application/vnd.openxmlformats-… is for machines, not for
+ * the viewer's caption.
+ */
+export function fileFormat(name: string | null | undefined) {
+  const match = /\.([a-z0-9]{1,8})$/i.exec(name ?? '')
+  return match ? match[1]!.toUpperCase() : ''
+}
+
 export const MEDIA_KIND_LABEL: Record<MediaKind, string> = {
   image: 'Изображение',
   video: 'Видео',
@@ -65,10 +75,13 @@ export function formatBytes(bytes: string | number | null | undefined) {
   if (bytes === null || bytes === undefined || bytes === '') return ''
   const value = Number(bytes)
   if (!Number.isFinite(value)) return ''
+  // Russian decimals use a comma: «2,2 МБ», not «2.2 МБ».
+  const ru = (n: number, digits: number) =>
+    n.toLocaleString('ru-RU', { maximumFractionDigits: digits, minimumFractionDigits: digits })
   if (value < 1024) return value + ' Б'
   if (value < 1024 * 1024) return Math.round(value / 1024) + ' КБ'
-  if (value < 1024 * 1024 * 1024) return (value / (1024 * 1024)).toFixed(1) + ' МБ'
-  return (value / (1024 * 1024 * 1024)).toFixed(2) + ' ГБ'
+  if (value < 1024 * 1024 * 1024) return ru(value / (1024 * 1024), 1) + ' МБ'
+  return ru(value / (1024 * 1024 * 1024), 2) + ' ГБ'
 }
 
 /**

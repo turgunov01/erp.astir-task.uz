@@ -28,7 +28,7 @@ const KIND_PERMISSION: Record<UploadKind, Permission> = {
 
 async function assertKindPermission(user: AuthUser, kind: UploadKind) {
   if (!(await hasPermission(user.role, KIND_PERMISSION[kind]))) {
-    throw forbidden('Missing permission: ' + KIND_PERMISSION[kind])
+    throw forbidden()
   }
 }
 
