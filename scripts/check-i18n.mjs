@@ -18,6 +18,7 @@
 //      per file, grouped by the Phase 2 area that owns the file.
 
 import { readFileSync, readdirSync, statSync } from 'node:fs'
+import { createRequire } from 'node:module'
 import { join, relative, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -31,6 +32,32 @@ const args = process.argv.slice(2)
 const strict = args.includes('--strict')
 const listLines = args.includes('--files')
 const areaFilter = args.includes('--area') ? args[args.indexOf('--area') + 1] : null
+
+/**
+ * The compiler vue-i18n itself uses, resolved through the web app's
+ * dependencies; without it the compile check is skipped with a warning.
+ */
+function loadMessageCompiler() {
+  const fromWeb = createRequire(join(ROOT, 'apps/web/package.json'))
+  // pnpm keeps it several dependencies deep: @nuxtjs/i18n → vue-i18n → @intlify/core-base → here.
+  const chains = [
+    ['@intlify/message-compiler'],
+    ['@nuxtjs/i18n', 'vue-i18n', '@intlify/message-compiler'],
+    ['@nuxtjs/i18n', 'vue-i18n', '@intlify/core-base', '@intlify/message-compiler']
+  ]
+  for (const chain of chains) {
+    try {
+      let from = fromWeb
+      for (const step of chain.slice(0, -1)) from = createRequire(from.resolve(step))
+      const target = from(chain[chain.length - 1])
+      if (typeof target.baseCompile === 'function') return target
+    } catch {
+      // try the next way in
+    }
+  }
+  console.warn('check-i18n: @intlify/message-compiler not found, message compile check skipped')
+  return null
+}
 
 /* ------------------------------------------------------------- ownership */
 
@@ -179,6 +206,29 @@ for (const file of namespaces) {
     }
     if (lang !== 'ru') {
       for (const key of Object.keys(ru)) if (!(key in own)) problems.push(`web ${lang}: missing key ${key}`)
+    }
+  }
+}
+
+/*
+ * Every message must compile the way the build compiles it. One message with
+ * markup or a broken placeholder fails its whole catalogue import in the
+ * browser, and that language silently falls back to Russian after hydration.
+ */
+const compiler = loadMessageCompiler()
+for (const lang of LANGS) {
+  for (const [name, entries] of Object.entries(catalog[lang])) {
+    for (const [key, value] of Object.entries(entries)) {
+      if (typeof value !== 'string') continue
+      // The same test unplugin-vue-i18n's strictMessage applies: even «< / >» counts.
+      if (/<\/?[\w\s="/.':;#-]+>/.test(value)) {
+        problems.push(`web ${lang}/${name}: ${key} contains HTML, which the build rejects: "${value}"`)
+        continue
+      }
+      if (!compiler) continue
+      const errors = []
+      compiler.baseCompile(value, { onError: err => errors.push(err.message) })
+      if (errors.length > 0) problems.push(`web ${lang}/${name}: ${key} does not compile (${errors[0]}): "${value}"`)
     }
   }
 }
