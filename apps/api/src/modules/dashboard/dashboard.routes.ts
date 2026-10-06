@@ -3,7 +3,9 @@ import { PERMISSION } from '@astir/types'
 import { authenticate, requirePermission } from '../../middleware/auth'
 import { sendItem } from '../../lib/http'
 import { prisma } from '../../lib/prisma'
-import { badRequest, notFound } from '../../lib/errors'
+import { badRequest } from '../../lib/errors'
+import { validate, validatedQuery } from '../../middleware/validate'
+import { timeline, timelineQuerySchema, type TimelineQuery } from './timeline.service'
 
 /**
  * Dashboard aggregates (spec 7).
@@ -22,13 +24,13 @@ const ACTIVE_PROJECT_STATUSES = [
 
 /** Coarse pipeline phase, derived from project status (spec 7). */
 const PHASE_BY_STATUS: Record<string, string> = {
-  DRAFT: 'Препродакшн',
-  PLANNING: 'Препродакшн',
-  PRE_PRODUCTION: 'Препродакшн',
-  PRODUCTION: 'Продакшн',
-  POST_PRODUCTION: 'Постпродакшн',
-  CLIENT_REVIEW: 'Согласование',
-  DELIVERY: 'Поставка'
+  DRAFT: 'РџСЂРµРїСЂРѕРґР°РєС€РЅ',
+  PLANNING: 'РџСЂРµРїСЂРѕРґР°РєС€РЅ',
+  PRE_PRODUCTION: 'РџСЂРµРїСЂРѕРґР°РєС€РЅ',
+  PRODUCTION: 'РџСЂРѕРґР°РєС€РЅ',
+  POST_PRODUCTION: 'РџРѕСЃС‚РїСЂРѕРґР°РєС€РЅ',
+  CLIENT_REVIEW: 'РЎРѕРіР»Р°СЃРѕРІР°РЅРёРµ',
+  DELIVERY: 'РџРѕСЃС‚Р°РІРєР°'
 }
 
 dashboardRouter.get(
@@ -116,8 +118,8 @@ dashboardRouter.get(
 
       // Fold statuses into the five phases the dashboard shows.
       const phases = new Map<string, number>([
-        ['Препродакшн', 0], ['Продакшн', 0], ['Постпродакшн', 0],
-        ['Согласование', 0], ['Поставка', 0]
+        ['РџСЂРµРїСЂРѕРґР°РєС€РЅ', 0], ['РџСЂРѕРґР°РєС€РЅ', 0], ['РџРѕСЃС‚РїСЂРѕРґР°РєС€РЅ', 0],
+        ['РЎРѕРіР»Р°СЃРѕРІР°РЅРёРµ', 0], ['РџРѕСЃС‚Р°РІРєР°', 0]
       ])
       for (const row of projectsByStatus) {
         const phase = PHASE_BY_STATUS[row.status]
@@ -203,58 +205,22 @@ dashboardRouter.get(
 )
 
 /**
- * One project laid out on a time axis: stages, milestones and dated tasks.
+ * Dated tasks laid out on a time axis, across one project or all of them.
  *
- * Dependencies travel with the tasks so the chart can draw the links without a
- * second round trip per bar.
+ * Feeds the timeline page's list, chart and Gantt views from one response.
+ * Dependencies travel with the tasks so the Gantt can draw its arrows without
+ * a second round trip per bar.
  */
 dashboardRouter.get(
   '/timeline',
-  requirePermission(PERMISSION.PROJECT_VIEW),
+  requirePermission(PERMISSION.PRODUCTION_VIEW),
+  validate(timelineQuerySchema, 'query'),
   async (req, res, next) => {
     try {
-      const projectId = req.query.projectId ? String(req.query.projectId) : null
-      if (!projectId) throw badRequest('projectId is required')
-
-      const project = await prisma.project.findFirst({
-        where: { id: projectId, deletedAt: null },
-        select: {
-          id: true,
-          code: true,
-          name: true,
-          startDate: true,
-          deadline: true,
-          progress: true,
-          stages: {
-            orderBy: { order: 'asc' },
-            select: { id: true, name: true, order: true, progress: true }
-          },
-          milestones: {
-            orderBy: { order: 'asc' },
-            select: { id: true, name: true, dueDate: true, completedAt: true }
-          }
-        }
-      })
-      if (!project) throw notFound('Project')
-
-      const tasks = await prisma.task.findMany({
-        where: { projectId, OR: [{ startDate: { not: null } }, { deadline: { not: null } }] },
-        select: {
-          id: true,
-          title: true,
-          status: true,
-          priority: true,
-          startDate: true,
-          deadline: true,
-          stageId: true,
-          assignee: { select: { id: true, firstName: true, lastName: true } },
-          dependencies: { select: { dependsOnTaskId: true } }
-        },
-        orderBy: [{ startDate: 'asc' }, { deadline: 'asc' }],
-        take: 300
-      })
-
-      return sendItem(res, { project, tasks })
+      const user = req.user
+      if (!user) throw badRequest('Нет пользователя')
+      const query = validatedQuery<TimelineQuery>(req)
+      return sendItem(res, await timeline(query, user))
     } catch (err) {
       next(err)
     }
