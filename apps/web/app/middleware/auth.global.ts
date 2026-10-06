@@ -30,6 +30,7 @@ const ROUTE_PERMISSIONS: ReadonlyArray<[string, Permission]> = [
   ['/clients', PERMISSION.CLIENT_VIEW],
   ['/finance', PERMISSION.FINANCE_VIEW],
   ['/finance/budgets', PERMISSION.BUDGET_VIEW],
+  ['/finance/payroll', PERMISSION.PAYROLL_VIEW_OWN],
   ['/reports', PERMISSION.REPORT_VIEW],
   ['/documents', PERMISSION.DOCUMENT_VIEW],
   ['/activity', PERMISSION.ACTIVITY_VIEW],

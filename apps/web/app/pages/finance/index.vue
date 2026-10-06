@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { PERMISSION } from '@astir/types'
+import { useAuthStore } from '~/stores/auth'
+
 useHead({ title: 'Финансы' })
 
 interface ProjectRow {
@@ -29,6 +32,21 @@ const stats = computed(() => data.value?.data)
 /** Roll-up figures read better without kopecks. */
 const money = (value: number | undefined, currency = 'USD') =>
   formatMoney(value, currency, 0)
+
+const auth = useAuthStore()
+
+/*
+ * Each link carries the right its page needs: budgets and payroll are guarded
+ * by narrower permissions than this overview, and a link into a 403 is a dead
+ * link.
+ */
+const sectionLinks = computed(() => [
+  { to: '/finance/budgets', label: 'Бюджеты', permission: PERMISSION.BUDGET_VIEW },
+  { to: '/finance/expenses', label: 'Расходы', permission: PERMISSION.FINANCE_VIEW },
+  { to: '/finance/payments', label: 'Платежи', permission: PERMISSION.FINANCE_VIEW },
+  { to: '/finance/invoices', label: 'Счета', permission: PERMISSION.FINANCE_VIEW },
+  { to: '/finance/payroll', label: 'Зарплата: авансы, штрафы, премии', permission: PERMISSION.PAYROLL_VIEW_OWN }
+].filter(link => auth.can(link.permission)))
 
 /** Negative margin is the signal the page exists for. */
 function marginTone(margin: number) {
@@ -93,12 +111,7 @@ function marginTone(margin: number) {
 
       <nav class="mt-6 flex flex-wrap gap-1.5">
         <NuxtLink
-          v-for="link in [
-            { to: '/finance/budgets', label: 'Бюджеты' },
-            { to: '/finance/expenses', label: 'Расходы' },
-            { to: '/finance/payments', label: 'Платежи' },
-            { to: '/finance/invoices', label: 'Счета' }
-          ]"
+          v-for="link in sectionLinks"
           :key="link.to"
           :to="link.to"
           class="rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"

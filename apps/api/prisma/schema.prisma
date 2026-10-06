@@ -173,6 +173,35 @@ enum ExpenseCategory {
   OTHER
 }
 
+/// What a payroll entry does to the month's pay (client item 7).
+/// The sign is fixed by the type, so amounts are always entered positive.
+enum PayrollEntryType {
+  /// Paid out ahead of payday, subtracted from what is left to pay.
+  ADVANCE
+  BONUS
+  PENALTY
+  /// A penalty for coming in late; carries the minutes and the day.
+  LATENESS
+  DEDUCTION
+  /// Any other accrual on top of the base salary.
+  OTHER_ACCRUAL
+}
+
+enum PayrollEntryStatus {
+  DRAFT
+  APPROVED
+  PAID
+  CANCELLED
+}
+
+/// Where an entry came from. Today everything is typed in; an attendance
+/// integration (e.g. Verifix) or a timesheet rule will write the other two.
+enum PayrollEntrySource {
+  MANUAL
+  TIMESHEET
+  EXTERNAL
+}
+
 enum EmploymentType {
   FULL_TIME
   PART_TIME
@@ -266,6 +295,9 @@ model User {
   projectMemberships  ProjectMember[]
   assetsOwned         Asset[]
   expensesCreated     Expense[]
+  payrollCreated      PayrollEntry[]           @relation("PayrollCreator")
+  payrollApproved     PayrollEntry[]           @relation("PayrollApprover")
+  salariesSet         EmployeeSalary[]
   documentsUploaded   Document[]
   renderJobsSubmitted RenderJob[]
 
@@ -336,6 +368,8 @@ model Employee {
   hiredAt             DateTime?
 
   timesheetEntries TimesheetEntry[]
+  payrollEntries   PayrollEntry[]
+  salary           EmployeeSalary?
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -1078,6 +1112,71 @@ model Invoice {
   @@index([clientId])
   @@index([status])
   @@map("invoices")
+}
+
+/// One money operation on an employee's monthly pay: advance, bonus,
+/// penalty (incl. lateness), deduction or other accrual (client item 7).
+///
+/// `source` + `externalId` let an outside system (attendance, timesheets) write
+/// entries idempotently: re-sending the same external record hits the unique
+/// index instead of creating a second penalty.
+model PayrollEntry {
+  id         String   @id @default(uuid()) @db.Uuid
+  employeeId String   @db.Uuid
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  type     PayrollEntryType
+  status   PayrollEntryStatus @default(DRAFT)
+  /// Always positive; the type decides whether it adds to or takes from pay.
+  amount   Decimal            @db.Decimal(14, 2)
+  currency String             @default("USD")
+
+  /// The day it happened (the late arrival, the advance handed out).
+  date   DateTime @db.Date
+  /// Payroll month it counts towards, as YYYY-MM.
+  period String   @db.VarChar(7)
+
+  /// Lateness only: how late, in minutes.
+  lateMinutes Int?
+  reason      String?
+
+  source     PayrollEntrySource @default(MANUAL)
+  externalId String?
+
+  createdById  String?   @db.Uuid
+  createdBy    User?     @relation("PayrollCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  approvedById String?   @db.Uuid
+  approvedBy   User?     @relation("PayrollApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  approvedAt   DateTime?
+  paidAt       DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([source, externalId])
+  @@index([employeeId, period])
+  @@index([period])
+  @@index([status])
+  @@index([type])
+  @@map("payroll_entries")
+}
+
+/// Base monthly salary, kept apart from Employee so the employees API (open
+/// to anyone with team:view) never carries pay; only payroll reads it.
+model EmployeeSalary {
+  employeeId String   @id @db.Uuid
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  amount   Decimal @db.Decimal(14, 2)
+  currency String  @default("USD")
+
+  updatedById String? @db.Uuid
+  updatedBy   User?   @relation(fields: [updatedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("employee_salaries")
 }
 
 model Document {

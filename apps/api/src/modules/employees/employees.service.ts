@@ -182,11 +182,15 @@ export async function remove(id: string, actorId: string | undefined) {
         email: true,
         // Comments are soft-deleted one by one; those no longer count as work.
         _count: { select: { comments: { where: { deletedAt: null } } } },
-        employee: { select: { _count: { select: { timesheetEntries: true } } } }
+        // Payroll entries are money paid or withheld: erasing them with the
+        // login would rewrite past months, so they keep the row like work does.
+        employee: { select: { _count: { select: { timesheetEntries: true, payrollEntries: true } } } }
       }
     })
     const hasOwnWork =
-      work._count.comments > 0 || (work.employee?._count.timesheetEntries ?? 0) > 0
+      work._count.comments > 0 ||
+      (work.employee?._count.timesheetEntries ?? 0) > 0 ||
+      (work.employee?._count.payrollEntries ?? 0) > 0
 
     if (!hasOwnWork) {
       await tx.user.delete({ where: { id: employee.userId } })

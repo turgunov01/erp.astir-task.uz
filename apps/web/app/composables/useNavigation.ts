@@ -55,7 +55,10 @@ export const NAVIGATION: NavItem[] = [
       { label: 'Бюджеты', to: '/finance/budgets', icon: 'lucide:calculator', permission: PERMISSION.BUDGET_VIEW },
       { label: 'Расходы', to: '/finance/expenses', icon: 'lucide:receipt', permission: PERMISSION.FINANCE_VIEW },
       { label: 'Платежи', to: '/finance/payments', icon: 'lucide:credit-card', permission: PERMISSION.FINANCE_VIEW },
-      { label: 'Счета', to: '/finance/invoices', icon: 'lucide:file-text', permission: PERMISSION.FINANCE_VIEW }
+      { label: 'Счета', to: '/finance/invoices', icon: 'lucide:file-text', permission: PERMISSION.FINANCE_VIEW },
+      // Opened by the narrower own-entries right, so staff can see their own
+      // advances and fines without seeing the studio's money.
+      { label: 'Зарплата', to: '/finance/payroll', icon: 'lucide:hand-coins', permission: PERMISSION.PAYROLL_VIEW_OWN }
     ]
   },
   {

@@ -212,6 +212,32 @@ export const PAYMENT_STATUS_LABEL: Record<string, string> = {
   CANCELLED: 'Отменён'
 }
 
+/** Employee pay adjustments (client item 7). */
+export const PAYROLL_TYPE_LABEL: Record<string, string> = {
+  ADVANCE: 'Аванс',
+  BONUS: 'Премия',
+  PENALTY: 'Штраф',
+  LATENESS: 'Штраф за опоздание',
+  DEDUCTION: 'Удержание',
+  OTHER_ACCRUAL: 'Прочее начисление'
+}
+
+/** Types that add to pay; the rest are taken from it. */
+export const PAYROLL_ACCRUAL_TYPES: ReadonlySet<string> = new Set(['BONUS', 'OTHER_ACCRUAL'])
+
+export const PAYROLL_STATUS_LABEL: Record<string, string> = {
+  DRAFT: 'Черновик',
+  APPROVED: 'Утверждено',
+  PAID: 'Выплачено',
+  CANCELLED: 'Отменено'
+}
+
+export const PAYROLL_SOURCE_LABEL: Record<string, string> = {
+  MANUAL: 'Вручную',
+  TIMESHEET: 'Из табеля',
+  EXTERNAL: 'Из внешней системы'
+}
+
 export const RISK_LABEL: Record<string, string> = {
   LOW: 'Низкий', MEDIUM: 'Средний', HIGH: 'Высокий', CRITICAL: 'Критический'
 }
@@ -416,6 +442,11 @@ export const PERMISSION_GROUPS: readonly PermissionGroup[] = [
     { key: 'finance:view', label: 'Видеть финансы' },
     { key: 'finance:manage', label: 'Управлять' },
     { key: 'budget:view', label: 'Видеть бюджеты' }
+  ] },
+  { label: 'Зарплата: авансы, штрафы, премии', permissions: [
+    { key: 'payroll:view:own', label: 'Видеть свои начисления (открывает раздел)' },
+    { key: 'payroll:view', label: 'Видеть начисления всех' },
+    { key: 'payroll:manage', label: 'Вносить, утверждать и выплачивать' }
   ] },
   { label: 'Отчёты', permissions: [
     { key: 'report:view', label: 'Видеть отчёты' }

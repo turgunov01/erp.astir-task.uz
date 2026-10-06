@@ -9,6 +9,7 @@ import { buildMeta, sendItem, sendList, sendNoContent, toSkipTake } from '../../
 import { prisma } from '../../lib/prisma'
 import { recordAudit } from '../../lib/activity'
 import * as service from './finance.service'
+import { payrollRouter } from './payroll.routes'
 
 const EXPENSE_CATEGORIES = [
   'EMPLOYEE', 'FREELANCER', 'RENDER', 'SOFTWARE',
@@ -99,6 +100,9 @@ function datePatch(body: Record<string, unknown>, keys: string[]) {
 export const financeRouter = Router()
 
 financeRouter.use(authenticate)
+
+// Employee pay adjustments carry their own, narrower permissions.
+financeRouter.use('/payroll', payrollRouter)
 
 financeRouter.get(
   '/overview',
