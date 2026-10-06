@@ -20,6 +20,7 @@ import { scenesRouter } from './modules/scenes/scenes.routes'
 import { shotsRouter } from './modules/shots/shots.routes'
 import { tasksRouter } from './modules/tasks/tasks.routes'
 import { filesRouter } from './modules/files/files.routes'
+import { uploadsRouter } from './modules/uploads/uploads.routes'
 import { notificationsRouter } from './modules/notifications/notifications.routes'
 import { dashboardRouter } from './modules/dashboard/dashboard.routes'
 import { reviewsRouter } from './modules/reviews/reviews.routes'
@@ -99,6 +100,7 @@ export function createApp() {
   app.use('/api/shots', shotsRouter)
   app.use('/api/tasks', tasksRouter)
   app.use('/api/files', filesRouter)
+  app.use('/api/uploads', uploadsRouter)
   app.use('/api/notifications', notificationsRouter)
   app.use('/api/dashboard', dashboardRouter)
   app.use('/api/timesheets', timesheetsRouter)

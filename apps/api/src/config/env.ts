@@ -31,6 +31,11 @@ const envSchema = z.object({
 
   STORAGE_PROVIDER: z.enum(['local', 's3', 'r2', 'minio', 'gcs']).default('local'),
   STORAGE_PATH: z.string().default('./storage'),
+  /*
+   * Staging area for chunked uploads in progress. Kept outside STORAGE_PATH,
+   * which is served publicly; defaults to a sibling of it.
+   */
+  UPLOAD_TMP_PATH: z.string().optional(),
 
   /*
    * Mail is optional: without it verification codes go to the log instead of

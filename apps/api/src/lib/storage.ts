@@ -3,7 +3,8 @@ import { mkdir, unlink } from 'node:fs/promises'
 import { dirname, extname, join } from 'node:path'
 import { randomUUID } from 'node:crypto'
 import { pipeline } from 'node:stream/promises'
-import { Readable } from 'node:stream'
+import { Readable, Transform } from 'node:stream'
+import { UPLOAD_LIMITS } from '@astir/types'
 import { env } from '../config/env'
 
 /**
@@ -22,14 +23,30 @@ export interface StoredFile {
 }
 
 export interface StorageProvider {
+  /**
+   * Write a blob from a stream. The stream is consumed exactly once; the size
+   * is whatever actually arrived, never what the client claimed.
+   */
   save(input: {
-    buffer: Buffer
+    stream: Readable
     originalName: string
     mimeType: string
     /** Logical folder, e.g. "projects/<id>". */
     prefix: string
   }): Promise<StoredFile>
   remove(key: string): Promise<void>
+}
+
+/** Counts the bytes passing through, for the stored size. */
+function byteCounter() {
+  let bytes = 0
+  const stream = new Transform({
+    transform(chunk: Buffer, _encoding, callback) {
+      bytes += chunk.length
+      callback(null, chunk)
+    }
+  })
+  return { stream, bytes: () => bytes }
 }
 
 /** Local disk provider used in development and single-server deployments. */
@@ -41,7 +58,7 @@ class LocalStorageProvider implements StorageProvider {
   }
 
   async save(input: {
-    buffer: Buffer
+    stream: Readable
     originalName: string
     mimeType: string
     prefix: string
@@ -50,14 +67,21 @@ class LocalStorageProvider implements StorageProvider {
     const extension = extname(input.originalName).slice(0, 12)
     const key = input.prefix + '/' + randomUUID() + extension
     const target = join(this.root, key)
+    const counter = byteCounter()
 
     await mkdir(dirname(target), { recursive: true })
-    await pipeline(Readable.from(input.buffer), createWriteStream(target))
+    try {
+      await pipeline(input.stream, counter.stream, createWriteStream(target))
+    } catch (err) {
+      // A half-written blob is never referenced by a row; do not leave it behind.
+      await unlink(target).catch(() => undefined)
+      throw err
+    }
 
     return {
       key,
       url: '/uploads/' + key,
-      size: input.buffer.length,
+      size: counter.bytes(),
       mimeType: input.mimeType,
       originalName: input.originalName
     }
@@ -83,6 +107,11 @@ function createProvider(): StorageProvider {
 
 export const storage: StorageProvider = createProvider()
 
+/** A buffered upload (multer memory storage) as a stream for storage.save. */
+export function bufferStream(buffer: Buffer): Readable {
+  return Readable.from([buffer])
+}
+
 /** Accepted upload types, checked against the sniffed mime type (spec 59). */
 export const ALLOWED_MIME_PREFIXES = ['image/', 'video/', 'audio/']
 
@@ -101,4 +130,11 @@ export function isAllowedMimeType(mimeType: string): boolean {
   return ALLOWED_MIME_TYPES.has(mimeType)
 }
 
-export const MAX_UPLOAD_BYTES = 200 * 1024 * 1024
+/** Largest file accepted, through the chunked upload API. */
+export const MAX_UPLOAD_BYTES = UPLOAD_LIMITS.MAX_FILE_BYTES
+
+/**
+ * The legacy single-request multipart endpoints buffer the whole file in
+ * memory, so they keep a much smaller cap; anything larger goes in chunks.
+ */
+export const MAX_SINGLE_REQUEST_BYTES = UPLOAD_LIMITS.MAX_SINGLE_REQUEST_BYTES

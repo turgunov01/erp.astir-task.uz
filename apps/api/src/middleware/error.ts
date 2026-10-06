@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
 import { ZodError } from 'zod'
+import multer from 'multer'
 import { Prisma } from '@prisma/client'
 import { ERROR_CODE } from '@astir/types'
 import { AppError } from '../lib/errors'
@@ -54,6 +55,17 @@ export function errorHandler(
     return res.status(err.statusCode).json({
       success: false,
       error: { code: err.code, message: err.message, details: err.details }
+    })
+  }
+
+  // The legacy multipart endpoints cap a single request; larger files go in chunks.
+  if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+    return res.status(413).json({
+      success: false,
+      error: {
+        code: ERROR_CODE.VALIDATION_FAILED,
+        message: 'Файл слишком большой для одного запроса — загрузите его по частям через /api/uploads'
+      }
     })
   }
 

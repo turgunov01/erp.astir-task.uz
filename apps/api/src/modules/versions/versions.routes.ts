@@ -12,12 +12,13 @@ import { authenticate, requirePermission } from '../../middleware/auth'
 import { validate, validatedQuery } from '../../middleware/validate'
 import { sendItem, sendList, sendNoContent } from '../../lib/http'
 import { badRequest } from '../../lib/errors'
-import { isAllowedMimeType, MAX_UPLOAD_BYTES } from '../../lib/storage'
+import { bufferStream, isAllowedMimeType, MAX_SINGLE_REQUEST_BYTES } from '../../lib/storage'
 import * as service from './versions.service'
 
+// In memory, so small; larger files go through the chunked upload API.
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: MAX_UPLOAD_BYTES, files: 1 }
+  limits: { fileSize: MAX_SINGLE_REQUEST_BYTES, files: 1 }
 })
 
 export const versionsRouter = Router()
@@ -93,6 +94,12 @@ versionsRouter.post(
           notes: req.body.notes || null,
           label: req.body.label || undefined,
           file: req.file
+            ? {
+              stream: bufferStream(req.file.buffer),
+              originalName: req.file.originalname,
+              mimeType: req.file.mimetype
+            }
+            : undefined
         },
         req.user?.id
       )

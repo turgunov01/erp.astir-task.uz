@@ -3,6 +3,7 @@ import { env } from './config/env'
 import { logger } from './lib/logger'
 import { prisma } from './lib/prisma'
 import { installBigIntSerializer } from './lib/json'
+import { startUploadSweeper } from './modules/uploads/upload-sweeper'
 
 async function main() {
   installBigIntSerializer()
@@ -10,6 +11,8 @@ async function main() {
   // Fail fast if the database is unreachable rather than serving 500s.
   await prisma.$connect()
   logger.info('database connection established')
+
+  startUploadSweeper()
 
   const app = createApp()
   const server = app.listen(env.PORT, env.HOST, () => {
