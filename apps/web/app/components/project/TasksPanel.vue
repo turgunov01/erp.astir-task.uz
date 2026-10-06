@@ -143,7 +143,7 @@ function isOverdue(task: Task) {
     <header class="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4">
       <div>
         <h2 class="text-sm font-medium">Задачи</h2>
-        <p class="mt-1 text-xs text-muted-foreground">{{ tasks.length }} задач(и)</p>
+        <p class="mt-1 text-xs text-muted-foreground">{{ countLabel(tasks.length, 'задача', 'задачи', 'задач') }}</p>
       </div>
       <div class="flex items-center gap-2">
         <select

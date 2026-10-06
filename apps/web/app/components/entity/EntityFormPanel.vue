@@ -111,12 +111,6 @@ function fileIcon(file: File) {
   return 'lucide:file'
 }
 
-function humanSize(bytes: number) {
-  if (bytes < 1024) return bytes + ' Б'
-  if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' КБ'
-  return (bytes / (1024 * 1024)).toFixed(1) + ' МБ'
-}
-
 const {
   progress: uploadProgress,
   fileName: uploadingName,
@@ -309,7 +303,7 @@ onMounted(() => {
                   >
                     <Icon :name="fileIcon(file)" class="size-4 shrink-0 text-muted-foreground" />
                     <span class="min-w-0 flex-1 truncate">{{ file.name }}</span>
-                    <span class="shrink-0 text-xs text-muted-foreground">{{ humanSize(file.size) }}</span>
+                    <span class="shrink-0 text-xs text-muted-foreground">{{ formatBytes(file.size) }}</span>
                     <button
                       type="button"
                       class="shrink-0 rounded p-0.5 text-muted-foreground hover:text-destructive"

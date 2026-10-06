@@ -166,7 +166,7 @@ function isOverdue(row: TaskRow) {
           Производство
         </p>
         <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Задачи</h1>
-        <p class="mt-1 text-sm text-muted-foreground">{{ meta.total }} задач(и)</p>
+        <p class="mt-1 text-sm text-muted-foreground">{{ countLabel(meta.total, 'задача', 'задачи', 'задач') }}</p>
       </div>
       <div class="flex items-center gap-2">
         <button

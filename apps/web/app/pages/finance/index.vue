@@ -225,7 +225,7 @@ const LABEL = 'text-xs uppercase tracking-wider text-muted-foreground'
             :to="{ path: '/finance/invoices', query: { overdue: 'true', currency: kpi.currency } }"
             class="mt-1 inline-block text-xs text-muted-foreground hover:text-foreground hover:underline"
           >
-            {{ kpi.overdueCount }} счёт(ов) →
+            {{ countLabel(kpi.overdueCount, 'счёт', 'счёта', 'счетов') }} →
           </NuxtLink>
         </div>
         <div :class="TILE">
@@ -416,7 +416,7 @@ const LABEL = 'text-xs uppercase tracking-wider text-muted-foreground'
                 <td class="px-5 py-3 font-medium">
                   {{ row.currency }}
                   <span v-if="row.drafts > 0" class="block text-xs font-normal text-signal-foreground">
-                    {{ row.drafts }} черновик(ов) не учтено
+                    не учтено: {{ countLabel(row.drafts, 'черновик', 'черновика', 'черновиков') }}
                   </span>
                 </td>
                 <td class="px-4 py-3 text-right tabular-nums">{{ money(row.salary, row.currency) }}</td>

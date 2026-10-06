@@ -457,7 +457,7 @@ const isSelf = (row: Account) => row.id === auth.user?.id
                   </span>
                 </p>
                 <p class="mt-0.5 text-xs text-muted-foreground">
-                  {{ template.stages.length }} этап(ов): {{ template.stages.join(' → ') }}
+                  {{ countLabel(template.stages.length, 'этап', 'этапа', 'этапов') }}: {{ template.stages.join(' → ') }}
                 </p>
               </td>
               <td v-if="canManage" class="w-36 px-5 py-3 text-right">

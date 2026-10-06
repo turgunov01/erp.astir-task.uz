@@ -113,7 +113,7 @@ const columns: Column[] = [
 
       <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
         <p class="text-sm text-muted-foreground">
-          {{ meta.total }} счёт(ов) · {{ period.label.toLowerCase() }}, по дате выставления
+          {{ countLabel(meta.total, 'счёт', 'счёта', 'счетов') }} · {{ period.label.toLowerCase() }}, по дате выставления
         </p>
         <div class="flex flex-wrap items-center gap-2">
           <a
@@ -220,7 +220,7 @@ const columns: Column[] = [
       <template #cell-paid="{ row }">
         <span class="tabular-nums">{{ formatMoney(row.paidTotal, row.currency) }}</span>
         <span class="mt-0.5 block text-xs text-muted-foreground">
-          {{ coverPercent(row) }}% · {{ row._count.payments }} платеж(ей)
+          {{ coverPercent(row) }}% · {{ countLabel(row._count.payments, 'платёж', 'платежа', 'платежей') }}
         </span>
       </template>
       <template #cell-remaining="{ row }">

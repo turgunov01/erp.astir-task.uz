@@ -171,9 +171,9 @@ function onPanelChanged() {
         </div>
         <div class="bg-card px-5 py-4">
           <p class="text-xs uppercase tracking-wider text-muted-foreground">Объём</p>
-          <p class="mt-1.5 text-lg font-medium tabular-nums">{{ project._count.shots }} шотов</p>
+          <p class="mt-1.5 text-lg font-medium tabular-nums">{{ countLabel(project._count.shots, 'шот', 'шота', 'шотов') }}</p>
           <p class="mt-1 text-xs text-muted-foreground">
-            {{ project._count.episodes }} эпизодов · {{ project._count.tasks }} задач
+            {{ countLabel(project._count.episodes, 'эпизод', 'эпизода', 'эпизодов') }} · {{ countLabel(project._count.tasks, 'задача', 'задачи', 'задач') }}
           </p>
         </div>
       </section>

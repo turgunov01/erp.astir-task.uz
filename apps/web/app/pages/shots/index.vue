@@ -103,7 +103,7 @@ function formatDate(value: string | null) {
       </p>
       <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Шоты</h1>
       <p class="mt-1 text-sm text-muted-foreground">
-        {{ meta.total }} шот(ов) во всех проектах
+        {{ countLabel(meta.total, 'шот', 'шота', 'шотов') }} во всех проектах
       </p>
     </header>
 

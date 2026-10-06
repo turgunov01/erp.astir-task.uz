@@ -112,7 +112,7 @@ function onDrop(event: DragEvent) {
     <header class="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4">
       <div>
         <h2 class="text-sm font-medium">Файлы и медиа</h2>
-        <p class="mt-1 text-xs text-muted-foreground">{{ files.length }} файл(ов)</p>
+        <p class="mt-1 text-xs text-muted-foreground">{{ countLabel(files.length, 'файл', 'файла', 'файлов') }}</p>
       </div>
       <select
         v-if="canManage"

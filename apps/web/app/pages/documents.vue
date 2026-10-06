@@ -101,7 +101,7 @@ function formatSize(bytes: string | null) {
         </p>
         <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Документы и медиа</h1>
         <p class="mt-1 text-sm text-muted-foreground">
-          {{ meta.total }} файл(ов) · {{ media.length }} медиа на странице
+          {{ countLabel(meta.total, 'файл', 'файла', 'файлов') }} · {{ media.length }} медиа на странице
         </p>
       </div>
       <button

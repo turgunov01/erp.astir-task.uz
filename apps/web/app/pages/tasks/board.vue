@@ -139,7 +139,7 @@ function isOverdue(task: Task) {
         </p>
         <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Доска задач</h1>
         <p class="mt-1 text-sm text-muted-foreground">
-          {{ tasks.length }} задач(и)<span v-if="canUpdate"> · перетаскивайте карточки между колонками</span>
+          {{ countLabel(tasks.length, 'задача', 'задачи', 'задач') }}<span v-if="canUpdate"> · перетаскивайте карточки между колонками</span>
         </p>
         <p v-if="atLimit" class="mt-1 text-xs text-signal-foreground">
           Показаны первые 100 задач — сузьте выборку фильтром по проекту

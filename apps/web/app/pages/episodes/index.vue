@@ -81,7 +81,7 @@ function pad(value: number) {
     <header class="mb-6">
       <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Производство</p>
       <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Эпизоды</h1>
-      <p class="mt-1 text-sm text-muted-foreground">{{ meta.total }} эпизод(ов)</p>
+      <p class="mt-1 text-sm text-muted-foreground">{{ countLabel(meta.total, 'эпизод', 'эпизода', 'эпизодов') }}</p>
     </header>
 
     <div class="mb-4 flex flex-wrap items-center justify-end gap-3">

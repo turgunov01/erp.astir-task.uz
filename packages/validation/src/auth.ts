@@ -30,7 +30,7 @@ export const resetPasswordSchema = z
     confirmPassword: z.string()
   })
   .refine(data => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
+    message: 'Пароли не совпадают',
     path: ['confirmPassword']
   })
 
@@ -41,7 +41,7 @@ export const changePasswordSchema = z
     confirmPassword: z.string()
   })
   .refine(data => data.password === data.confirmPassword, {
-    message: 'Passwords do not match',
+    message: 'Пароли не совпадают',
     path: ['confirmPassword']
   })
 

@@ -177,7 +177,7 @@ const columns: Column[] = [
 
       <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
         <p class="text-sm text-muted-foreground">
-          {{ meta.total }} платеж(ей) · {{ period.label.toLowerCase() }}
+          {{ countLabel(meta.total, 'платёж', 'платежа', 'платежей') }} · {{ period.label.toLowerCase() }}
         </p>
         <div class="flex flex-wrap items-center gap-2">
           <a

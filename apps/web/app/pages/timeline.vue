@@ -298,7 +298,7 @@ const selectClass = 'h-9 min-w-0 rounded-md border bg-background px-2.5 text-sm 
         Без дат и потому не на шкале: {{ tasksWord(payload.undated) }} — им не назначены ни начало, ни срок.
       </p>
       <p v-if="payload?.truncated" class="text-destructive">
-        Показаны первые {{ payload.limit }} задач — сузьте период или выберите проект.
+        Показаны первые {{ countLabel(payload.limit, 'задача', 'задачи', 'задач') }} — сузьте период или выберите проект.
       </p>
     </div>
   </div>

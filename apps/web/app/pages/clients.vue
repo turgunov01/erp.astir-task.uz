@@ -64,7 +64,7 @@ const columns: Column[] = [
       <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Коммерция</p>
       <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Клиенты</h1>
       <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
-        <p class="text-sm text-muted-foreground">{{ meta.total }} клиент(ов)</p>
+        <p class="text-sm text-muted-foreground">{{ countLabel(meta.total, 'клиент', 'клиента', 'клиентов') }}</p>
         <EntityToolbar :crud="crud" create-label="Новый клиент" :can-manage="canManage" />
       </div>
     </header>

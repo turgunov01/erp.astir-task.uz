@@ -101,7 +101,7 @@ function isOverdue(deadline: string | null, progress: number) {
         </p>
         <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Проекты</h1>
         <p class="mt-1 text-sm text-muted-foreground">
-          {{ meta.total }} проект(ов) в системе
+          {{ countLabel(meta.total, 'проект', 'проекта', 'проектов') }} в системе
         </p>
       </div>
       <EntityToolbar
@@ -151,7 +151,7 @@ function isOverdue(deadline: string | null, progress: number) {
           {{ row.name }}
         </NuxtLink>
         <p class="mt-0.5 text-xs text-muted-foreground">
-          {{ row._count.shots }} шотов · {{ row._count.tasks }} задач
+          {{ countLabel(row._count.shots, 'шот', 'шота', 'шотов') }} · {{ countLabel(row._count.tasks, 'задача', 'задачи', 'задач') }}
         </p>
       </template>
 

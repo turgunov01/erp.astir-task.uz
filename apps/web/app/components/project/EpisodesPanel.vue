@@ -100,7 +100,7 @@ function pad(value: number) {
     <header class="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4">
       <div>
         <h2 class="text-sm font-medium">Эпизоды</h2>
-        <p class="mt-1 text-xs text-muted-foreground">{{ episodes.length }} эпизод(ов)</p>
+        <p class="mt-1 text-xs text-muted-foreground">{{ countLabel(episodes.length, 'эпизод', 'эпизода', 'эпизодов') }}</p>
       </div>
       <Button v-if="canManage" size="sm" class="h-8" @click="showForm = !showForm">
         <Icon :name="showForm ? 'lucide:x' : 'lucide:plus'" class="mr-1.5 size-3.5" />
@@ -169,7 +169,7 @@ function pad(value: number) {
         <div class="min-w-0 flex-1">
           <p class="truncate text-sm font-medium">{{ episode.title }}</p>
           <p class="mt-0.5 text-xs text-muted-foreground">
-            {{ episode._count.scenes }} сцен · {{ episode._count.shots }} шотов
+            {{ countLabel(episode._count.scenes, 'сцена', 'сцены', 'сцен') }} · {{ countLabel(episode._count.shots, 'шот', 'шота', 'шотов') }}
           </p>
         </div>
 

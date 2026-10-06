@@ -174,7 +174,7 @@ function openEvent(event: DayEvent) {
           <h1 class="text-2xl font-semibold tracking-tight">Календарь</h1>
           <p class="mt-1 text-sm text-muted-foreground">
             {{ totals.projects }} сдач проектов · {{ totals.milestones }} вех ·
-            {{ totals.tasks }} задач в этом месяце
+            {{ countLabel(totals.tasks, 'задача', 'задачи', 'задач') }} в этом месяце
           </p>
         </div>
 

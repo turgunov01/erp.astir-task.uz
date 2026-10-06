@@ -48,7 +48,7 @@ export const createProjectSchema = z
       !data.startDate ||
       !data.deadline ||
       Date.parse(data.startDate) <= Date.parse(data.deadline),
-    { message: 'Deadline must be on or after the start date', path: ['deadline'] }
+    { message: 'Дедлайн не может быть раньше даты старта', path: ['deadline'] }
   )
 
 export type CreateProjectInput = z.infer<typeof createProjectSchema>

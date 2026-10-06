@@ -217,7 +217,7 @@ function pad(value: number) {
         <div class="min-w-0 flex-1">
           <p class="truncate text-sm font-medium">{{ scene.name }}</p>
           <p class="mt-0.5 text-xs text-muted-foreground">
-            {{ scene._count.shots }} шотов · {{ scene._count.tasks }} задач
+            {{ countLabel(scene._count.shots, 'шот', 'шота', 'шотов') }} · {{ countLabel(scene._count.tasks, 'задача', 'задачи', 'задач') }}
           </p>
         </div>
 

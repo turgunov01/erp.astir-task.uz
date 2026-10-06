@@ -56,7 +56,7 @@ const columns: Column[] = [
     <header class="mb-6">
       <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Команда</p>
       <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Отделы</h1>
-      <p class="mt-1 text-sm text-muted-foreground">{{ meta.total }} отдел(ов)</p>
+      <p class="mt-1 text-sm text-muted-foreground">{{ countLabel(meta.total, 'отдел', 'отдела', 'отделов') }}</p>
     </header>
 
     <div class="mb-4 flex flex-wrap items-center justify-end gap-3">

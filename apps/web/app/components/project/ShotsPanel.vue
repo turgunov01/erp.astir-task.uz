@@ -98,7 +98,7 @@ function sceneLabel(scene: { sceneNumber: number, name: string, episode: { numbe
     <header class="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4">
       <div>
         <h2 class="text-sm font-medium">Шоты</h2>
-        <p class="mt-1 text-xs text-muted-foreground">{{ shots.length }} шот(ов)</p>
+        <p class="mt-1 text-xs text-muted-foreground">{{ countLabel(shots.length, 'шот', 'шота', 'шотов') }}</p>
       </div>
       <div class="flex flex-wrap items-center gap-2">
         <select

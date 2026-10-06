@@ -83,7 +83,7 @@ const columns: Column[] = [
         Производство
       </p>
       <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Библиотека ассетов</h1>
-      <p class="mt-1 text-sm text-muted-foreground">{{ meta.total }} ассет(ов)</p>
+      <p class="mt-1 text-sm text-muted-foreground">{{ countLabel(meta.total, 'ассет', 'ассета', 'ассетов') }}</p>
     </header>
 
     <div class="mb-4 flex flex-wrap items-center justify-end gap-3">

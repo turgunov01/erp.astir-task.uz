@@ -78,7 +78,7 @@ const overdueCount = computed(() =>
       <div class="min-w-0">
         <h2 class="text-sm font-semibold capitalize tracking-tight">{{ heading }}</h2>
         <p class="mt-0.5 text-xs text-muted-foreground">
-          {{ tasks.length }} задач(и)
+          {{ countLabel(tasks.length, 'задача', 'задачи', 'задач') }}
           <span v-if="overdueCount > 0" class="text-destructive">
             · {{ overdueCount }} просрочено
           </span>
