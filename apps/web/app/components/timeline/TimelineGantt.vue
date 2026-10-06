@@ -37,6 +37,7 @@ const props = defineProps<{
 }>()
 
 const { openTask } = useTaskPanels()
+const { t } = useI18n()
 
 const PX_PER_DAY: Record<TimelineScale, number> = { day: 32, week: 12, month: 4 }
 const PADDING_DAYS: Record<TimelineScale, number> = { day: 2, week: 7, month: 14 }
@@ -132,7 +133,7 @@ const nextYear = (d: Date) => new Date(d.getFullYear() + 1, 0, 1)
 const topTicks = computed(() =>
   props.scale === 'month'
     ? segments(nextYear, d => new Date(d.getFullYear(), 0, 1), d => String(d.getFullYear()))
-    : segments(nextMonth, startOfMonth, d => d.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' }))
+    : segments(nextMonth, startOfMonth, d => d.toLocaleDateString(intlTag(), { month: 'long', year: 'numeric' }))
 )
 
 /** Lower header tier: days, weeks or months — also the grid lines. */
@@ -142,7 +143,7 @@ const bottomTicks = computed<Tick[]>(() => {
       .map(tick => ({ ...tick, weekend: [0, 6].includes(new Date(tick.key).getDay()) }))
   }
   if (props.scale === 'week') return segments(d => addDays(d, 7), startOfWeek, d => shortDay(d))
-  return segments(nextMonth, startOfMonth, d => d.toLocaleDateString('ru-RU', { month: 'short' }))
+  return segments(nextMonth, startOfMonth, d => d.toLocaleDateString(intlTag(), { month: 'short' }))
 })
 
 /** Weekend columns, shaded on the day and week scales. */
@@ -228,10 +229,10 @@ function bar(task: TimelineTask) {
 
 function barTitle(task: TimelineTask) {
   const parts = [task.title, enumLabel(TASK_STATUS_LABEL, task.status)]
-  if (task.startDate) parts.push('с ' + formatDay(task.startDate))
-  if (task.deadline) parts.push('до ' + formatDay(task.deadline))
+  if (task.startDate) parts.push(t('projects.timeline.fromDate', { date: formatDay(task.startDate) }))
+  if (task.deadline) parts.push(t('projects.timeline.untilDate', { date: formatDay(task.deadline) }))
   parts.push(personName(task.assignee))
-  if (isLate(task, today)) parts.push('просрочена')
+  if (isLate(task, today)) parts.push(t('projects.timeline.lateTask'))
   return parts.join(' · ')
 }
 
@@ -292,7 +293,7 @@ watch(() => [props.scale, axis.value.start.getTime()], () => nextTick(scrollToTo
         <div
           class="sticky left-0 z-10 flex w-(--label-w) shrink-0 items-end border-r bg-card px-3 pb-1.5 text-xs font-medium text-muted-foreground"
         >
-          Задача
+          {{ t('projects.documents.columns.task') }}
         </div>
         <div class="relative h-12 shrink-0" :style="{ width: axis.width + 'px' }">
           <span
@@ -377,7 +378,7 @@ watch(() => [props.scale, axis.value.start.getTime()], () => nextTick(scrollToTo
           >
             <div class="sticky left-0 z-30 flex w-(--label-w) shrink-0 items-center gap-2 border-r bg-card px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
               <Icon name="lucide:flag" class="size-3.5" />
-              Вехи
+              {{ t('projects.timeline.milestones') }}
             </div>
             <div class="relative shrink-0" :style="{ width: axis.width + 'px' }">
               <div
@@ -423,7 +424,7 @@ watch(() => [props.scale, axis.value.start.getTime()], () => nextTick(scrollToTo
                 />
                 <span class="truncate" :title="row.label">{{ row.label }}</span>
                 <span class="ml-auto shrink-0 tabular-nums text-muted-foreground">{{ row.count }}</span>
-                <span v-if="row.late > 0" class="shrink-0 tabular-nums text-destructive" :title="'Просрочено: ' + row.late">
+                <span v-if="row.late > 0" class="shrink-0 tabular-nums text-destructive" :title="t('projects.timeline.lateCount', { n: row.late })">
                   · {{ row.late }}
                 </span>
               </button>
@@ -431,7 +432,7 @@ watch(() => [props.scale, axis.value.start.getTime()], () => nextTick(scrollToTo
                 v-if="row.to"
                 :to="row.to"
                 class="grid size-6 shrink-0 place-items-center rounded text-muted-foreground hover:bg-secondary hover:text-foreground"
-                aria-label="Открыть проект"
+                :aria-label="t('projects.timeline.openProject')"
               >
                 <Icon name="lucide:arrow-up-right" class="size-3.5" />
               </NuxtLink>

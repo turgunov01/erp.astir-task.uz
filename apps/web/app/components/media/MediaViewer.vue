@@ -7,6 +7,7 @@
  * stepping and speed, audio and PDF play inline, and anything else gets a card
  * with a download — so opening a file never leaves the page.
  */
+const { t } = useI18n()
 const viewer = useMediaViewer()
 const { items, index, isOpen, current } = viewer
 
@@ -182,7 +183,7 @@ function onAudioMeta(event: Event) {
           <div class="min-w-0 flex-1">
             <h2 id="media-viewer-title" class="truncate text-sm font-medium">{{ current.name }}</h2>
             <p class="mt-0.5 truncate text-xs text-white/55" aria-live="polite">
-              <span class="tabular-nums">{{ index + 1 }} из {{ count }}</span>
+              <span class="tabular-nums">{{ t('projects.files.batch', { current: index + 1, total: count }) }}</span>
               · {{ MEDIA_KIND_LABEL[kind] }}
               <template v-if="formatBytes(current.size)">· {{ formatBytes(current.size) }}</template>
             </p>
@@ -192,12 +193,12 @@ function onAudioMeta(event: Event) {
               type="button"
               :class="TOOL"
               :aria-pressed="infoOpen"
-              aria-label="Сведения о файле (I)"
+              :aria-label="t('projects.media.infoToggle')"
               @click="infoOpen = !infoOpen"
             >
               <Icon name="lucide:info" class="size-4" />
             </button>
-            <a v-if="url" :href="url" :download="current.name" :class="TOOL" aria-label="Скачать">
+            <a v-if="url" :href="url" :download="current.name" :class="TOOL" :aria-label="t('common.actions.download')">
               <Icon name="lucide:download" class="size-4" />
             </a>
             <a
@@ -206,7 +207,7 @@ function onAudioMeta(event: Event) {
               target="_blank"
               rel="noopener noreferrer"
               :class="[TOOL, 'max-sm:hidden']"
-              aria-label="Открыть в новой вкладке"
+              :aria-label="t('projects.media.newTab')"
             >
               <Icon name="lucide:external-link" class="size-4" />
             </a>
@@ -214,7 +215,7 @@ function onAudioMeta(event: Event) {
               ref="closeButton"
               type="button"
               :class="TOOL"
-              aria-label="Закрыть просмотр (Esc)"
+              :aria-label="t('projects.media.close')"
               @click="viewer.close()"
             >
               <Icon name="lucide:x" class="size-5" />
@@ -271,7 +272,7 @@ function onAudioMeta(event: Event) {
                 <Icon :name="MEDIA_KIND_ICON[kind]" class="mx-auto size-12 text-white/40" />
                 <p class="mt-4 break-words text-sm font-medium">{{ current.name }}</p>
                 <p class="mt-1 text-xs text-white/55">
-                  Предпросмотр для этого типа недоступен
+                  {{ t('projects.media.noPreview') }}
                   <template v-if="fileFormat(current.name)"> · {{ fileFormat(current.name) }}</template>
                 </p>
                 <a
@@ -281,7 +282,7 @@ function onAudioMeta(event: Event) {
                   class="mt-5 inline-flex h-9 items-center gap-2 rounded-md bg-white px-4 text-sm font-medium text-black hover:bg-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                 >
                   <Icon name="lucide:download" class="size-4" />
-                  Скачать {{ formatBytes(current.size) }}
+                  {{ t('common.actions.download') }} {{ formatBytes(current.size) }}
                 </a>
               </div>
             </div>
@@ -290,7 +291,7 @@ function onAudioMeta(event: Event) {
               <button
                 type="button"
                 :class="[NAV, 'left-2 sm:left-3']"
-                aria-label="Предыдущий файл (←)"
+                :aria-label="t('projects.media.prev')"
                 @click="viewer.step(-1)"
               >
                 <Icon name="lucide:chevron-left" class="size-5" />
@@ -298,7 +299,7 @@ function onAudioMeta(event: Event) {
               <button
                 type="button"
                 :class="[NAV, 'right-2 sm:right-3']"
-                aria-label="Следующий файл (→)"
+                :aria-label="t('projects.media.next')"
                 @click="viewer.step(1)"
               >
                 <Icon name="lucide:chevron-right" class="size-5" />
@@ -310,13 +311,13 @@ function onAudioMeta(event: Event) {
           <aside
             v-if="infoOpen"
             class="absolute inset-x-0 bottom-0 z-20 max-h-[65%] overflow-y-auto rounded-t-2xl border-t border-white/10 bg-neutral-900 p-5 shadow-2xl sm:static sm:max-h-none sm:w-72 sm:shrink-0 sm:rounded-none sm:border-l sm:border-t-0 sm:shadow-none"
-            aria-label="Сведения о файле"
+            :aria-label="t('projects.media.info.title')"
           >
             <MediaViewerInfo :item="current" :dimensions="dimensions" :download-url="url" />
           </aside>
         </div>
 
-        <nav v-if="count > 1" class="shrink-0 px-3 pb-3 sm:px-5" aria-label="Файлы в просмотре">
+        <nav v-if="count > 1" class="shrink-0 px-3 pb-3 sm:px-5" :aria-label="t('projects.media.strip')">
           <ol ref="strip" class="flex gap-2 overflow-x-auto py-1 [scrollbar-width:thin]">
             <li v-for="(item, position) in items" :key="item.id" class="shrink-0">
               <button

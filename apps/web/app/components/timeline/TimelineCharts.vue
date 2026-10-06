@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {
-  TIMELINE_GROUPS,
   addDays,
   countByStatus,
   daysBetween,
@@ -32,6 +31,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{ status: [status: string] }>()
 
+const { t } = useI18n()
+
 const today = startOfDay(Date.now())
 const ACTIVE = new Set(['IN_PROGRESS', 'REVIEW', 'REVISION'])
 
@@ -48,10 +49,6 @@ const kpi = computed(() => {
 })
 
 const legend = computed(() => countByStatus(props.tasks))
-
-const groupLabel = computed(() =>
-  (TIMELINE_GROUPS.find(item => item.key === props.group)?.label ?? '').toLowerCase()
-)
 
 /** One bar per group; its length is the group's volume, its segments the mix. */
 const breakdown = computed(() => {
@@ -93,7 +90,7 @@ const deadlineBuckets = computed(() => {
       key: cursor.getTime(),
       label: unit === 'week'
         ? shortDay(cursor)
-        : cursor.toLocaleDateString('ru-RU', { month: 'short', year: '2-digit' }),
+        : cursor.toLocaleDateString(intlTag(), { month: 'short', year: '2-digit' }),
       current: cursor <= today && today < next,
       total: inside.length,
       late: inside.filter(task => isLate(task, today)).length,
@@ -114,35 +111,35 @@ function segmentTitle(label: string, segment: StatusCount) {
   <div class="space-y-4">
     <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
       <div class="rounded-xl border bg-card px-4 py-3">
-        <p class="text-xs text-muted-foreground">Задач на шкале</p>
+        <p class="text-xs text-muted-foreground">{{ t('projects.timeline.charts.total') }}</p>
         <p class="mt-1 text-xl font-semibold tabular-nums">{{ kpi.total }}</p>
       </div>
       <div class="rounded-xl border bg-card px-4 py-3">
-        <p class="text-xs text-muted-foreground">В работе</p>
+        <p class="text-xs text-muted-foreground">{{ t('projects.timeline.charts.active') }}</p>
         <p class="mt-1 text-xl font-semibold tabular-nums">{{ kpi.active }}</p>
       </div>
       <div class="rounded-xl border bg-card px-4 py-3">
-        <p class="text-xs text-muted-foreground">Просрочено</p>
+        <p class="text-xs text-muted-foreground">{{ t('projects.timeline.charts.late') }}</p>
         <p class="mt-1 text-xl font-semibold tabular-nums" :class="kpi.late > 0 ? 'text-destructive' : ''">
           {{ kpi.late }}
           <span v-if="kpi.blocked > 0" class="text-sm font-normal text-muted-foreground">
-            · {{ kpi.blocked }} заблок.
+            · {{ t('projects.timeline.charts.blocked', { n: kpi.blocked }) }}
           </span>
         </p>
       </div>
       <div class="rounded-xl border bg-card px-4 py-3">
-        <p class="text-xs text-muted-foreground">Готово</p>
+        <p class="text-xs text-muted-foreground">{{ t('projects.timeline.charts.done') }}</p>
         <p class="mt-1 text-xl font-semibold tabular-nums">{{ kpi.donePct }}%</p>
       </div>
     </div>
 
-    <div class="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-muted-foreground" aria-label="Легенда">
+    <div class="flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-muted-foreground" :aria-label="t('projects.timeline.legend')">
       <button
         v-for="item in legend"
         :key="item.status"
         type="button"
         class="inline-flex items-center gap-1.5 rounded hover:text-foreground"
-        :title="'Показать только: ' + enumLabel(TASK_STATUS_LABEL, item.status)"
+        :title="t('projects.timeline.charts.showOnly', { status: enumLabel(TASK_STATUS_LABEL, item.status) })"
         @click="emit('status', item.status)"
       >
         <span class="size-2.5 rounded-sm" :class="statusBg(item.status)" />
@@ -152,9 +149,9 @@ function segmentTitle(label: string, segment: StatusCount) {
     </div>
 
     <section class="rounded-xl border bg-card p-4 sm:p-5">
-      <h2 class="text-sm font-semibold">Статусы {{ groupLabel }}</h2>
+      <h2 class="text-sm font-semibold">{{ t('projects.timeline.charts.statusesBy.' + props.group) }}</h2>
       <p class="mt-0.5 text-xs text-muted-foreground">
-        Длина полосы — объём задач, сегменты — в каком они состоянии.
+        {{ t('projects.timeline.charts.statusesHint') }}
       </p>
       <ul class="mt-4 space-y-2.5">
         <li
@@ -176,7 +173,7 @@ function segmentTitle(label: string, segment: StatusCount) {
             </div>
             <span class="shrink-0 text-xs tabular-nums text-muted-foreground">
               {{ row.total }}
-              <span v-if="row.late > 0" class="text-destructive">· {{ row.late }} просроч.</span>
+              <span v-if="row.late > 0" class="text-destructive">· {{ t('projects.timeline.charts.lateShort', { n: row.late }) }}</span>
             </span>
           </div>
         </li>
@@ -185,15 +182,14 @@ function segmentTitle(label: string, segment: StatusCount) {
 
     <section class="rounded-xl border bg-card p-4 sm:p-5">
       <h2 class="text-sm font-semibold">
-        Сроки по {{ deadlineBuckets.unit === 'week' ? 'неделям' : 'месяцам' }}
+        {{ deadlineBuckets.unit === 'week' ? t('projects.timeline.charts.byWeek') : t('projects.timeline.charts.byMonth') }}
       </h2>
       <p class="mt-0.5 text-xs text-muted-foreground">
-        Сколько задач должно закрыться в каждый период и в каком они статусе сейчас.
-        Красное число — уже просрочено.
+        {{ t('projects.timeline.charts.deadlinesHint') }}
       </p>
 
       <p v-if="deadlineBuckets.columns.length === 0" class="mt-4 text-sm text-muted-foreground">
-        Ни у одной задачи нет срока.
+        {{ t('projects.timeline.charts.noDeadlines') }}
       </p>
       <div v-else class="mt-4 overflow-x-auto pb-1">
         <div class="flex h-56 min-w-full items-end gap-1.5" :style="{ width: deadlineBuckets.columns.length * 2.75 + 'rem' }">

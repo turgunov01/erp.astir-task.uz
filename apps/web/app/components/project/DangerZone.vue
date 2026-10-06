@@ -13,6 +13,7 @@ const props = defineProps<{
   status: string
 }>()
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const canArchive = computed(() => auth.can(PERMISSION.PROJECT_ARCHIVE))
 const canHardDelete = computed(() => auth.can(PERMISSION.PROJECT_DELETE))
@@ -33,7 +34,7 @@ async function archive() {
     await apiRequest('/api/projects/' + props.projectId, { method: 'DELETE' })
     await navigateTo('/projects')
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось архивировать проект')
+    errorMessage.value = apiErrorMessage(err, t('projects.danger.archiveFailed'))
   } finally {
     busy.value = ''
   }
@@ -53,7 +54,7 @@ async function hardDelete() {
     })
     await navigateTo('/projects')
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось удалить проект')
+    errorMessage.value = apiErrorMessage(err, t('projects.danger.deleteFailed'))
   } finally {
     busy.value = ''
   }
@@ -67,9 +68,9 @@ const codeMatches = computed(
 <template>
   <section v-if="canArchive || canHardDelete" class="overflow-hidden rounded-xl border border-destructive/30">
     <header class="border-b border-destructive/30 bg-destructive/5 px-6 py-4">
-      <h2 class="text-sm font-medium text-destructive">Опасная зона</h2>
+      <h2 class="text-sm font-medium text-destructive">{{ t('projects.danger.title') }}</h2>
       <p class="mt-1 text-xs text-muted-foreground">
-        Действия ниже влияют на весь проект и его данные.
+        {{ t('projects.danger.lead') }}
       </p>
     </header>
 
@@ -85,11 +86,10 @@ const codeMatches = computed(
       <div v-if="canArchive" class="flex flex-wrap items-center justify-between gap-4 px-6 py-5">
         <div class="min-w-0">
           <p class="text-sm font-medium">
-            {{ isArchived ? 'Проект в архиве' : 'Архивировать проект' }}
+            {{ isArchived ? t('projects.danger.archived') : t('projects.danger.archiveTitle') }}
           </p>
           <p class="mt-1 max-w-md text-xs leading-relaxed text-muted-foreground">
-            Проект скрывается из активных списков, но все данные, файлы и история
-            сохраняются. Действие обратимо — статус можно вернуть в форме выше.
+            {{ t('projects.danger.archiveHint') }}
           </p>
         </div>
         <Button
@@ -99,17 +99,16 @@ const codeMatches = computed(
           @click="archive"
         >
           <Icon name="lucide:archive" class="mr-1.5 size-3.5" />
-          {{ busy === 'archive' ? 'Архивация...' : 'Архивировать' }}
+          {{ busy === 'archive' ? t('projects.danger.archiving') : t('projects.danger.archive') }}
         </Button>
       </div>
 
       <div v-if="canHardDelete" class="px-6 py-5">
         <div class="flex flex-wrap items-start justify-between gap-4">
           <div class="min-w-0">
-            <p class="text-sm font-medium text-destructive">Удалить безвозвратно</p>
+            <p class="text-sm font-medium text-destructive">{{ t('projects.danger.deleteTitle') }}</p>
             <p class="mt-1 max-w-md text-xs leading-relaxed text-muted-foreground">
-              Будут стёрты эпизоды, сцены, шоты, задачи, версии, стадии пайплайна,
-              бюджет, платежи, документы и загруженные файлы. Восстановить нельзя.
+              {{ t('projects.danger.deleteHint') }}
             </p>
           </div>
           <Button
@@ -119,14 +118,16 @@ const codeMatches = computed(
             @click="confirmOpen = true"
           >
             <Icon name="lucide:trash-2" class="mr-1.5 size-3.5" />
-            Удалить
+            {{ t('common.actions.delete') }}
           </Button>
         </div>
 
         <div v-if="confirmOpen" class="mt-5 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-4">
           <div class="space-y-1.5">
             <Label for="confirm-code">
-              Введите код проекта <strong>{{ projectCode }}</strong> для подтверждения
+              <i18n-t keypath="projects.danger.confirmPrompt" tag="span" scope="global">
+                <template #code><strong>{{ projectCode }}</strong></template>
+              </i18n-t>
             </Label>
             <Input
               id="confirm-code"
@@ -144,14 +145,14 @@ const codeMatches = computed(
               :disabled="!codeMatches || busy !== ''"
               @click="hardDelete"
             >
-              {{ busy === 'delete' ? 'Удаление...' : 'Удалить «' + projectName + '» навсегда' }}
+              {{ busy === 'delete' ? t('projects.danger.deleting') : t('projects.danger.deleteForever', { name: projectName }) }}
             </Button>
             <button
               type="button"
               class="px-2 py-2 text-sm text-muted-foreground hover:text-foreground"
               @click="confirmOpen = false; confirmCode = ''"
             >
-              Отмена
+              {{ t('common.actions.cancel') }}
             </button>
           </div>
         </div>

@@ -9,22 +9,23 @@ const props = defineProps<{
   downloadUrl: string | null
 }>()
 
+const { t } = useI18n()
 const kind = computed(() => mediaKind(props.item.mimeType, props.item.name))
 
 const rows = computed(() => {
   const list: Array<{ label: string, value: string }> = [
-    { label: 'Тип', value: MEDIA_KIND_LABEL[kind.value] + (fileFormat(props.item.name) ? ' · ' + fileFormat(props.item.name) : '') }
+    { label: t('projects.media.info.type'), value: MEDIA_KIND_LABEL[kind.value] + (fileFormat(props.item.name) ? ' · ' + fileFormat(props.item.name) : '') }
   ]
   const size = formatBytes(props.item.size)
-  if (size) list.push({ label: 'Размер', value: size })
+  if (size) list.push({ label: t('projects.documents.columns.size'), value: size })
   const dims = props.dimensions
   if (dims && dims.width && dims.height) {
-    list.push({ label: 'Разрешение', value: dims.width + ' × ' + dims.height })
+    list.push({ label: t('projects.media.info.resolution'), value: dims.width + ' × ' + dims.height })
   }
-  if (dims?.duration) list.push({ label: 'Длительность', value: formatDuration(dims.duration) })
-  if (props.item.author) list.push({ label: 'Автор', value: props.item.author })
-  if (props.item.createdAt) list.push({ label: 'Загружен', value: formatDateTime(props.item.createdAt) })
-  if (props.item.caption) list.push({ label: 'Относится к', value: props.item.caption })
+  if (dims?.duration) list.push({ label: t('projects.media.info.duration'), value: formatDuration(dims.duration) })
+  if (props.item.author) list.push({ label: t('projects.media.info.author'), value: props.item.author })
+  if (props.item.createdAt) list.push({ label: t('projects.media.info.uploaded'), value: formatDateTime(props.item.createdAt) })
+  if (props.item.caption) list.push({ label: t('projects.media.info.relatesTo'), value: props.item.caption })
   return list
 })
 </script>
@@ -45,7 +46,7 @@ const rows = computed(() => {
       class="mt-6 inline-flex h-9 items-center justify-center gap-2 rounded-md bg-white px-3 text-sm font-medium text-black hover:bg-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
     >
       <Icon name="lucide:download" class="size-4" />
-      Скачать
+      {{ t('common.actions.download') }}
     </a>
   </div>
 </template>

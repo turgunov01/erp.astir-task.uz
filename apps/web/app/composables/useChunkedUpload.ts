@@ -23,7 +23,7 @@ export interface ChunkedUploadOptions {
 /** Thrown when the user cancels; callers usually show nothing for it. */
 export class UploadCancelledError extends Error {
   constructor() {
-    super('Загрузка отменена')
+    super(translate('projects.upload.cancelled'))
     this.name = 'UploadCancelledError'
   }
 }
@@ -40,7 +40,7 @@ export class UploadRequestError extends Error {
   readonly data: ErrorEnvelope
 
   constructor(statusCode: number, data: ErrorEnvelope) {
-    super(data?.error?.message ?? 'Загрузка не удалась, код ответа ' + statusCode)
+    super(data?.error?.message ?? translate('projects.upload.failedStatus', { status: statusCode }))
     this.name = 'UploadRequestError'
     this.statusCode = statusCode
     this.data = data
@@ -99,8 +99,8 @@ function sendChunk(
       if (xhr.status >= 200 && xhr.status < 300) return resolve()
       reject(new UploadRequestError(xhr.status, parseErrorBody(xhr.responseText)))
     }
-    xhr.onerror = () => reject(requestError(0, 'Нет связи с сервером'))
-    xhr.ontimeout = () => reject(requestError(408, 'Сервер не ответил вовремя'))
+    xhr.onerror = () => reject(requestError(0, translate('projects.upload.offline')))
+    xhr.ontimeout = () => reject(requestError(408, translate('projects.upload.timeout')))
     xhr.onabort = () => reject(new UploadCancelledError())
     signal.addEventListener('abort', () => xhr.abort(), { once: true })
     xhr.send(blob)
@@ -176,9 +176,9 @@ export function useChunkedUpload() {
 
   /** Upload one file; resolves to the created Document or Version. */
   async function upload<T = unknown>(file: File, options: ChunkedUploadOptions): Promise<T> {
-    if (file.size === 0) throw requestError(400, 'Файл «' + file.name + '» пустой')
+    if (file.size === 0) throw requestError(400, translate('projects.upload.empty', { name: file.name }))
     if (file.size > UPLOAD_LIMITS.MAX_FILE_BYTES) {
-      throw requestError(400, 'Файл «' + file.name + '» больше 1 ГБ')
+      throw requestError(400, translate('projects.upload.tooLarge', { name: file.name }))
     }
 
     controller = new AbortController()

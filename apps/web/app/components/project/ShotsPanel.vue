@@ -24,6 +24,7 @@ interface Shot {
 const props = defineProps<{ projectId: string }>()
 const emit = defineEmits<{ (event: 'changed'): void }>()
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const canManage = computed(() => auth.can(PERMISSION.PRODUCTION_MANAGE))
 
@@ -77,7 +78,7 @@ async function createShots() {
     await refresh()
     emit('changed')
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось создать шот')
+    errorMessage.value = apiErrorMessage(err, t('projects.shots.createFailed'))
   } finally {
     submitting.value = false
   }
@@ -97,16 +98,16 @@ function sceneLabel(scene: { sceneNumber: number, name: string, episode: { numbe
   <section class="rounded-xl border bg-card">
     <header class="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4">
       <div>
-        <h2 class="text-sm font-medium">Шоты</h2>
-        <p class="mt-1 text-xs text-muted-foreground">{{ countLabel(shots.length, 'шот', 'шота', 'шотов') }}</p>
+        <h2 class="text-sm font-medium">{{ t('projects.detail.tabs.shots') }}</h2>
+        <p class="mt-1 text-xs text-muted-foreground">{{ countLabel(shots.length, 'projects.count.shots') }}</p>
       </div>
       <div class="flex flex-wrap items-center gap-2">
         <select
           v-model="sceneFilter"
           class="h-8 rounded-md border bg-background px-2 text-xs outline-none focus:border-ring"
-          aria-label="Фильтр по сцене"
+          :aria-label="t('projects.shots.sceneFilter')"
         >
-          <option value="">Все сцены</option>
+          <option value="">{{ t('projects.shots.allScenes') }}</option>
           <option v-for="scene in scenes" :key="scene.id" :value="scene.id">
             {{ sceneLabel(scene) }}
           </option>
@@ -114,9 +115,9 @@ function sceneLabel(scene: { sceneNumber: number, name: string, episode: { numbe
         <select
           v-model="statusFilter"
           class="h-8 rounded-md border bg-background px-2 text-xs outline-none focus:border-ring"
-          aria-label="Фильтр по статусу"
+          :aria-label="t('projects.shots.statusFilter')"
         >
-          <option value="">Все статусы</option>
+          <option value="">{{ t('projects.list.allStatuses') }}</option>
           <option v-for="s in STATUSES" :key="s" :value="s">{{ labelOf(PRODUCTION_STATUS_LABEL, s) }}</option>
         </select>
         <Button
@@ -127,7 +128,7 @@ function sceneLabel(scene: { sceneNumber: number, name: string, episode: { numbe
           @click="showForm = !showForm"
         >
           <Icon :name="showForm ? 'lucide:x' : 'lucide:plus'" class="mr-1.5 size-3.5" />
-          {{ showForm ? 'Отмена' : 'Шоты' }}
+          {{ showForm ? t('common.actions.cancel') : t('projects.shots.add') }}
         </Button>
       </div>
     </header>
@@ -143,21 +144,21 @@ function sceneLabel(scene: { sceneNumber: number, name: string, episode: { numbe
     <form v-if="showForm" class="space-y-4 border-b bg-muted/20 px-5 py-5" @submit.prevent="createShots">
       <div class="grid gap-x-5 gap-y-4 sm:grid-cols-2">
         <div class="space-y-1.5">
-          <Label for="shot-scene">Сцена</Label>
+          <Label for="shot-scene">{{ t('projects.scenes.add') }}</Label>
           <select
             id="shot-scene"
             v-model="form.sceneId"
             required
             class="h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
           >
-            <option value="" disabled>Выберите сцену</option>
+            <option value="" disabled>{{ t('projects.shots.chooseScene') }}</option>
             <option v-for="scene in scenes" :key="scene.id" :value="scene.id">
               {{ sceneLabel(scene) }}
             </option>
           </select>
         </div>
         <div class="space-y-1.5">
-          <Label for="shot-count">Сколько создать</Label>
+          <Label for="shot-count">{{ t('projects.shots.count') }}</Label>
           <input
             id="shot-count"
             v-model.number="form.count"
@@ -167,23 +168,23 @@ function sceneLabel(scene: { sceneNumber: number, name: string, episode: { numbe
             class="h-9 w-full rounded-md border bg-background px-3 text-sm outline-none focus:border-ring"
           >
           <p class="pt-0.5 text-xs text-muted-foreground">
-            Коды вида EP01_SC01_SH001 и 22 стадии пайплайна создаются автоматически.
+            {{ t('projects.shots.countHint') }}
           </p>
         </div>
       </div>
       <Button type="submit" size="sm" :disabled="submitting || !form.sceneId">
-        {{ submitting ? 'Создание...' : 'Создать' }}
+        {{ submitting ? t('projects.form.creating') : t('common.actions.create') }}
       </Button>
     </form>
 
     <div v-if="error" class="px-5 py-14 text-center">
-      <p class="text-sm text-muted-foreground">Не удалось загрузить шоты</p>
+      <p class="text-sm text-muted-foreground">{{ t('projects.shots.loadFailed') }}</p>
       <button
         type="button"
         class="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
         @click="refresh()"
       >
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
@@ -196,9 +197,9 @@ function sceneLabel(scene: { sceneNumber: number, name: string, episode: { numbe
 
     <div v-else-if="shots.length === 0" class="grid place-items-center px-6 py-14 text-center">
       <Icon name="lucide:camera" class="size-7 text-muted-foreground/50" />
-      <h3 class="mt-3 text-sm font-medium">Шотов пока нет</h3>
+      <h3 class="mt-3 text-sm font-medium">{{ t('projects.shots.emptyTitle') }}</h3>
       <p class="mt-1.5 max-w-sm text-sm text-muted-foreground">
-        Шот — основная производственная единица: у каждого свой набор стадий пайплайна.
+        {{ t('projects.shots.emptyBody') }}
       </p>
     </div>
 
@@ -214,10 +215,10 @@ function sceneLabel(scene: { sceneNumber: number, name: string, episode: { numbe
 
         <div class="min-w-0 flex-1">
           <p class="truncate text-sm font-medium">
-            {{ shot.name || shot.scene?.name || 'Без названия' }}
+            {{ shot.name || shot.scene?.name || t('projects.shots.untitled') }}
           </p>
           <p class="mt-0.5 text-xs text-muted-foreground">
-            {{ shot.fps }} к/с · {{ countLabel(shot._count.tasks, 'задача', 'задачи', 'задач') }} · {{ countLabel(shot._count.versions, 'версия', 'версии', 'версий') }}
+            {{ t('projects.shots.fps', { n: shot.fps }) }} · {{ countLabel(shot._count.tasks, 'common.count.tasks') }} · {{ countLabel(shot._count.versions, 'projects.count.versions') }}
             <template v-if="shot.assignee">
               · {{ shot.assignee.firstName }} {{ shot.assignee.lastName }}
             </template>

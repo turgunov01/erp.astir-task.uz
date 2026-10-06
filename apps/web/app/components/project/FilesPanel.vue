@@ -20,6 +20,7 @@ interface Doc {
 
 const props = defineProps<{ projectId: string }>()
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const canManage = computed(() => auth.can(PERMISSION.DOCUMENT_MANAGE))
 
@@ -82,7 +83,7 @@ async function uploadFiles(list: FileList | null) {
     }
   } catch (err) {
     if (!isUploadCancelled(err)) {
-      errorMessage.value = apiErrorMessage(err, 'Не удалось загрузить файл')
+      errorMessage.value = apiErrorMessage(err, t('projects.files.uploadFailed'))
     }
   } finally {
     uploading.value = false
@@ -97,7 +98,7 @@ async function removeFile(doc: Doc) {
     await $fetch('/api/files/' + doc.id, { method: 'DELETE', credentials: 'include' })
     await refresh()
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось удалить файл')
+    errorMessage.value = apiErrorMessage(err, t('projects.files.deleteFailed'))
   }
 }
 
@@ -111,16 +112,16 @@ function onDrop(event: DragEvent) {
   <section class="rounded-xl border bg-card">
     <header class="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4">
       <div>
-        <h2 class="text-sm font-medium">Файлы и медиа</h2>
-        <p class="mt-1 text-xs text-muted-foreground">{{ countLabel(files.length, 'файл', 'файла', 'файлов') }}</p>
+        <h2 class="text-sm font-medium">{{ t('projects.files.title') }}</h2>
+        <p class="mt-1 text-xs text-muted-foreground">{{ countLabel(files.length, 'projects.count.files') }}</p>
       </div>
       <select
         v-if="canManage"
         v-model="docType"
         class="h-8 rounded-md border bg-background px-2 text-xs outline-none focus:border-ring"
-        aria-label="Тип документа"
+        :aria-label="t('projects.files.docType')"
       >
-        <option v-for="t in TYPES" :key="t" :value="t">{{ labelOf(DOCUMENT_TYPE_LABEL, t) }}</option>
+        <option v-for="type in TYPES" :key="type" :value="type">{{ labelOf(DOCUMENT_TYPE_LABEL, type) }}</option>
       </select>
     </header>
 
@@ -145,10 +146,10 @@ function onDrop(event: DragEvent) {
       >
         <Icon name="lucide:upload-cloud" class="size-7 text-muted-foreground/60" />
         <p class="mt-3 text-sm font-medium">
-          {{ uploading ? 'Загрузка...' : 'Перетащите файлы сюда' }}
+          {{ uploading ? t('projects.files.uploading') : t('projects.files.dropHere') }}
         </p>
         <p class="mt-1 text-xs text-muted-foreground">
-          Изображения, видео, аудио, PDF и документы. До 1 ГБ.
+          {{ t('projects.files.dropHint') }}
         </p>
         <div
           v-if="uploading"
@@ -158,7 +159,7 @@ function onDrop(event: DragEvent) {
           <p class="flex items-baseline justify-between gap-3 text-xs">
             <span class="min-w-0 truncate font-medium">{{ uploadingName }}</span>
             <span v-if="batch.total > 1" class="shrink-0 text-muted-foreground">
-              {{ batch.current }} из {{ batch.total }}
+              {{ t('projects.files.batch', { current: batch.current, total: batch.total }) }}
             </span>
           </p>
           <ProgressBar :value="uploadProgress" fluid class="mt-1.5" />
@@ -167,7 +168,7 @@ function onDrop(event: DragEvent) {
             class="mt-2 rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-secondary hover:text-destructive"
             @click="cancelUpload()"
           >
-            Отменить загрузку
+            {{ t('projects.files.cancelUpload') }}
           </button>
         </div>
         <input
@@ -185,19 +186,19 @@ function onDrop(event: DragEvent) {
           :disabled="uploading"
           @click="fileInput?.click()"
         >
-          Выбрать файлы
+          {{ t('projects.files.choose') }}
         </Button>
       </div>
     </div>
 
     <div v-if="error" class="px-5 py-14 text-center">
-      <p class="text-sm text-muted-foreground">Не удалось загрузить список файлов</p>
+      <p class="text-sm text-muted-foreground">{{ t('projects.files.loadFailed') }}</p>
       <button
         type="button"
         class="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
         @click="refresh()"
       >
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
@@ -207,9 +208,9 @@ function onDrop(event: DragEvent) {
 
     <div v-else-if="files.length === 0" class="grid place-items-center px-6 py-14 text-center">
       <Icon name="lucide:folder-open" class="size-7 text-muted-foreground/50" />
-      <h3 class="mt-3 text-sm font-medium">Файлов пока нет</h3>
+      <h3 class="mt-3 text-sm font-medium">{{ t('projects.files.emptyTitle') }}</h3>
       <p class="mt-1.5 max-w-sm text-sm text-muted-foreground">
-        Прикрепите брифы, референсы, превью и договоры к проекту.
+        {{ t('projects.files.emptyBody') }}
       </p>
     </div>
 
@@ -223,7 +224,7 @@ function onDrop(event: DragEvent) {
           type="button"
           class="block h-32 w-full bg-muted/40 transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring motion-reduce:transition-none"
           tabindex="-1"
-          :aria-label="'Просмотр ' + doc.name"
+          :aria-label="t('projects.files.viewOf', { name: doc.name })"
           @click="openFile(doc)"
         >
           <MediaThumb :item="documentToViewerItem(doc)" icon-class="size-8 text-muted-foreground/60" />
@@ -234,7 +235,7 @@ function onDrop(event: DragEvent) {
             <button
               type="button"
               class="block max-w-full truncate text-left text-sm font-medium hover:underline"
-              :aria-label="'Открыть ' + doc.name"
+              :aria-label="t('projects.files.openOf', { name: doc.name })"
               @click="openFile(doc)"
             >
               {{ doc.name }}
@@ -247,7 +248,7 @@ function onDrop(event: DragEvent) {
             v-if="canManage"
             type="button"
             class="shrink-0 rounded-md p-1 text-muted-foreground opacity-0 hover:bg-secondary hover:text-destructive focus:opacity-100 group-hover:opacity-100"
-            :aria-label="'Удалить ' + doc.name"
+            :aria-label="t('projects.files.deleteOf', { name: doc.name })"
             @click="removeFile(doc)"
           >
             <Icon name="lucide:trash-2" class="size-3.5" />

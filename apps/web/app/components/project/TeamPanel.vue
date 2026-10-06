@@ -31,6 +31,7 @@ interface Candidate {
 
 const props = defineProps<{ projectId: string }>()
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const canAssign = computed(() => auth.can(PERMISSION.TASK_ASSIGN))
 
@@ -67,7 +68,7 @@ async function addMember() {
     showForm.value = false
     await Promise.all([refresh(), refreshCandidates()])
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось назначить сотрудника')
+    errorMessage.value = apiErrorMessage(err, t('projects.team.assignFailed'))
   } finally {
     submitting.value = false
   }
@@ -87,7 +88,7 @@ async function removeMember(member: Member) {
     )
     await Promise.all([refresh(), refreshCandidates()])
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось снять сотрудника с проекта')
+    errorMessage.value = apiErrorMessage(err, t('projects.team.removeFailed'))
   } finally {
     busyId.value = ''
   }
@@ -120,7 +121,7 @@ async function saveRoleLabel(member: Member, value: string) {
     delete roleDraft[member.userId]
     await refresh()
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось сохранить роль')
+    errorMessage.value = apiErrorMessage(err, t('projects.team.roleFailed'))
   } finally {
     busyId.value = ''
   }
@@ -135,9 +136,9 @@ function initials(member: Member) {
   <section class="rounded-xl border bg-card">
     <header class="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4">
       <div>
-        <h2 class="text-sm font-medium">Команда проекта</h2>
+        <h2 class="text-sm font-medium">{{ t('projects.team.title') }}</h2>
         <p class="mt-1 text-xs text-muted-foreground">
-          {{ members.length }} назначен(о) · {{ candidates.length }} доступно
+          {{ t('projects.team.counts', { assigned: members.length, available: candidates.length }) }}
         </p>
       </div>
       <Button
@@ -148,7 +149,7 @@ function initials(member: Member) {
         @click="showForm = !showForm"
       >
         <Icon :name="showForm ? 'lucide:x' : 'lucide:user-plus'" class="mr-1.5 size-3.5" />
-        {{ showForm ? 'Отмена' : 'Назначить' }}
+        {{ showForm ? t('common.actions.cancel') : t('projects.team.assign') }}
       </Button>
     </header>
 
@@ -163,14 +164,14 @@ function initials(member: Member) {
     <form v-if="showForm" class="space-y-4 border-b bg-muted/20 px-5 py-5" @submit.prevent="addMember">
       <div class="grid gap-x-5 gap-y-4 sm:grid-cols-2">
         <div class="space-y-1.5">
-          <Label for="member-user">Сотрудник</Label>
+          <Label for="member-user">{{ t('projects.team.employee') }}</Label>
           <select
             id="member-user"
             v-model="form.userId"
             required
             class="h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
           >
-            <option value="" disabled>Выберите сотрудника</option>
+            <option value="" disabled>{{ t('projects.team.chooseEmployee') }}</option>
             <option v-for="c in candidates" :key="c.id" :value="c.id">
               {{ c.firstName }} {{ c.lastName }}<template v-if="c.employee"> — {{ c.employee.position }}</template>
             </option>
@@ -178,33 +179,33 @@ function initials(member: Member) {
         </div>
 
         <div class="space-y-1.5">
-          <Label for="member-role">Роль на проекте</Label>
+          <Label for="member-role">{{ t('projects.team.role') }}</Label>
           <Input
             id="member-role"
             v-model="form.roleLabel"
             class="h-9"
             maxlength="80"
-            placeholder="Например, ведущий аниматор"
+            :placeholder="t('projects.team.rolePlaceholder')"
           />
           <p class="pt-0.5 text-xs text-muted-foreground">
-            Описывает работу на этом проекте, права не меняет.
+            {{ t('projects.team.roleHint') }}
           </p>
         </div>
       </div>
 
       <Button type="submit" size="sm" :disabled="submitting || !form.userId">
-        {{ submitting ? 'Назначение...' : 'Назначить на проект' }}
+        {{ submitting ? t('projects.team.assigning') : t('projects.team.assignSubmit') }}
       </Button>
     </form>
 
     <div v-if="error" class="px-5 py-14 text-center">
-      <p class="text-sm text-muted-foreground">Не удалось загрузить команду</p>
+      <p class="text-sm text-muted-foreground">{{ t('projects.team.loadFailed') }}</p>
       <button
         type="button"
         class="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
         @click="refresh()"
       >
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
@@ -217,9 +218,9 @@ function initials(member: Member) {
 
     <div v-else-if="members.length === 0" class="grid place-items-center px-6 py-14 text-center">
       <Icon name="lucide:users" class="size-7 text-muted-foreground/50" />
-      <h3 class="mt-3 text-sm font-medium">Сотрудники не назначены</h3>
+      <h3 class="mt-3 text-sm font-medium">{{ t('projects.team.emptyTitle') }}</h3>
       <p class="mt-1.5 max-w-sm text-sm text-muted-foreground">
-        Прикрепите команду, чтобы назначать на них задачи и считать загрузку.
+        {{ t('projects.team.emptyBody') }}
       </p>
     </div>
 
@@ -250,9 +251,9 @@ function initials(member: Member) {
           <input
             :value="draftFor(member)"
             maxlength="80"
-            placeholder="Роль на проекте"
+            :placeholder="t('projects.team.role')"
             class="h-8 w-40 rounded-md border bg-background px-2 text-xs outline-none focus:border-ring"
-            :aria-label="'Роль ' + member.user.firstName + ' на проекте'"
+            :aria-label="t('projects.team.roleOf', { name: member.user.firstName })"
             @input="roleDraft[member.userId] = ($event.target as HTMLInputElement).value"
             @keydown.enter="saveRoleLabel(member, draftFor(member))"
           >
@@ -261,10 +262,10 @@ function initials(member: Member) {
             type="button"
             class="h-8 rounded-md bg-primary px-2.5 text-xs font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
             :disabled="busyId === member.userId"
-            :aria-label="'Сохранить роль ' + member.user.firstName"
+            :aria-label="t('projects.team.saveRoleOf', { name: member.user.firstName })"
             @click="saveRoleLabel(member, draftFor(member))"
           >
-            Сохранить
+            {{ t('common.actions.save') }}
           </button>
         </template>
         <span v-else-if="member.roleLabel" class="text-xs text-muted-foreground">
@@ -276,7 +277,7 @@ function initials(member: Member) {
           type="button"
           class="shrink-0 rounded-md p-1.5 text-muted-foreground hover:bg-secondary hover:text-destructive"
           :disabled="busyId === member.userId"
-          :aria-label="'Снять ' + member.user.firstName + ' с проекта'"
+          :aria-label="t('projects.team.removeOf', { name: member.user.firstName })"
           @click="removeMember(member)"
         >
           <Icon name="lucide:user-minus" class="size-3.5" />

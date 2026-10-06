@@ -8,11 +8,13 @@ import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 
-useHead({ title: 'Новый проект' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('projects.form.createTitle')) })
 
 const auth = useAuthStore()
 if (!auth.can(PERMISSION.PROJECT_CREATE)) {
-  throw createError({ statusCode: 403, statusMessage: 'Нет прав на создание проектов' })
+  throw createError({ statusCode: 403, statusMessage: t('projects.form.noCreateRights') })
 }
 
 const { data: clientsResponse } = useFetch<{ data: Array<{ id: string, name: string }> }>(
@@ -41,7 +43,7 @@ const form = reactive({
   deadline: '',
   budget: '',
   currency: 'USD',
-  template: '3D-анимация',
+  template: Object.keys(PROJECT_TEMPLATES).find(name => name.startsWith('3D')) ?? '',
   description: ''
 })
 
@@ -50,6 +52,18 @@ const errorMessage = ref('')
 const fieldErrors = ref<Record<string, string[]>>({})
 
 const templates = Object.keys(PROJECT_TEMPLATES)
+
+/**
+ * Template names are the config's Russian keys and travel to the API as they
+ * are; only the option text is translated. Keys follow the config's order.
+ */
+const TEMPLATE_KEYS = ['animation2d', 'animation3d', 'commercial', 'motionDesign', 'seriesEpisode']
+
+function templateLabel(name: string) {
+  const key = 'projects.templates.' + (TEMPLATE_KEYS[templates.indexOf(name)] ?? '')
+  return hasMessage(key) ? t(key) : name
+}
+
 const projectTypes = Object.values(PROJECT_TYPE)
 const projectStatuses = Object.values(PROJECT_STATUS)
 const priorities = Object.values(PRIORITY)
@@ -81,7 +95,7 @@ async function onSubmit() {
     })
     await navigateTo('/projects/' + created.data.id)
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось создать проект')
+    errorMessage.value = apiErrorMessage(err, t('projects.form.createFailed'))
     const details = (err as { data?: { error?: { details?: Record<string, string[]> } } })
       ?.data?.error?.details
     if (details) fieldErrors.value = details
@@ -108,14 +122,13 @@ async function onSubmit() {
       class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
     >
       <Icon name="lucide:arrow-left" class="size-3.5" />
-      К проектам
+      {{ t('projects.form.backToList') }}
     </NuxtLink>
 
     <header class="mt-6 border-b pb-6">
-      <h1 class="text-2xl font-semibold tracking-tight">Новый проект</h1>
+      <h1 class="text-2xl font-semibold tracking-tight">{{ t('projects.form.createTitle') }}</h1>
       <p class="mt-2 max-w-prose text-sm leading-relaxed text-muted-foreground">
-        Код вида AST-001 присваивается автоматически.
-        Шаблон разворачивает пайплайн в той же транзакции.
+        {{ t('projects.form.createLead') }}
       </p>
     </header>
 
@@ -130,23 +143,23 @@ async function onSubmit() {
 
     <form class="mt-8 space-y-5" @submit.prevent="onSubmit">
       <fieldset class="overflow-hidden rounded-xl border bg-card">
-        <legend class="sr-only">Основные сведения</legend>
+        <legend class="sr-only">{{ t('projects.form.mainLegend') }}</legend>
 
         <div class="border-b bg-muted/30 px-6 py-4">
-          <h2 class="text-sm font-medium">Основное</h2>
+          <h2 class="text-sm font-medium">{{ t('projects.form.main') }}</h2>
           <p class="mt-1 text-xs text-muted-foreground">
-            Название, клиент и ответственные за проект
+            {{ t('projects.form.mainHint') }}
           </p>
         </div>
 
         <div class="space-y-6 px-6 py-6">
           <div class="space-y-1.5">
-            <Label for="name">Название</Label>
+            <Label for="name">{{ t('projects.form.name') }}</Label>
             <Input
               id="name"
               v-model="form.name"
               required
-              placeholder="Например, Анимационный сериал — эпизод 01"
+              :placeholder="t('projects.form.namePlaceholder')"
               class="h-10"
             />
             <p v-if="fieldErrors.name" class="pt-0.5 text-xs text-destructive">
@@ -156,14 +169,14 @@ async function onSubmit() {
 
           <div class="grid gap-x-5 gap-y-6 sm:grid-cols-2">
             <div class="space-y-1.5">
-              <Label for="client">Клиент</Label>
+              <Label for="client">{{ t('projects.form.client') }}</Label>
               <select
                 id="client"
                 v-model="form.clientId"
                 required
                 class="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:border-ring"
               >
-                <option value="" disabled>Выберите клиента</option>
+                <option value="" disabled>{{ t('projects.form.chooseClient') }}</option>
                 <option v-for="c in clients" :key="c.id" :value="c.id">{{ c.name }}</option>
               </select>
               <p v-if="fieldErrors.clientId" class="pt-0.5 text-xs text-destructive">
@@ -172,13 +185,13 @@ async function onSubmit() {
             </div>
 
             <div class="space-y-1.5">
-              <Label for="pm">Менеджер проекта</Label>
+              <Label for="pm">{{ t('projects.form.manager') }}</Label>
               <select
                 id="pm"
                 v-model="form.projectManagerId"
                 class="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:border-ring"
               >
-                <option value="">Не назначен</option>
+                <option value="">{{ t('projects.form.unassigned') }}</option>
                 <option v-for="m in managers" :key="m.userId" :value="m.userId">
                   {{ m.user.firstName }} {{ m.user.lastName }}
                 </option>
@@ -188,20 +201,20 @@ async function onSubmit() {
 
           <div class="grid gap-x-5 gap-y-6 sm:grid-cols-3">
             <div class="space-y-1.5">
-              <Label for="type">Тип</Label>
+              <Label for="type">{{ t('projects.form.type') }}</Label>
               <select
                 id="type"
                 v-model="form.projectType"
                 class="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:border-ring"
               >
-                <option v-for="t in projectTypes" :key="t" :value="t">
-                  {{ enumLabel(PROJECT_TYPE_LABEL, t) }}
+                <option v-for="type in projectTypes" :key="type" :value="type">
+                  {{ enumLabel(PROJECT_TYPE_LABEL, type) }}
                 </option>
               </select>
             </div>
 
             <div class="space-y-1.5">
-              <Label for="status">Статус</Label>
+              <Label for="status">{{ t('projects.form.status') }}</Label>
               <select
                 id="status"
                 v-model="form.status"
@@ -214,7 +227,7 @@ async function onSubmit() {
             </div>
 
             <div class="space-y-1.5">
-              <Label for="priority">Приоритет</Label>
+              <Label for="priority">{{ t('projects.form.priority') }}</Label>
               <select
                 id="priority"
                 v-model="form.priority"
@@ -228,24 +241,24 @@ async function onSubmit() {
       </fieldset>
 
       <fieldset class="overflow-hidden rounded-xl border bg-card">
-        <legend class="sr-only">Сроки, бюджет и пайплайн</legend>
+        <legend class="sr-only">{{ t('projects.form.scheduleLegend') }}</legend>
 
         <div class="border-b bg-muted/30 px-6 py-4">
-          <h2 class="text-sm font-medium">Сроки и бюджет</h2>
+          <h2 class="text-sm font-medium">{{ t('projects.form.schedule') }}</h2>
           <p class="mt-1 text-xs text-muted-foreground">
-            Даты определяют расчёт риска, шаблон — состав пайплайна
+            {{ t('projects.form.scheduleHint') }}
           </p>
         </div>
 
         <div class="space-y-6 px-6 py-6">
           <div class="grid gap-x-5 gap-y-6 sm:grid-cols-2">
             <div class="space-y-1.5">
-              <Label for="start">Дата начала</Label>
+              <Label for="start">{{ t('projects.form.startDate') }}</Label>
               <Input id="start" v-model="form.startDate" type="date" class="h-10" />
             </div>
 
             <div class="space-y-1.5">
-              <Label for="deadline">Дедлайн</Label>
+              <Label for="deadline">{{ t('projects.form.deadline') }}</Label>
               <Input id="deadline" v-model="form.deadline" type="date" class="h-10" />
               <p v-if="fieldErrors.deadline" class="pt-0.5 text-xs text-destructive">
                 {{ fieldErrors.deadline[0] }}
@@ -255,7 +268,7 @@ async function onSubmit() {
 
           <div class="grid gap-x-5 gap-y-6 sm:grid-cols-3">
             <div class="space-y-1.5 sm:col-span-2">
-              <Label for="budget">Бюджет</Label>
+              <Label for="budget">{{ t('projects.form.budget') }}</Label>
               <Input
                 id="budget"
                 v-model="form.budget"
@@ -268,24 +281,23 @@ async function onSubmit() {
             </div>
 
             <div class="space-y-1.5">
-              <Label for="currency">Валюта</Label>
+              <Label for="currency">{{ t('projects.form.currency') }}</Label>
               <Input id="currency" v-model="form.currency" maxlength="3" class="h-10 uppercase" />
             </div>
           </div>
 
           <div class="space-y-1.5">
-            <Label for="template">Шаблон пайплайна</Label>
+            <Label for="template">{{ t('projects.form.template') }}</Label>
             <select
               id="template"
               v-model="form.template"
               class="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:border-ring"
             >
-              <option value="">Без шаблона</option>
-              <option v-for="t in templates" :key="t" :value="t">{{ t }}</option>
+              <option value="">{{ t('projects.form.noTemplate') }}</option>
+              <option v-for="name in templates" :key="name" :value="name">{{ templateLabel(name) }}</option>
             </select>
             <p class="pt-0.5 text-xs leading-relaxed text-muted-foreground">
-              Стадии создаются вместе с проектом. Без шаблона проект появится
-              с пустым пайплайном.
+              {{ t('projects.form.templateHint') }}
             </p>
           </div>
         </div>
@@ -293,13 +305,13 @@ async function onSubmit() {
 
       <div class="flex flex-wrap items-center gap-3 pt-3">
         <Button type="submit" class="h-10 px-5" :disabled="submitting">
-          {{ submitting ? 'Создание...' : 'Создать проект' }}
+          {{ submitting ? t('projects.form.creating') : t('projects.form.submit') }}
         </Button>
         <NuxtLink
           to="/projects"
           class="px-2 py-2 text-sm text-muted-foreground hover:text-foreground"
         >
-          Отмена
+          {{ t('common.actions.cancel') }}
         </NuxtLink>
       </div>
     </form>

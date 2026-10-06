@@ -7,6 +7,7 @@
  * is actual size whatever the window. Only transform changes, never layout.
  */
 const props = defineProps<{ src: string, alt: string }>()
+const { t } = useI18n()
 const emit = defineEmits<{
   zoomed: [value: boolean]
   meta: [value: { width: number, height: number }]
@@ -213,12 +214,12 @@ const transform = computed(() =>
 
       <div v-if="!loaded && !failed" class="absolute inset-0 grid place-items-center" role="status">
         <Icon name="lucide:loader-circle" class="size-7 animate-spin text-white/60 motion-reduce:animate-none" />
-        <span class="sr-only">Загрузка изображения</span>
+        <span class="sr-only">{{ t('projects.media.imageLoading') }}</span>
       </div>
       <div v-if="failed" class="absolute inset-0 grid place-items-center text-center text-white/70">
         <div>
           <Icon name="lucide:image-off" class="mx-auto size-10 text-white/40" />
-          <p class="mt-3 text-sm">Не удалось загрузить изображение</p>
+          <p class="mt-3 text-sm">{{ t('projects.media.imageFailed') }}</p>
         </div>
       </div>
     </div>
@@ -228,13 +229,13 @@ const transform = computed(() =>
       v-if="loaded"
       class="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-full bg-black/70 p-1 text-white shadow-lg backdrop-blur"
       role="toolbar"
-      aria-label="Масштаб"
+      :aria-label="t('projects.timeline.scale')"
     >
-      <button type="button" :class="TOOL" aria-label="Уменьшить (−)" @click="zoomOut">
+      <button type="button" :class="TOOL" :aria-label="t('projects.media.zoomOut')" @click="zoomOut">
         <Icon name="lucide:zoom-out" class="size-4" />
       </button>
       <span class="w-12 text-center text-xs tabular-nums" aria-live="polite">{{ percent }}%</span>
-      <button type="button" :class="TOOL" aria-label="Увеличить (+)" @click="zoomIn">
+      <button type="button" :class="TOOL" :aria-label="t('projects.media.zoomIn')" @click="zoomIn">
         <Icon name="lucide:zoom-in" class="size-4" />
       </button>
       <span class="mx-1 h-4 w-px bg-white/20" aria-hidden="true" />
@@ -242,7 +243,7 @@ const transform = computed(() =>
         type="button"
         :class="TOOL"
         :aria-pressed="!isZoomed"
-        aria-label="Вписать в окно (0)"
+        :aria-label="t('projects.media.fit')"
         @click="fit"
       >
         <Icon name="lucide:shrink" class="size-4" />
@@ -251,7 +252,7 @@ const transform = computed(() =>
         type="button"
         :class="[TOOL, 'px-2 text-xs font-medium']"
         :aria-pressed="scale === 1"
-        aria-label="Реальный размер (1)"
+        :aria-label="t('projects.media.actualSize')"
         @click="actualSize"
       >
         1:1

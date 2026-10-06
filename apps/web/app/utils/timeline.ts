@@ -48,23 +48,28 @@ export type TimelineView = 'line' | 'chart' | 'gantt'
 export type TimelineGroup = 'project' | 'stage' | 'assignee' | 'status'
 export type TimelineScale = 'day' | 'week' | 'month'
 
+/** A choice whose label is read in the current language each time it renders. */
+function choice<K extends string, E extends object = object>(prefix: string, key: K, extra?: E): { key: K, label: string } & E {
+  return { key, ...(extra as E), get label() { return translate(prefix + key) } }
+}
+
 export const TIMELINE_VIEWS: ReadonlyArray<{ key: TimelineView, label: string, icon: string }> = [
-  { key: 'gantt', label: 'Гант', icon: 'lucide:chart-gantt' },
-  { key: 'line', label: 'Лента', icon: 'lucide:list' },
-  { key: 'chart', label: 'Графики', icon: 'lucide:chart-column-stacked' }
+  choice('projects.timeline.views.', 'gantt' as const, { icon: 'lucide:chart-gantt' }),
+  choice('projects.timeline.views.', 'line' as const, { icon: 'lucide:list' }),
+  choice('projects.timeline.views.', 'chart' as const, { icon: 'lucide:chart-column-stacked' })
 ]
 
 export const TIMELINE_GROUPS: ReadonlyArray<{ key: TimelineGroup, label: string }> = [
-  { key: 'project', label: 'По проектам' },
-  { key: 'stage', label: 'По этапам' },
-  { key: 'assignee', label: 'По исполнителям' },
-  { key: 'status', label: 'По статусам' }
+  choice('projects.timeline.groups.', 'project' as const),
+  choice('projects.timeline.groups.', 'stage' as const),
+  choice('projects.timeline.groups.', 'assignee' as const),
+  choice('projects.timeline.groups.', 'status' as const)
 ]
 
 export const TIMELINE_SCALES: ReadonlyArray<{ key: TimelineScale, label: string }> = [
-  { key: 'day', label: 'Дни' },
-  { key: 'week', label: 'Недели' },
-  { key: 'month', label: 'Месяцы' }
+  choice('projects.timeline.scales.', 'day' as const),
+  choice('projects.timeline.scales.', 'week' as const),
+  choice('projects.timeline.scales.', 'month' as const)
 ]
 
 /** Workflow order, used for legends, stacks and the status filter. */
@@ -108,7 +113,7 @@ export function addDays(value: Date, days: number) {
   return date
 }
 
-/** Monday of the week that contains the date (Russian weeks start on Monday). */
+/** Monday of the week that contains the date (weeks start on Monday in every interface language). */
 export function startOfWeek(value: Date) {
   const date = startOfDay(value)
   const shift = (date.getDay() + 6) % 7
@@ -158,7 +163,7 @@ export function tasksWord(count: number) {
 }
 
 export function personName(person: { firstName: string, lastName: string } | null) {
-  return person ? person.firstName + ' ' + person.lastName : 'Без исполнителя'
+  return person ? person.firstName + ' ' + person.lastName : translate('projects.timeline.noAssignee')
 }
 
 export function shortDay(value: Date | string) {
@@ -191,7 +196,7 @@ export function groupContext(projects: TimelineProject[]): GroupContext {
 function compareTasks(a: TimelineTask, b: TimelineTask) {
   const sa = taskSpan(a).start.getTime()
   const sb = taskSpan(b).start.getTime()
-  return sa - sb || a.title.localeCompare(b.title, 'ru')
+  return sa - sb || a.title.localeCompare(b.title, intlTag())
 }
 
 /**
@@ -216,14 +221,14 @@ export function groupTasks(
 
     if (group === 'project') {
       key = task.projectId
-      label = project ? project.code + ' · ' + project.name : 'Проект'
+      label = project ? project.code + ' · ' + project.name : translate('projects.detail.fallbackTitle')
       sort = project?.code ?? ''
       to = '/projects/' + task.projectId
     } else if (group === 'stage') {
       const stage = task.stageId ? context.stages.get(task.stageId) : null
       key = task.stageId ?? 'none:' + (multiProject ? task.projectId : '')
       const prefix = multiProject && project ? project.code + ' · ' : ''
-      label = prefix + (stage?.name ?? 'Без этапа')
+      label = prefix + (stage?.name ?? translate('projects.timeline.noStage'))
       sort = (project?.code ?? '') + String(stage?.order ?? 9999).padStart(5, '0')
     } else if (group === 'assignee') {
       key = task.assignee?.id ?? 'none'
@@ -242,7 +247,7 @@ export function groupTasks(
   }
 
   return [...buckets.values()]
-    .sort((a, b) => a.sort.localeCompare(b.sort, 'ru'))
+    .sort((a, b) => a.sort.localeCompare(b.sort, intlTag()))
     .map(({ sort: _sort, ...row }) => ({ ...row, tasks: [...row.tasks].sort(compareTasks) }))
 }
 
