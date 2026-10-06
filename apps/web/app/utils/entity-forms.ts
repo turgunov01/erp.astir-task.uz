@@ -24,7 +24,10 @@ import type { EntityFormConfig } from './entity-form'
  * Each one mirrors the Zod schema the API validates against, so a field the
  * server will reject never reaches the user as a form input. Fields absent from
  * an update schema are marked `createOnly`; fields that only exist once the row
- * does are marked `editOnly`.
+ * does are marked `editOnly`. Optional fields whose column is NOT NULL (a
+ * status, a currency, a sequence number) are marked `notNull`: blank on create
+ * lets the server default apply, and on edit they cannot be cleared. Every
+ * other optional field is cleared with null when emptied in an edit.
  */
 
 const PROJECT_SOURCE = { url: '/api/projects', labelKeys: ['code', 'name'] }
@@ -55,7 +58,8 @@ export const CLIENT_FORM: EntityFormConfig = {
       key: 'status',
       label: 'Статус',
       type: 'select',
-      options: enumOptions(CLIENT_STATUS_LABEL)
+      options: enumOptions(CLIENT_STATUS_LABEL),
+      notNull: true
     },
     { key: 'notes', label: 'Заметки', type: 'textarea' },
     {
@@ -94,7 +98,8 @@ export const ASSET_FORM: EntityFormConfig = {
       key: 'status',
       label: 'Статус',
       type: 'select',
-      options: enumOptions(PRODUCTION_STATUS_LABEL)
+      options: enumOptions(PRODUCTION_STATUS_LABEL),
+      notNull: true
     },
     { key: 'thumbnailUrl', label: 'Ссылка на превью', type: 'text', wide: true },
     { key: 'description', label: 'Описание', type: 'textarea' },
@@ -146,13 +151,14 @@ export const EPISODE_FORM: EntityFormConfig = {
       createOnly: true
     },
     { key: 'title', label: 'Название', type: 'text', required: true },
-    { key: 'number', label: 'Номер', type: 'number', hint: 'Пусто — следующий свободный' },
+    { key: 'number', label: 'Номер', type: 'number', hint: 'Пусто — следующий свободный', notNull: true },
     { key: 'duration', label: 'Длительность, сек', type: 'number' },
     {
       key: 'status',
       label: 'Статус',
       type: 'select',
-      options: enumOptions(PRODUCTION_STATUS_LABEL)
+      options: enumOptions(PRODUCTION_STATUS_LABEL),
+      notNull: true
     },
     { key: 'startDate', label: 'Старт', type: 'date' },
     { key: 'deadline', label: 'Срок', type: 'date' },
@@ -188,13 +194,14 @@ export const SCENE_FORM: EntityFormConfig = {
       source: { url: '/api/episodes', labelKeys: ['title'] }
     },
     { key: 'name', label: 'Название', type: 'text', required: true },
-    { key: 'sceneNumber', label: 'Номер', type: 'number', hint: 'Пусто — следующий свободный' },
+    { key: 'sceneNumber', label: 'Номер', type: 'number', hint: 'Пусто — следующий свободный', notNull: true },
     { key: 'duration', label: 'Длительность, сек', type: 'number' },
     {
       key: 'status',
       label: 'Статус',
       type: 'select',
-      options: enumOptions(PRODUCTION_STATUS_LABEL)
+      options: enumOptions(PRODUCTION_STATUS_LABEL),
+      notNull: true
     },
     { key: 'description', label: 'Описание', type: 'textarea' },
     {
@@ -228,8 +235,8 @@ export const SHOT_FORM: EntityFormConfig = {
       source: { url: '/api/scenes', labelKeys: ['name'] }
     },
     { key: 'name', label: 'Название', type: 'text' },
-    { key: 'shotNumber', label: 'Номер', type: 'number', hint: 'Пусто — следующий свободный' },
-    { key: 'fps', label: 'FPS', type: 'number' },
+    { key: 'shotNumber', label: 'Номер', type: 'number', hint: 'Пусто — следующий свободный', notNull: true },
+    { key: 'fps', label: 'FPS', type: 'number', notNull: true },
     { key: 'startFrame', label: 'Первый кадр', type: 'number' },
     { key: 'endFrame', label: 'Последний кадр', type: 'number' },
     { key: 'duration', label: 'Длительность, сек', type: 'number' },
@@ -238,7 +245,8 @@ export const SHOT_FORM: EntityFormConfig = {
       key: 'status',
       label: 'Статус',
       type: 'select',
-      options: enumOptions(PRODUCTION_STATUS_LABEL)
+      options: enumOptions(PRODUCTION_STATUS_LABEL),
+      notNull: true
     },
     { key: 'deadline', label: 'Срок', type: 'date' },
     { key: 'description', label: 'Описание', type: 'textarea' },
@@ -280,13 +288,14 @@ export const REVISION_FORM: EntityFormConfig = {
       source: { url: '/api/tasks', labelKeys: ['title'] }
     },
     { key: 'assignedToId', label: 'Исполнитель', type: 'select', source: USER_SOURCE },
-    { key: 'priority', label: 'Приоритет', type: 'select', options: enumOptions(PRIORITY_LABEL) },
+    { key: 'priority', label: 'Приоритет', type: 'select', options: enumOptions(PRIORITY_LABEL), notNull: true },
     {
       key: 'status',
       label: 'Статус',
       type: 'select',
       options: enumOptions(REVISION_STATUS_LABEL),
-      editOnly: true
+      editOnly: true,
+      notNull: true
     },
     { key: 'deadline', label: 'Срок', type: 'date' },
     { key: 'description', label: 'Описание', type: 'textarea' },
@@ -323,15 +332,16 @@ export const RENDER_FORM: EntityFormConfig = {
     },
     { key: 'startFrame', label: 'Первый кадр', type: 'number', createOnly: true },
     { key: 'endFrame', label: 'Последний кадр', type: 'number', createOnly: true },
-    { key: 'priority', label: 'Приоритет', type: 'select', options: enumOptions(PRIORITY_LABEL) },
+    { key: 'priority', label: 'Приоритет', type: 'select', options: enumOptions(PRIORITY_LABEL), notNull: true },
     {
       key: 'status',
       label: 'Статус',
       type: 'select',
       options: enumOptions(RENDER_STATUS_LABEL),
-      editOnly: true
+      editOnly: true,
+      notNull: true
     },
-    { key: 'progress', label: 'Прогресс, %', type: 'number', editOnly: true },
+    { key: 'progress', label: 'Прогресс, %', type: 'number', editOnly: true, notNull: true },
     {
       key: 'nodeId',
       label: 'Узел',
@@ -371,7 +381,8 @@ export const REVIEW_FORM: EntityFormConfig = {
       key: 'reviewType',
       label: 'Тип согласования',
       type: 'select',
-      options: enumOptions(REVIEW_TYPE_LABEL)
+      options: enumOptions(REVIEW_TYPE_LABEL),
+      notNull: true
     },
     {
       key: 'reviewerId',
@@ -426,8 +437,9 @@ export const EMPLOYEE_FORM: EntityFormConfig = {
   createTitle: 'Новый сотрудник',
   editTitle: 'Редактирование сотрудника',
   fields: [
-    { key: 'firstName', label: 'Имя', type: 'text', required: true },
-    { key: 'lastName', label: 'Фамилия', type: 'text', required: true },
+    // The person's name and role live on the login, under `user` in the row.
+    { key: 'firstName', path: 'user.firstName', label: 'Имя', type: 'text', required: true },
+    { key: 'lastName', path: 'user.lastName', label: 'Фамилия', type: 'text', required: true },
     {
       key: 'email',
       label: 'Email',
@@ -445,7 +457,7 @@ export const EMPLOYEE_FORM: EntityFormConfig = {
       hint: 'Минимум 8 символов'
     },
     { key: 'position', label: 'Должность', type: 'text', required: true },
-    { key: 'role', label: 'Роль', type: 'select', options: enumOptions(ROLE_LABEL) },
+    { key: 'role', path: 'user.role', label: 'Роль', type: 'select', options: enumOptions(ROLE_LABEL), notNull: true },
     {
       key: 'departmentId',
       label: 'Отдел',
@@ -456,15 +468,17 @@ export const EMPLOYEE_FORM: EntityFormConfig = {
       key: 'employmentType',
       label: 'Занятость',
       type: 'select',
-      options: enumOptions(EMPLOYMENT_TYPE_LABEL)
+      options: enumOptions(EMPLOYMENT_TYPE_LABEL),
+      notNull: true
     },
     { key: 'hourlyRate', label: 'Ставка в час', type: 'number' },
-    { key: 'weeklyCapacityHours', label: 'Часов в неделю', type: 'number' },
+    { key: 'weeklyCapacityHours', label: 'Часов в неделю', type: 'number', notNull: true },
     {
       key: 'status',
       label: 'Статус',
       type: 'select',
-      options: enumOptions(EMPLOYEE_STATUS_LABEL)
+      options: enumOptions(EMPLOYEE_STATUS_LABEL),
+      notNull: true
     },
     {
       key: 'attachments',
@@ -508,7 +522,7 @@ export const EXPENSE_FORM: EntityFormConfig = {
       options: enumOptions(EXPENSE_CATEGORY_LABEL)
     },
     { key: 'amount', label: 'Сумма', type: 'number', required: true },
-    { key: 'currency', label: 'Валюта', type: 'text', placeholder: 'USD' },
+    { key: 'currency', label: 'Валюта', type: 'text', placeholder: 'USD', notNull: true },
     { key: 'date', label: 'Дата', type: 'date', required: true },
     { key: 'vendor', label: 'Контрагент', type: 'text', placeholder: 'Кому заплатили' },
     {
@@ -557,14 +571,15 @@ export const PAYROLL_FORM: EntityFormConfig = {
       required: true,
       hint: 'Всегда положительная: вид записи сам решает, прибавить или удержать.'
     },
-    { key: 'currency', label: 'Валюта', type: 'text', placeholder: 'Валюта студии' },
+    { key: 'currency', label: 'Валюта', type: 'text', placeholder: 'Валюта студии', notNull: true },
     { key: 'date', label: 'Дата', type: 'date', required: true },
     {
       key: 'period',
       label: 'Месяц расчёта',
       type: 'text',
       placeholder: 'ГГГГ-ММ',
-      hint: 'Пусто — месяц из даты.'
+      hint: 'Пусто — месяц из даты.',
+      notNull: true
     },
     {
       key: 'lateMinutes',
@@ -599,12 +614,13 @@ export const PAYMENT_FORM: EntityFormConfig = {
       hint: 'Если платёж закроет счёт целиком, система предложит отметить счёт оплаченным.'
     },
     { key: 'amount', label: 'Сумма', type: 'number', required: true },
-    { key: 'currency', label: 'Валюта', type: 'text', placeholder: 'USD' },
+    { key: 'currency', label: 'Валюта', type: 'text', placeholder: 'USD', notNull: true },
     {
       key: 'status',
       label: 'Статус',
       type: 'select',
-      options: enumOptions(PAYMENT_STATUS_LABEL)
+      options: enumOptions(PAYMENT_STATUS_LABEL),
+      notNull: true
     },
     {
       key: 'method',
@@ -638,7 +654,8 @@ export const INVOICE_FORM: EntityFormConfig = {
       label: 'Номер',
       type: 'text',
       placeholder: 'Пусто — присвоится следующий',
-      hint: 'Номер уникален и уходит клиенту, поэтому менять его стоит осознанно.'
+      hint: 'Номер уникален и уходит клиенту, поэтому менять его стоит осознанно.',
+      notNull: true
     },
     { key: 'clientId', label: 'Клиент', type: 'select', required: true, source: CLIENT_SOURCE },
     {
@@ -649,14 +666,15 @@ export const INVOICE_FORM: EntityFormConfig = {
       placeholder: 'Без проекта'
     },
     { key: 'amount', label: 'Сумма', type: 'number', required: true },
-    { key: 'currency', label: 'Валюта', type: 'text', placeholder: 'USD' },
+    { key: 'currency', label: 'Валюта', type: 'text', placeholder: 'USD', notNull: true },
     {
       key: 'status',
       label: 'Статус',
       type: 'select',
-      options: enumOptions(PAYMENT_STATUS_LABEL)
+      options: enumOptions(PAYMENT_STATUS_LABEL),
+      notNull: true
     },
-    { key: 'issuedAt', label: 'Выставлен', type: 'date' },
+    { key: 'issuedAt', label: 'Выставлен', type: 'date', notNull: true },
     { key: 'dueDate', label: 'Оплатить до', type: 'date' },
     { key: 'vatAmount', label: 'В т.ч. НДС', type: 'number', hint: 'Часть суммы счёта. Пусто — без НДС.' },
     { key: 'description', label: 'Назначение', type: 'textarea', wide: true, placeholder: 'За что выставлен счёт' }
@@ -684,6 +702,6 @@ export const BUDGET_FORM: EntityFormConfig = {
     },
     { key: 'revenue', label: 'Плановая выручка', type: 'number', required: true },
     { key: 'plannedCost', label: 'Плановая себестоимость', type: 'number', required: true },
-    { key: 'currency', label: 'Валюта', type: 'text', placeholder: 'USD' }
+    { key: 'currency', label: 'Валюта', type: 'text', placeholder: 'USD', notNull: true }
   ]
 }

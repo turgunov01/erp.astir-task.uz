@@ -28,7 +28,13 @@ export interface SelectSource {
 }
 
 export interface FormField {
+  /** Body key the API expects. */
   key: string
+  /**
+   * Where the edited row keeps the value, when not under `key`: an employee
+   * row carries the person's name and role under `user`.
+   */
+  path?: string
   label: string
   type: FieldType
   required?: boolean
@@ -51,6 +57,14 @@ export interface FormField {
   createOnly?: boolean
   /** Field only exists once the row does, e.g. a render job status. */
   editOnly?: boolean
+  /**
+   * The column behind the field can never be empty.
+   *
+   * Creating, a blank field is left out so the server default applies (a
+   * status, a currency, the next free number). Editing, there is nothing to
+   * clear it to, so the field becomes required instead.
+   */
+  notNull?: boolean
 }
 
 export interface EntityFormConfig {
@@ -93,29 +107,70 @@ export function optionLabel(row: Record<string, unknown>, keys: string[]) {
     .join(' ')
 }
 
+/** Nothing filled in: absent, null, or text that is only whitespace. */
+export function isBlank(value: unknown): boolean {
+  return value === undefined ||
+    value === null ||
+    (typeof value === 'string' && value.trim() === '')
+}
+
+/** Whether the field must be filled in, given whether a row is being edited. */
+export function isFieldRequired(field: FormField, isEdit: boolean): boolean {
+  return Boolean(field.required || (isEdit && field.notNull))
+}
+
+export interface CleanPayloadOptions {
+  /**
+   * The row being edited, as the API returned it; absent when creating.
+   *
+   * It is what tells "the user emptied this field" apart from "this field was
+   * never filled in".
+   */
+  original?: Record<string, unknown> | null
+}
+
 /**
- * Strip values the API should not receive.
+ * The value an optional, blank field contributes, or `undefined` to leave it out.
  *
- * Empty strings mean "not filled in", and sending them would fail uuid or
- * enum validation; a null is the honest way to clear an optional field.
+ * Creating, blank means "not filled in": sending '' would fail uuid or enum
+ * validation, and leaving the key out lets the server default apply.
+ *
+ * Editing, a PATCH only touches the keys it carries, so leaving the key out
+ * would silently keep the old value. A field that had a value and is now
+ * blank is therefore sent as null, which clears the column; a field that was
+ * blank all along stays out of the body, as does one whose column cannot be
+ * empty (see `notNull`).
+ */
+function blankValue(field: FormField, original: Record<string, unknown> | null): null | undefined {
+  if (!original || field.notNull) return undefined
+  return isBlank(readPath(original, field.path ?? field.key)) ? undefined : null
+}
+
+/**
+ * Build the JSON body for a create (POST) or edit (PATCH) from form values.
+ *
+ * Pure: neither `values` nor `original` is modified.
  */
 export function cleanPayload(
   values: Record<string, unknown>,
-  fields: FormField[]
+  fields: FormField[],
+  options: CleanPayloadOptions = {}
 ): Record<string, unknown> {
-  const out: Record<string, unknown> = {}
-  for (const field of fields) {
+  const original = options.original ?? null
+  const entries = fields.flatMap((field): Array<[string, unknown]> => {
     // Files travel as chunked uploads of their own, never in the JSON body.
-    if (field.type === 'files') continue
+    if (field.type === 'files') return []
     const value = values[field.key]
-    if (value === '' || value === undefined) {
-      if (!field.required) continue
+
+    if (isBlank(value)) {
+      if (field.required) {
+        return [[field.key, field.type === 'number' ? null : value]]
+      }
+      const cleared = blankValue(field, original)
+      return cleared === undefined ? [] : [[field.key, cleared]]
     }
-    if (field.type === 'number') {
-      out[field.key] = value === '' || value === null ? null : Number(value)
-      continue
-    }
-    out[field.key] = value
-  }
-  return out
+
+    return [[field.key, field.type === 'number' ? Number(value) : value]]
+  })
+  return Object.fromEntries(entries)
 }
