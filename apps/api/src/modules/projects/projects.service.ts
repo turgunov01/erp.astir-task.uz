@@ -5,6 +5,7 @@ import { prisma } from '../../lib/prisma'
 import { badRequest, conflict, notFound } from '../../lib/errors'
 import { buildMeta, toSkipTake } from '../../lib/http'
 import { recordActivity } from '../../lib/activity'
+import { notifyProjectAssigned } from '../../lib/notify'
 import { storage } from '../../lib/storage'
 import * as repo from './projects.repository'
 import { calculateProgress, calculateRisk } from './projects.progress'
@@ -134,8 +135,54 @@ export async function create(input: CreateProjectInput, actorId?: string) {
       tx
     )
 
+    await announceLeads(project, {}, actorId, tx)
+
     return project
   })
+}
+
+interface ProjectLeads {
+  projectManagerId?: string | null
+  producerId?: string | null
+}
+
+const LEAD_ROLES: Array<{ key: keyof ProjectLeads, label: string }> = [
+  { key: 'projectManagerId', label: 'Менеджер проекта' },
+  { key: 'producerId', label: 'Продюсер' }
+]
+
+/**
+ * Tell the project manager and producer they are on the project — the people
+ * a project is created "with". Only newly set leads hear about it; one person
+ * holding both roles gets a single notification naming both.
+ */
+async function announceLeads(
+  project: ProjectLeads & { id: string, code: string, name: string, deadline: Date | null },
+  previous: ProjectLeads,
+  actorId: string | undefined,
+  tx?: Prisma.TransactionClient
+): Promise<void> {
+  const rolesByUser = new Map<string, string[]>()
+  for (const { key, label } of LEAD_ROLES) {
+    const userId = project[key]
+    if (!userId || userId === previous[key]) continue
+    rolesByUser.set(userId, [...(rolesByUser.get(userId) ?? []), label])
+  }
+
+  for (const [userId, roles] of rolesByUser) {
+    await notifyProjectAssigned(
+      {
+        userId,
+        actorId,
+        projectId: project.id,
+        projectCode: project.code,
+        projectName: project.name,
+        roleLabel: roles.join(', '),
+        deadline: project.deadline
+      },
+      tx
+    )
+  }
 }
 
 export async function update(id: string, input: Record<string, unknown>, actorId?: string) {
@@ -147,6 +194,8 @@ export async function update(id: string, input: Record<string, unknown>, actorId
   if ('deadline' in input) data.deadline = toDate(input.deadline as string | null)
 
   const project = await repo.update(id, data)
+
+  await announceLeads(project, existing, actorId)
 
   if (input.status && input.status !== existing.status) {
     await recordActivity({
