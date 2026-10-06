@@ -6,7 +6,9 @@ import { EMPLOYEE_FORM } from '~/utils/entity-forms'
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Сотрудники' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('team.employees.title')) })
 
 const page = ref(1)
 const search = ref('')
@@ -57,22 +59,22 @@ const departments = computed(() => departmentsResponse.value?.data ?? [])
 const crud = useEntityCrud({
   endpoint: '/api/employees',
   refresh: () => refresh(),
-  entityLabel: 'сотрудника',
+  entityLabel: t('team.employees.entity'),
   archivedView
 })
 
 // Switching between the working set and the archive starts from page one.
 watch(archivedView, () => { page.value = 1 })
 
-const columns: Column[] = [
-  { key: 'name', label: 'Сотрудник', width: '26%' },
-  { key: 'position', label: 'Должность', width: '20%' },
-  { key: 'department', label: 'Отдел', width: '16%' },
-  { key: 'role', label: 'Роль', width: '16%' },
-  { key: 'capacity', label: 'Часов в неделю', width: '10%', numeric: true },
-  { key: 'status', label: 'Статус', width: '12%' },
+const columns = computed<Column[]>(() => [
+  { key: 'name', label: t('team.employees.columns.name'), width: '26%' },
+  { key: 'position', label: t('team.employees.columns.position'), width: '20%' },
+  { key: 'department', label: t('team.employees.columns.department'), width: '16%' },
+  { key: 'role', label: t('team.employees.columns.role'), width: '16%' },
+  { key: 'capacity', label: t('team.employees.columns.capacity'), width: '10%', numeric: true },
+  { key: 'status', label: t('team.employees.columns.status'), width: '12%' },
   { key: 'actions', label: '', width: '56px' }
-]
+])
 
 function initials(row: EmployeeRow) {
   return (row.user.firstName.charAt(0) + row.user.lastName.charAt(0)).toUpperCase()
@@ -82,14 +84,14 @@ function initials(row: EmployeeRow) {
 <template>
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Команда</p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Сотрудники</h1>
-      <p class="mt-1 text-sm text-muted-foreground">{{ countLabel(meta.total, 'сотрудник', 'сотрудника', 'сотрудников') }}</p>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{{ t('team.eyebrow') }}</p>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('team.employees.title') }}</h1>
+      <p class="mt-1 text-sm text-muted-foreground">{{ countLabel(meta.total, 'team.employees.count') }}</p>
     </header>
 
     <div class="mb-4 flex flex-wrap items-center justify-end gap-3">
 
-      <EntityToolbar :crud="crud" create-label="Новый сотрудник" :can-manage="canManage" />
+      <EntityToolbar :crud="crud" :create-label="t('team.employees.create')" :can-manage="canManage" />
 
     </div>
 
@@ -101,10 +103,10 @@ function initials(row: EmployeeRow) {
       :meta="meta"
       :pending="pending"
       :error-message="errorMessage"
-      search-placeholder="Поиск по имени, почте, должности..."
+      :search-placeholder="t('team.employees.search')"
       empty-icon="lucide:users"
-      empty-title="Нет сотрудников"
-      empty-body="Добавьте сотрудников, чтобы назначать их на задачи."
+      :empty-title="t('team.employees.emptyTitle')"
+      :empty-body="t('team.employees.emptyBody')"
       @update:page="page = $event"
       @update:search="page = 1"
       @retry="refresh"
@@ -112,10 +114,11 @@ function initials(row: EmployeeRow) {
       <template #toolbar>
         <select
           v-model="departmentId"
+          :aria-label="t('team.departmentFilter')"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
           @change="page = 1"
         >
-          <option value="">Все отделы</option>
+          <option value="">{{ t('team.allDepartments') }}</option>
           <option v-for="dept in departments" :key="dept.id" :value="dept.id">
             {{ dept.name }}
           </option>
@@ -141,7 +144,7 @@ function initials(row: EmployeeRow) {
       <template #cell-role="{ row }">
         <span class="text-xs text-muted-foreground">{{ enumLabel(ROLE_LABEL, row.user.role) }}</span>
       </template>
-      <template #cell-capacity="{ row }">{{ row.weeklyCapacityHours }}ч</template>
+      <template #cell-capacity="{ row }">{{ t('team.hours', { n: row.weeklyCapacityHours }) }}</template>
       <template #cell-status="{ row }">
         <StatusBadge :status="row.user.isActive ? row.status : 'INACTIVE'" />
       </template>
@@ -161,7 +164,7 @@ function initials(row: EmployeeRow) {
     <EntityCrudHost
       :crud="crud"
       :config="EMPLOYEE_FORM"
-      delete-detail="Учётная запись и доступ удаляются, почта освобождается. Задачи и версии останутся без исполнителя; если у сотрудника есть табели или комментарии, его запись сохранится в базе без доступа."
+      :delete-detail="t('team.employees.deleteDetail')"
     />
   </div>
 </template>

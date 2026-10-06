@@ -70,7 +70,380 @@
         "invoicePrefixHint": "For example, INV- gives INV-0001.",
         "defaultLanguage": "Default language",
         "defaultLanguageHint": "For everyone who has not picked a language in their profile, and for the sign-in page, emails and exports."
+      },
+      "mail": {
+        "testFailed": "The test failed",
+        "intro": "Until SMTP is filled in, confirmation codes and notifications are not sent — they are written to the server log. Sign-up formally works, but a real person will not receive the code.",
+        "host": "Server",
+        "hostPlaceholder": "Mail server address",
+        "port": "Port",
+        "portHint": "465 means TLS from the start, any other port uses STARTTLS.",
+        "user": "User",
+        "password": "Password",
+        "passwordSet": "Saved — leave empty to keep it",
+        "passwordUnset": "Not set",
+        "passwordHint": "The password is never sent back — it cannot be viewed on this page.",
+        "from": "Sender",
+        "fromPlaceholder": "Sender name and address",
+        "testing": "Sending...",
+        "test": "Send a test email to myself"
+      },
+      "templates": {
+        "saveFailed": "Could not save the template",
+        "deleteFailed": "Could not delete the template",
+        "intro": "A template sets the list of stages a new project is filled with. Stages from the standard pipeline keep their weight and department; an unfamiliar name becomes a stage too — with weight 1 and no department.",
+        "default": "default",
+        "stageCount": "{n} stage | {n} stages",
+        "stagesLine": "{count}: {stages}",
+        "empty": "No custom templates yet — projects are created with the built-in pipeline.",
+        "editTitle": "Edit template",
+        "newTitle": "New template",
+        "name": "Name",
+        "description": "Description",
+        "stages": "Stages — one per line, in order",
+        "isDefault": "Offer this template first",
+        "deleteTitle": "Delete template",
+        "deleteMessage": "Delete the template “{name}”?",
+        "deleteDetail": "Projects already created will not change — a template only affects new ones."
+      },
+      "users": {
+        "updateFailed": "Could not update the account",
+        "intro": "All accounts are here, including those without an employee card — client portal users, for example. Hiring, position and rate live in {link}.",
+        "introLink": "Employees",
+        "search": "Search by name or email...",
+        "columns": {
+          "user": "User",
+          "role": "Role",
+          "email": "Email",
+          "access": "Access"
+        },
+        "clientPortal": "{client} client portal",
+        "noEmployee": "no employee card",
+        "roleAria": "Role: {name}",
+        "verified": "verified",
+        "verify": "verify manually",
+        "unverified": "not verified",
+        "disable": "Disable",
+        "enable": "Enable",
+        "self": "this is you",
+        "active": "active",
+        "disabled": "disabled"
       }
+    },
+    "eyebrow": "Team",
+    "planningEyebrow": "Planning",
+    "allDepartments": "All departments",
+    "departmentFilter": "Filter by department",
+    "hours": "{n} h",
+    "noMatches": "No one matches the selected filters.",
+    "employees": {
+      "title": "Employees",
+      "entity": "employee",
+      "count": "{n} employee | {n} employees",
+      "columns": {
+        "name": "Employee",
+        "position": "Position",
+        "department": "Department",
+        "role": "Role",
+        "capacity": "Hours per week",
+        "status": "Status"
+      },
+      "create": "New employee",
+      "search": "Search by name, email, position...",
+      "emptyTitle": "No employees",
+      "emptyBody": "Add employees to assign them to tasks.",
+      "deleteDetail": "The account and its access are deleted and the email address is freed. Tasks and versions are left without an assignee; if the employee has timesheets or comments, their record stays in the database without access."
+    },
+    "departments": {
+      "title": "Departments",
+      "entity": "department",
+      "count": "{n} department | {n} departments",
+      "columns": {
+        "name": "Department",
+        "description": "Description",
+        "employees": "Employees"
+      },
+      "create": "New department",
+      "search": "Search departments...",
+      "emptyTitle": "No departments",
+      "emptyBody": "Departments group employees by speciality."
+    },
+    "attendance": {
+      "eyebrow": "Control",
+      "title": "Employee attendance",
+      "intro": "Who came to work and who did not. Arrival is a press of “I’m in” in the site header; leaving is “I’m leaving” or the last activity.",
+      "scheduleLine": "Schedule {start}–{end}, {days}; late means after {start} + {grace} min.",
+      "editSchedule": "Change schedule",
+      "viewsAria": "View mode",
+      "views": {
+        "day": "Day",
+        "period": "Period"
+      },
+      "correctTitle": "Correct arrival and departure"
+    },
+    "workload": {
+      "title": "Team workload",
+      "summary": "{people} people · {assigned} h assigned of {capacity} h · average load {average}%",
+      "overloaded": "{n} overloaded",
+      "bandFilter": "Filter by load",
+      "anyBand": "Any load",
+      "band": {
+        "AVAILABLE": "Available",
+        "NORMAL": "Normal",
+        "HIGH": "High",
+        "OVERLOADED": "Overloaded"
+      },
+      "ofCapacity": "of {n} h",
+      "current": "In progress this week",
+      "currentEmpty": "Nothing assigned",
+      "upcoming": "Up next",
+      "upcomingEmpty": "Queue is empty",
+      "loggedThisWeek": "Logged this week: {n} h"
+    },
+    "attendanceStatus": {
+      "PRESENT": "Checked in",
+      "UNMARKED": {
+        "today": "Online, not checked in",
+        "past": "No check-in"
+      },
+      "ABSENT": {
+        "today": "Not in",
+        "past": "Absent"
+      },
+      "DAY_OFF": "Day off",
+      "ON_LEAVE": "On leave",
+      "NOT_EMPLOYED": "Not on staff"
+    },
+    "attendanceSource": {
+      "WEB": "Automatic",
+      "MANUAL": "Corrected by hand",
+      "EXTERNAL": "From the access control system"
+    },
+    "board": {
+      "loadFailed": "Could not load activity",
+      "tiles": {
+        "arrived": "Came in",
+        "absent": "Not in",
+        "late": "Late",
+        "unmarked": "Not checked in",
+        "online": "Online now"
+      },
+      "groups": {
+        "absent": "Not in",
+        "unmarked": "Online but not checked in",
+        "present": "Came in and checked in",
+        "off": "Day off, leave"
+      },
+      "previousDay": "Previous day",
+      "day": "Day",
+      "nextDay": "Next day",
+      "today": "Today",
+      "statusFilter": "Filter by status",
+      "filter": {
+        "any": "Any status",
+        "ARRIVED": "Came in",
+        "PRESENT": "Checked in",
+        "UNMARKED": "Online, not checked in",
+        "ABSENT": "Not in",
+        "LATE": "Late",
+        "ONLINE": "Online",
+        "DAY_OFF": "Day off",
+        "ON_LEAVE": "On leave"
+      },
+      "dayOff": "Not a working day by the schedule",
+      "autoRefresh": "Refreshes every minute",
+      "noStaff": "There are no employees on staff yet.",
+      "columns": {
+        "employee": "Employee",
+        "status": "Status",
+        "arrived": "Arrived",
+        "late": "Late by",
+        "activity": "Activity",
+        "worked": "Worked",
+        "actions": "Actions"
+      },
+      "online": "online",
+      "correctedTitle": "Corrected by hand: {comment}",
+      "unmarkedTitle": "Did not press “I’m in” — time of first activity",
+      "unmarkedNote": "no check-in",
+      "byButton": "with the “I’m in” button",
+      "feedOf": "Activity feed: {name}",
+      "feedAria": "Activity feed of {name}",
+      "feed": "Activity feed",
+      "correctAria": "Correct the day: {name}"
+    },
+    "days": {
+      "loading": "Loading days...",
+      "loadFailed": "Could not load the employee’s days.",
+      "columns": {
+        "day": "Day",
+        "status": "Status",
+        "checkIn": "Arrival",
+        "checkOut": "Departure",
+        "late": "Late by",
+        "worked": "Worked",
+        "note": "Note"
+      },
+      "correctAria": "Correct {date}"
+    },
+    "correct": {
+      "saveFailed": "Could not save the correction",
+      "resetFailed": "Could not restore the automatic data",
+      "title": "Correct the day",
+      "observed": "The system saw: first sign-in {first}, last activity {last}.",
+      "previous": "Previous correction: “{comment}”",
+      "emptyHint": "An empty arrival means the employee was not at work that day.",
+      "reason": "Reason for the correction",
+      "reasonPlaceholder": "E.g. forgot to sign in, was on a shoot from 9:00",
+      "reset": "Restore automatic"
+    },
+    "period": {
+      "loadFailed": "Could not load the period",
+      "presets": {
+        "thisWeek": "This week",
+        "lastWeek": "Last week",
+        "thisMonth": "This month",
+        "lastMonth": "Last month"
+      },
+      "ratePerDay": "{amount} per day",
+      "ratePerMinute": "{amount} per minute",
+      "rateUnset": "no rate set",
+      "fineFailed": "Could not create the fines",
+      "from": "Period start",
+      "to": "Period end",
+      "fineButton": "Fine for lateness",
+      "fineCreated": "Drafts created: {count}, totalling {amount}.",
+      "fineSkipped": "Skipped (already fined): {count}.",
+      "openPayroll": "Open in Payroll",
+      "empty": "No employees for this period.",
+      "columns": {
+        "employee": "Employee",
+        "present": "Present / working days",
+        "absent": "Absences",
+        "lateDays": "Times late",
+        "lateMinutes": "Late by",
+        "worked": "Worked"
+      },
+      "days": "{n} day | {n} days",
+      "unmarkedTitle": "Was online but did not press “I’m in”: {days}",
+      "unmarked": "no check-in: {n}",
+      "daysAria": "Days of {name}",
+      "total": "Total · {n} people",
+      "confirm": {
+        "title": "Fine for lateness?",
+        "message": "For {from} — {to}, every late day becomes a draft fine in Payroll. Rate: {rate}.",
+        "detail": "Days that already have a fine are skipped — running it again does not double anything. The drafts still need approval.",
+        "action": "Create fines"
+      }
+    },
+    "allProjects": "All projects",
+    "pageOf": "Page {page} of {pages}",
+    "nextPage": "Next",
+    "timesheets": {
+      "title": "Time tracking",
+      "views": {
+        "my": "My hours",
+        "team": "Team",
+        "projects": "By project",
+        "reports": "Report"
+      },
+      "viewsAria": "Time tracking views",
+      "columns": {
+        "date": "Date",
+        "who": "Employee",
+        "project": "Project",
+        "work": "Work",
+        "hours": "Hours"
+      },
+      "required": "Fill in the project, the date and the number of hours",
+      "saveFailed": "Could not log the hours",
+      "deleteFailed": "Could not delete the entry",
+      "summary": "{hours} h in the period",
+      "entries": "{n} entry | {n} entries",
+      "collapse": "Collapse",
+      "log": "Log hours",
+      "newEntry": "New entry",
+      "notSelected": "Not selected",
+      "task": "Task",
+      "noTask": "No task",
+      "description": "What was done",
+      "submit": "Log",
+      "byProject": "By project",
+      "byEmployee": "By employee",
+      "noHours": "No hours in the period.",
+      "noProject": "No project",
+      "unknown": "Unknown",
+      "noSearch": "Search is not available in this section",
+      "emptyTitle": "No entries",
+      "emptyBody": "Logged hours make up the actual cost of a project.",
+      "projectFilter": "Filter by project",
+      "from": "Period from",
+      "to": "Period to",
+      "deleteAria": "Delete the entry for {date}",
+      "deleteTitle": "Delete entry",
+      "deleteMessage": "Delete {hours} h for {date}?",
+      "deleteDetail": "The hours will disappear from reports and from the project cost."
+    },
+    "activity": {
+      "eyebrow": "Studio",
+      "title": "Activity feed",
+      "intro": "What happened in the studio: who created, reassigned and moved what to another status. The feed is read-only — an event cannot be edited, and that is the point.",
+      "otherFamily": "Other",
+      "quoted": "“{title}”",
+      "record": "Record",
+      "system": "System",
+      "unknownAction": "performed an action",
+      "line": "{actor} {action}",
+      "lineWithDetail": "{actor} {action} {detail}",
+      "filters": {
+        "project": "Project",
+        "actor": "Author",
+        "allActors": "All authors",
+        "action": "Event type",
+        "anyAction": "Any events",
+        "entity": "Object",
+        "anyEntity": "Any objects",
+        "from": "From",
+        "to": "to"
+      },
+      "emptyFiltered": "Nothing matches these filters",
+      "emptyTitle": "No events yet",
+      "emptyFilteredBody": "Try widening the period or removing some filters.",
+      "emptyBody": "Status changes, versions and reviews will appear here as soon as they happen.",
+      "resetFilters": "Reset filters",
+      "total": "Events: {n}"
+    },
+    "schedule": {
+      "saveFailed": "Could not save the schedule",
+      "intro": "The Attendance section measures lateness and worked time against this schedule. Arrival is a press of “I’m in” (without it, the first activity of the day); leaving is “I’m leaving” or the last activity. Times are in the studio’s time zone (the Studio tab).",
+      "saved": "Schedule saved.",
+      "start": "Workday start",
+      "end": "Workday end",
+      "grace": "Grace period, min",
+      "graceHint": "Arriving before {start} + grace is not late. Later than that, lateness counts from {start}.",
+      "weekdays": "Working days",
+      "penaltyPerDay": "Fine per late day, {currency}",
+      "penaltyPerMinute": "Fine per minute late, {currency}",
+      "penaltyHint": "The rates add up: being 25 minutes late costs {amount} {currency}. Both at zero means no fines. Fines are created by hand on the Attendance page and become drafts in Payroll.",
+      "save": "Save schedule"
+    },
+    "roles": {
+      "ownerAll": "The owner can always do everything",
+      "ceiling": "This right cannot be given to this role",
+      "notYours": "Your role does not have this right, so you cannot grant it",
+      "saved": "Permissions saved. Users will see the changes the next time a page loads.",
+      "saveFailed": "Could not save the permissions",
+      "resetDone": "The “{role}” role is back to its standard permissions.",
+      "resetFailed": "Could not reset the permissions",
+      "title": "Who sees and does what",
+      "intro": "The first row of each section opens its page; the others are actions inside it. The owner can always do everything; you can only grant what your own role has; clients only get the client set. Changes take effect the next time the user loads a page.",
+      "discard": "Discard",
+      "saveCount": "Save ({n})",
+      "loadFailed": "Could not load role permissions.",
+      "permission": "Permission",
+      "reset": "reset",
+      "everything": "everything",
+      "groupAria": "The whole “{group}” section for {role}"
     }
   }
 }

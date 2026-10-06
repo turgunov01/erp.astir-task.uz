@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { useTaskPanels } from '~/composables/useTaskPanels'
 
-useHead({ title: 'Загрузка команды' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('team.workload.title')) })
 
 const { openTask } = useTaskPanels()
 
@@ -39,11 +41,10 @@ const { data, pending, error, refresh } = await useFetch<{ data: WorkloadRow[] }
 
 const rows = computed(() => data.value?.data ?? [])
 
-const BAND_LABEL: Record<string, string> = {
-  AVAILABLE: 'Свободен',
-  NORMAL: 'Норма',
-  HIGH: 'Высокая',
-  OVERLOADED: 'Перегружен'
+const BANDS = ['AVAILABLE', 'NORMAL', 'HIGH', 'OVERLOADED'] as const
+
+function bandLabel(band: string): string {
+  return t('team.workload.band.' + band)
 }
 
 /** Colour follows the band, so a row reads before its number does. */
@@ -97,14 +98,18 @@ const totals = computed(() => {
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
       <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-        Планирование
+        {{ t('team.planningEyebrow') }}
       </p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Загрузка команды</h1>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('team.workload.title') }}</h1>
       <p class="mt-1 text-sm text-muted-foreground">
-        {{ totals.people }} чел. · {{ totals.assigned }}ч назначено из {{ totals.capacity }}ч
-        · средняя загрузка {{ totals.average }}%
+        {{ t('team.workload.summary', {
+          people: totals.people,
+          assigned: totals.assigned,
+          capacity: totals.capacity,
+          average: totals.average
+        }) }}
         <span v-if="totals.overloaded > 0" class="text-destructive">
-          · перегружено {{ totals.overloaded }}
+          · {{ t('team.workload.overloaded', { n: totals.overloaded }) }}
         </span>
       </p>
     </header>
@@ -113,18 +118,18 @@ const totals = computed(() => {
       <select
         v-model="department"
         class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-        aria-label="Фильтр по отделу"
+        :aria-label="t('team.departmentFilter')"
       >
-        <option value="">Все отделы</option>
+        <option value="">{{ t('team.allDepartments') }}</option>
         <option v-for="name in departments" :key="name" :value="name">{{ name }}</option>
       </select>
       <select
         v-model="band"
         class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-        aria-label="Фильтр по загрузке"
+        :aria-label="t('team.workload.bandFilter')"
       >
-        <option value="">Любая загрузка</option>
-        <option v-for="(label, key) in BAND_LABEL" :key="key" :value="key">{{ label }}</option>
+        <option value="">{{ t('team.workload.anyBand') }}</option>
+        <option v-for="key in BANDS" :key="key" :value="key">{{ bandLabel(key) }}</option>
       </select>
     </div>
 
@@ -137,13 +142,13 @@ const totals = computed(() => {
       class="grid place-items-center rounded-xl border bg-card px-6 py-16 text-center"
     >
       <Icon name="lucide:triangle-alert" class="size-7 text-destructive" />
-      <p class="mt-3 text-sm">Не удалось загрузить данные</p>
+      <p class="mt-3 text-sm">{{ t('common.errors.loadFailed') }}</p>
       <button
         type="button"
         class="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
         @click="refresh()"
       >
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
@@ -151,7 +156,7 @@ const totals = computed(() => {
       v-else-if="visible.length === 0"
       class="rounded-xl border bg-card px-6 py-16 text-center text-sm text-muted-foreground"
     >
-      Под выбранные условия никто не подходит.
+      {{ t('team.noMatches') }}
     </p>
 
     <ul v-else class="space-y-3">
@@ -173,14 +178,14 @@ const totals = computed(() => {
 
           <div class="flex items-center gap-3">
             <span class="text-right text-sm tabular-nums">
-              <span class="font-medium">{{ row.assignedHours }}ч</span>
-              <span class="text-muted-foreground"> из {{ row.capacityHours }}ч</span>
+              <span class="font-medium">{{ t('team.hours', { n: row.assignedHours }) }}</span>
+              <span class="text-muted-foreground"> {{ t('team.workload.ofCapacity', { n: row.capacityHours }) }}</span>
             </span>
             <span
               class="rounded-md px-2 py-0.5 text-xs font-medium tabular-nums"
               :class="BAND_CLASS[row.band]"
             >
-              {{ row.utilisation }}% · {{ BAND_LABEL[row.band] }}
+              {{ row.utilisation }}% · {{ bandLabel(row.band) }}
             </span>
           </div>
         </div>
@@ -196,11 +201,11 @@ const totals = computed(() => {
         <div class="mt-3 grid gap-4 sm:grid-cols-2">
           <div>
             <h3 class="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              В работе на неделе
+              {{ t('team.workload.current') }}
               <span class="ml-1 tabular-nums">{{ row.currentCount }}</span>
             </h3>
             <p v-if="row.currentTasks.length === 0" class="mt-1.5 text-sm text-muted-foreground">
-              Ничего не назначено
+              {{ t('team.workload.currentEmpty') }}
             </p>
             <ul v-else class="mt-1.5 space-y-1">
               <li v-for="task in row.currentTasks" :key="task.id">
@@ -220,11 +225,11 @@ const totals = computed(() => {
 
           <div>
             <h3 class="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Дальше
+              {{ t('team.workload.upcoming') }}
               <span class="ml-1 tabular-nums">{{ row.upcomingCount }}</span>
             </h3>
             <p v-if="row.upcomingTasks.length === 0" class="mt-1.5 text-sm text-muted-foreground">
-              Очередь пуста
+              {{ t('team.workload.upcomingEmpty') }}
             </p>
             <ul v-else class="mt-1.5 space-y-1">
               <li v-for="task in row.upcomingTasks" :key="task.id">
@@ -244,7 +249,7 @@ const totals = computed(() => {
         </div>
 
         <p v-if="row.loggedThisWeek > 0" class="mt-3 text-xs text-muted-foreground">
-          Списано за эту неделю: {{ row.loggedThisWeek }}ч
+          {{ t('team.workload.loggedThisWeek', { n: row.loggedThisWeek }) }}
         </p>
       </li>
     </ul>

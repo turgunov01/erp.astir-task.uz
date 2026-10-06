@@ -12,7 +12,9 @@ import AttendancePeriod from '~/components/attendance/AttendancePeriod.vue'
  * the administrator land here after signing in; /attendance redirects here.
  */
 
-useHead({ title: 'Посещаемость сотрудников' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('team.attendance.title')) })
 
 const route = useRoute()
 const router = useRouter()
@@ -21,8 +23,8 @@ const auth = useAuthStore()
 const canSeeSchedule = computed(() => auth.can(PERMISSION.SETTINGS_VIEW))
 
 const VIEWS = [
-  { key: 'day', label: 'День' },
-  { key: 'period', label: 'Период' }
+  { key: 'day', labelKey: 'team.attendance.views.day' },
+  { key: 'period', labelKey: 'team.attendance.views.period' }
 ] as const
 type ViewKey = typeof VIEWS[number]['key']
 
@@ -60,26 +62,29 @@ const schedule = computed(() => boardHead.value?.data.schedule ?? null)
   <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
     <header class="mb-6">
       <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-        Контроль
+        {{ t('team.attendance.eyebrow') }}
       </p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Посещаемость сотрудников</h1>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('team.attendance.title') }}</h1>
       <p class="mt-1 text-sm text-muted-foreground">
-        Кто пришёл на работу, а кто нет. Приход — нажатие «Я приехал» в шапке сайта,
-        уход — «Я ушёл» или последняя активность.
+        {{ t('team.attendance.intro') }}
         <template v-if="schedule">
-          График {{ schedule.start }}–{{ schedule.end }}, {{ weekdaysLabel(schedule.weekdays) }},
-          опоздание — позже {{ schedule.start }} + {{ schedule.graceMinutes }} мин.
+          {{ t('team.attendance.scheduleLine', {
+            start: schedule.start,
+            end: schedule.end,
+            days: weekdaysLabel(schedule.weekdays),
+            grace: schedule.graceMinutes
+          }) }}
         </template>
         <NuxtLink
           v-if="canSeeSchedule"
           :to="{ path: '/settings', query: { tab: 'schedule' } }"
           class="whitespace-nowrap underline underline-offset-2 hover:text-foreground"
         >
-          Изменить график
+          {{ t('team.attendance.editSchedule') }}
         </NuxtLink>
       </p>
 
-      <nav class="mt-4 flex gap-1 border-b" aria-label="Режим просмотра">
+      <nav class="mt-4 flex gap-1 border-b" :aria-label="t('team.attendance.viewsAria')">
         <button
           v-for="entry in VIEWS"
           :key="entry.key"
@@ -91,7 +96,7 @@ const schedule = computed(() => boardHead.value?.data.schedule ?? null)
           :aria-current="view === entry.key ? 'page' : undefined"
           @click="setQuery({ view: entry.key === 'day' ? undefined : entry.key })"
         >
-          {{ entry.label }}
+          {{ t(entry.labelKey) }}
         </button>
       </nav>
     </header>

@@ -14,6 +14,7 @@ import type { AttendancePerson, AttendanceSchedule, AttendanceTotals } from '~/u
 
 const props = defineProps<{ from: string | null, to: string | null }>()
 const emit = defineEmits<{ (e: 'update:range', value: { from: string, to: string }): void }>()
+const { t } = useI18n()
 
 const auth = useAuthStore()
 const canFine = computed(() =>
@@ -45,7 +46,7 @@ const period = computed(() => data.value?.data ?? null)
 const errorMessage = computed(() => {
   if (!error.value) return ''
   const body = error.value.data as { error?: { message?: string } } | undefined
-  return body?.error?.message ?? 'Не удалось загрузить период'
+  return body?.error?.message ?? t('team.period.loadFailed')
 })
 
 /* ----------------------------------------------------------------- ranges */
@@ -57,10 +58,10 @@ const presets = computed(() => {
   const monthStart = today.slice(0, 8) + '01'
   const lastMonthEnd = shiftDate(monthStart, -1)
   return [
-    { label: 'Эта неделя', from: monday, to: today },
-    { label: 'Прошлая неделя', from: shiftDate(monday, -7), to: shiftDate(monday, -1) },
-    { label: 'Этот месяц', from: monthStart, to: today },
-    { label: 'Прошлый месяц', from: lastMonthEnd.slice(0, 8) + '01', to: lastMonthEnd }
+    { key: 'thisWeek', label: t('team.period.presets.thisWeek'), from: monday, to: today },
+    { key: 'lastWeek', label: t('team.period.presets.lastWeek'), from: shiftDate(monday, -7), to: shiftDate(monday, -1) },
+    { key: 'thisMonth', label: t('team.period.presets.thisMonth'), from: monthStart, to: today },
+    { key: 'lastMonth', label: t('team.period.presets.lastMonth'), from: lastMonthEnd.slice(0, 8) + '01', to: lastMonthEnd }
   ]
 })
 
@@ -80,7 +81,7 @@ const department = ref('')
 const departments = computed(() => {
   const names = new Set<string>()
   for (const row of period.value?.rows ?? []) if (row.employee.department) names.add(row.employee.department.name)
-  return [...names].sort((a, b) => a.localeCompare(b, 'ru'))
+  return [...names].sort((a, b) => a.localeCompare(b, intlTag()))
 })
 const visible = computed(() =>
   (period.value?.rows ?? []).filter(row => !department.value || row.employee.department?.name === department.value)
@@ -114,9 +115,9 @@ const rateText = computed(() => {
   const schedule = period.value?.schedule
   if (!schedule) return ''
   const parts: string[] = []
-  if (schedule.penaltyPerDay > 0) parts.push(formatMoney(schedule.penaltyPerDay, schedule.currency) + ' за день')
-  if (schedule.penaltyPerMinute > 0) parts.push(formatMoney(schedule.penaltyPerMinute, schedule.currency) + ' за минуту')
-  return parts.length > 0 ? parts.join(' + ') : 'ставка не задана'
+  if (schedule.penaltyPerDay > 0) parts.push(t('team.period.ratePerDay', { amount: formatMoney(schedule.penaltyPerDay, schedule.currency) }))
+  if (schedule.penaltyPerMinute > 0) parts.push(t('team.period.ratePerMinute', { amount: formatMoney(schedule.penaltyPerMinute, schedule.currency) }))
+  return parts.length > 0 ? parts.join(' + ') : t('team.period.rateUnset')
 })
 
 async function createFines() {
@@ -131,7 +132,7 @@ async function createFines() {
     )
     fineResult.value = response.data
   } catch (err) {
-    fineError.value = apiErrorMessage(err, 'Не удалось начислить штрафы')
+    fineError.value = apiErrorMessage(err, t('team.period.fineFailed'))
   } finally {
     fining.value = false
     confirming.value = false
@@ -150,7 +151,7 @@ const payrollLink = computed(() => ({
       <div class="scrollbar-none -mx-1 flex gap-1 overflow-x-auto px-1">
         <button
           v-for="preset in presets"
-          :key="preset.label"
+          :key="preset.key"
           type="button"
           class="h-9 shrink-0 rounded-md border px-3 text-sm"
           :class="isPreset(preset) ? 'border-primary bg-primary text-primary-foreground' : 'hover:bg-secondary'"
@@ -165,7 +166,7 @@ const payrollLink = computed(() => ({
           :max="period?.to"
           type="date"
           class="h-9 rounded-md border bg-background px-2 text-sm tabular-nums outline-none focus:border-ring"
-          aria-label="Начало периода"
+          :aria-label="t('team.period.from')"
           @change="setBound('from', $event)"
         >
         <span class="text-muted-foreground">—</span>
@@ -175,16 +176,16 @@ const payrollLink = computed(() => ({
           :max="period?.today"
           type="date"
           class="h-9 rounded-md border bg-background px-2 text-sm tabular-nums outline-none focus:border-ring"
-          aria-label="Конец периода"
+          :aria-label="t('team.period.to')"
           @change="setBound('to', $event)"
         >
       </div>
       <select
         v-model="department"
         class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-        aria-label="Фильтр по отделу"
+        :aria-label="t('team.departmentFilter')"
       >
-        <option value="">Все отделы</option>
+        <option value="">{{ t('team.allDepartments') }}</option>
         <option v-for="name in departments" :key="name" :value="name">{{ name }}</option>
       </select>
 
@@ -195,7 +196,7 @@ const payrollLink = computed(() => ({
         :disabled="!period || fining"
         @click="confirming = true"
       >
-        Начислить штрафы за опоздания
+        {{ t('team.period.fineButton') }}
       </button>
     </div>
 
@@ -211,14 +212,18 @@ const payrollLink = computed(() => ({
       class="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-sm"
     >
       <span>
-        Создано черновиков: <b class="tabular-nums">{{ fineResult.created }}</b>
-        на {{ formatMoney(fineResult.total, fineResult.currency) }}.
+        <i18n-t keypath="team.period.fineCreated" tag="span" scope="global">
+          <template #count><b class="tabular-nums">{{ fineResult.created }}</b></template>
+          <template #amount>{{ formatMoney(fineResult.total, fineResult.currency) }}</template>
+        </i18n-t>
         <template v-if="fineResult.skipped > 0">
-          Пропущено (уже начислено): <span class="tabular-nums">{{ fineResult.skipped }}</span>.
+          {{ ' ' }}<i18n-t keypath="team.period.fineSkipped" tag="span" scope="global">
+            <template #count><span class="tabular-nums">{{ fineResult.skipped }}</span></template>
+          </i18n-t>
         </template>
       </span>
       <NuxtLink v-if="canSeePayroll" :to="payrollLink" class="font-medium underline underline-offset-2">
-        Открыть в «Зарплате»
+        {{ t('team.period.openPayroll') }}
       </NuxtLink>
     </p>
 
@@ -230,24 +235,24 @@ const payrollLink = computed(() => ({
       <Icon name="lucide:triangle-alert" class="size-7 text-destructive" />
       <p class="mt-3 text-sm">{{ errorMessage }}</p>
       <button type="button" class="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary" @click="refresh()">
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
     <p v-else-if="visible.length === 0" class="rounded-xl border bg-card px-6 py-16 text-center text-sm text-muted-foreground">
-      Нет сотрудников для этого периода.
+      {{ t('team.period.empty') }}
     </p>
 
     <div v-else class="overflow-x-auto rounded-xl border bg-card">
       <table class="w-full min-w-[44rem] text-sm">
         <thead>
           <tr class="border-b text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            <th class="px-4 py-2.5 font-medium">Сотрудник</th>
-            <th class="px-3 py-2.5 text-right font-medium">Был / раб. дней</th>
-            <th class="px-3 py-2.5 text-right font-medium">Пропуски</th>
-            <th class="px-3 py-2.5 text-right font-medium">Опозданий</th>
-            <th class="px-3 py-2.5 text-right font-medium">Опоздал на</th>
-            <th class="px-3 py-2.5 text-right font-medium">Отработано</th>
+            <th class="px-4 py-2.5 font-medium">{{ t('team.period.columns.employee') }}</th>
+            <th class="px-3 py-2.5 text-right font-medium">{{ t('team.period.columns.present') }}</th>
+            <th class="px-3 py-2.5 text-right font-medium">{{ t('team.period.columns.absent') }}</th>
+            <th class="px-3 py-2.5 text-right font-medium">{{ t('team.period.columns.lateDays') }}</th>
+            <th class="px-3 py-2.5 text-right font-medium">{{ t('team.period.columns.lateMinutes') }}</th>
+            <th class="px-3 py-2.5 text-right font-medium">{{ t('team.period.columns.worked') }}</th>
             <th class="w-10" />
           </tr>
         </thead>
@@ -266,9 +271,9 @@ const payrollLink = computed(() => ({
                 <span
                   v-if="row.totals.unmarkedDays > 0"
                   class="block text-[11px] text-amber-700 dark:text-amber-300"
-                  :title="'Был в системе, но не нажал «Я приехал»: ' + countLabel(row.totals.unmarkedDays, 'день', 'дня', 'дней')"
+                  :title="t('team.period.unmarkedTitle', { days: countLabel(row.totals.unmarkedDays, 'team.period.days') })"
                 >
-                  без отметки: {{ row.totals.unmarkedDays }}
+                  {{ t('team.period.unmarked', { n: row.totals.unmarkedDays }) }}
                 </span>
               </td>
               <td class="px-3 py-2.5 text-right tabular-nums" :class="row.totals.absentDays > 0 ? 'text-destructive' : 'text-muted-foreground'">
@@ -284,7 +289,7 @@ const payrollLink = computed(() => ({
                   type="button"
                   class="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground"
                   :aria-expanded="expanded === row.employee.id"
-                  :aria-label="'Дни сотрудника ' + row.employee.user.firstName + ' ' + row.employee.user.lastName"
+                  :aria-label="t('team.period.daysAria', { name: row.employee.user.firstName + ' ' + row.employee.user.lastName })"
                   @click.stop="toggle(row.employee.id)"
                 >
                   <Icon :name="expanded === row.employee.id ? 'lucide:chevron-up' : 'lucide:chevron-down'" class="size-4" />
@@ -305,7 +310,7 @@ const payrollLink = computed(() => ({
         </tbody>
         <tfoot>
           <tr class="text-xs font-medium text-muted-foreground">
-            <td class="px-4 py-2.5">Итого · {{ visible.length }} чел.</td>
+            <td class="px-4 py-2.5">{{ t('team.period.total', { n: visible.length }) }}</td>
             <td class="px-3 py-2.5 text-right tabular-nums">{{ sum.presentDays }}</td>
             <td class="px-3 py-2.5 text-right tabular-nums">{{ sum.absentDays }}</td>
             <td class="px-3 py-2.5 text-right tabular-nums">{{ sum.lateDays }}</td>
@@ -319,10 +324,10 @@ const payrollLink = computed(() => ({
 
     <ConfirmDialog
       v-if="confirming && period"
-      title="Начислить штрафы за опоздания?"
-      :message="'За период ' + shortDate(period.from) + ' — ' + shortDate(period.to) + ' каждый день с опозданием станет черновиком штрафа в разделе «Зарплата». Ставка: ' + rateText + '.'"
-      detail="Дни, за которые штраф уже начислен, пропускаются — повторный запуск ничего не задвоит. Черновики ещё нужно утвердить."
-      confirm-label="Начислить"
+      :title="t('team.period.confirm.title')"
+      :message="t('team.period.confirm.message', { from: shortDate(period.from), to: shortDate(period.to), rate: rateText })"
+      :detail="t('team.period.confirm.detail')"
+      :confirm-label="t('team.period.confirm.action')"
       tone="neutral"
       :pending="fining"
       @confirm="createFines()"

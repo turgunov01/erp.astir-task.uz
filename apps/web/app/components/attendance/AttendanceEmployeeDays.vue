@@ -14,6 +14,7 @@ import type {
 
 const props = defineProps<{ employeeId: string, from: string, to: string }>()
 const emit = defineEmits<{ (e: 'changed'): void }>()
+const { t } = useI18n()
 
 const auth = useAuthStore()
 const canManage = computed(() => auth.can(PERMISSION.ATTENDANCE_MANAGE))
@@ -59,19 +60,19 @@ const isPast = (row: DayRow) => row.status !== 'UPCOMING'
 
 <template>
   <div>
-    <p v-if="pending && !detail" class="px-2 py-4 text-sm text-muted-foreground">Загружаю дни...</p>
-    <p v-else-if="error" class="px-2 py-4 text-sm text-destructive">Не удалось загрузить дни сотрудника.</p>
+    <p v-if="pending && !detail" class="px-2 py-4 text-sm text-muted-foreground">{{ t('team.days.loading') }}</p>
+    <p v-else-if="error" class="px-2 py-4 text-sm text-destructive">{{ t('team.days.loadFailed') }}</p>
 
     <table v-else-if="detail" class="w-full text-sm">
       <thead>
         <tr class="text-left text-[11px] uppercase tracking-wider text-muted-foreground">
-          <th class="px-2 py-1.5 font-medium">День</th>
-          <th class="px-2 py-1.5 font-medium">Статус</th>
-          <th class="px-2 py-1.5 text-right font-medium">Приход</th>
-          <th class="px-2 py-1.5 text-right font-medium">Уход</th>
-          <th class="px-2 py-1.5 text-right font-medium">Опоздание</th>
-          <th class="px-2 py-1.5 text-right font-medium">Отработано</th>
-          <th class="px-2 py-1.5 font-medium">Примечание</th>
+          <th class="px-2 py-1.5 font-medium">{{ t('team.days.columns.day') }}</th>
+          <th class="px-2 py-1.5 font-medium">{{ t('team.days.columns.status') }}</th>
+          <th class="px-2 py-1.5 text-right font-medium">{{ t('team.days.columns.checkIn') }}</th>
+          <th class="px-2 py-1.5 text-right font-medium">{{ t('team.days.columns.checkOut') }}</th>
+          <th class="px-2 py-1.5 text-right font-medium">{{ t('team.days.columns.late') }}</th>
+          <th class="px-2 py-1.5 text-right font-medium">{{ t('team.days.columns.worked') }}</th>
+          <th class="px-2 py-1.5 font-medium">{{ t('team.days.columns.note') }}</th>
           <th v-if="canManage" class="w-8" />
         </tr>
       </thead>
@@ -99,7 +100,7 @@ const isPast = (row: DayRow) => row.status !== 'UPCOMING'
           <td class="px-2 py-1.5 text-right tabular-nums">{{ formatMinutes(row.workedMinutes) }}</td>
           <td class="max-w-[14rem] px-2 py-1.5 text-xs text-muted-foreground">
             <span v-if="row.source && row.source !== 'WEB'" class="block truncate" :title="row.comment ?? ''">
-              {{ ATTENDANCE_SOURCE_LABEL[row.source] }}<template v-if="row.correctedBy"> ({{ row.correctedBy.firstName }})</template><template v-if="row.comment">: {{ row.comment }}</template>
+              {{ attendanceSourceLabel(row.source) }}<template v-if="row.correctedBy"> ({{ row.correctedBy.firstName }})</template><template v-if="row.comment">: {{ row.comment }}</template>
             </span>
           </td>
           <td v-if="canManage" class="px-1 py-1 text-right">
@@ -107,8 +108,8 @@ const isPast = (row: DayRow) => row.status !== 'UPCOMING'
               v-if="isPast(row)"
               type="button"
               class="grid size-7 place-items-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground"
-              :aria-label="'Исправить ' + shortDate(row.date)"
-              title="Исправить приход и уход"
+              :aria-label="t('team.days.correctAria', { date: shortDate(row.date) })"
+              :title="t('team.attendance.correctTitle')"
               @click="correcting = row"
             >
               <Icon name="lucide:pencil" class="size-3.5" />

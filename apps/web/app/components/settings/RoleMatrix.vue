@@ -26,6 +26,7 @@ interface MatrixPayload {
 }
 
 const auth = useAuthStore()
+const { t } = useI18n()
 
 const ROLES = Object.values(ROLE)
 const EDITABLE = ROLES.filter(role => role !== ROLE.OWNER)
@@ -72,11 +73,11 @@ function has(role: string, permission: string) {
  * right *off* stays possible either way.
  */
 function blocked(role: string, permission: string): string {
-  if (role === ROLE.OWNER) return 'Владелец всегда может всё'
+  if (role === ROLE.OWNER) return t('team.roles.ownerAll')
   const ceiling = data.value?.data.ceiling[role as Role]
-  if (ceiling && !ceiling.includes(permission)) return 'Этой роли такое право выдать нельзя'
+  if (ceiling && !ceiling.includes(permission)) return t('team.roles.ceiling')
   if (!auth.can(permission as never) && !has(role, permission)) {
-    return 'У вашей роли нет этого права, поэтому выдать его нельзя'
+    return t('team.roles.notYours')
   }
   return ''
 }
@@ -135,9 +136,9 @@ async function save() {
     await refresh()
     // The editor's own session may have changed rights too.
     await auth.refresh()
-    notify('Права сохранены. Пользователи увидят изменения при следующей загрузке страницы.')
+    notify(t('team.roles.saved'))
   } catch (err: unknown) {
-    notify(apiErrorMessage(err, 'Не удалось сохранить права'), true)
+    notify(apiErrorMessage(err, t('team.roles.saveFailed')), true)
   } finally {
     saving.value = false
   }
@@ -150,9 +151,9 @@ async function resetRole(role: string) {
     await apiRequest('/api/settings/permissions/' + role, { method: 'DELETE' })
     await refresh()
     await auth.refresh()
-    notify('Роль «' + enumLabel(ROLE_LABEL, role) + '» возвращена к стандартным правам.')
+    notify(t('team.roles.resetDone', { role: enumLabel(ROLE_LABEL, role) }))
   } catch (err: unknown) {
-    notify(apiErrorMessage(err, 'Не удалось сбросить права'), true)
+    notify(apiErrorMessage(err, t('team.roles.resetFailed')), true)
   } finally {
     saving.value = false
   }
@@ -163,19 +164,17 @@ async function resetRole(role: string) {
   <section class="space-y-4">
     <div class="flex flex-wrap items-start justify-between gap-3">
       <div>
-        <h2 class="text-sm font-medium">Кто что видит и может</h2>
+        <h2 class="text-sm font-medium">{{ t('team.roles.title') }}</h2>
         <p class="mt-1 max-w-2xl text-sm text-muted-foreground">
-          Первая строка каждого раздела открывает его страницу; остальные — действия внутри.
-          Владелец всегда может всё; выдать можно только то, что есть у вашей роли; клиентам —
-          только клиентский набор. Изменения вступают в силу при следующей загрузке страницы у пользователя.
+          {{ t('team.roles.intro') }}
         </p>
       </div>
       <div v-if="props.canEdit" class="flex items-center gap-2">
         <Button variant="outline" :disabled="saving || dirtyRoles.length === 0" @click="resetDraft">
-          Отменить
+          {{ t('team.roles.discard') }}
         </Button>
         <Button :disabled="saving || dirtyRoles.length === 0" @click="save">
-          {{ saving ? 'Сохраняем...' : 'Сохранить' + (dirtyRoles.length > 0 ? ' (' + dirtyRoles.length + ')' : '') }}
+          {{ saving ? t('common.actions.saving') : (dirtyRoles.length > 0 ? t('team.roles.saveCount', { n: dirtyRoles.length }) : t('common.actions.save')) }}
         </Button>
       </div>
     </div>
@@ -192,14 +191,14 @@ async function resetRole(role: string) {
     </p>
 
     <p v-if="error" role="alert" class="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
-      Не удалось загрузить права ролей.
+      {{ t('team.roles.loadFailed') }}
     </p>
 
     <div v-else class="overflow-x-auto rounded-xl border bg-card">
       <table class="w-full min-w-[56rem] text-sm">
         <thead class="sticky top-0 z-10 bg-card text-left text-xs text-muted-foreground">
           <tr class="border-b">
-            <th class="sticky left-0 z-20 bg-card px-4 py-2.5 font-medium">Право</th>
+            <th class="sticky left-0 z-20 bg-card px-4 py-2.5 font-medium">{{ t('team.roles.permission') }}</th>
             <th v-for="role in ROLES" :key="role" class="px-2 py-2.5 text-center font-medium">
               <div>{{ enumLabel(ROLE_LABEL, role) }}</div>
               <button
@@ -209,15 +208,15 @@ async function resetRole(role: string) {
                 :disabled="saving"
                 @click="resetRole(role)"
               >
-                сбросить
+                {{ t('team.roles.reset') }}
               </button>
-              <span v-else-if="role === ROLE.OWNER" class="mt-0.5 block text-[11px] font-normal text-muted-foreground">всё</span>
+              <span v-else-if="role === ROLE.OWNER" class="mt-0.5 block text-[11px] font-normal text-muted-foreground">{{ t('team.roles.everything') }}</span>
             </th>
           </tr>
         </thead>
 
         <tbody v-if="pending && !data">
-          <tr><td :colspan="ROLES.length + 1" class="px-4 py-8 text-center text-muted-foreground">Загрузка...</td></tr>
+          <tr><td :colspan="ROLES.length + 1" class="px-4 py-8 text-center text-muted-foreground">{{ t('common.states.loading') }}</td></tr>
         </tbody>
 
         <tbody v-else>
@@ -235,7 +234,7 @@ async function resetRole(role: string) {
                     ? 'border-input text-transparent hover:border-ring'
                     : 'border-primary bg-primary text-primary-foreground'"
                   :disabled="!props.canEdit"
-                  :aria-label="'Весь раздел «' + group.label + '» для роли ' + enumLabel(ROLE_LABEL, role)"
+                  :aria-label="t('team.roles.groupAria', { group: group.label, role: enumLabel(ROLE_LABEL, role) })"
                   @click="toggleGroup(role, group.permissions.map(p => p.key))"
                 >
                   {{ groupState(role, group.permissions.map(p => p.key)) === 'some' ? '–' : '✓' }}

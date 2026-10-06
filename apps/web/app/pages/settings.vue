@@ -153,7 +153,7 @@ async function testMail() {
     testResult.value = res.data.message
   } catch (err) {
     testOk.value = false
-    testResult.value = apiErrorMessage(err, 'Проверка не удалась')
+    testResult.value = apiErrorMessage(err, t('team.settings.mail.testFailed'))
   } finally {
     testing.value = false
   }
@@ -213,7 +213,7 @@ async function saveTemplate() {
     resetDraft()
     await refreshTemplates()
   } catch (err) {
-    templateError.value = apiErrorMessage(err, 'Не удалось сохранить шаблон')
+    templateError.value = apiErrorMessage(err, t('team.settings.templates.saveFailed'))
   } finally {
     templateBusy.value = false
   }
@@ -231,7 +231,7 @@ async function removeTemplate() {
     if (draft.id === target.id) resetDraft()
     await refreshTemplates()
   } catch (err) {
-    templateError.value = apiErrorMessage(err, 'Не удалось удалить шаблон')
+    templateError.value = apiErrorMessage(err, t('team.settings.templates.deleteFailed'))
     removeTarget.value = null
   } finally {
     templateBusy.value = false
@@ -278,7 +278,7 @@ async function updateAccount(row: Account, body: Record<string, unknown>) {
     await apiRequest('/api/users/' + row.id, { method: 'PATCH', body })
     await refreshAccounts()
   } catch (err) {
-    accountActionError.value = apiErrorMessage(err, 'Не удалось изменить учётную запись')
+    accountActionError.value = apiErrorMessage(err, t('team.settings.users.updateFailed'))
   } finally {
     accountBusy.value = ''
   }
@@ -398,42 +398,40 @@ const isSelf = (row: Account) => row.id === auth.user?.id
     <!-- ------------------------------------------------------------- mail -->
     <section v-else-if="tab === 'mail'" class="space-y-4">
       <p class="rounded-lg border bg-card px-4 py-3 text-sm text-muted-foreground">
-        Пока SMTP не заполнен, коды подтверждения и уведомления не уходят — они
-        пишутся в лог сервера. Регистрация формально работает, но живой человек
-        кода не получит.
+        {{ t('team.settings.mail.intro') }}
       </p>
 
       <div class="grid gap-4 rounded-xl border bg-card p-5 sm:grid-cols-2">
         <label class="block">
-          <span class="text-sm font-medium">Сервер</span>
-          <input v-model="form.smtpHost" :disabled="!canManage" placeholder="Адрес почтового сервера" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring disabled:opacity-60">
+          <span class="text-sm font-medium">{{ t('team.settings.mail.host') }}</span>
+          <input v-model="form.smtpHost" :disabled="!canManage" :placeholder="t('team.settings.mail.hostPlaceholder')" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring disabled:opacity-60">
         </label>
         <label class="block">
-          <span class="text-sm font-medium">Порт</span>
+          <span class="text-sm font-medium">{{ t('team.settings.mail.port') }}</span>
           <input v-model="form.smtpPort" :disabled="!canManage" type="number" placeholder="587" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring disabled:opacity-60">
-          <span class="mt-1 block text-xs text-muted-foreground">465 — TLS сразу, остальные — STARTTLS.</span>
+          <span class="mt-1 block text-xs text-muted-foreground">{{ t('team.settings.mail.portHint') }}</span>
         </label>
         <label class="block">
-          <span class="text-sm font-medium">Пользователь</span>
+          <span class="text-sm font-medium">{{ t('team.settings.mail.user') }}</span>
           <input v-model="form.smtpUser" :disabled="!canManage" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring disabled:opacity-60">
         </label>
         <label class="block">
-          <span class="text-sm font-medium">Пароль</span>
+          <span class="text-sm font-medium">{{ t('team.settings.mail.password') }}</span>
           <input
             v-model="smtpPassword"
             :disabled="!canManage"
             type="password"
             autocomplete="new-password"
-            :placeholder="form.smtpPasswordSet ? 'Сохранён — оставьте пустым, чтобы не менять' : 'Не задан'"
+            :placeholder="form.smtpPasswordSet ? t('team.settings.mail.passwordSet') : t('team.settings.mail.passwordUnset')"
             class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring disabled:opacity-60"
           >
           <span class="mt-1 block text-xs text-muted-foreground">
-            Обратно пароль не отдаётся — подсмотреть его на этой странице нельзя.
+            {{ t('team.settings.mail.passwordHint') }}
           </span>
         </label>
         <label class="block sm:col-span-2">
-          <span class="text-sm font-medium">Отправитель</span>
-          <input v-model="form.smtpFrom" :disabled="!canManage" placeholder="Имя и адрес отправителя" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring disabled:opacity-60">
+          <span class="text-sm font-medium">{{ t('team.settings.mail.from') }}</span>
+          <input v-model="form.smtpFrom" :disabled="!canManage" :placeholder="t('team.settings.mail.fromPlaceholder')" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring disabled:opacity-60">
         </label>
       </div>
 
@@ -444,7 +442,7 @@ const isSelf = (row: Account) => row.id === auth.user?.id
           :disabled="saving"
           @click="save(MAIL_FIELDS)"
         >
-          {{ saving ? 'Сохраняю...' : 'Сохранить' }}
+          {{ saving ? t('common.actions.saving') : t('common.actions.save') }}
         </button>
         <button
           type="button"
@@ -452,7 +450,7 @@ const isSelf = (row: Account) => row.id === auth.user?.id
           :disabled="testing"
           @click="testMail()"
         >
-          {{ testing ? 'Отправляю...' : 'Отправить проверочное письмо себе' }}
+          {{ testing ? t('team.settings.mail.testing') : t('team.settings.mail.test') }}
         </button>
       </div>
 
@@ -468,9 +466,7 @@ const isSelf = (row: Account) => row.id === auth.user?.id
     <!-- -------------------------------------------------------- templates -->
     <section v-else-if="tab === 'templates'" class="space-y-4">
       <p class="rounded-lg border bg-card px-4 py-3 text-sm text-muted-foreground">
-        Шаблон задаёт список этапов, которыми наполняется новый проект. Этапы из
-        стандартного пайплайна сохраняют свой вес и отдел; незнакомое название
-        тоже станет этапом — с весом 1 и без отдела.
+        {{ t('team.settings.templates.intro') }}
       </p>
 
       <div v-if="templates.length > 0" class="overflow-x-auto rounded-xl border bg-card">
@@ -481,19 +477,19 @@ const isSelf = (row: Account) => row.id === auth.user?.id
                 <p class="font-medium">
                   {{ template.name }}
                   <span v-if="template.isDefault" class="ml-2 rounded-md bg-secondary px-1.5 py-0.5 text-xs font-normal">
-                    по умолчанию
+                    {{ t('team.settings.templates.default') }}
                   </span>
                 </p>
                 <p class="mt-0.5 text-xs text-muted-foreground">
-                  {{ countLabel(template.stages.length, 'этап', 'этапа', 'этапов') }}: {{ template.stages.join(' → ') }}
+                  {{ t('team.settings.templates.stagesLine', { count: countLabel(template.stages.length, 'team.settings.templates.stageCount'), stages: template.stages.join(' → ') }) }}
                 </p>
               </td>
               <td v-if="canManage" class="w-36 px-5 py-3 text-right">
                 <button type="button" class="text-sm text-muted-foreground hover:text-foreground" @click="editTemplate(template)">
-                  Изменить
+                  {{ t('common.actions.edit') }}
                 </button>
                 <button type="button" class="ml-3 text-sm text-destructive hover:opacity-80" @click="removeTarget = template">
-                  Удалить
+                  {{ t('common.actions.delete') }}
                 </button>
               </td>
             </tr>
@@ -501,11 +497,11 @@ const isSelf = (row: Account) => row.id === auth.user?.id
         </table>
       </div>
       <p v-else class="rounded-xl border bg-card px-6 py-10 text-center text-sm text-muted-foreground">
-        Своих шаблонов пока нет — проекты создаются по встроенному пайплайну.
+        {{ t('team.settings.templates.empty') }}
       </p>
 
       <div v-if="canManage" class="space-y-4 rounded-xl border bg-card p-5">
-        <h2 class="text-sm font-medium">{{ draft.id ? 'Изменение шаблона' : 'Новый шаблон' }}</h2>
+        <h2 class="text-sm font-medium">{{ draft.id ? t('team.settings.templates.editTitle') : t('team.settings.templates.newTitle') }}</h2>
 
         <p v-if="templateError" role="alert" class="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm text-destructive">
           {{ templateError }}
@@ -513,23 +509,23 @@ const isSelf = (row: Account) => row.id === auth.user?.id
 
         <div class="grid gap-4 sm:grid-cols-2">
           <label class="block">
-            <span class="text-sm font-medium">Название</span>
+            <span class="text-sm font-medium">{{ t('team.settings.templates.name') }}</span>
             <input v-model="draft.name" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring">
           </label>
           <label class="block">
-            <span class="text-sm font-medium">Описание</span>
+            <span class="text-sm font-medium">{{ t('team.settings.templates.description') }}</span>
             <input v-model="draft.description" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring">
           </label>
         </div>
 
         <label class="block">
-          <span class="text-sm font-medium">Этапы — по одному в строке, в нужном порядке</span>
+          <span class="text-sm font-medium">{{ t('team.settings.templates.stages') }}</span>
           <textarea v-model="draft.stages" rows="6" class="mt-1.5 w-full rounded-md border bg-background px-2.5 py-2 font-mono text-sm outline-none focus:border-ring" />
         </label>
 
         <label class="flex items-center gap-2 text-sm">
           <input v-model="draft.isDefault" type="checkbox" class="size-4">
-          Предлагать этот шаблон первым
+          {{ t('team.settings.templates.isDefault') }}
         </label>
 
         <div class="flex gap-2">
@@ -539,10 +535,10 @@ const isSelf = (row: Account) => row.id === auth.user?.id
             :disabled="templateBusy || !draft.name.trim()"
             @click="saveTemplate()"
           >
-            {{ draft.id ? 'Сохранить' : 'Создать' }}
+            {{ draft.id ? t('common.actions.save') : t('common.actions.create') }}
           </button>
           <button v-if="draft.id" type="button" class="h-9 rounded-md px-3 text-sm text-muted-foreground hover:text-foreground" @click="resetDraft()">
-            Отмена
+            {{ t('common.actions.cancel') }}
           </button>
         </div>
       </div>
@@ -551,17 +547,17 @@ const isSelf = (row: Account) => row.id === auth.user?.id
     <!-- ------------------------------------------------------------ users -->
     <section v-else-if="tab === 'users'" class="space-y-4">
       <p class="rounded-lg border bg-card px-4 py-3 text-sm text-muted-foreground">
-        Здесь все учётные записи, включая тех, у кого нет карточки сотрудника —
-        например, портальных пользователей клиентов. Приём на работу, должность и
-        ставка живут в
-        <NuxtLink to="/team/employees" class="text-foreground underline underline-offset-4">
-          сотрудниках
-        </NuxtLink>.
+        <i18n-t keypath="team.settings.users.intro" tag="span" scope="global">
+          <template #link>
+            <NuxtLink to="/team/employees" class="text-foreground underline underline-offset-4">{{ t('team.settings.users.introLink') }}</NuxtLink>
+          </template>
+        </i18n-t>
       </p>
 
       <input
         v-model="userSearch"
-        placeholder="Поиск по имени или почте..."
+        :placeholder="t('team.settings.users.search')"
+        :aria-label="t('team.settings.users.search')"
         class="h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring sm:max-w-sm"
         @input="userPage = 1"
       >
@@ -574,10 +570,10 @@ const isSelf = (row: Account) => row.id === auth.user?.id
         <table class="w-full text-sm">
           <thead class="border-b bg-muted/30 text-left text-xs text-muted-foreground">
             <tr>
-              <th class="px-5 py-2.5 font-medium">Пользователь</th>
-              <th class="px-5 py-2.5 font-medium">Роль</th>
-              <th class="px-5 py-2.5 font-medium">Почта</th>
-              <th class="px-5 py-2.5 font-medium">Доступ</th>
+              <th class="px-5 py-2.5 font-medium">{{ t('team.settings.users.columns.user') }}</th>
+              <th class="px-5 py-2.5 font-medium">{{ t('team.settings.users.columns.role') }}</th>
+              <th class="px-5 py-2.5 font-medium">{{ t('team.settings.users.columns.email') }}</th>
+              <th class="px-5 py-2.5 font-medium">{{ t('team.settings.users.columns.access') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -587,14 +583,15 @@ const isSelf = (row: Account) => row.id === auth.user?.id
                 <p class="mt-0.5 text-xs text-muted-foreground">
                   {{ row.email }}
                   <template v-if="row.employee"> · {{ row.employee.position }}</template>
-                  <template v-else-if="row.client"> · портал клиента {{ row.client.name }}</template>
-                  <template v-else> · без карточки сотрудника</template>
+                  <template v-else-if="row.client"> · {{ t('team.settings.users.clientPortal', { client: row.client.name }) }}</template>
+                  <template v-else> · {{ t('team.settings.users.noEmployee') }}</template>
                 </p>
               </td>
               <td class="px-5 py-3">
                 <select
                   :value="row.role"
                   :disabled="!canManageUsers || isSelf(row) || accountBusy === row.id"
+                  :aria-label="t('team.settings.users.roleAria', { name: row.firstName + ' ' + row.lastName })"
                   class="h-8 rounded-md border bg-background px-2 text-sm outline-none focus:border-ring disabled:opacity-60"
                   @change="updateAccount(row, { role: ($event.target as HTMLSelectElement).value })"
                 >
@@ -604,7 +601,7 @@ const isSelf = (row: Account) => row.id === auth.user?.id
                 </select>
               </td>
               <td class="px-5 py-3">
-                <span v-if="row.emailVerifiedAt" class="text-xs text-muted-foreground">подтверждена</span>
+                <span v-if="row.emailVerifiedAt" class="text-xs text-muted-foreground">{{ t('team.settings.users.verified') }}</span>
                 <button
                   v-else-if="canManageUsers"
                   type="button"
@@ -612,9 +609,9 @@ const isSelf = (row: Account) => row.id === auth.user?.id
                   :disabled="accountBusy === row.id"
                   @click="updateAccount(row, { emailVerified: true })"
                 >
-                  подтвердить вручную
+                  {{ t('team.settings.users.verify') }}
                 </button>
-                <span v-else class="text-xs text-signal">не подтверждена</span>
+                <span v-else class="text-xs text-signal">{{ t('team.settings.users.unverified') }}</span>
               </td>
               <td class="px-5 py-3">
                 <button
@@ -625,10 +622,10 @@ const isSelf = (row: Account) => row.id === auth.user?.id
                   :disabled="accountBusy === row.id"
                   @click="updateAccount(row, { isActive: !row.isActive })"
                 >
-                  {{ row.isActive ? 'Отключить' : 'Включить' }}
+                  {{ row.isActive ? t('team.settings.users.disable') : t('team.settings.users.enable') }}
                 </button>
                 <span v-else class="text-xs text-muted-foreground">
-                  {{ isSelf(row) ? 'это вы' : (row.isActive ? 'активна' : 'отключена') }}
+                  {{ isSelf(row) ? t('team.settings.users.self') : (row.isActive ? t('team.settings.users.active') : t('team.settings.users.disabled')) }}
                 </span>
               </td>
             </tr>
@@ -638,11 +635,11 @@ const isSelf = (row: Account) => row.id === auth.user?.id
 
       <div v-if="accountMeta.pages > 1" class="flex items-center justify-between gap-3">
         <button type="button" class="h-9 rounded-md border px-3 text-sm disabled:opacity-40" :disabled="accountMeta.page <= 1" @click="userPage = accountMeta.page - 1">
-          Назад
+          {{ t('common.actions.back') }}
         </button>
-        <p class="text-sm text-muted-foreground">Страница {{ accountMeta.page }} из {{ accountMeta.pages }}</p>
+        <p class="text-sm text-muted-foreground">{{ t('team.pageOf', { page: accountMeta.page, pages: accountMeta.pages }) }}</p>
         <button type="button" class="h-9 rounded-md border px-3 text-sm disabled:opacity-40" :disabled="accountMeta.page >= accountMeta.pages" @click="userPage = accountMeta.page + 1">
-          Дальше
+          {{ t('team.nextPage') }}
         </button>
       </div>
 
@@ -654,10 +651,10 @@ const isSelf = (row: Account) => row.id === auth.user?.id
 
     <ConfirmDialog
       v-if="removeTarget"
-      title="Удаление шаблона"
-      :message="'Удалить шаблон «' + removeTarget.name + '»?'"
-      detail="Уже созданные проекты не изменятся — шаблон влияет только на новые."
-      confirm-label="Удалить"
+      :title="t('team.settings.templates.deleteTitle')"
+      :message="t('team.settings.templates.deleteMessage', { name: removeTarget.name })"
+      :detail="t('team.settings.templates.deleteDetail')"
+      :confirm-label="t('common.actions.delete')"
       :pending="templateBusy"
       @confirm="removeTemplate()"
       @cancel="removeTarget = null"

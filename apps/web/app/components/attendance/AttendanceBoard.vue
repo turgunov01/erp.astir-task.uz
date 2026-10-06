@@ -18,6 +18,7 @@ import type {
  */
 
 const props = defineProps<{ date: string | null }>()
+const { t } = useI18n()
 const emit = defineEmits<{ (e: 'update:date', value: string): void }>()
 
 const auth = useAuthStore()
@@ -56,7 +57,7 @@ const isToday = computed(() => board.value?.isToday ?? false)
 const errorMessage = computed(() => {
   if (!error.value) return ''
   const body = error.value.data as { error?: { message?: string } } | undefined
-  return body?.error?.message ?? 'Не удалось загрузить активность'
+  return body?.error?.message ?? t('team.board.loadFailed')
 })
 
 /* ---------------------------------------------------------------- filters */
@@ -69,7 +70,7 @@ const status = ref<StatusFilter>('')
 const departments = computed(() => {
   const names = new Set<string>()
   for (const row of rows.value) if (row.employee.department) names.add(row.employee.department.name)
-  return [...names].sort((a, b) => a.localeCompare(b, 'ru'))
+  return [...names].sort((a, b) => a.localeCompare(b, intlTag()))
 })
 
 /** At work today, whether by the button or only seen in the app. */
@@ -94,11 +95,11 @@ const visible = computed(() => inDepartment.value.filter(row => matchesStatus(ro
 const tiles = computed(() => {
   const list = inDepartment.value
   return [
-    { key: 'ARRIVED' as const, primary: true, label: 'Пришли', value: list.filter(hasArrived).length, tone: 'text-emerald-700 dark:text-emerald-300' },
-    { key: 'ABSENT' as const, primary: true, label: 'Не пришли', value: list.filter(row => row.status === 'ABSENT').length, tone: 'text-destructive' },
-    { key: 'LATE' as const, label: 'Опоздали', value: list.filter(row => row.lateMinutes > 0).length, tone: 'text-amber-700 dark:text-amber-300' },
-    { key: 'UNMARKED' as const, label: 'Не отметились', value: list.filter(row => row.status === 'UNMARKED').length, tone: 'text-amber-700 dark:text-amber-300' },
-    { key: 'ONLINE' as const, label: 'Онлайн сейчас', value: list.filter(row => row.online).length, tone: 'text-sky-700 dark:text-sky-300' }
+    { key: 'ARRIVED' as const, primary: true, label: t('team.board.tiles.arrived'), value: list.filter(hasArrived).length, tone: 'text-emerald-700 dark:text-emerald-300' },
+    { key: 'ABSENT' as const, primary: true, label: t('team.board.tiles.absent'), value: list.filter(row => row.status === 'ABSENT').length, tone: 'text-destructive' },
+    { key: 'LATE' as const, label: t('team.board.tiles.late'), value: list.filter(row => row.lateMinutes > 0).length, tone: 'text-amber-700 dark:text-amber-300' },
+    { key: 'UNMARKED' as const, label: t('team.board.tiles.unmarked'), value: list.filter(row => row.status === 'UNMARKED').length, tone: 'text-amber-700 dark:text-amber-300' },
+    { key: 'ONLINE' as const, label: t('team.board.tiles.online'), value: list.filter(row => row.online).length, tone: 'text-sky-700 dark:text-sky-300' }
   ]
 })
 
@@ -111,18 +112,18 @@ interface BoardGroup {
   rows: BoardRow[]
 }
 
-const GROUPS: ReadonlyArray<Omit<BoardGroup, 'rows'> & { has: (row: BoardRow) => boolean }> = [
-  { key: 'absent', label: 'Не пришли', tone: 'text-destructive', has: row => row.status === 'ABSENT' },
-  { key: 'unmarked', label: 'В системе, но не отметились', tone: 'text-amber-700 dark:text-amber-300', has: row => row.status === 'UNMARKED' },
-  { key: 'present', label: 'Пришли и отметились', tone: 'text-emerald-700 dark:text-emerald-300', has: row => row.status === 'PRESENT' },
-  { key: 'off', label: 'Выходной, отпуск', tone: 'text-muted-foreground', has: () => true }
+const GROUPS: ReadonlyArray<Omit<BoardGroup, 'rows' | 'label'> & { labelKey: string, has: (row: BoardRow) => boolean }> = [
+  { key: 'absent', labelKey: 'team.board.groups.absent', tone: 'text-destructive', has: row => row.status === 'ABSENT' },
+  { key: 'unmarked', labelKey: 'team.board.groups.unmarked', tone: 'text-amber-700 dark:text-amber-300', has: row => row.status === 'UNMARKED' },
+  { key: 'present', labelKey: 'team.board.groups.present', tone: 'text-emerald-700 dark:text-emerald-300', has: row => row.status === 'PRESENT' },
+  { key: 'off', labelKey: 'team.board.groups.off', tone: 'text-muted-foreground', has: () => true }
 ]
 
 /** Late first (the latest on top), then by arrival; names break ties. */
 function byLateness(a: BoardRow, b: BoardRow) {
   return b.lateMinutes - a.lateMinutes ||
     (a.checkInAt ?? '').localeCompare(b.checkInAt ?? '') ||
-    a.employee.user.lastName.localeCompare(b.employee.user.lastName, 'ru')
+    a.employee.user.lastName.localeCompare(b.employee.user.lastName, intlTag())
 }
 
 const groups = computed<BoardGroup[]>(() => {
@@ -131,7 +132,7 @@ const groups = computed<BoardGroup[]>(() => {
   for (const group of GROUPS) {
     const rows = rest.filter(group.has)
     rest = rest.filter(row => !group.has(row))
-    if (rows.length > 0) out.push({ key: group.key, label: group.label, tone: group.tone, rows: [...rows].sort(byLateness) })
+    if (rows.length > 0) out.push({ key: group.key, label: t(group.labelKey), tone: group.tone, rows: [...rows].sort(byLateness) })
   }
   return out
 })
@@ -187,7 +188,7 @@ function feedLink(row: BoardRow) {
         <button
           type="button"
           class="grid size-9 place-items-center text-muted-foreground hover:text-foreground"
-          aria-label="Предыдущий день"
+          :aria-label="t('team.board.previousDay')"
           @click="move(-1)"
         >
           <Icon name="lucide:chevron-left" class="size-4" />
@@ -197,13 +198,13 @@ function feedLink(row: BoardRow) {
           :max="board?.today"
           type="date"
           class="h-9 border-x bg-transparent px-2 text-sm tabular-nums outline-none"
-          aria-label="День"
+          :aria-label="t('team.board.day')"
           @change="pickDate"
         >
         <button
           type="button"
           class="grid size-9 place-items-center text-muted-foreground hover:text-foreground disabled:opacity-40"
-          aria-label="Следующий день"
+          :aria-label="t('team.board.nextDay')"
           :disabled="!board || board.date >= board.today"
           @click="move(1)"
         >
@@ -216,39 +217,39 @@ function feedLink(row: BoardRow) {
         class="h-9 rounded-md border px-3 text-sm hover:bg-secondary"
         @click="emit('update:date', board.today)"
       >
-        Сегодня
+        {{ t('team.board.today') }}
       </button>
 
       <select
         v-model="department"
         class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-        aria-label="Фильтр по отделу"
+        :aria-label="t('team.departmentFilter')"
       >
-        <option value="">Все отделы</option>
+        <option value="">{{ t('team.allDepartments') }}</option>
         <option v-for="name in departments" :key="name" :value="name">{{ name }}</option>
       </select>
       <select
         v-model="status"
         class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-        aria-label="Фильтр по статусу"
+        :aria-label="t('team.board.statusFilter')"
       >
-        <option value="">Любой статус</option>
-        <option value="ARRIVED">Пришли</option>
-        <option value="PRESENT">Отметились</option>
-        <option value="UNMARKED">В системе, не отметились</option>
-        <option value="ABSENT">Не пришли</option>
-        <option value="LATE">Опоздали</option>
-        <option value="ONLINE">Онлайн</option>
-        <option value="DAY_OFF">Выходной</option>
-        <option value="ON_LEAVE">Отпуск</option>
+        <option value="">{{ t('team.board.filter.any') }}</option>
+        <option value="ARRIVED">{{ t('team.board.filter.ARRIVED') }}</option>
+        <option value="PRESENT">{{ t('team.board.filter.PRESENT') }}</option>
+        <option value="UNMARKED">{{ t('team.board.filter.UNMARKED') }}</option>
+        <option value="ABSENT">{{ t('team.board.filter.ABSENT') }}</option>
+        <option value="LATE">{{ t('team.board.filter.LATE') }}</option>
+        <option value="ONLINE">{{ t('team.board.filter.ONLINE') }}</option>
+        <option value="DAY_OFF">{{ t('team.board.filter.DAY_OFF') }}</option>
+        <option value="ON_LEAVE">{{ t('team.board.filter.ON_LEAVE') }}</option>
       </select>
 
       <span v-if="board && !board.isWorkingDay" class="rounded-md bg-secondary px-2 py-1 text-xs text-muted-foreground">
-        Нерабочий день по графику
+        {{ t('team.board.dayOff') }}
       </span>
       <span v-if="isToday" class="ml-auto hidden items-center gap-1.5 text-xs text-muted-foreground sm:flex">
         <span class="size-1.5 animate-pulse rounded-full bg-emerald-500" aria-hidden="true" />
-        Обновляется каждую минуту
+        {{ t('team.board.autoRefresh') }}
       </span>
     </div>
 
@@ -277,23 +278,23 @@ function feedLink(row: BoardRow) {
       <Icon name="lucide:triangle-alert" class="size-7 text-destructive" />
       <p class="mt-3 text-sm">{{ errorMessage }}</p>
       <button type="button" class="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary" @click="refresh()">
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
     <p v-else-if="visible.length === 0" class="rounded-xl border bg-card px-6 py-16 text-center text-sm text-muted-foreground">
-      {{ rows.length === 0 ? 'В штате пока нет сотрудников.' : 'Под выбранные условия никто не подходит.' }}
+      {{ rows.length === 0 ? t('team.board.noStaff') : t('team.noMatches') }}
     </p>
 
     <div v-else class="overflow-hidden rounded-xl border bg-card">
       <div class="hidden grid-cols-[minmax(0,2.2fr)_minmax(0,1.1fr)_repeat(5,minmax(0,0.9fr))_6.5rem] gap-3 border-b px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground lg:grid">
-        <span>Сотрудник</span>
-        <span>Статус</span>
-        <span>Пришёл</span>
-        <span>Опоздание</span>
-        <span>Активность</span>
-        <span>Отработано</span>
-        <span>Действий</span>
+        <span>{{ t('team.board.columns.employee') }}</span>
+        <span>{{ t('team.board.columns.status') }}</span>
+        <span>{{ t('team.board.columns.arrived') }}</span>
+        <span>{{ t('team.board.columns.late') }}</span>
+        <span>{{ t('team.board.columns.activity') }}</span>
+        <span>{{ t('team.board.columns.worked') }}</span>
+        <span>{{ t('team.board.columns.actions') }}</span>
         <span />
       </div>
 
@@ -319,22 +320,22 @@ function feedLink(row: BoardRow) {
             </span>
             <span v-if="row.online" class="ml-1.5 hidden items-center gap-1 text-xs text-emerald-700 lg:inline-flex dark:text-emerald-300">
               <span class="size-1.5 rounded-full bg-emerald-500 motion-safe:animate-pulse" aria-hidden="true" />
-              онлайн
+              {{ t('team.board.online') }}
             </span>
             <Icon
               v-if="row.source === 'MANUAL'"
               name="lucide:pencil"
               class="ml-1 inline size-3 text-muted-foreground"
-              :title="'Исправлено вручную: ' + (row.comment ?? '')"
+              :title="t('team.board.correctedTitle', { comment: row.comment ?? '' })"
             />
           </span>
 
           <dl class="col-span-2 grid grid-cols-3 gap-2 text-sm sm:grid-cols-5 lg:contents">
             <div>
-              <dt class="text-[11px] text-muted-foreground lg:hidden">Пришёл</dt>
-              <dd v-if="row.status === 'UNMARKED'" class="text-muted-foreground" title="Кнопку «Я приехал» не нажимал — время первой активности">
+              <dt class="text-[11px] text-muted-foreground lg:hidden">{{ t('team.board.columns.arrived') }}</dt>
+              <dd v-if="row.status === 'UNMARKED'" class="text-muted-foreground" :title="t('team.board.unmarkedTitle')">
                 <span class="tabular-nums">{{ studioClock(row.checkInAt, tz) }}</span>
-                <span class="block text-[11px] leading-tight">без отметки</span>
+                <span class="block text-[11px] leading-tight">{{ t('team.board.unmarkedNote') }}</span>
               </dd>
               <dd v-else class="tabular-nums">
                 <span class="inline-flex items-center gap-1" :class="row.checkInMethod === 'BUTTON' && row.source === 'WEB' ? 'font-medium' : ''">
@@ -342,34 +343,34 @@ function feedLink(row: BoardRow) {
                     v-if="row.checkInMethod === 'BUTTON' && row.source === 'WEB'"
                     name="lucide:map-pin-check"
                     class="size-3.5 text-emerald-600 dark:text-emerald-400"
-                    aria-label="по кнопке «Я приехал»"
+                    :aria-label="t('team.board.byButton')"
                   />
                   {{ studioClock(row.checkInAt, tz) }}
                 </span>
               </dd>
             </div>
             <div>
-              <dt class="text-[11px] text-muted-foreground lg:hidden">Опоздание</dt>
+              <dt class="text-[11px] text-muted-foreground lg:hidden">{{ t('team.board.columns.late') }}</dt>
               <dd class="tabular-nums" :class="row.lateMinutes > 0 ? 'font-medium text-amber-700 dark:text-amber-300' : 'text-muted-foreground'">
                 {{ row.lateMinutes > 0 ? '+' + formatMinutes(row.lateMinutes) : '—' }}
               </dd>
             </div>
             <div>
-              <dt class="text-[11px] text-muted-foreground lg:hidden">Активность</dt>
+              <dt class="text-[11px] text-muted-foreground lg:hidden">{{ t('team.board.columns.activity') }}</dt>
               <dd class="tabular-nums">{{ studioClock(row.lastSeenAt, tz) }}</dd>
             </div>
             <div>
-              <dt class="text-[11px] text-muted-foreground lg:hidden">Отработано</dt>
+              <dt class="text-[11px] text-muted-foreground lg:hidden">{{ t('team.board.columns.worked') }}</dt>
               <dd class="tabular-nums">{{ formatMinutes(row.workedMinutes) }}</dd>
             </div>
             <div>
-              <dt class="text-[11px] text-muted-foreground lg:hidden">Действий</dt>
+              <dt class="text-[11px] text-muted-foreground lg:hidden">{{ t('team.board.columns.actions') }}</dt>
               <dd class="tabular-nums">
                 <NuxtLink
                   v-if="canSeeFeed && row.actions > 0"
                   :to="feedLink(row)"
                   class="underline-offset-2 hover:underline"
-                  :title="'Лента событий: ' + row.employee.user.firstName"
+                  :title="t('team.board.feedOf', { name: row.employee.user.firstName })"
                 >
                   {{ row.actions }}
                 </NuxtLink>
@@ -383,8 +384,8 @@ function feedLink(row: BoardRow) {
               v-if="canSeeFeed"
               :to="feedLink(row)"
               class="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground"
-              :aria-label="'Лента событий сотрудника ' + row.employee.user.firstName + ' ' + row.employee.user.lastName"
-              title="Лента событий"
+              :aria-label="t('team.board.feedAria', { name: row.employee.user.firstName + ' ' + row.employee.user.lastName })"
+              :title="t('team.board.feed')"
             >
               <Icon name="lucide:activity" class="size-4" />
             </NuxtLink>
@@ -392,8 +393,8 @@ function feedLink(row: BoardRow) {
               v-if="canManage"
               type="button"
               class="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground"
-              :aria-label="'Исправить день: ' + row.employee.user.firstName + ' ' + row.employee.user.lastName"
-              title="Исправить приход и уход"
+              :aria-label="t('team.board.correctAria', { name: row.employee.user.firstName + ' ' + row.employee.user.lastName })"
+              :title="t('team.attendance.correctTitle')"
               @click="correcting = row"
             >
               <Icon name="lucide:pencil" class="size-4" />
