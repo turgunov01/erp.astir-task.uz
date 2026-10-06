@@ -7,6 +7,7 @@ import {
   groupTasks,
   isFinished,
   isLate,
+  localDate,
   shortDay,
   startOfDay,
   startOfMonth,
@@ -90,7 +91,7 @@ const deadlineBuckets = computed(() => {
       key: cursor.getTime(),
       label: unit === 'week'
         ? shortDay(cursor)
-        : cursor.toLocaleDateString(intlTag(), { month: 'short', year: '2-digit' }),
+        : localDate(cursor, { month: 'short', year: '2-digit' }),
       current: cursor <= today && today < next,
       total: inside.length,
       late: inside.filter(task => isLate(task, today)).length,

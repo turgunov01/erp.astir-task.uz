@@ -236,7 +236,7 @@
       "frameNext": "Keyingi kadr (.)",
       "frame": "{n}-kadr",
       "frameRate": "Kadr chastotasi",
-      "speed": "Ijro tezligi (< va >)",
+      "speed": "Ijro tezligi (Shift+, va Shift+.)",
       "loop": "Takrorlash",
       "imageLoading": "Rasm yuklanmoqda",
       "imageFailed": "Rasmni yuklab bo‘lmadi",
@@ -267,6 +267,39 @@
         "pdf": "PDF",
         "text": "Matn",
         "file": "Fayl"
+      }
+    },
+    "months": {
+      "dayMonth": "{day}-{month}",
+      "dayMonthYear": "{day}-{month}, {year}",
+      "monthYear": "{month}, {year}",
+      "short": {
+        "1": "yan",
+        "2": "fev",
+        "3": "mar",
+        "4": "apr",
+        "5": "may",
+        "6": "iyn",
+        "7": "iyl",
+        "8": "avg",
+        "9": "sen",
+        "10": "okt",
+        "11": "noy",
+        "12": "dek"
+      },
+      "long": {
+        "1": "yanvar",
+        "2": "fevral",
+        "3": "mart",
+        "4": "aprel",
+        "5": "may",
+        "6": "iyun",
+        "7": "iyul",
+        "8": "avgust",
+        "9": "sentabr",
+        "10": "oktabr",
+        "11": "noyabr",
+        "12": "dekabr"
       }
     },
     "pipeline": {
@@ -361,7 +394,7 @@
     "timeline": {
       "title": "Vaqt jadvali",
       "eyebrow": "Rejalashtirish",
-      "lead": "Vazifalar, bosqichlar, bog‘liqliklar va muhim sanalar bitta shkalada",
+      "lead": "Vazifalar, bosqichlar, bog‘liqliklar va marralar bitta shkalada",
       "onScale": "shkalada {tasks}",
       "viewLabel": "Ko‘rinish",
       "settings": "Vaqt jadvali sozlamalari",
@@ -379,7 +412,7 @@
       "noMatches": "Bu filtrlarga sanasi bor birorta vazifa mos kelmadi.",
       "resetFilters": "Filtrlarni tozalash",
       "noDates": "Vazifalarda hali boshlanish sanasi ham, muddat ham yo‘q — ularni shkalaga joylab bo‘lmaydi.",
-      "ganttLegend": "Qizil vertikal chiziq — bugun. Qizil hoshiya va punktir dum — muddati o‘tgan vazifa, strelkalar — bog‘liqliklar (qizil punktir — vazifa o‘zi bog‘liq bo‘lgan vazifa tugashidan oldin boshlanadi). Romblar — muhim sanalar. Chiziqni bossangiz, vazifa ochiladi.",
+      "ganttLegend": "Qizil vertikal chiziq — bugun. Qizil hoshiya va punktir dum — muddati o‘tgan vazifa, strelkalar — bog‘liqliklar (qizil punktir — vazifa o‘zi bog‘liq bo‘lgan vazifa tugashidan oldin boshlanadi). Romblar — marralar. Chiziqni bossangiz, vazifa ochiladi.",
       "undated": "Sanasiz, shuning uchun shkalada yo‘q: {tasks} — ularga boshlanish ham, muddat ham belgilanmagan.",
       "truncated": "Faqat birinchi {tasks} ko‘rsatilgan — davrni toraytiring yoki loyihani tanlang.",
       "noAssignee": "Ijrochisiz",
@@ -389,8 +422,8 @@
       "lateTask": "muddati o‘tgan",
       "lateBadge": "Muddati o‘tgan",
       "lateCount": "Muddati o‘tgan: {n}",
-      "milestones": "Muhim sanalar",
-      "milestone": "muhim sana",
+      "milestones": "Marralar",
+      "milestone": "marra",
       "openProject": "Loyihani ochish",
       "thisWeek": "shu hafta",
       "legend": "Shartli belgilar",

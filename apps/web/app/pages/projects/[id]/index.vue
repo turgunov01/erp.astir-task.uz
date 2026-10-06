@@ -70,7 +70,7 @@ function selectTab(key: string) {
 }
 
 function formatDate(value: string | null) {
-  return formatDay(value)
+  return fullDay(value)
 }
 
 /** Whole units: a headline budget to the cent is false precision. */

@@ -166,8 +166,36 @@ export function personName(person: { firstName: string, lastName: string } | nul
   return person ? person.firstName + ' ' + person.lastName : translate('projects.timeline.noAssignee')
 }
 
+/** What Intl prints for a month it has no name for in this language («M09»). */
+const MISSING_MONTH = /\bM\d{2}\b/
+
+/**
+ * A date in the current language through Intl, with month names from the
+ * catalogue when the browser's Intl lacks them — some Chromium builds ship
+ * without Uzbek data and print «M09 10» instead of «10-sen».
+ */
+export function localDate(value: Date | string, options: { day?: boolean, month: 'short' | 'long', year?: 'numeric' | '2-digit' }) {
+  const date = new Date(value)
+  const text = date.toLocaleDateString(intlTag(), {
+    ...(options.day ? { day: 'numeric' as const } : {}),
+    month: options.month,
+    ...(options.year ? { year: options.year } : {})
+  })
+  if (!MISSING_MONTH.test(text)) return text
+  const month = translate('projects.months.' + options.month + '.' + (date.getMonth() + 1))
+  const year = options.year === '2-digit' ? String(date.getFullYear()).slice(2) : String(date.getFullYear())
+  if (options.day && options.year) return translate('projects.months.dayMonthYear', { day: date.getDate(), month, year })
+  if (options.day) return translate('projects.months.dayMonth', { day: date.getDate(), month })
+  return options.year ? translate('projects.months.monthYear', { month, year }) : month
+}
+
+/** Day, month and year — «10 Eyl 2026»; a dash when there is no date. */
+export function fullDay(value: Date | string | null | undefined) {
+  return value ? localDate(value, { day: true, month: 'short', year: 'numeric' }) : '—'
+}
+
 export function shortDay(value: Date | string) {
-  return new Date(value).toLocaleDateString(intlTag(), { day: 'numeric', month: 'short' })
+  return localDate(value, { day: true, month: 'short' })
 }
 
 export interface TimelineGroupRow {

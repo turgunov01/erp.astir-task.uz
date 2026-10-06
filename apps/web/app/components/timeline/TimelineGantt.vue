@@ -6,6 +6,7 @@ import {
   groupTasks,
   isFinished,
   isLate,
+  localDate,
   personName,
   shortDay,
   startOfDay,
@@ -133,7 +134,7 @@ const nextYear = (d: Date) => new Date(d.getFullYear() + 1, 0, 1)
 const topTicks = computed(() =>
   props.scale === 'month'
     ? segments(nextYear, d => new Date(d.getFullYear(), 0, 1), d => String(d.getFullYear()))
-    : segments(nextMonth, startOfMonth, d => d.toLocaleDateString(intlTag(), { month: 'long', year: 'numeric' }))
+    : segments(nextMonth, startOfMonth, d => localDate(d, { month: 'long', year: 'numeric' }))
 )
 
 /** Lower header tier: days, weeks or months — also the grid lines. */
@@ -143,7 +144,7 @@ const bottomTicks = computed<Tick[]>(() => {
       .map(tick => ({ ...tick, weekend: [0, 6].includes(new Date(tick.key).getDay()) }))
   }
   if (props.scale === 'week') return segments(d => addDays(d, 7), startOfWeek, d => shortDay(d))
-  return segments(nextMonth, startOfMonth, d => d.toLocaleDateString(intlTag(), { month: 'short' }))
+  return segments(nextMonth, startOfMonth, d => localDate(d, { month: 'short' }))
 })
 
 /** Weekend columns, shaded on the day and week scales. */
@@ -229,8 +230,8 @@ function bar(task: TimelineTask) {
 
 function barTitle(task: TimelineTask) {
   const parts = [task.title, enumLabel(TASK_STATUS_LABEL, task.status)]
-  if (task.startDate) parts.push(t('projects.timeline.fromDate', { date: formatDay(task.startDate) }))
-  if (task.deadline) parts.push(t('projects.timeline.untilDate', { date: formatDay(task.deadline) }))
+  if (task.startDate) parts.push(t('projects.timeline.fromDate', { date: fullDay(task.startDate) }))
+  if (task.deadline) parts.push(t('projects.timeline.untilDate', { date: fullDay(task.deadline) }))
   parts.push(personName(task.assignee))
   if (isLate(task, today)) parts.push(t('projects.timeline.lateTask'))
   return parts.join(' · ')
@@ -377,8 +378,8 @@ watch(() => [props.scale, axis.value.start.getTime()], () => nextTick(scrollToTo
             :style="{ top: row.top + 'px', height: row.height + 'px' }"
           >
             <div class="sticky left-0 z-30 flex w-(--label-w) shrink-0 items-center gap-2 border-r bg-card px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              <Icon name="lucide:flag" class="size-3.5" />
-              {{ t('projects.timeline.milestones') }}
+              <Icon name="lucide:flag" class="size-3.5 shrink-0" />
+              <span class="truncate" :title="t('projects.timeline.milestones')">{{ t('projects.timeline.milestones') }}</span>
             </div>
             <div class="relative shrink-0" :style="{ width: axis.width + 'px' }">
               <div
@@ -386,7 +387,7 @@ watch(() => [props.scale, axis.value.start.getTime()], () => nextTick(scrollToTo
                 :key="item.id"
                 class="absolute top-1/2 z-10 flex -translate-y-1/2 items-center gap-1.5"
                 :style="{ left: x(item.due) + px / 2 - 6 + 'px' }"
-                :title="item.code + ' · ' + item.name + ' · ' + formatDay(item.dueDate)"
+                :title="item.code + ' · ' + item.name + ' · ' + fullDay(item.dueDate)"
               >
                 <span
                   class="size-3 shrink-0 rotate-45 rounded-[2px] ring-2 ring-card"

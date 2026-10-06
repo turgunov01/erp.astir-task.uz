@@ -164,7 +164,7 @@ function isOverdue(deadline: string | null, progress: number) {
 
       <template #cell-deadline="{ row }">
         <span :class="isOverdue(row.deadline, row.progress) ? 'text-destructive' : ''">
-          {{ formatDay(row.deadline) }}
+          {{ fullDay(row.deadline) }}
         </span>
       </template>
 
