@@ -2,6 +2,7 @@ import { prisma } from '../../lib/prisma'
 import { conflict, notFound } from '../../lib/errors'
 import { recordActivity } from '../../lib/activity'
 import { notifyProjectAssigned } from '../../lib/notify'
+import { t } from '../../i18n'
 
 const MEMBER_INCLUDE = {
   user: {
@@ -54,13 +55,13 @@ export async function add(
 
   if (!project) throw notFound('Project')
   if (!user) throw notFound('User')
-  if (!user.isActive) throw conflict('Эта учётная запись отключена')
+  if (!user.isActive) throw conflict(t('projects.members.accountDisabled'))
 
   const existing = await prisma.projectMember.findUnique({
     where: { projectId_userId: { projectId, userId: input.userId } },
     select: { id: true }
   })
-  if (existing) throw conflict('Этот человек уже в команде проекта')
+  if (existing) throw conflict(t('projects.members.alreadyMember'))
 
   return prisma.$transaction(async tx => {
     const member = await tx.projectMember.create({
@@ -140,9 +141,7 @@ export async function remove(projectId: string, userId: string, actorId?: string
     }
   })
   if (openTasks > 0) {
-    throw conflict(
-      'У этого человека ещё есть открытые задачи: ' + openTasks + '. Сначала переназначьте их.'
-    )
+    throw conflict(t('projects.members.hasOpenTasks', { count: openTasks }))
   }
 
   await prisma.projectMember.delete({

@@ -2,6 +2,7 @@ import type { ListQuery } from '@astir/validation'
 import { conflict, notFound } from '../../lib/errors'
 import { buildMeta, toSkipTake } from '../../lib/http'
 import * as repo from './departments.repository'
+import { t } from '../../i18n'
 
 export async function list(query: ListQuery) {
   const { skip, take } = toSkipTake(query.page, query.limit)
@@ -45,9 +46,7 @@ export async function remove(id: string) {
   await getById(id)
   const employees = await repo.countEmployees(id)
   if (employees > 0) {
-    throw conflict(
-      'В отделе ещё есть сотрудники: ' + employees + '. Сначала переведите их в другой отдел.'
-    )
+    throw conflict(t('team.departments.hasEmployees', { count: employees }))
   }
   await repo.remove(id)
 }

@@ -14,6 +14,7 @@ import { sendItem, sendList, sendNoContent } from '../../lib/http'
 import { badRequest } from '../../lib/errors'
 import { bufferStream, isAllowedMimeType, MAX_SINGLE_REQUEST_BYTES } from '../../lib/storage'
 import * as service from './versions.service'
+import { t } from '../../i18n'
 
 // In memory, so small; larger files go through the chunked upload API.
 const upload = multer({
@@ -80,9 +81,9 @@ versionsRouter.post(
   upload.single('file'),
   async (req, res, next) => {
     try {
-      if (!req.body.projectId) throw badRequest('projectId обязателен')
+      if (!req.body.projectId) throw badRequest(t('production.versions.projectIdRequired'))
       if (req.file && !isAllowedMimeType(req.file.mimetype)) {
-        throw badRequest('Тип файла ' + req.file.mimetype + ' не разрешён')
+        throw badRequest(t('production.versions.fileTypeNotAllowed', { type: req.file.mimetype }))
       }
 
       const version = await service.create(

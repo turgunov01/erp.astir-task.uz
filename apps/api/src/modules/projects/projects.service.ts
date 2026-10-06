@@ -6,7 +6,7 @@ import { badRequest, conflict, notFound } from '../../lib/errors'
 import { buildMeta, toSkipTake } from '../../lib/http'
 import { recordActivity } from '../../lib/activity'
 import { notifyProjectAssigned } from '../../lib/notify'
-import type { MessageKey } from '../../i18n'
+import { t, type MessageKey } from '../../i18n'
 import { storage } from '../../lib/storage'
 import * as repo from './projects.repository'
 import { calculateProgress, calculateRisk } from './projects.progress'
@@ -77,7 +77,7 @@ export async function create(input: CreateProjectInput, actorId?: string) {
   if (!client) throw notFound('Client')
 
   const code = input.code ?? (await nextProjectCode())
-  if (await repo.findByCode(code)) throw conflict('Код проекта ' + code + ' уже занят')
+  if (await repo.findByCode(code)) throw conflict(t('projects.codeTaken', { code }))
 
   const stages = input.template ? await templateStages(input.template) : []
 
@@ -256,7 +256,7 @@ export async function hardDelete(id: string, confirmCode: string) {
   if (!project) throw notFound('Project')
 
   if (confirmCode.trim().toUpperCase() !== project.code.toUpperCase()) {
-    throw badRequest('Введите код проекта, чтобы подтвердить удаление без возврата')
+    throw badRequest(t('projects.confirmDeleteCode'))
   }
 
   const documents = await prisma.document.findMany({

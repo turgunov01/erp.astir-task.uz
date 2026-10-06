@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { prisma } from '../../lib/prisma'
+import { t } from '../../i18n'
 
 export const healthRouter = Router()
 
@@ -19,7 +20,7 @@ healthRouter.get('/', async (_req, res) => {
   } catch {
     return res.status(503).json({
       success: false,
-      error: { code: 'INTERNAL_ERROR', message: 'База данных недоступна' }
+      error: { code: 'INTERNAL_ERROR', message: t('common.errors.databaseUnavailable') }
     })
   }
 })

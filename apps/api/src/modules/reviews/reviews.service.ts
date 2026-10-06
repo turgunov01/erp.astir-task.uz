@@ -5,6 +5,7 @@ import { conflict, notFound } from '../../lib/errors'
 import { buildMeta, toSkipTake } from '../../lib/http'
 import { recordActivity } from '../../lib/activity'
 import { notify } from '../../lib/notify'
+import { recipientLocale, t, tFor } from '../../i18n'
 
 const INCLUDE = {
   reviewer: { select: { id: true, firstName: true, lastName: true } },
@@ -121,11 +122,14 @@ export async function decide(
 ) {
   const review = await getById(id)
   if (TERMINAL.has(review.status)) {
-    throw conflict('Это согласование уже завершено')
+    throw conflict(t('production.reviews.alreadyClosed'))
   }
 
   const version = review.version
   const now = new Date()
+  // A revision title is stored text the whole team reads (and may rename), so
+  // it is worded once in the studio's default language, not the reviewer's.
+  const studioLocale = await recipientLocale(null)
 
   await prisma.$transaction(async tx => {
     await tx.review.update({
@@ -173,7 +177,9 @@ export async function decide(
           taskId: version.task?.id ?? null,
           versionId: version.id,
           round: (previous._max.round ?? 0) + 1,
-          title: 'Правки по ' + (version.shot?.code ?? version.label),
+          title: tFor(studioLocale, 'production.reviews.revisionTitle', {
+            target: version.shot?.code ?? version.label
+          }),
           description: input.comment ?? null,
           requestedById: actorId ?? null,
           assignedToId: version.uploadedBy?.id ?? null,
@@ -225,7 +231,7 @@ export async function decide(
 /** Claim an unassigned review and move it into IN_REVIEW. */
 export async function claim(id: string, actorId?: string) {
   const review = await getById(id)
-  if (TERMINAL.has(review.status)) throw conflict('Это согласование уже завершено')
+  if (TERMINAL.has(review.status)) throw conflict(t('production.reviews.alreadyClosed'))
 
   await prisma.review.update({
     where: { id },

@@ -36,6 +36,37 @@ export default {
     mailTestBody: 'Agar siz bu xatni o‘qiyotgan bo‘lsangiz, {studio} dan pochta yuborish to‘g‘ri sozlangan.',
     mailTestSent: 'Xat {email} manziliga yuborildi',
     mailTestLogged: 'SMTP sozlanmagan — xat yuborilmadi, server jurnaliga yozildi',
-    templateNeedsStage: 'Kamida bitta bosqich kerak'
+    templateNeedsStage: 'Kamida bitta bosqich kerak',
+    selfLockout: 'O‘z rolingizni sozlamalar va huquqlarni boshqarishdan mahrum qilib bo‘lmaydi',
+    beyondOwnRole: 'Rolingizda yo‘q huquqlarni berib bo‘lmaydi: {permissions}',
+    beyondRoleCeiling: 'Bu rolga quyidagilarni berib bo‘lmaydi: {permissions}',
+    noEmailForType: 'Bu turdagi bildirishnomalar uchun xat yuborilmaydi'
+  },
+  employees: {
+    emailTaken: '{email} pochtali foydalanuvchi allaqachon mavjud',
+    cannotDeleteSelf: 'O‘z hisobingizni o‘chirib bo‘lmaydi'
+  },
+  departments: {
+    hasEmployees: 'Bo‘limda hali xodimlar bor: {count}. Avval ularni boshqa bo‘limga o‘tkazing.'
+  },
+  timesheets: {
+    noEmployee: 'Hisobingiz xodimga bog‘lanmagan, shuning uchun soatlarni yozib bo‘lmaydi',
+    ownOnly: 'Faqat o‘z tabel yozuvlaringizni o‘zgartirish mumkin'
+  },
+  attendance: {
+    dayNotYet: 'Bu kun hali kelmagan',
+    futureDayCorrection: 'Hali kelmagan kunni tuzatib bo‘lmaydi',
+    checkInRequired: 'Kelish vaqtini ko‘rsating — usiz ketish vaqti hech narsani anglatmaydi',
+    checkOutAfterCheckIn: 'Ketish vaqti kelishdan keyin bo‘lishi kerak',
+    notCorrected: 'Bu kun qo‘lda tuzatilmagan',
+    correctionReason: 'Tuzatish sababini yozing',
+    staffOnly: 'Kelishni belgilash faqat studiya xodimlari uchun',
+    correctedByAdmin: 'Bu kunni administrator allaqachon tuzatgan — belgilash shart emas',
+    checkInFirst: 'Avval kelishingizni belgilang — «Keldim» tugmasini bosing',
+    checkOutByAdmin: 'Bu kunni administrator tuzatgan — ketish vaqtini u kiritadi',
+    penaltyRateMissing: 'Kechikish jarimasi stavkasi belgilanmagan. Uni Sozlamalar → Ish jadvali bo‘limida ko‘rsating.',
+    penaltyReason: '{minutes} daqiqa kechikish: ish {start} da boshlanganda {arrival} da kelgan',
+    penaltyMarked: '(davomat)',
+    penaltyUnmarked: '(«Keldim» belgisiz — birinchi faollik bo‘yicha)'
   }
 } satisfies Messages<typeof ru>

@@ -5,6 +5,7 @@ import { buildMeta, toSkipTake } from '../../lib/http'
 import { hashPassword } from '../auth/auth.service'
 import * as repo from './employees.repository'
 import { issueLoginCode } from '../../lib/otp'
+import { t } from '../../i18n'
 
 export async function list(query: Parameters<typeof repo.findMany>[0] & {
   page: number
@@ -33,7 +34,7 @@ export async function getById(id: string) {
  */
 export async function create(input: CreateEmployeeInput) {
   if (await repo.findByEmail(input.email)) {
-    throw conflict('Пользователь с почтой ' + input.email + ' уже существует')
+    throw conflict(t('team.employees.emailTaken', { email: input.email }))
   }
 
   if (input.departmentId) {
@@ -163,7 +164,7 @@ export async function update(id: string, input: Record<string, unknown>) {
 export async function remove(id: string, actorId: string | undefined) {
   const employee = await getById(id)
   if (employee.userId === actorId) {
-    throw badRequest('Нельзя удалить собственную учётную запись')
+    throw badRequest(t('team.employees.cannotDeleteSelf'))
   }
 
   return prisma.$transaction(async tx => {

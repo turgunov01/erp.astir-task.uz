@@ -67,5 +67,28 @@ export default {
     d60: '31-60 days',
     d90: '61-90 days',
     over90: 'Over 90 days'
+  },
+  payments: {
+    feeTooLarge: 'The fee cannot be more than the payment amount'
+  },
+  expenses: {
+    vatTooLarge: 'VAT cannot be more than the amount'
+  },
+  budget: {
+    categoryOnce: 'Each category can be listed only once'
+  },
+  payroll: {
+    status: {
+      DRAFT: 'draft',
+      APPROVED: 'approved',
+      PAID: 'paid',
+      CANCELLED: 'cancelled'
+    },
+    employeeMissing: 'The employee was not found or has been deleted',
+    latenessMinutesRequired: 'For a lateness penalty, give how many minutes late the employee was',
+    externalIdTaken: 'An entry with this external ID already exists',
+    onlyDraftEditable: 'Only a draft can be edited. Return the “{status}” entry to draft first.',
+    transitionNotAllowed: 'An entry cannot move from “{from}” to “{to}”',
+    deleteOnlyDraft: 'Only a draft or a cancelled entry can be deleted. Cancel an approved one first.'
   }
 } satisfies Messages<typeof ru>

@@ -22,7 +22,9 @@ export default {
     relatedConflict: 'A related record is missing or still in use',
     databaseUnavailable: 'The database is unavailable. Try again once the connection is back.',
     internal: 'Internal server error',
-    unknown: 'Unknown error'
+    unknown: 'Unknown error',
+    periodReversed: 'The period starts after it ends',
+    periodTooLong: 'The period cannot be longer than {count} day | The period cannot be longer than {count} days'
   },
   notFound: {
     asset: 'Asset not found',
@@ -82,7 +84,12 @@ export default {
     describeChanges: 'Describe what needs to be fixed',
     attachOrDescribe: 'Attach a file or describe what was done',
     fileOver1Gb: 'The file is larger than 1 GB',
-    projectCodeFormat: 'Use capital Latin letters, digits and dashes only'
+    projectCodeFormat: 'Use capital Latin letters, digits and dashes only',
+    dateFormat: 'The date must be in YYYY-MM-DD format',
+    monthFormat: 'A month in YYYY-MM format is expected',
+    invalidDateValue: 'Invalid date: {value}',
+    httpLink: 'The link must start with http:// or https://',
+    bothBounds: 'Give both ends of the period'
   },
   yes: 'yes',
   no: 'no',

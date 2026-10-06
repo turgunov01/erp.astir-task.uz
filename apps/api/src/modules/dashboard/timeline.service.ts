@@ -5,6 +5,7 @@ import { dateStringSchema, uuidSchema } from '@astir/validation'
 import { prisma } from '../../lib/prisma'
 import { hasPermission } from '../../lib/rbac'
 import { badRequest } from '../../lib/errors'
+import { t } from '../../i18n'
 
 /**
  * Data behind the timeline page: dated tasks across one or every project,
@@ -64,7 +65,7 @@ async function viewerScope(viewer: Viewer): Promise<{
 function parseRange(query: TimelineQuery) {
   const from = query.from ? new Date(query.from) : null
   const to = query.to ? new Date(query.to) : null
-  if (from && to && from > to) throw badRequest('Начало периода позже его конца')
+  if (from && to && from > to) throw badRequest(t('common.errors.periodReversed'))
   return { from, to }
 }
 

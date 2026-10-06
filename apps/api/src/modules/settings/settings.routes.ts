@@ -355,12 +355,12 @@ settingsRouter.put(
     try {
       const role = req.params.role as Role
       const permissions = req.body.permissions as Permission[]
-      if (!req.user) throw badRequest('Сессия не найдена, войдите заново')
+      if (!req.user) throw badRequest(t('common.errors.sessionNotFound'))
 
       if (req.user.role === role) {
         const missing = SELF_LOCKOUT_GUARD.filter(p => !permissions.includes(p))
         if (missing.length > 0) {
-          throw badRequest('Нельзя лишить собственную роль доступа к настройкам и управлению правами')
+          throw badRequest(t('team.settings.selfLockout'))
         }
       }
 
@@ -372,14 +372,14 @@ settingsRouter.put(
       const own = await effectivePermissions(req.user.role)
       const beyond = permissions.filter(p => !own.includes(p))
       if (beyond.length > 0) {
-        throw badRequest('Нельзя выдать права, которых нет у вашей роли: ' + beyond.join(', '))
+        throw badRequest(t('team.settings.beyondOwnRole', { permissions: beyond.join(', ') }))
       }
 
       const ceiling = ROLE_CEILING[role]
       if (ceiling) {
         const over = permissions.filter(p => !ceiling.includes(p))
         if (over.length > 0) {
-          throw badRequest('Этой роли нельзя выдать: ' + over.join(', '))
+          throw badRequest(t('team.settings.beyondRoleCeiling', { permissions: over.join(', ') }))
         }
       }
 

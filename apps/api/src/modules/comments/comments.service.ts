@@ -2,6 +2,7 @@ import type { Prisma } from '@prisma/client'
 import { prisma } from '../../lib/prisma'
 import { forbidden, notFound, badRequest } from '../../lib/errors'
 import { notify } from '../../lib/notify'
+import { t } from '../../i18n'
 
 const AUTHOR = {
   select: { id: true, firstName: true, lastName: true, avatarUrl: true, role: true }
@@ -103,8 +104,8 @@ export async function update(id: string, message: string, actorId: string) {
     select: { id: true, userId: true }
   })
   if (!comment) throw notFound('Comment')
-  if (comment.userId !== actorId) throw forbidden('Редактировать можно только свой комментарий')
-  if (message.trim().length === 0) throw badRequest('Комментарий не может быть пустым')
+  if (comment.userId !== actorId) throw forbidden(t('production.comments.editOwnOnly'))
+  if (message.trim().length === 0) throw badRequest(t('common.validation.commentEmpty'))
 
   return prisma.comment.update({
     where: { id },
@@ -126,7 +127,7 @@ export async function remove(id: string, actorId: string, role?: string) {
 
   const privileged = ['OWNER', 'ADMIN', 'PROJECT_MANAGER'].includes(role ?? '')
   if (comment.userId !== actorId && !privileged) {
-    throw forbidden('Удалить можно только свой комментарий')
+    throw forbidden(t('production.comments.deleteOwnOnly'))
   }
 
   await prisma.comment.update({ where: { id }, data: { deletedAt: new Date() } })

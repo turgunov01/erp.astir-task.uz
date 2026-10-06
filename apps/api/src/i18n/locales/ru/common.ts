@@ -26,7 +26,10 @@ export default {
     relatedConflict: 'Связанная запись не найдена или ещё используется',
     databaseUnavailable: 'База данных недоступна. Попробуйте ещё раз, когда соединение восстановится.',
     internal: 'Внутренняя ошибка сервера',
-    unknown: 'Неизвестная ошибка'
+    unknown: 'Неизвестная ошибка',
+    periodReversed: 'Начало периода позже его конца',
+    // Genitive after «длиннее»: 21 дня, 62 дней.
+    periodTooLong: 'Период не может быть длиннее {count} дня | Период не может быть длиннее {count} дней | Период не может быть длиннее {count} дней'
   },
   /** «… не найден», by the resource name the code passes to notFound(). */
   notFound: {
@@ -89,7 +92,12 @@ export default {
     describeChanges: 'Опишите, что нужно исправить',
     attachOrDescribe: 'Приложите файл или опишите, что сделано',
     fileOver1Gb: 'Файл больше 1 ГБ',
-    projectCodeFormat: 'Только заглавные латинские буквы, цифры и дефис'
+    projectCodeFormat: 'Только заглавные латинские буквы, цифры и дефис',
+    dateFormat: 'Дата должна быть в формате ГГГГ-ММ-ДД',
+    monthFormat: 'Ожидается месяц в формате ГГГГ-ММ',
+    invalidDateValue: 'Неверная дата: {value}',
+    httpLink: 'Ссылка должна начинаться с http:// или https://',
+    bothBounds: 'Укажите обе границы периода'
   },
   yes: 'да',
   no: 'нет',

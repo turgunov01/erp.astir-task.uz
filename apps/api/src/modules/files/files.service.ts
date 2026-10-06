@@ -3,6 +3,7 @@ import { prisma } from '../../lib/prisma'
 import { badRequest, notFound } from '../../lib/errors'
 import { recordActivity } from '../../lib/activity'
 import { storage } from '../../lib/storage'
+import { t } from '../../i18n'
 
 export const DOCUMENT_TYPES = [
   'CONTRACT', 'BRIEF', 'SPECIFICATION', 'INVOICE', 'ACT', 'NDA', 'OTHER'
@@ -68,7 +69,7 @@ async function findOwner(key: OwnerKey, id: string): Promise<OwnerRow> {
   const delegate = (prisma as unknown as Record<string, {
     findFirst(args: unknown): Promise<OwnerRow | null>
   } | undefined>)[spec.model]
-  if (!delegate) throw badRequest('Неизвестно, к чему прикрепить файл: ' + key)
+  if (!delegate) throw badRequest(t('projects.files.unknownTarget', { target: key }))
   const row = await delegate.findFirst({
     where: { id, deletedAt: null },
     include: key === 'reviewId' ? { version: { select: { projectId: true } } } : undefined
@@ -98,7 +99,7 @@ export async function resolveDocumentTarget(fields: DocumentFields): Promise<Doc
   }
 
   if (!projectId && !clientId && Object.keys(owners).length === 0) {
-    throw badRequest('Прикрепите файл к записи, проекту или клиенту')
+    throw badRequest(t('projects.files.targetRequired'))
   }
 
   if (projectId) {

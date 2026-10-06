@@ -7,6 +7,7 @@ import { pipeline } from 'node:stream/promises'
 import type { UploadKind } from '@astir/types'
 import { env } from '../../config/env'
 import { badRequest, conflict } from '../../lib/errors'
+import { t } from '../../i18n'
 
 /**
  * Chunked upload sessions, kept entirely on disk.
@@ -103,7 +104,7 @@ function sizeGuard(limit: number) {
     transform(chunk: Buffer, _encoding, callback) {
       bytes += chunk.length
       if (bytes > limit) {
-        callback(badRequest('Часть файла больше заявленного размера'))
+        callback(badRequest(t('production.uploads.chunkTooBig')))
         return
       }
       callback(null, chunk)
@@ -128,9 +129,7 @@ export async function writeChunk(session: UploadSession, index: number, source: 
   try {
     await pipeline(source, guard.stream, createWriteStream(temp))
     if (guard.bytes() !== expected) {
-      throw badRequest(
-        'Часть ' + index + ' неполная: получено ' + guard.bytes() + ' из ' + expected + ' байт'
-      )
+      throw badRequest(t('production.uploads.chunkIncomplete', { index, received: guard.bytes(), expected }))
     }
     await rename(temp, target)
   } catch (err) {
@@ -162,7 +161,7 @@ export async function lockForCompletion(id: string): Promise<() => Promise<void>
     await handle.close()
   } catch (err) {
     if ((err as NodeJS.ErrnoException)?.code === 'EEXIST') {
-      throw conflict('Загрузка уже завершается')
+      throw conflict(t('production.uploads.completing'))
     }
     throw err
   }
