@@ -3,8 +3,14 @@
  * and the clock/duration formatting every table on it uses.
  */
 
+/**
+ * PRESENT: pressed «Я приехал» (or an administrator set the arrival).
+ * UNMARKED: seen in the app that day, but never pressed the button.
+ */
 export type AttendanceStatus =
-  | 'ONLINE' | 'PRESENT' | 'ABSENT' | 'DAY_OFF' | 'ON_LEAVE' | 'NOT_EMPLOYED' | 'UPCOMING'
+  | 'PRESENT' | 'UNMARKED' | 'ABSENT' | 'DAY_OFF' | 'ON_LEAVE' | 'NOT_EMPLOYED' | 'UPCOMING'
+
+export type AttendanceMethod = 'BUTTON' | 'AUTO'
 
 export interface AttendancePerson {
   id: string
@@ -27,6 +33,8 @@ export interface AttendanceSchedule {
 export interface AttendanceDayFields {
   checkInAt: string | null
   checkOutAt: string | null
+  checkInMethod: AttendanceMethod | null
+  checkOutMethod: AttendanceMethod | null
   firstSeenAt: string | null
   lastSeenAt: string | null
   lateMinutes: number
@@ -39,18 +47,19 @@ export interface AttendanceDayFields {
 export interface AttendanceTotals {
   workingDays: number
   presentDays: number
+  unmarkedDays: number
   absentDays: number
   lateDays: number
   lateMinutes: number
   workedMinutes: number
 }
 
-/** The chip wording; "был" reads differently for today and for the past. */
+/** The chip wording; the board spells "не отметился" out in full. */
 export function attendanceStatusLabel(status: AttendanceStatus, isToday: boolean): string {
   switch (status) {
-    case 'ONLINE': return 'Онлайн'
-    case 'PRESENT': return isToday ? 'Был сегодня' : 'Был'
-    case 'ABSENT': return 'Не пришёл'
+    case 'PRESENT': return 'Отметился'
+    case 'UNMARKED': return isToday ? 'В системе, не отметился' : 'Без отметки'
+    case 'ABSENT': return isToday ? 'Не пришёл' : 'Не было'
     case 'DAY_OFF': return 'Выходной'
     case 'ON_LEAVE': return 'Отпуск'
     case 'NOT_EMPLOYED': return 'Не в штате'
@@ -59,8 +68,8 @@ export function attendanceStatusLabel(status: AttendanceStatus, isToday: boolean
 }
 
 export const ATTENDANCE_STATUS_CLASS: Record<AttendanceStatus, string> = {
-  ONLINE: 'bg-emerald-500/12 text-emerald-700 dark:text-emerald-300',
-  PRESENT: 'bg-sky-500/12 text-sky-700 dark:text-sky-300',
+  PRESENT: 'bg-emerald-500/12 text-emerald-700 dark:text-emerald-300',
+  UNMARKED: 'bg-amber-500/12 text-amber-800 dark:text-amber-300',
   ABSENT: 'bg-destructive/12 text-destructive',
   DAY_OFF: 'bg-secondary text-muted-foreground',
   ON_LEAVE: 'bg-violet-500/12 text-violet-700 dark:text-violet-300',

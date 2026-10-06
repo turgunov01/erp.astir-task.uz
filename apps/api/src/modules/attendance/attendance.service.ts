@@ -14,7 +14,18 @@ const ONLINE_WINDOW_MS = 5 * 60_000
 /** Longest range the period view and the fines accept. */
 export const MAX_RANGE_DAYS = 62
 
-export type DayStatus = 'ONLINE' | 'PRESENT' | 'ABSENT' | 'DAY_OFF' | 'ON_LEAVE' | 'NOT_EMPLOYED' | 'UPCOMING'
+/**
+ * PRESENT: the employee pressed «Я приехал», or an administrator / an
+ * access-control import set the arrival. UNMARKED: the app saw the person
+ * (sign-in, activity) but nobody pressed the button — the board shows the
+ * first activity greyed out, and lateness still counts from it.
+ */
+export type DayStatus = 'PRESENT' | 'UNMARKED' | 'ABSENT' | 'DAY_OFF' | 'ON_LEAVE' | 'NOT_EMPLOYED' | 'UPCOMING'
+
+/** The arrival was marked on purpose rather than inferred from activity. */
+export function isMarked(day: Pick<AttendanceDay, 'source' | 'checkInMethod'>): boolean {
+  return day.source !== 'WEB' || day.checkInMethod === 'BUTTON'
+}
 
 const employeeSelect = {
   id: true,
@@ -62,15 +73,17 @@ interface StatusInput {
   day: AttendanceDay | null
   employee: Pick<BoardEmployee, 'status' | 'createdAt'>
   schedule: WorkSchedule
-  now: Date
+}
+
+/** Seen within the last few minutes of today: using the app right now. */
+function isOnline(day: AttendanceDay | null, date: string, todayDate: string, now: Date): boolean {
+  if (date !== todayDate || !day?.lastSeenAt) return false
+  return now.getTime() - day.lastSeenAt.getTime() < ONLINE_WINDOW_MS
 }
 
 /** One word for a person's day, the way the board chip shows it. */
-function statusOf({ date, todayDate, day, employee, schedule, now }: StatusInput): DayStatus {
-  if (day?.checkInAt) {
-    const recent = day.lastSeenAt && now.getTime() - day.lastSeenAt.getTime() < ONLINE_WINDOW_MS
-    return date === todayDate && recent ? 'ONLINE' : 'PRESENT'
-  }
+function statusOf({ date, todayDate, day, employee, schedule }: StatusInput): DayStatus {
+  if (day?.checkInAt) return isMarked(day) ? 'PRESENT' : 'UNMARKED'
   if (date > todayDate) return 'UPCOMING'
   // Before the employment record existed there was nobody to be absent.
   if (date < localParts(employee.createdAt, schedule.timezone).date) return 'NOT_EMPLOYED'
@@ -83,6 +96,8 @@ function dayView(day: AttendanceDay | null) {
   return {
     checkInAt: day?.checkInAt ?? null,
     checkOutAt: day?.checkOutAt ?? null,
+    checkInMethod: day?.checkInMethod ?? null,
+    checkOutMethod: day?.checkOutMethod ?? null,
     firstSeenAt: day?.firstSeenAt ?? null,
     lastSeenAt: day?.lastSeenAt ?? null,
     lateMinutes: day?.lateMinutes ?? 0,
@@ -111,7 +126,12 @@ async function actionCounts(userIds: string[], from: Date, to: Date) {
   if (userIds.length === 0) return new Map<string, number>()
   const groups = await prisma.activityLog.groupBy({
     by: ['actorId'],
-    where: { actorId: { in: userIds }, createdAt: { gte: from, lt: to } },
+    // The «Я приехал» / «Я ушёл» presses are marks, not work done.
+    where: {
+      actorId: { in: userIds },
+      createdAt: { gte: from, lt: to },
+      NOT: { action: { startsWith: 'attendance.' } }
+    },
     _count: { _all: true }
   })
   return new Map(groups.map(group => [group.actorId as string, group._count._all]))
@@ -146,7 +166,8 @@ export async function board(dateParam: string | undefined, now = new Date()) {
         department: employee.department,
         user: employee.user
       },
-      status: statusOf({ date, todayDate, day, employee, schedule, now }),
+      status: statusOf({ date, todayDate, day, employee, schedule }),
+      online: isOnline(day, date, todayDate, now),
       ...dayView(day),
       actions: actions.get(employee.user.id) ?? 0
     }
@@ -166,6 +187,8 @@ export async function board(dateParam: string | undefined, now = new Date()) {
 interface Totals {
   workingDays: number
   presentDays: number
+  /** Of presentDays: seen in the app, but «Я приехал» was never pressed. */
+  unmarkedDays: number
   absentDays: number
   lateDays: number
   lateMinutes: number
@@ -173,7 +196,7 @@ interface Totals {
 }
 
 const emptyTotals = (): Totals => ({
-  workingDays: 0, presentDays: 0, absentDays: 0, lateDays: 0, lateMinutes: 0, workedMinutes: 0
+  workingDays: 0, presentDays: 0, unmarkedDays: 0, absentDays: 0, lateDays: 0, lateMinutes: 0, workedMinutes: 0
 })
 
 /**
@@ -183,8 +206,9 @@ const emptyTotals = (): Totals => ({
 function accumulate(totals: Totals, status: DayStatus, day: AttendanceDay | null, date: string, todayDate: string, schedule: WorkSchedule) {
   if (status === 'NOT_EMPLOYED' || status === 'UPCOMING') return
   if (isWorkingDay(date, schedule)) totals.workingDays += 1
-  if (status === 'PRESENT' || status === 'ONLINE') {
+  if (status === 'PRESENT' || status === 'UNMARKED') {
     totals.presentDays += 1
+    if (status === 'UNMARKED') totals.unmarkedDays += 1
     totals.workedMinutes += day?.workedMinutes ?? 0
     if ((day?.lateMinutes ?? 0) > 0) {
       totals.lateDays += 1
@@ -218,7 +242,7 @@ export async function period(fromParam: string | undefined, toParam: string | un
     const totals = emptyTotals()
     for (const date of range) {
       const day = byKey.get(employee.id + '|' + date) ?? null
-      const status = statusOf({ date, todayDate, day, employee, schedule, now })
+      const status = statusOf({ date, todayDate, day, employee, schedule })
       accumulate(totals, status, day, date, todayDate, schedule)
     }
     return {
@@ -258,7 +282,7 @@ export async function employeeDays(employeeId: string, from: string, to: string,
 
   const list = daysInRange(from, to).map(date => {
     const day = byDate.get(date) ?? null
-    const status = statusOf({ date, todayDate, day, employee, schedule, now })
+    const status = statusOf({ date, todayDate, day, employee, schedule })
     accumulate(totals, status, day, date, todayDate, schedule)
     return {
       date,
@@ -354,6 +378,10 @@ export async function resetDay(employeeId: string, date: string) {
     data: {
       checkInAt: before.firstSeenAt,
       checkOutAt: before.lastSeenAt,
+      // A press made before the correction was overwritten by it; the day
+      // goes back to what activity alone shows.
+      checkInMethod: 'AUTO',
+      checkOutMethod: 'AUTO',
       ...figuresFor(date, before.firstSeenAt, before.lastSeenAt, schedule),
       source: 'WEB',
       correctedById: null,

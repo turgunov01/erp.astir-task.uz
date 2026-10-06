@@ -399,7 +399,10 @@ export const ACTIVITY_ACTION_LABEL: Record<string, string> = {
   'employee.email_verified_manually': 'подтвердил почту сотрудника вручную',
   'user.created': 'завёл пользователя',
   'user.role_changed': 'сменил роль пользователя',
-  'user.deactivated': 'отключил пользователя'
+  'user.deactivated': 'отключил пользователя',
+
+  'attendance.checked_in': 'отметился о приходе',
+  'attendance.checked_out': 'отметил уход с работы'
 }
 
 /** The part before the dot in an action name, for the feed's filter. */
@@ -526,8 +529,9 @@ export const PERMISSION_GROUPS: readonly PermissionGroup[] = [
     { key: 'team:manage', label: 'Управлять сотрудниками' },
     { key: 'workload:view', label: 'Видеть загрузку' }
   ] },
-  { label: 'Активность сотрудников: приход, опоздания', permissions: [
-    { key: 'attendance:view', label: 'Видеть активность и опоздания (открывает раздел)' },
+  { label: 'Посещаемость: приход, опоздания', permissions: [
+    { key: 'attendance:view', label: 'Видеть, кто пришёл и кто опоздал (открывает раздел)' },
+    { key: 'attendance:self', label: 'Отмечаться кнопкой «Я приехал» / «Я ушёл»' },
     { key: 'attendance:manage', label: 'Исправлять дни и начислять штрафы за опоздания' }
   ] },
   { label: 'Учёт времени', permissions: [

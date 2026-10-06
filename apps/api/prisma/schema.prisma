@@ -226,6 +226,14 @@ enum AttendanceSource {
   EXTERNAL
 }
 
+/// How an arrival or a departure got its time on a WEB day.
+enum AttendanceMethod {
+  /// The employee pressed «Я приехал» / «Я ушёл» in the header.
+  BUTTON
+  /// Taken from activity: first request of the day, latest request.
+  AUTO
+}
+
 enum EmploymentType {
   FULL_TIME
   PART_TIME
@@ -1273,6 +1281,12 @@ model AttendanceDay {
 
   checkInAt  DateTime?
   checkOutAt DateTime?
+  /// BUTTON once the employee pressed «Я приехал»; AUTO while the arrival is
+  /// only the first activity of the day. Lateness counts from checkInAt
+  /// either way, and the board flags AUTO days as «без отметки».
+  checkInMethod  AttendanceMethod?
+  /// BUTTON once «Я ушёл» was pressed: later activity no longer moves it.
+  checkOutMethod AttendanceMethod?
 
   /// Minutes past the scheduled start; 0 when on time or on a day off.
   lateMinutes   Int @default(0)

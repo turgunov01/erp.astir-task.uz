@@ -19,6 +19,10 @@ export interface NavItem {
  */
 export const NAVIGATION: NavItem[] = [
   { label: 'Панель управления', to: '/dashboard', icon: 'lucide:layout-dashboard', permission: PERMISSION.DASHBOARD_VIEW },
+  // Who came to work and who did not. Top level rather than inside «Команда»:
+  // the owner looks for it every morning and could not find it in the group.
+  // Also where the owner and the administrator start (auth store homePath).
+  { label: 'Посещаемость', to: '/team/attendance', icon: 'lucide:user-check', permission: PERMISSION.ATTENDANCE_VIEW },
   // Everyone with tasks of their own gets them one click away; for the people
   // doing the work this is also where a session starts (auth store homePath).
   { label: 'Мои задачи', to: '/tasks/my', icon: 'lucide:list-todo', permission: PERMISSION.TASK_VIEW_OWN },
@@ -45,9 +49,6 @@ export const NAVIGATION: NavItem[] = [
       { label: 'Сотрудники', to: '/team/employees', icon: 'lucide:user', permission: PERMISSION.TEAM_VIEW },
       { label: 'Отделы', to: '/team/departments', icon: 'lucide:building-2', permission: PERMISSION.TEAM_VIEW },
       { label: 'Загрузка', to: '/team/workload', icon: 'lucide:gauge', permission: PERMISSION.WORKLOAD_VIEW },
-      // Arrivals, lateness and worked time; where the owner and the
-      // administrator start (auth store homePath).
-      { label: 'Активность сотрудников', to: '/team/attendance', icon: 'lucide:user-check', permission: PERMISSION.ATTENDANCE_VIEW },
       { label: 'Учёт времени', to: '/timesheets', icon: 'lucide:clock', permission: PERMISSION.TIMESHEET_VIEW_OWN },
       { label: 'Таймлайн', to: '/timeline', icon: 'lucide:chart-gantt', permission: PERMISSION.PRODUCTION_VIEW }
     ]

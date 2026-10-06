@@ -41,7 +41,7 @@ function mergeRequestCookies(event: H3Event, pairs: string[]): void {
 /** The personal task list, where every employee starts. */
 export const MY_TASKS_PATH = '/tasks/my'
 
-/** Employee activity control, where the owner and the administrator start. */
+/** The attendance board, where the owner and the administrator start. */
 export const ATTENDANCE_PATH = '/team/attendance'
 
 /**
@@ -86,7 +86,7 @@ export const useAuthStore = defineStore('auth', () => {
    * user opens a guest page. A `?redirect=` on the login page still wins.
    *
    * The client's rule, literally: the owner and the administrator start on
-   * employee activity control; every employee starts on their own tasks.
+   * the attendance board; every employee starts on their own tasks.
    * Each step also checks the page can actually be opened, so an edited role
    * matrix degrades to the next sensible page instead of a 403 — and client
    * accounts, which have neither, land in their portal.

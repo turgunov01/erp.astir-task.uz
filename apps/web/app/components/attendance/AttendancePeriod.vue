@@ -263,6 +263,13 @@ const payrollLink = computed(() => ({
               </td>
               <td class="px-3 py-2.5 text-right tabular-nums">
                 {{ row.totals.presentDays }} / {{ row.totals.workingDays }}
+                <span
+                  v-if="row.totals.unmarkedDays > 0"
+                  class="block text-[11px] text-amber-700 dark:text-amber-300"
+                  :title="'Был в системе, но не нажал «Я приехал»: ' + countLabel(row.totals.unmarkedDays, 'день', 'дня', 'дней')"
+                >
+                  без отметки: {{ row.totals.unmarkedDays }}
+                </span>
               </td>
               <td class="px-3 py-2.5 text-right tabular-nums" :class="row.totals.absentDays > 0 ? 'text-destructive' : 'text-muted-foreground'">
                 {{ row.totals.absentDays }}

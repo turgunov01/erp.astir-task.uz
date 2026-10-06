@@ -11,8 +11,10 @@ import type {
 } from '~/utils/attendance'
 
 /**
- * One day, everyone on staff: who is online, who came in and when, who is
- * late, who is missing. Today's board refreshes itself every minute.
+ * One day, everyone on staff: who came to work and who did not, front and
+ * centre. The list is grouped — not arrived first, then seen-but-not-marked,
+ * then arrived (the late ones on top), then everyone not due today — so the
+ * owner reads the answer off the top. Today's board refreshes every minute.
  */
 
 const props = defineProps<{ date: string | null }>()
@@ -25,6 +27,8 @@ const canSeeFeed = computed(() => auth.can(PERMISSION.ACTIVITY_VIEW))
 interface BoardRow extends AttendanceDayFields {
   employee: AttendancePerson
   status: AttendanceStatus
+  /** Using the app in the last few minutes (today only). */
+  online: boolean
   actions: number
 }
 
@@ -57,7 +61,7 @@ const errorMessage = computed(() => {
 
 /* ---------------------------------------------------------------- filters */
 
-type StatusFilter = '' | 'ONLINE' | 'PRESENT_ANY' | 'LATE' | 'ABSENT' | 'DAY_OFF' | 'ON_LEAVE'
+type StatusFilter = '' | 'ARRIVED' | 'PRESENT' | 'UNMARKED' | 'LATE' | 'ABSENT' | 'ONLINE' | 'DAY_OFF' | 'ON_LEAVE'
 
 const department = ref('')
 const status = ref<StatusFilter>('')
@@ -68,13 +72,15 @@ const departments = computed(() => {
   return [...names].sort((a, b) => a.localeCompare(b, 'ru'))
 })
 
-const isPresent = (row: BoardRow) => row.status === 'ONLINE' || row.status === 'PRESENT'
+/** At work today, whether by the button or only seen in the app. */
+const hasArrived = (row: BoardRow) => row.status === 'PRESENT' || row.status === 'UNMARKED'
 
 function matchesStatus(row: BoardRow, wanted: StatusFilter) {
   switch (wanted) {
     case '': return true
-    case 'PRESENT_ANY': return isPresent(row)
+    case 'ARRIVED': return hasArrived(row)
     case 'LATE': return row.lateMinutes > 0
+    case 'ONLINE': return row.online
     default: return row.status === wanted
   }
 }
@@ -88,11 +94,46 @@ const visible = computed(() => inDepartment.value.filter(row => matchesStatus(ro
 const tiles = computed(() => {
   const list = inDepartment.value
   return [
-    { key: 'PRESENT_ANY' as const, label: 'На месте', value: list.filter(isPresent).length, tone: 'text-sky-700 dark:text-sky-300' },
+    { key: 'ARRIVED' as const, primary: true, label: 'Пришли', value: list.filter(hasArrived).length, tone: 'text-emerald-700 dark:text-emerald-300' },
+    { key: 'ABSENT' as const, primary: true, label: 'Не пришли', value: list.filter(row => row.status === 'ABSENT').length, tone: 'text-destructive' },
     { key: 'LATE' as const, label: 'Опоздали', value: list.filter(row => row.lateMinutes > 0).length, tone: 'text-amber-700 dark:text-amber-300' },
-    { key: 'ABSENT' as const, label: 'Не пришли', value: list.filter(row => row.status === 'ABSENT').length, tone: 'text-destructive' },
-    { key: 'ONLINE' as const, label: 'Онлайн сейчас', value: list.filter(row => row.status === 'ONLINE').length, tone: 'text-emerald-700 dark:text-emerald-300' }
+    { key: 'UNMARKED' as const, label: 'Не отметились', value: list.filter(row => row.status === 'UNMARKED').length, tone: 'text-amber-700 dark:text-amber-300' },
+    { key: 'ONLINE' as const, label: 'Онлайн сейчас', value: list.filter(row => row.online).length, tone: 'text-sky-700 dark:text-sky-300' }
   ]
+})
+
+/* ---------------------------------------------------------------- groups */
+
+interface BoardGroup {
+  key: string
+  label: string
+  tone: string
+  rows: BoardRow[]
+}
+
+const GROUPS: ReadonlyArray<Omit<BoardGroup, 'rows'> & { has: (row: BoardRow) => boolean }> = [
+  { key: 'absent', label: 'Не пришли', tone: 'text-destructive', has: row => row.status === 'ABSENT' },
+  { key: 'unmarked', label: 'В системе, но не отметились', tone: 'text-amber-700 dark:text-amber-300', has: row => row.status === 'UNMARKED' },
+  { key: 'present', label: 'Пришли и отметились', tone: 'text-emerald-700 dark:text-emerald-300', has: row => row.status === 'PRESENT' },
+  { key: 'off', label: 'Выходной, отпуск', tone: 'text-muted-foreground', has: () => true }
+]
+
+/** Late first (the latest on top), then by arrival; names break ties. */
+function byLateness(a: BoardRow, b: BoardRow) {
+  return b.lateMinutes - a.lateMinutes ||
+    (a.checkInAt ?? '').localeCompare(b.checkInAt ?? '') ||
+    a.employee.user.lastName.localeCompare(b.employee.user.lastName, 'ru')
+}
+
+const groups = computed<BoardGroup[]>(() => {
+  let rest = visible.value
+  const out: BoardGroup[] = []
+  for (const group of GROUPS) {
+    const rows = rest.filter(group.has)
+    rest = rest.filter(row => !group.has(row))
+    if (rows.length > 0) out.push({ key: group.key, label: group.label, tone: group.tone, rows: [...rows].sort(byLateness) })
+  }
+  return out
 })
 
 function toggleTile(key: StatusFilter) {
@@ -192,10 +233,12 @@ function feedLink(row: BoardRow) {
         aria-label="Фильтр по статусу"
       >
         <option value="">Любой статус</option>
-        <option value="ONLINE">Онлайн</option>
-        <option value="PRESENT_ANY">На месте</option>
-        <option value="LATE">Опоздали</option>
+        <option value="ARRIVED">Пришли</option>
+        <option value="PRESENT">Отметились</option>
+        <option value="UNMARKED">В системе, не отметились</option>
         <option value="ABSENT">Не пришли</option>
+        <option value="LATE">Опоздали</option>
+        <option value="ONLINE">Онлайн</option>
         <option value="DAY_OFF">Выходной</option>
         <option value="ON_LEAVE">Отпуск</option>
       </select>
@@ -209,7 +252,7 @@ function feedLink(row: BoardRow) {
       </span>
     </div>
 
-    <div class="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <div class="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
       <button
         v-for="tile in tiles"
         :key="tile.key"
@@ -220,7 +263,7 @@ function feedLink(row: BoardRow) {
         @click="toggleTile(tile.key)"
       >
         <span class="block text-xs font-medium uppercase tracking-wider text-muted-foreground">{{ tile.label }}</span>
-        <span class="mt-1 block text-2xl font-semibold tabular-nums" :class="tile.value > 0 ? tile.tone : ''">
+        <span class="mt-1 block font-semibold tabular-nums" :class="[tile.value > 0 ? tile.tone : '', tile.primary ? 'text-3xl' : 'text-2xl']">
           {{ tile.value }}
         </span>
       </button>
@@ -255,20 +298,28 @@ function feedLink(row: BoardRow) {
       </div>
 
       <ul>
+        <template v-for="group in groups" :key="group.key">
+        <li class="flex items-center gap-2 border-b bg-muted/40 px-4 py-1.5 text-xs font-medium uppercase tracking-wider" :class="group.tone">
+          {{ group.label }}
+          <span class="rounded-full bg-background px-1.5 tabular-nums text-muted-foreground">{{ group.rows.length }}</span>
+        </li>
         <li
-          v-for="row in visible"
+          v-for="row in group.rows"
           :key="row.employee.id"
           class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 border-b px-4 py-3 last:border-0 lg:grid-cols-[minmax(0,2.2fr)_minmax(0,1.1fr)_repeat(5,minmax(0,0.9fr))_6.5rem]"
         >
-          <AttendancePersonCell :person="row.employee" :online="row.status === 'ONLINE'" />
+          <AttendancePersonCell :person="row.employee" :online="row.online" />
 
-          <span class="justify-self-end lg:justify-self-start">
+          <span class="max-w-[9.5rem] justify-self-end text-right lg:max-w-none lg:justify-self-start lg:text-left">
             <span
               class="inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium"
               :class="ATTENDANCE_STATUS_CLASS[row.status]"
             >
-              <span v-if="row.status === 'ONLINE'" class="size-1.5 animate-pulse rounded-full bg-current" aria-hidden="true" />
               {{ attendanceStatusLabel(row.status, isToday) }}
+            </span>
+            <span v-if="row.online" class="ml-1.5 hidden items-center gap-1 text-xs text-emerald-700 lg:inline-flex dark:text-emerald-300">
+              <span class="size-1.5 rounded-full bg-emerald-500 motion-safe:animate-pulse" aria-hidden="true" />
+              онлайн
             </span>
             <Icon
               v-if="row.source === 'MANUAL'"
@@ -281,7 +332,21 @@ function feedLink(row: BoardRow) {
           <dl class="col-span-2 grid grid-cols-3 gap-2 text-sm sm:grid-cols-5 lg:contents">
             <div>
               <dt class="text-[11px] text-muted-foreground lg:hidden">Пришёл</dt>
-              <dd class="tabular-nums">{{ studioClock(row.checkInAt, tz) }}</dd>
+              <dd v-if="row.status === 'UNMARKED'" class="text-muted-foreground" title="Кнопку «Я приехал» не нажимал — время первой активности">
+                <span class="tabular-nums">{{ studioClock(row.checkInAt, tz) }}</span>
+                <span class="block text-[11px] leading-tight">без отметки</span>
+              </dd>
+              <dd v-else class="tabular-nums">
+                <span class="inline-flex items-center gap-1" :class="row.checkInMethod === 'BUTTON' && row.source === 'WEB' ? 'font-medium' : ''">
+                  <Icon
+                    v-if="row.checkInMethod === 'BUTTON' && row.source === 'WEB'"
+                    name="lucide:map-pin-check"
+                    class="size-3.5 text-emerald-600 dark:text-emerald-400"
+                    aria-label="по кнопке «Я приехал»"
+                  />
+                  {{ studioClock(row.checkInAt, tz) }}
+                </span>
+              </dd>
             </div>
             <div>
               <dt class="text-[11px] text-muted-foreground lg:hidden">Опоздание</dt>
@@ -335,6 +400,7 @@ function feedLink(row: BoardRow) {
             </button>
           </div>
         </li>
+        </template>
       </ul>
     </div>
 
