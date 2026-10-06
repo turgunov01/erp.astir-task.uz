@@ -6,6 +6,7 @@ import {
   EMPLOYMENT_TYPE_LABEL,
   EXPENSE_CATEGORY_LABEL,
   PAYMENT_STATUS_LABEL,
+  PAYROLL_TYPE_LABEL,
   PRIORITY_LABEL,
   PRODUCTION_STATUS_LABEL,
   RENDER_STATUS_LABEL,
@@ -502,6 +503,52 @@ export const EXPENSE_FORM: EntityFormConfig = {
     { key: 'currency', label: 'Валюта', type: 'text', placeholder: 'USD' },
     { key: 'date', label: 'Дата', type: 'date', required: true },
     { key: 'description', label: 'Описание', type: 'textarea', wide: true }
+  ]
+}
+
+/*
+ * The payroll endpoint lists employees itself: the finance role that writes
+ * these entries does not hold team:view, so /api/employees would answer 403.
+ */
+const PAYROLL_EMPLOYEE_SOURCE = { url: '/api/finance/payroll/employees', labelKeys: ['name'] }
+
+export const PAYROLL_FORM: EntityFormConfig = {
+  endpoint: '/api/finance/payroll',
+  createTitle: 'Новая запись: аванс, штраф или премия',
+  editTitle: 'Редактирование черновика',
+  columns: 2,
+  fields: [
+    { key: 'employeeId', label: 'Сотрудник', type: 'select', required: true, source: PAYROLL_EMPLOYEE_SOURCE },
+    {
+      key: 'type',
+      label: 'Вид',
+      type: 'select',
+      required: true,
+      options: enumOptions(PAYROLL_TYPE_LABEL)
+    },
+    {
+      key: 'amount',
+      label: 'Сумма',
+      type: 'number',
+      required: true,
+      hint: 'Всегда положительная: вид записи сам решает, прибавить или удержать.'
+    },
+    { key: 'currency', label: 'Валюта', type: 'text', placeholder: 'Валюта студии' },
+    { key: 'date', label: 'Дата', type: 'date', required: true },
+    {
+      key: 'period',
+      label: 'Месяц расчёта',
+      type: 'text',
+      placeholder: 'ГГГГ-ММ',
+      hint: 'Пусто — месяц из даты.'
+    },
+    {
+      key: 'lateMinutes',
+      label: 'Опоздание, минут',
+      type: 'number',
+      hint: 'Только для штрафа за опоздание — там обязательно.'
+    },
+    { key: 'reason', label: 'Причина / комментарий', type: 'textarea', wide: true }
   ]
 }
 

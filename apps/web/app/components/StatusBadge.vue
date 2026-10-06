@@ -1,7 +1,7 @@
 <script setup lang="ts">
 type Tone = 'neutral' | 'info' | 'progress' | 'success' | 'warning' | 'danger'
 
-const props = defineProps<{ status: string, kind?: 'project' | 'risk' | 'payment' | 'generic' }>()
+const props = defineProps<{ status: string, kind?: 'project' | 'risk' | 'payment' | 'payroll' | 'generic' }>()
 
 /** Semantic colour, not decorative: tone always encodes production meaning. */
 const PROJECT_TONES: Record<string, Tone> = {
@@ -39,6 +39,14 @@ const PAYMENT_TONES: Record<string, Tone> = {
   CANCELLED: 'neutral'
 }
 
+/** A draft is undecided, approved is owed, paid is settled. */
+const PAYROLL_TONES: Record<string, Tone> = {
+  DRAFT: 'neutral',
+  APPROVED: 'warning',
+  PAID: 'success',
+  CANCELLED: 'danger'
+}
+
 const TONE_CLASS: Record<Tone, string> = {
   neutral: 'bg-secondary text-secondary-foreground',
   info: 'bg-sky-500/12 text-sky-700 dark:text-sky-300',
@@ -51,6 +59,7 @@ const TONE_CLASS: Record<Tone, string> = {
 const tone = computed<Tone>(() => {
   if (props.kind === 'risk') return RISK_TONES[props.status] ?? 'neutral'
   if (props.kind === 'payment') return PAYMENT_TONES[props.status] ?? 'neutral'
+  if (props.kind === 'payroll') return PAYROLL_TONES[props.status] ?? 'neutral'
   return PROJECT_TONES[props.status] ?? 'neutral'
 })
 
@@ -62,6 +71,7 @@ const tone = computed<Tone>(() => {
 const label = computed(() => {
   if (props.kind === 'risk') return enumLabel(RISK_LABEL, props.status)
   if (props.kind === 'payment') return enumLabel(PAYMENT_STATUS_LABEL, props.status)
+  if (props.kind === 'payroll') return enumLabel(PAYROLL_STATUS_LABEL, props.status)
   return enumLabel(STATUS_LABEL, props.status)
 })
 </script>

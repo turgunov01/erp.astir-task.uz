@@ -58,6 +58,12 @@ export const PERMISSION = {
   FINANCE_MANAGE: 'finance:manage',
   BUDGET_VIEW: 'budget:view',
 
+  // Employee pay adjustments: advances, penalties, bonuses (client item 7).
+  // view:own opens the page scoped to the caller's own entries.
+  PAYROLL_VIEW_OWN: 'payroll:view:own',
+  PAYROLL_VIEW: 'payroll:view',
+  PAYROLL_MANAGE: 'payroll:manage',
+
   REPORT_VIEW: 'report:view',
   DOCUMENT_VIEW: 'document:view',
   DOCUMENT_MANAGE: 'document:manage',
@@ -109,6 +115,7 @@ export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
     P.TEAM_VIEW, P.WORKLOAD_VIEW,
     P.TIMESHEET_VIEW_ALL, P.TIMESHEET_VIEW_OWN, P.TIMESHEET_SUBMIT,
     P.BUDGET_VIEW,
+    P.PAYROLL_VIEW_OWN,
     P.REPORT_VIEW, P.DOCUMENT_VIEW, P.ACTIVITY_VIEW
   ],
 
@@ -125,6 +132,7 @@ export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
     P.RENDER_VIEW,
     P.TEAM_VIEW, P.WORKLOAD_VIEW,
     P.TIMESHEET_VIEW_ALL, P.TIMESHEET_VIEW_OWN, P.TIMESHEET_SUBMIT,
+    P.PAYROLL_VIEW_OWN,
     P.REPORT_VIEW, P.DOCUMENT_VIEW, P.ACTIVITY_VIEW
   ],
 
@@ -139,6 +147,7 @@ export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
     P.ASSET_VIEW, P.ASSET_MANAGE,
     P.TEAM_VIEW,
     P.TIMESHEET_VIEW_OWN, P.TIMESHEET_SUBMIT,
+    P.PAYROLL_VIEW_OWN,
     P.ACTIVITY_VIEW
   ],
 
@@ -151,7 +160,8 @@ export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
     P.REVIEW_VIEW,
     P.REVISION_VIEW,
     P.ASSET_VIEW,
-    P.TIMESHEET_VIEW_OWN, P.TIMESHEET_SUBMIT
+    P.TIMESHEET_VIEW_OWN, P.TIMESHEET_SUBMIT,
+    P.PAYROLL_VIEW_OWN
   ],
 
   [ROLE.CLIENT]: [
@@ -167,6 +177,7 @@ export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
     P.PROJECT_VIEW,
     P.CLIENT_VIEW,
     P.FINANCE_VIEW, P.FINANCE_MANAGE, P.BUDGET_VIEW,
+    P.PAYROLL_VIEW_OWN, P.PAYROLL_VIEW, P.PAYROLL_MANAGE,
     P.REPORT_VIEW,
     P.DOCUMENT_VIEW, P.DOCUMENT_MANAGE,
     P.TIMESHEET_VIEW_ALL,
