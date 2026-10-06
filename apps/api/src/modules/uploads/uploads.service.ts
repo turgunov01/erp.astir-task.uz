@@ -16,6 +16,7 @@ import { createDocument, resolveDocumentTarget, type DocumentFields } from '../f
 import * as versions from '../versions/versions.service'
 import type { CreateVersionInput } from '../versions/versions.service'
 import * as sessions from './upload-sessions'
+import { t } from '../../i18n'
 
 /** Open sessions one user may hold at once, so abandoned ones cannot fill the disk. */
 const MAX_OPEN_SESSIONS_PER_USER = 20
@@ -79,14 +80,14 @@ async function assertTarget(input: CreateUploadSessionInput) {
 export async function open(input: CreateUploadSessionInput, user: AuthUser) {
   await assertKindPermission(user, input.kind)
 
-  if (input.size > MAX_UPLOAD_BYTES) throw badRequest('Файл больше 1 ГБ')
+  if (input.size > MAX_UPLOAD_BYTES) throw badRequest(t('common.validation.fileOver1Gb'))
   if (!isAllowedMimeType(input.mimeType)) {
-    throw badRequest('Тип файла ' + input.mimeType + ' не поддерживается')
+    throw badRequest(t('production.uploads.typeUnsupported', { type: input.mimeType }))
   }
   await assertTarget(input)
 
   if ((await sessions.countUserSessions(user.id)) >= MAX_OPEN_SESSIONS_PER_USER) {
-    throw badRequest('Слишком много незавершённых загрузок. Завершите или отмените их.')
+    throw badRequest(t('production.uploads.tooManyOpen'))
   }
 
   const session = await sessions.createSession({
@@ -114,11 +115,11 @@ export async function putChunk(
 ) {
   const session = await requireSession(id, user)
   if (index >= session.chunkCount) {
-    throw badRequest('Номер части вне диапазона: ' + index + ' из ' + session.chunkCount)
+    throw badRequest(t('production.uploads.chunkOutOfRange', { index, total: session.chunkCount }))
   }
   const expected = sessions.expectedChunkBytes(session, index)
   if (declaredLength !== null && declaredLength !== expected) {
-    throw badRequest('Часть ' + index + ' должна быть ' + expected + ' байт, а не ' + declaredLength)
+    throw badRequest(t('production.uploads.chunkWrongSize', { index, expected, actual: declaredLength }))
   }
 
   await sessions.writeChunk(session, index, body)
@@ -153,7 +154,7 @@ export async function complete(id: string, user: AuthUser) {
   const missing = Array.from({ length: session.chunkCount }, (_, index) => index)
     .filter(index => !received.has(index))
   if (missing.length > 0) {
-    throw badRequest('Получены не все части файла', {
+    throw badRequest(t('production.uploads.chunksMissing'), {
       missing: missing.slice(0, 50).map(String)
     })
   }

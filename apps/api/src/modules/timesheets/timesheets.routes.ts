@@ -8,11 +8,12 @@ import { sendItem, sendList, sendNoContent } from '../../lib/http'
 import { forbidden, unauthenticated } from '../../lib/errors'
 import { recordActivity } from '../../lib/activity'
 import * as service from './timesheets.service'
+import { t } from '../../i18n'
 
 const dayString = z
   .string()
   .trim()
-  .refine(value => !Number.isNaN(Date.parse(value)), 'Неверная дата')
+  .refine(value => !Number.isNaN(Date.parse(value)), { error: () => t('common.validation.invalidDate') })
 
 const listSchema = listQuerySchema.extend({
   employeeId: uuidSchema.optional(),
@@ -146,7 +147,7 @@ timesheetsRouter.post(
       // Logging hours against someone else is a supervisor action.
       const employeeId = req.body.employeeId && !ownOnly ? req.body.employeeId : own
       if (!employeeId) {
-        throw forbidden('Ваша учётная запись не привязана к сотруднику, поэтому часы записать нельзя')
+        throw forbidden(t('team.timesheets.noEmployee'))
       }
 
       const entry = await service.create({ ...req.body, employeeId })
@@ -172,7 +173,7 @@ async function assertMayModify(
   if (!user) throw unauthenticated()
   const own = await service.employeeIdForUser(user.id)
   if (employeeId !== own && OWN_ONLY_ROLES.includes(user.role)) {
-    throw forbidden('Менять можно только свои записи табеля')
+    throw forbidden(t('team.timesheets.ownOnly'))
   }
 }
 

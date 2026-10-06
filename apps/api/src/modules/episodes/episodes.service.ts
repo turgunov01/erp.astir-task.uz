@@ -4,6 +4,7 @@ import { conflict, notFound } from '../../lib/errors'
 import { buildMeta, toSkipTake } from '../../lib/http'
 import { recordActivity } from '../../lib/activity'
 import { recalcEpisode, recalcProject } from '../production/rollup'
+import { t } from '../../i18n'
 
 const INCLUDE = {
   project: { select: { id: true, code: true, name: true } },
@@ -88,7 +89,7 @@ export async function create(input: Record<string, unknown>, actorId?: string) {
     where: { projectId, number },
     select: { id: true }
   })
-  if (duplicate) throw conflict('Эпизод ' + number + ' уже есть в этом проекте')
+  if (duplicate) throw conflict(t('production.episodes.duplicate', { number }))
 
   const episode = await prisma.episode.create({
     data: {
@@ -148,7 +149,7 @@ export async function update(id: string, input: Record<string, unknown>, actorId
 export async function remove(id: string) {
   const episode = await getById(id)
   if (episode._count.scenes > 0) {
-    throw conflict('В эпизоде ещё есть сцены: ' + episode._count.scenes + '. Сначала удалите их.')
+    throw conflict(t('production.episodes.hasScenes', { count: episode._count.scenes }))
   }
 
   await prisma.episode.update({ where: { id }, data: { deletedAt: new Date() } })
