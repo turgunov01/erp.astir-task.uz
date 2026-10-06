@@ -31,7 +31,7 @@ const errorMessage = ref('')
  */
 function seed() {
   for (const field of props.config.fields) {
-    const raw = props.record?.[field.key]
+    const raw = props.record ? readPath(props.record, field.path ?? field.key) : undefined
     if (raw === null || raw === undefined) {
       values[field.key] = field.type === 'checkbox' ? false : ''
       continue
@@ -159,9 +159,14 @@ function oversized(list: File[]) {
   return list.filter(file => file.size > UPLOAD_LIMITS.MAX_FILE_BYTES)
 }
 
+/** Required, plus, once the row exists, any field whose column cannot be emptied. */
+function isRequired(field: FormField) {
+  return isFieldRequired(field, isEdit.value)
+}
+
 const missing = computed(() =>
   fields.value.filter(field =>
-    field.required && field.type !== 'files' && !String(values[field.key] ?? '').trim()
+    isRequired(field) && field.type !== 'files' && isBlank(values[field.key])
   )
 )
 
@@ -174,7 +179,10 @@ async function submit() {
   saving.value = true
   errorMessage.value = ''
   try {
-    const payload = cleanPayload(values, fields.value)
+    // Editing, the original row lets an emptied field be sent as null.
+    const payload = cleanPayload(values, fields.value, {
+      original: isEdit.value ? props.record : null
+    })
     const row = isEdit.value
       ? await apiRequest<{ data?: { id?: string } }>(
         props.config.endpoint + '/' + props.record?.id,
@@ -253,7 +261,7 @@ onMounted(() => {
                 class="mb-1.5 block text-sm font-medium leading-none"
               >
                 {{ field.label }}
-                <span v-if="field.required" class="ml-0.5 text-destructive">*</span>
+                <span v-if="isRequired(field)" class="ml-0.5 text-destructive">*</span>
               </label>
 
               <textarea
@@ -271,7 +279,7 @@ onMounted(() => {
                 v-model="values[field.key] as string"
                 class="h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
               >
-                <option value="">{{ field.placeholder ?? 'Не выбрано' }}</option>
+                <option v-if="!(isEdit && field.notNull)" value="">{{ field.placeholder ?? 'Не выбрано' }}</option>
                 <option v-for="option in optionsFor(field)" :key="option.value" :value="option.value">
                   {{ option.label }}
                 </option>

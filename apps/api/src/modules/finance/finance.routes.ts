@@ -78,7 +78,8 @@ const createInvoiceSchema = z.object({
   amount: moneyAmount,
   currency: currencyCode,
   status: z.enum(PAYMENT_STATUS).default('PENDING'),
-  issuedAt: optionalDate,
+  // Left out, the invoice is issued today. Never null: the column is NOT NULL.
+  issuedAt: z.string().refine(value => !Number.isNaN(Date.parse(value)), 'Invalid date').optional(),
   dueDate: optionalDate,
   description: optionalText(1000),
   vatAmount: moneyAmount.optional().nullable()
