@@ -129,7 +129,7 @@ export async function seedFinance(
         status: 'PAID',
         dueDate: day(seed.due, 18),
         paidDate: paidAt,
-        method: 'bank transfer',
+        method: 'BANK_TRANSFER',
         createdAt: paidAt
       }
     })

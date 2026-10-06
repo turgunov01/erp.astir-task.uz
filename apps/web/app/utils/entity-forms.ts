@@ -5,6 +5,7 @@ import {
   EMPLOYEE_STATUS_LABEL,
   EMPLOYMENT_TYPE_LABEL,
   EXPENSE_CATEGORY_LABEL,
+  PAYMENT_METHOD_LABEL,
   PAYMENT_STATUS_LABEL,
   PAYROLL_TYPE_LABEL,
   PRIORITY_LABEL,
@@ -491,7 +492,14 @@ export const EXPENSE_FORM: EntityFormConfig = {
   editTitle: 'Редактирование расхода',
   columns: 2,
   fields: [
-    { key: 'projectId', label: 'Проект', type: 'select', required: true, source: PROJECT_SOURCE },
+    {
+      key: 'projectId',
+      label: 'Проект',
+      type: 'select',
+      source: PROJECT_SOURCE,
+      placeholder: 'Студия — без проекта',
+      hint: 'Аренду, налоги и подписки студии оставляйте без проекта.'
+    },
     {
       key: 'category',
       label: 'Категория',
@@ -502,6 +510,22 @@ export const EXPENSE_FORM: EntityFormConfig = {
     { key: 'amount', label: 'Сумма', type: 'number', required: true },
     { key: 'currency', label: 'Валюта', type: 'text', placeholder: 'USD' },
     { key: 'date', label: 'Дата', type: 'date', required: true },
+    { key: 'vendor', label: 'Контрагент', type: 'text', placeholder: 'Кому заплатили' },
+    {
+      key: 'paymentMethod',
+      label: 'Способ оплаты',
+      type: 'select',
+      placeholder: 'Не указан',
+      options: enumOptions(PAYMENT_METHOD_LABEL)
+    },
+    {
+      key: 'vatAmount',
+      label: 'В т.ч. НДС',
+      type: 'number',
+      hint: 'Часть суммы, а не надбавка к ней. Пусто — без НДС.'
+    },
+    { key: 'documentNumber', label: 'Номер документа', type: 'text', placeholder: 'Чек, акт, счёт-фактура' },
+    { key: 'documentUrl', label: 'Ссылка на скан', type: 'text', placeholder: 'https://…', wide: true },
     { key: 'description', label: 'Описание', type: 'textarea', wide: true }
   ]
 }
@@ -582,9 +606,24 @@ export const PAYMENT_FORM: EntityFormConfig = {
       type: 'select',
       options: enumOptions(PAYMENT_STATUS_LABEL)
     },
-    { key: 'method', label: 'Способ', type: 'text', placeholder: 'Перевод, карта, наличные' },
+    {
+      key: 'method',
+      label: 'Способ',
+      type: 'select',
+      placeholder: 'Не указан',
+      options: enumOptions(PAYMENT_METHOD_LABEL)
+    },
     { key: 'dueDate', label: 'Срок', type: 'date' },
-    { key: 'paidDate', label: 'Дата оплаты', type: 'date' }
+    { key: 'paidDate', label: 'Дата оплаты', type: 'date' },
+    {
+      key: 'reference',
+      label: 'Номер транзакции',
+      type: 'text',
+      placeholder: 'Платёжное поручение, ID операции',
+      hint: 'По нему платёж находится в банковской выписке.'
+    },
+    { key: 'fee', label: 'Комиссия банка', type: 'number', placeholder: '0' },
+    { key: 'notes', label: 'Примечание', type: 'textarea', wide: true }
   ]
 }
 
@@ -618,7 +657,9 @@ export const INVOICE_FORM: EntityFormConfig = {
       options: enumOptions(PAYMENT_STATUS_LABEL)
     },
     { key: 'issuedAt', label: 'Выставлен', type: 'date' },
-    { key: 'dueDate', label: 'Оплатить до', type: 'date' }
+    { key: 'dueDate', label: 'Оплатить до', type: 'date' },
+    { key: 'vatAmount', label: 'В т.ч. НДС', type: 'number', hint: 'Часть суммы счёта. Пусто — без НДС.' },
+    { key: 'description', label: 'Назначение', type: 'textarea', wide: true, placeholder: 'За что выставлен счёт' }
   ]
 }
 

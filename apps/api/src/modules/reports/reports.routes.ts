@@ -1,11 +1,11 @@
 import { Router } from 'express'
-import type { Response } from 'express'
 import { z } from 'zod'
 import { uuidSchema } from '@astir/validation'
 import { PERMISSION } from '@astir/types'
 import { authenticate, requirePermission } from '../../middleware/auth'
 import { validate, validatedQuery } from '../../middleware/validate'
 import { sendItem } from '../../lib/http'
+import { sendCsv } from '../../lib/csv'
 import * as service from './reports.service'
 
 export const reportsRouter = Router()
@@ -34,50 +34,6 @@ function toPeriod(query: ReportQuery): service.Period {
     // A bare end date means the whole of that day, not its midnight.
     to: query.to ? new Date(new Date(query.to).setHours(23, 59, 59, 999)) : null
   }
-}
-
-/* -------------------------------------------------------------------- csv */
-
-type CsvValue = string | number | boolean | Date | null | undefined
-
-interface CsvColumn<T> {
-  header: string
-  value: (row: T) => CsvValue
-}
-
-function csvCell(value: CsvValue): string {
-  if (value === null || value === undefined) return ''
-  if (value instanceof Date) return value.toISOString().slice(0, 10)
-  const text = String(value)
-  // Quote only what would otherwise break the row apart.
-  return /[",\n\r;]/.test(text) ? '"' + text.replaceAll('"', '""') + '"' : text
-}
-
-function toCsv<T>(columns: Array<CsvColumn<T>>, rows: T[]): string {
-  const lines = [columns.map(column => csvCell(column.header)).join(',')]
-  for (const row of rows) {
-    lines.push(columns.map(column => csvCell(column.value(row))).join(','))
-  }
-  return lines.join('\r\n')
-}
-
-/**
- * Send a CSV the way a spreadsheet expects one.
- *
- * The BOM is not decoration: without it Excel reads the file in the system
- * codepage and every Cyrillic heading arrives as mojibake. CRLF is what the
- * format specifies and what older spreadsheet tools still require.
- */
-function sendCsv<T>(
-  res: Response,
-  filename: string,
-  columns: Array<CsvColumn<T>>,
-  rows: T[]
-) {
-  const stamp = new Date().toISOString().slice(0, 10)
-  res.setHeader('Content-Type', 'text/csv; charset=utf-8')
-  res.setHeader('Content-Disposition', `attachment; filename="${filename}-${stamp}.csv"`)
-  return res.send('﻿' + toCsv(columns, rows))
 }
 
 /* ------------------------------------------------------------- production */

@@ -332,6 +332,8 @@ onMounted(() => {
                 :id="'field-' + field.key"
                 v-model="values[field.key] as string"
                 :type="field.type === 'number' ? 'number' : field.type === 'date' ? 'date' : 'text'"
+                :step="field.type === 'number' ? 'any' : undefined"
+                :inputmode="field.type === 'number' ? 'decimal' : undefined"
                 :placeholder="field.placeholder"
                 class="h-9 w-full rounded-md border bg-background px-3 text-sm outline-none focus:border-ring"
               >

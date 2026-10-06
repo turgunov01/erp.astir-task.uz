@@ -688,7 +688,7 @@ async function seedLibraryAndOps(
           status: pick(['PENDING', 'PAID', 'OVERDUE'] as const) as never,
           dueDate: daysFromNow(-10 + index * 12),
           paidDate: chance(0.6) ? daysFromNow(-8 + index * 12) : null,
-          method: pick(['bank transfer', 'card', 'cash'] as const)
+          method: pick(['BANK_TRANSFER', 'CARD', 'CASH'] as const)
         }
       })
     }

@@ -1,8 +1,10 @@
 import type { PaginationMeta } from '@astir/types'
 
-export interface ListResponse<T> {
+export interface ListResponse<T, S = unknown> {
   data: T[]
   meta: PaginationMeta
+  /** Figures about every matching row, e.g. per-currency totals. */
+  summary?: S
 }
 
 /**
@@ -13,11 +15,11 @@ export interface ListResponse<T> {
  * in as refs rather than read from the URL here, so pages stay free to mirror
  * their filters into query params (spec 89).
  */
-export function useListResource<T>(
+export function useListResource<T, S = unknown>(
   path: string,
   filters: Ref<Record<string, string | number | undefined>>
 ) {
-  const { data, pending, error, refresh } = useFetch<ListResponse<T>>(path, {
+  const { data, pending, error, refresh } = useFetch<ListResponse<T, S>>(path, {
     query: filters,
     credentials: 'include',
     watch: [filters],
@@ -32,13 +34,15 @@ export function useListResource<T>(
     () => data.value?.meta ?? { page: 1, limit: 20, total: 0, pages: 0 }
   )
 
+  const summary = computed(() => data.value?.summary)
+
   const errorMessage = computed(() => {
     if (!error.value) return ''
     const body = error.value.data as { error?: { message?: string } } | undefined
     return body?.error?.message ?? 'Не удалось загрузить данные'
   })
 
-  return { items, meta, pending, error, errorMessage, refresh }
+  return { items, meta, summary, pending, error, errorMessage, refresh }
 }
 
 /** Fire a write request and surface the API error message unchanged. */
