@@ -333,5 +333,6 @@ watch(() => route.path, () => { moreOpen.value = false })
     </div>
 
     <TaskPanelHost />
+    <MediaViewer />
   </div>
 </template>

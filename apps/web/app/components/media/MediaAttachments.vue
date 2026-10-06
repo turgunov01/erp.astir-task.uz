@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { MediaItem } from '~/components/media/MediaGallery.vue'
+import type { DocumentLike } from '~/utils/media'
 import { apiErrorMessage } from '~/composables/useApi'
 
 /**
@@ -21,8 +21,9 @@ const props = withDefaults(defineProps<{
   emptyText: 'Файлов нет. Прикрепление не обязательно — фото, видео или аудио по желанию.'
 })
 
-interface Attachment extends MediaItem {
+interface Attachment extends DocumentLike {
   type: string
+  fileSize: string | null
   createdAt: string
   uploadedBy: { firstName: string, lastName: string } | null
 }
@@ -35,18 +36,10 @@ const { data, pending, error, refresh } = await useFetch<{ data: Attachment[] }>
 
 const files = computed(() => data.value?.data ?? [])
 
-/** Only media opens in the gallery; a PDF is better handled by the browser. */
-const media = computed(() =>
-  files.value.filter(file =>
-    file.mimeType && /^(image|video|audio)\//.test(file.mimeType)
-  )
-)
-
 const fileInput = ref<HTMLInputElement | null>(null)
 const uploading = ref(false)
 const errorMessage = ref('')
-const galleryOpen = ref(false)
-const galleryStart = ref(0)
+const viewer = useMediaViewer()
 
 async function upload(list: FileList | null) {
   if (!list || list.length === 0) return
@@ -79,22 +72,9 @@ async function remove(id: string) {
   }
 }
 
-function openGallery(file: Attachment) {
-  const position = media.value.findIndex(item => item.id === file.id)
-  galleryStart.value = position >= 0 ? position : 0
-  galleryOpen.value = true
-}
-
-function iconFor(file: Attachment) {
-  const mime = file.mimeType ?? ''
-  if (mime.startsWith('image/')) return 'lucide:image'
-  if (mime.startsWith('video/')) return 'lucide:video'
-  if (mime.startsWith('audio/')) return 'lucide:music'
-  return 'lucide:file'
-}
-
-function isImage(file: Attachment) {
-  return Boolean(file.mimeType?.startsWith('image/'))
+/** Every attachment opens in the viewer, PDFs included, and the rest are a swipe away. */
+function openViewer(file?: Attachment) {
+  viewer.open(files.value.map(documentToViewerItem), file?.id ?? 0)
 }
 </script>
 
@@ -109,10 +89,10 @@ function isImage(file: Attachment) {
       <div class="flex items-center gap-1">
         <!-- Worth a dedicated button only once there is more than one to page through. -->
         <button
-          v-if="media.length > 1"
+          v-if="files.length > 1"
           type="button"
           class="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs hover:bg-secondary"
-          @click="galleryOpen = true"
+          @click="openViewer()"
         >
           <Icon name="lucide:images" class="size-3.5" />
           Посмотреть
@@ -163,17 +143,10 @@ function isImage(file: Attachment) {
           type="button"
           class="block w-full overflow-hidden rounded-lg border bg-muted/40"
           :aria-label="'Открыть ' + file.name"
-          @click="openGallery(file)"
+          @click="openViewer(file)"
         >
-          <span class="grid h-20 place-items-center">
-            <img
-              v-if="isImage(file)"
-              :src="file.fileUrl"
-              :alt="file.name"
-              loading="lazy"
-              class="size-full object-cover"
-            >
-            <Icon v-else :name="iconFor(file)" class="size-6 text-muted-foreground" />
+          <span class="block h-20">
+            <MediaThumb :item="documentToViewerItem(file)" />
           </span>
         </button>
         <p class="mt-1 truncate px-0.5 text-xs text-muted-foreground">{{ file.name }}</p>
@@ -189,12 +162,5 @@ function isImage(file: Attachment) {
         </button>
       </li>
     </ul>
-
-    <MediaGallery
-      v-if="galleryOpen && media.length > 0"
-      :items="media"
-      :start-index="galleryStart"
-      @close="galleryOpen = false"
-    />
   </section>
 </template>

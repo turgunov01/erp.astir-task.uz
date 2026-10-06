@@ -20,7 +20,15 @@ interface RenderJob {
   updatedAt: string
   project: { id: string, code: string, name: string } | null
   shot: { id: string, code: string } | null
-  version: { id: string, label: string, status: string, fileUrl: string | null } | null
+  version: {
+    id: string
+    label: string
+    status: string
+    fileUrl: string | null
+    fileName: string | null
+    fileSize: string | null
+    mimeType: string | null
+  } | null
   node: { id: string, name: string, isOnline: boolean } | null
   submittedBy: { firstName: string, lastName: string } | null
 }
@@ -31,6 +39,22 @@ const { data, pending, error, refresh } = await useFetch<{ data: RenderJob }>(
 )
 
 const job = computed(() => data.value?.data)
+
+const viewer = useMediaViewer()
+
+/** The rendered output, checked frame by frame without leaving the queue. */
+function openOutput() {
+  const version = job.value?.version
+  if (!version?.fileUrl) return
+  viewer.open([{
+    id: version.id,
+    name: version.fileName || version.label,
+    url: version.fileUrl,
+    mimeType: version.mimeType,
+    size: version.fileSize,
+    caption: version.label
+  }])
+}
 
 const frameCount = computed(() => {
   const item = job.value
@@ -123,7 +147,17 @@ const duration = computed(() => {
           <span v-else class="text-muted-foreground">—</span>
         </DetailRow>
         <DetailRow label="Версия">
-          <span v-if="job.version">{{ job.version.label }}</span>
+          <button
+            v-if="job.version?.fileUrl"
+            type="button"
+            class="inline-flex items-center gap-1.5 text-left hover:underline"
+            :aria-label="'Открыть файл версии ' + job.version.label"
+            @click="openOutput"
+          >
+            <Icon :name="MEDIA_KIND_ICON[mediaKind(job.version.mimeType, job.version.fileName)]" class="size-3.5 text-muted-foreground" />
+            {{ job.version.label }}
+          </button>
+          <span v-else-if="job.version">{{ job.version.label }}</span>
           <span v-else class="text-muted-foreground">—</span>
         </DetailRow>
         <DetailRow label="Узел">
