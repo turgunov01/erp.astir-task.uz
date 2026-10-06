@@ -21,6 +21,7 @@
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
     "check:routes": "node scripts/check-routes.mjs",
+    "check:encoding": "node scripts/check-encoding.mjs",
     "test:api": "node scripts/smoke-api.mjs"
   }
 }
