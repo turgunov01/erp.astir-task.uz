@@ -9,6 +9,7 @@ import { authenticate } from '../../middleware/auth'
 import { validate, validatedQuery } from '../../middleware/validate'
 import { sendItem, sendList, sendNoContent } from '../../lib/http'
 import { unauthenticated } from '../../lib/errors'
+import { assertTaskVisible } from '../../lib/task-scope'
 import * as service from './comments.service'
 
 export const commentsRouter = Router()
@@ -25,6 +26,8 @@ commentsRouter.get(
   async (req, res, next) => {
     try {
       const { entityType, entityId } = validatedQuery<{ entityType: string, entityId: string }>(req)
+      if (!req.user) throw unauthenticated()
+      if (entityType === 'Task') await assertTaskVisible(req.user, entityId)
       const items = await service.list(entityType, entityId)
       return sendList(res, items, {
         page: 1, limit: items.length, total: items.length, pages: 1
@@ -38,6 +41,8 @@ commentsRouter.get(
 commentsRouter.post('/', validate(createCommentSchema), async (req, res, next) => {
   try {
     if (!req.user) throw unauthenticated()
+    // A task's thread is as private as the task: a stranger's id finds nothing.
+    if (req.body.entityType === 'Task') await assertTaskVisible(req.user, req.body.entityId)
     return sendItem(res, await service.create(req.body, req.user.id), 201)
   } catch (err) {
     next(err)

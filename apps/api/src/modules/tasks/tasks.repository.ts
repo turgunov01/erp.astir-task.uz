@@ -95,10 +95,10 @@ export function softDelete(id: string) {
 }
 
 /** Board counts per status, so the Kanban header does not fetch every row. */
-export function countByStatus(projectId: string) {
+export function countByStatus(projectId: string, assigneeId?: string | null) {
   return prisma.task.groupBy({
     by: ['status'],
-    where: { projectId, deletedAt: null },
+    where: { projectId, deletedAt: null, ...(assigneeId ? { assigneeId } : {}) },
     _count: { _all: true }
   })
 }

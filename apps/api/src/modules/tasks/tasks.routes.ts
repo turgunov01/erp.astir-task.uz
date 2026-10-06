@@ -15,6 +15,7 @@ import { validate, validatedQuery } from '../../middleware/validate'
 import { sendItem, sendList, sendNoContent } from '../../lib/http'
 import * as service from './tasks.service'
 import { overdueSummary } from '../../lib/overdue'
+import { ownTaskAssignee, requireTaskAccess } from '../../lib/task-scope'
 
 const dependencyParamSchema = z.object({ id: uuidSchema, dependsOnTaskId: uuidSchema })
 
@@ -31,6 +32,9 @@ tasksRouter.get(
       const query = validatedQuery<Record<string, unknown>>(req)
       // `mine=true` is a shorthand the UI uses for the "My tasks" views.
       if (query.mine) query.assigneeId = req.user?.id
+      // Without `task:view` the list is the caller's own, whatever was asked.
+      const scoped = req.user ? await ownTaskAssignee(req.user) : null
+      if (scoped) query.assigneeId = scoped
       const result = await service.list(query as never)
       return sendList(res, result.items, result.meta)
     } catch (err) {
@@ -46,7 +50,8 @@ tasksRouter.get(
   async (req, res, next) => {
     try {
       const { projectId } = validatedQuery<{ projectId: string }>(req)
-      return sendItem(res, await service.boardCounts(projectId))
+      const scoped = req.user ? await ownTaskAssignee(req.user) : null
+      return sendItem(res, await service.boardCounts(projectId, scoped))
     } catch (err) {
       next(err)
     }
@@ -73,6 +78,7 @@ tasksRouter.get(
   '/:id',
   requirePermission(PERMISSION.TASK_VIEW_OWN),
   validate(idParamSchema, 'params'),
+  requireTaskAccess,
   async (req, res, next) => {
     try {
       return sendItem(res, await service.getById(req.params.id as string))
@@ -99,6 +105,7 @@ tasksRouter.patch(
   '/:id',
   requirePermission(PERMISSION.TASK_UPDATE),
   validate(idParamSchema, 'params'),
+  requireTaskAccess,
   validate(updateTaskSchema),
   async (req, res, next) => {
     try {
@@ -113,6 +120,7 @@ tasksRouter.post(
   '/:id/status',
   requirePermission(PERMISSION.TASK_UPDATE),
   validate(idParamSchema, 'params'),
+  requireTaskAccess,
   validate(changeTaskStatusSchema),
   async (req, res, next) => {
     try {
@@ -135,6 +143,7 @@ tasksRouter.post(
   '/:id/dependencies',
   requirePermission(PERMISSION.TASK_ASSIGN),
   validate(idParamSchema, 'params'),
+  requireTaskAccess,
   validate(addDependencySchema),
   async (req, res, next) => {
     try {
@@ -150,6 +159,7 @@ tasksRouter.delete(
   '/:id/dependencies/:dependsOnTaskId',
   requirePermission(PERMISSION.TASK_ASSIGN),
   validate(dependencyParamSchema, 'params'),
+  requireTaskAccess,
   async (req, res, next) => {
     try {
       const task = await service.removeDependency(
@@ -167,6 +177,7 @@ tasksRouter.delete(
   '/:id',
   requirePermission(PERMISSION.TASK_CREATE),
   validate(idParamSchema, 'params'),
+  requireTaskAccess,
   async (req, res, next) => {
     try {
       await service.remove(req.params.id as string, req.user?.id)
@@ -183,6 +194,7 @@ tasksRouter.post(
   '/:id/archive',
   requirePermission(PERMISSION.TASK_UPDATE),
   validate(idParamSchema, 'params'),
+  requireTaskAccess,
   async (req, res, next) => {
     try {
       return sendItem(res, await service.archive(req.params.id as string, req.user?.id))
@@ -196,6 +208,7 @@ tasksRouter.post(
   '/:id/unarchive',
   requirePermission(PERMISSION.TASK_UPDATE),
   validate(idParamSchema, 'params'),
+  requireTaskAccess,
   async (req, res, next) => {
     try {
       return sendItem(res, await service.unarchive(req.params.id as string, req.user?.id))
