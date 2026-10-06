@@ -1,20 +1,26 @@
-import { Router } from 'express'
+import { Router, type NextFunction, type Request, type Response } from 'express'
 import { z } from 'zod'
 import { uuidSchema } from '@astir/validation'
 import { PERMISSION } from '@astir/types'
 import { authenticate, requirePermission } from '../../middleware/auth'
 import { validate, validatedQuery } from '../../middleware/validate'
 import { sendItem } from '../../lib/http'
-import { recordAudit } from '../../lib/activity'
+import { recordActivity, recordAudit } from '../../lib/activity'
 import { parseClock } from '../../lib/studio-time'
 import * as service from './attendance.service'
 import { createLatenessPenalties } from './attendance.penalties'
+import * as self from './attendance.self'
 
 /**
  * /api/attendance — employee activity control (Verifix-style): who came in,
  * when, how late, how long they worked; manual corrections and lateness
  * fines. Corrections and fines go to the audit log, not the activity feed:
  * one person's lateness is not the studio's business.
+ *
+ * /me/* is every employee's own «Я приехал» / «Я ушёл»: always the caller,
+ * always the server's clock. The press goes to the feed as «отметился о
+ * приходе» without the time or the lateness — the event's own timestamp is
+ * the arrival, and lateness stays on the attendance page.
  */
 
 export const attendanceRouter = Router()
@@ -43,6 +49,46 @@ const correctionSchema = z.object({
 })
 
 const clockOf = (value: Date | null | undefined) => value ? value.toISOString() : null
+
+attendanceRouter.get(
+  '/me/today',
+  requirePermission(PERMISSION.ATTENDANCE_SELF),
+  async (req, res, next) => {
+    try {
+      return sendItem(res, await self.myToday(req.user!.id))
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+/** One route per button: mark, then note it in the feed if it was new. */
+function markRoute(mark: typeof self.checkIn, action: string) {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const actorId = req.user!.id
+      const result = await mark(actorId)
+      if (result.recorded) {
+        await recordActivity({ actorId, entityType: 'Employee', entityId: result.employeeId, action })
+      }
+      return sendItem(res, result.day, result.recorded ? 201 : 200)
+    } catch (err) {
+      next(err)
+    }
+  }
+}
+
+attendanceRouter.post(
+  '/me/check-in',
+  requirePermission(PERMISSION.ATTENDANCE_SELF),
+  markRoute(self.checkIn, 'attendance.checked_in')
+)
+
+attendanceRouter.post(
+  '/me/check-out',
+  requirePermission(PERMISSION.ATTENDANCE_SELF),
+  markRoute(self.checkOut, 'attendance.checked_out')
+)
 
 attendanceRouter.get(
   '/board',

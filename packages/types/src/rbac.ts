@@ -51,7 +51,9 @@ export const PERMISSION = {
   WORKLOAD_VIEW: 'workload:view',
 
   // Attendance control (Verifix-style): who came in, when and how late.
-  // manage covers correcting a day by hand and turning lateness into fines.
+  // manage covers correcting a day by hand and turning lateness into fines;
+  // self is every employee's own «Я приехал» / «Я ушёл» in the header.
+  ATTENDANCE_SELF: 'attendance:self',
   ATTENDANCE_VIEW: 'attendance:view',
   ATTENDANCE_MANAGE: 'attendance:manage',
 
@@ -121,6 +123,7 @@ export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
     P.TIMESHEET_VIEW_ALL, P.TIMESHEET_VIEW_OWN, P.TIMESHEET_SUBMIT,
     P.BUDGET_VIEW,
     P.PAYROLL_VIEW_OWN,
+    P.ATTENDANCE_SELF,
     P.REPORT_VIEW, P.DOCUMENT_VIEW, P.ACTIVITY_VIEW
   ],
 
@@ -138,6 +141,7 @@ export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
     P.TEAM_VIEW, P.WORKLOAD_VIEW,
     P.TIMESHEET_VIEW_ALL, P.TIMESHEET_VIEW_OWN, P.TIMESHEET_SUBMIT,
     P.PAYROLL_VIEW_OWN,
+    P.ATTENDANCE_SELF,
     P.REPORT_VIEW, P.DOCUMENT_VIEW, P.ACTIVITY_VIEW
   ],
 
@@ -153,6 +157,7 @@ export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
     P.TEAM_VIEW,
     P.TIMESHEET_VIEW_OWN, P.TIMESHEET_SUBMIT,
     P.PAYROLL_VIEW_OWN,
+    P.ATTENDANCE_SELF,
     P.ACTIVITY_VIEW
   ],
 
@@ -166,7 +171,8 @@ export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
     P.REVISION_VIEW,
     P.ASSET_VIEW,
     P.TIMESHEET_VIEW_OWN, P.TIMESHEET_SUBMIT,
-    P.PAYROLL_VIEW_OWN
+    P.PAYROLL_VIEW_OWN,
+    P.ATTENDANCE_SELF
   ],
 
   [ROLE.CLIENT]: [
@@ -183,6 +189,7 @@ export const ROLE_PERMISSIONS: Readonly<Record<Role, readonly Permission[]>> = {
     P.CLIENT_VIEW,
     P.FINANCE_VIEW, P.FINANCE_MANAGE, P.BUDGET_VIEW,
     P.PAYROLL_VIEW_OWN, P.PAYROLL_VIEW, P.PAYROLL_MANAGE,
+    P.ATTENDANCE_SELF,
     P.REPORT_VIEW,
     P.DOCUMENT_VIEW, P.DOCUMENT_MANAGE,
     P.TIMESHEET_VIEW_ALL,

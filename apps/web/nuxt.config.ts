@@ -52,7 +52,9 @@ export default defineNuxtConfig({
      * site-relative (/uploads/...). Without this rule the browser asks Nuxt for
      * them and every attached image renders as a broken link.
      */
-    '/uploads/**': { proxy: API_ORIGIN + '/uploads/**' }
+    '/uploads/**': { proxy: API_ORIGIN + '/uploads/**' },
+    // A short address for the attendance board, easy to say and to type.
+    '/attendance': { redirect: '/team/attendance' }
   },
 
   // Every hashed asset is written with .gz and .br siblings at build time, so

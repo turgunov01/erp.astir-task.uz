@@ -3,6 +3,8 @@ import { useAuthStore } from '~/stores/auth'
 import { useVisibleNavigation, type NavItem } from '~/composables/useNavigation'
 import { Button } from '~/components/ui/button'
 import { Separator } from '~/components/ui/separator'
+import CheckInButton from '~/components/attendance/CheckInButton.vue'
+import CheckInPrompt from '~/components/attendance/CheckInPrompt.vue'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -81,7 +83,7 @@ const flatNav = computed(() =>
 const PHONE_TAB_LABEL: Record<string, string> = {
   '/dashboard': 'Панель',
   '/tasks/my': 'Мои',
-  '/team/attendance': 'Активность',
+  '/team/attendance': 'Посещаемость',
   '/finance': 'Финансы',
   '/activity': 'События'
 }
@@ -189,12 +191,12 @@ watch(() => route.path, () => { moreOpen.value = false })
           button did nothing at all. Navigation lives in the bottom bar now, and
           the space goes to saying which application this is.
         -->
-        <div class="flex items-center gap-2 lg:hidden">
-          <span class="grid size-7 place-items-center overflow-hidden rounded-md bg-primary text-xs font-semibold text-primary-foreground">
+        <div class="flex min-w-0 items-center gap-2 lg:hidden">
+          <span class="grid size-7 shrink-0 place-items-center overflow-hidden rounded-md bg-primary text-xs font-semibold text-primary-foreground">
             <img v-if="brand.logoUrl" :src="brand.logoUrl" :alt="brand.name" class="size-full object-cover">
             <template v-else>{{ brandInitial }}</template>
           </span>
-          <span class="text-sm font-semibold">{{ brand.name }}</span>
+          <span class="truncate text-sm font-semibold">{{ brand.name }}</span>
         </div>
 
         <div class="relative hidden max-w-md flex-1 sm:block">
@@ -212,7 +214,9 @@ watch(() => route.path, () => { moreOpen.value = false })
           </kbd>
         </div>
 
-        <div class="ml-auto flex items-center gap-1">
+        <div class="ml-auto flex shrink-0 items-center gap-1">
+          <!-- «Я приехал» sits right by the bell, where staff look first. -->
+          <CheckInButton class="mr-1" />
           <NotificationBell />
 
           <DropdownMenu>
@@ -334,6 +338,7 @@ watch(() => route.path, () => { moreOpen.value = false })
       </div>
     </div>
 
+    <CheckInPrompt />
     <TaskPanelHost />
     <MediaViewer />
   </div>

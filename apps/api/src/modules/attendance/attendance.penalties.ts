@@ -3,7 +3,7 @@ import { AppError, badRequest } from '../../lib/errors'
 import { dayKey, dayValue, localParts } from '../../lib/studio-time'
 import * as payroll from '../finance/payroll.service'
 import { isWorkingDay, penaltyFor, workSchedule } from './attendance.schedule'
-import { assertRange } from './attendance.service'
+import { assertRange, isMarked } from './attendance.service'
 
 /**
  * Lateness -> payroll: one LATENESS draft per late day.
@@ -13,6 +13,11 @@ import { assertRange } from './attendance.service'
  * a second run for the same period a no-op instead of fining people twice.
  * Entries are created through the payroll service, so its rules (employee
  * must exist, minutes required on lateness, currency default) apply as-is.
+ *
+ * Lateness counts from the «Я приехал» press. A day the employee worked
+ * without pressing is not let off: its lateness counts from the first
+ * activity of the day, and the entry says so («без отметки»), so the
+ * accountant can tell an inferred arrival from a marked one.
  */
 
 const PAYROLL_SOURCE = 'TIMESHEET' as const
@@ -75,7 +80,8 @@ export async function createLatenessPenalties(from: string, to: string, actorId:
         date,
         lateMinutes: day.lateMinutes,
         reason: 'Опоздание на ' + day.lateMinutes + ' мин: приход ' + arrivalLabel +
-          ' при начале в ' + schedule.startLabel + ' (активность сотрудников)',
+          ' при начале в ' + schedule.startLabel +
+          (isMarked(day) ? ' (посещаемость)' : ' (без отметки «Я приехал» — по первой активности)'),
         source: PAYROLL_SOURCE,
         externalId
       }, actorId)

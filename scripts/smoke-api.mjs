@@ -318,6 +318,20 @@ expect('artist cannot manage pipeline', (await call('PATCH', '/api/stages/000000
 })).status, 403)
 expect('artist cannot upload documents', (await call('POST', '/api/files', { json: {} })).status, 403)
 
+// «Я приехал»: the employee's own day. Pressing twice must answer with the
+// first press, not move it (this marks the artist's arrival for today).
+const myDay = await call('GET', '/api/attendance/me/today')
+record('artist reads own attendance day', myDay.status === 200 && myDay.payload?.data?.tracked === true, 'status ' + myDay.status)
+const firstPress = await call('POST', '/api/attendance/me/check-in')
+const secondPress = await call('POST', '/api/attendance/me/check-in')
+record(
+  'repeated check-in keeps the first arrival',
+  [200, 201].includes(firstPress.status) && secondPress.status === 200 &&
+    Boolean(secondPress.payload?.data?.checkInAt) &&
+    secondPress.payload.data.checkInAt === firstPress.payload?.data?.checkInAt,
+  'status ' + firstPress.status + ' then ' + secondPress.status
+)
+
 await login(CLIENT, PASSWORD)
 const clientReviews = await call('GET', '/api/reviews?limit=50')
 const clientRows = (clientReviews.payload && clientReviews.payload.data) || []
@@ -328,6 +342,8 @@ record(
 )
 expect('client blocked from employees', (await call('GET', '/api/employees')).status, 403)
 expect('client blocked from render queue', (await call('GET', '/api/render')).status, 403)
+expect('client has no attendance day', (await call('GET', '/api/attendance/me/today')).status, 403)
+expect('client cannot check in', (await call('POST', '/api/attendance/me/check-in')).status, 403)
 
 console.log(NL + 'unauthenticated')
 cookie = ''

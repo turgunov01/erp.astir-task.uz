@@ -1,12 +1,18 @@
-import { Prisma } from '@prisma/client'
+import { Prisma, type AttendanceDay } from '@prisma/client'
 import { prisma } from '../../lib/prisma'
 import { logger } from '../../lib/logger'
 import { dayValue, localParts } from '../../lib/studio-time'
-import { figuresFor, workSchedule } from './attendance.schedule'
+import { figuresFor, workSchedule, type WorkSchedule } from './attendance.schedule'
 
 /**
- * Automatic attendance capture: sign-in is the arrival, the latest
- * authenticated request is the departure estimate.
+ * Automatic attendance capture: the observed trail (firstSeenAt/lastSeenAt)
+ * of every authenticated request.
+ *
+ * The arrival proper is the employee's «Я приехал» press (attendance.self).
+ * Until it comes, the first activity of the day stands in for it (method
+ * AUTO), so a day spent working without pressing is still counted — and
+ * still late if it started late — but the board flags it «без отметки».
+ * Likewise the departure follows the latest request until «Я ушёл» fixes it.
  *
  * Called from the auth middleware on every request, so it must cost nothing:
  * a per-user in-memory throttle lets at most one write through a minute, the
@@ -33,6 +39,22 @@ async function employeeIdFor(userId: string): Promise<string | null> {
   return employeeId
 }
 
+/**
+ * Arrival and departure as activity alone suggests them, leaving alone
+ * whatever the employee marked with the buttons.
+ */
+function inferredTimes(existing: AttendanceDay, at: Date, lastSeenAt: Date): {
+  checkInAt?: Date
+  checkInMethod?: 'AUTO'
+  checkOutAt?: Date
+  checkOutMethod?: 'AUTO'
+} {
+  return {
+    ...(existing.checkInMethod === 'BUTTON' ? {} : { checkInAt: existing.checkInAt ?? at, checkInMethod: 'AUTO' as const }),
+    ...(existing.checkOutMethod === 'BUTTON' ? {} : { checkOutAt: lastSeenAt, checkOutMethod: 'AUTO' as const })
+  }
+}
+
 /** Write the observation; exported for the login path and for tests. */
 export async function recordPresence(userId: string, at: Date): Promise<void> {
   const employeeId = await employeeIdFor(userId)
@@ -54,6 +76,8 @@ export async function recordPresence(userId: string, at: Date): Promise<void> {
           lastSeenAt: at,
           checkInAt: at,
           checkOutAt: at,
+          checkInMethod: 'AUTO',
+          checkOutMethod: 'AUTO',
           ...figuresFor(date, at, at, schedule)
         }
       })
@@ -66,19 +90,35 @@ export async function recordPresence(userId: string, at: Date): Promise<void> {
     }
   }
 
+  // A press can land between the read and the write; then read again and
+  // build on it, so the touch never undoes «Я приехал» or «Я ушёл».
+  for (let attempt = 0; attempt < 2 && existing; attempt += 1) {
+    if (await touchDay(existing, date, at, schedule)) return
+    existing = await prisma.attendanceDay.findUnique({ where: key })
+  }
+}
+
+/**
+ * Move the trail of an existing day. The write only lands if the source and
+ * the marks are still what was read; false means the day changed under us.
+ */
+async function touchDay(existing: AttendanceDay, date: string, at: Date, schedule: WorkSchedule): Promise<boolean> {
   const lastSeenAt = existing.lastSeenAt && existing.lastSeenAt > at ? existing.lastSeenAt : at
-  const data: Prisma.AttendanceDayUpdateInput = {
-    firstSeenAt: existing.firstSeenAt ?? at,
-    lastSeenAt
-  }
   // A corrected or imported day keeps its times; only the raw trail moves.
-  if (existing.source === 'WEB') {
-    const checkInAt = existing.checkInAt ?? at
-    data.checkInAt = checkInAt
-    data.checkOutAt = lastSeenAt
-    Object.assign(data, figuresFor(date, checkInAt, lastSeenAt, schedule))
-  }
-  await prisma.attendanceDay.update({ where: { id: existing.id }, data })
+  const effective = existing.source === 'WEB' ? inferredTimes(existing, at, lastSeenAt) : {}
+  const checkInAt = effective.checkInAt ?? existing.checkInAt
+  const checkOutAt = effective.checkOutAt ?? existing.checkOutAt
+  const figures = existing.source === 'WEB' ? figuresFor(date, checkInAt, checkOutAt, schedule) : {}
+  const { count } = await prisma.attendanceDay.updateMany({
+    where: {
+      id: existing.id,
+      source: existing.source,
+      checkInMethod: existing.checkInMethod,
+      checkOutMethod: existing.checkOutMethod
+    },
+    data: { firstSeenAt: existing.firstSeenAt ?? at, lastSeenAt, ...effective, ...figures }
+  })
+  return count > 0
 }
 
 /**

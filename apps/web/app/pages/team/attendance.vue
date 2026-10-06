@@ -5,13 +5,14 @@ import AttendanceBoard from '~/components/attendance/AttendanceBoard.vue'
 import AttendancePeriod from '~/components/attendance/AttendancePeriod.vue'
 
 /**
- * Employee activity control (Verifix-style): who is at work, who came in
- * late, who is missing, how long people worked. Arrival is the first sign-in
- * of the day, departure the last activity; both can be corrected by hand.
- * The owner and the administrator land here after signing in.
+ * Attendance (Verifix-style): who came to work and who did not, who was
+ * late, how long people worked. Arrival is the employee's «Я приехал» press
+ * in the header; someone who used the app without pressing shows up as «в
+ * системе, не отметился». Both times can be corrected by hand. The owner and
+ * the administrator land here after signing in; /attendance redirects here.
  */
 
-useHead({ title: 'Активность сотрудников' })
+useHead({ title: 'Посещаемость сотрудников' })
 
 const route = useRoute()
 const router = useRouter()
@@ -61,9 +62,10 @@ const schedule = computed(() => boardHead.value?.data.schedule ?? null)
       <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
         Контроль
       </p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Активность сотрудников</h1>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Посещаемость сотрудников</h1>
       <p class="mt-1 text-sm text-muted-foreground">
-        Приход — первый вход в систему за день, уход — последняя активность.
+        Кто пришёл на работу, а кто нет. Приход — нажатие «Я приехал» в шапке сайта,
+        уход — «Я ушёл» или последняя активность.
         <template v-if="schedule">
           График {{ schedule.start }}–{{ schedule.end }}, {{ weekdaysLabel(schedule.weekdays) }},
           опоздание — позже {{ schedule.start }} + {{ schedule.graceMinutes }} мин.
