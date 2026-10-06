@@ -42,9 +42,27 @@ const { data, pending, error, refresh } = await useFetch<{ data: TaskDetail }>(
 )
 const task = computed(() => data.value?.data)
 
+/*
+ * Only someone who can see the team gets the full list to pick from; for an
+ * artist /api/employees answers 403. Either way the current assignee stays in
+ * the options, so the field never reads «Не назначен» for an assigned task.
+ */
 const { data: staff } = useFetch<{
   data: Array<{ userId: string, user: { firstName: string, lastName: string } }>
-}>('/api/employees', { query: { limit: 100 }, credentials: 'include', default: () => ({ data: [] }) })
+}>('/api/employees', {
+  query: { limit: 100 },
+  credentials: 'include',
+  default: () => ({ data: [] }),
+  immediate: auth.can(PERMISSION.TEAM_VIEW)
+})
+const assigneeOptions = computed(() => {
+  const list = (staff.value?.data ?? []).map(s => ({ id: s.userId, name: s.user.firstName + ' ' + s.user.lastName }))
+  const current = task.value?.assignee
+  if (current && !list.some(option => option.id === current.id)) {
+    return [{ id: current.id, name: current.firstName + ' ' + current.lastName }, ...list]
+  }
+  return list
+})
 
 const stageQuery = computed(() => ({ projectId: task.value?.projectId }))
 const { data: stageData } = useFetch<{ data: Array<{ id: string, name: string }> }>(
@@ -403,8 +421,8 @@ function toDateInput(value: string | null) {
                 class="h-8 w-full rounded-md border bg-background px-2 text-sm outline-none focus:border-ring"
               >
                 <option value="">Не назначен</option>
-                <option v-for="s in (staff?.data ?? [])" :key="s.userId" :value="s.userId">
-                  {{ s.user.firstName }} {{ s.user.lastName }}
+                <option v-for="option in assigneeOptions" :key="option.id" :value="option.id">
+                  {{ option.name }}
                 </option>
               </select>
               <p class="mt-1 px-0.5 text-xs text-muted-foreground">
