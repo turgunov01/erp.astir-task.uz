@@ -8,6 +8,13 @@
  * Usage: node scripts/smoke-api.mjs [baseUrl]
  */
 const BASE = process.argv.find(a => a.startsWith('http')) ?? 'http://127.0.0.1:9990'
+
+// Accounts of the showcase seed (pnpm --filter @astir/api db:seed:showcase);
+// override them to run the suite against another instance.
+const PASSWORD = process.env.SMOKE_PASSWORD ?? 'astir-demo'
+const OWNER = process.env.SMOKE_OWNER ?? 'owner@astir.uz'
+const ARTIST = process.env.SMOKE_ARTIST ?? 'anna@astir.uz'
+const CLIENT = process.env.SMOKE_CLIENT ?? 'client@24reply.ai'
 const NL = String.fromCharCode(10)
 
 const results = []
@@ -61,13 +68,13 @@ async function checkList(name, path) {
 console.log('API smoke suite against ' + BASE + NL)
 
 console.log('auth')
-record('login as owner', await login('owner@aster.studio', 'admin123'))
+record('login as owner', await login(OWNER, PASSWORD))
 expect('GET /api/auth/me', (await call('GET', '/api/auth/me')).status, 200)
 expect('login with wrong password', (await call('POST', '/api/auth/login', {
-  json: { email: 'owner@aster.studio', password: 'nope' }, keepCookies: false
+  json: { email: OWNER, password: 'nope' }, keepCookies: false
 })).status, 401)
 
-await login('owner@aster.studio', 'admin123')
+await login(OWNER, PASSWORD)
 
 console.log(NL + 'read endpoints')
 const projects = await checkList('GET /api/projects', '/api/projects?limit=5')
@@ -283,7 +290,7 @@ expect('unknown route returns 404', (await call('GET', '/api/does-not-exist')).s
 expect('limit above the cap is rejected', (await call('GET', '/api/tasks?limit=500')).status, 400)
 
 console.log(NL + 'permissions')
-await login('anna@aster.studio', 'admin123')
+await login(ARTIST, PASSWORD)
 expect('artist reads tasks', (await call('GET', '/api/tasks?limit=1')).status, 200)
 // Without task:view the artist sees their own tasks only, asked or not.
 const artistMe = await call('GET', '/api/auth/me')
@@ -311,7 +318,7 @@ expect('artist cannot manage pipeline', (await call('PATCH', '/api/stages/000000
 })).status, 403)
 expect('artist cannot upload documents', (await call('POST', '/api/files', { json: {} })).status, 403)
 
-await login('client@nurmedia.uz', 'admin123')
+await login(CLIENT, PASSWORD)
 const clientReviews = await call('GET', '/api/reviews?limit=50')
 const clientRows = (clientReviews.payload && clientReviews.payload.data) || []
 record(

@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync, statSync } from 'node:fs'
+import { createReadStream, readdirSync, statSync } from 'node:fs'
 import { extname, join } from 'node:path'
 import { homedir } from 'node:os'
 import { storage, type StoredFile } from '../../src/lib/storage'
@@ -119,9 +119,8 @@ export async function attach(
   displayName: string
 ): Promise<Attachment | null> {
   if (!file) return null
-  const buffer = readFileSync(file.path)
   const stored = await storage.save({
-    buffer,
+    stream: createReadStream(file.path),
     originalName: displayName + file.ext,
     mimeType: file.mimeType,
     prefix
