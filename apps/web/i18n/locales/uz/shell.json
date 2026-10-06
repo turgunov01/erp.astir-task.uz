@@ -1,0 +1,117 @@
+{
+  "shell": {
+    "tagline": "Ishlab chiqarishni boshqarish",
+    "nav": {
+      "dashboard": "Boshqaruv paneli",
+      "attendance": "Davomat",
+      "myTasks": "Mening vazifalarim",
+      "projects": "Loyihalar",
+      "production": "Ishlab chiqarish",
+      "episodes": "Epizodlar",
+      "scenes": "Sahnalar",
+      "shots": "Shotlar",
+      "tasks": "Vazifalar",
+      "reviews": "Kelishuv",
+      "revisions": "Tuzatishlar",
+      "render": "Render navbati",
+      "assets": "Assetlar kutubxonasi",
+      "calendar": "Taqvim",
+      "team": "Jamoa",
+      "employees": "Xodimlar",
+      "departments": "Bo‘limlar",
+      "workload": "Yuklama",
+      "timesheets": "Vaqt hisobi",
+      "timeline": "Vaqt jadvali",
+      "clients": "Mijozlar",
+      "finance": "Moliya",
+      "financeOverview": "Umumiy ko‘rinish",
+      "budgets": "Byudjetlar",
+      "expenses": "Xarajatlar",
+      "payments": "To‘lovlar",
+      "invoices": "Hisob-fakturalar",
+      "payroll": "Ish haqi",
+      "reports": "Hisobotlar",
+      "reportProduction": "Ishlab chiqarish",
+      "reportFinance": "Moliya",
+      "reportTime": "Vaqt va odamlar",
+      "reportClients": "Mijozlar",
+      "documents": "Hujjatlar",
+      "activity": "Voqealar lentasi",
+      "settings": "Sozlamalar"
+    },
+    "phoneTab": {
+      "dashboard": "Panel",
+      "myTasks": "Meniki",
+      "attendance": "Davomat",
+      "finance": "Moliya",
+      "activity": "Voqealar"
+    },
+    "layout": {
+      "mainNavigation": "Asosiy navigatsiya",
+      "phoneNavigation": "Asosiy bo‘limlar",
+      "collapse": "Yig‘ish",
+      "more": "Yana",
+      "close": "Yopish",
+      "closeMenu": "Menyuni yopish",
+      "navigation": "Navigatsiya"
+    },
+    "search": {
+      "placeholder": "Loyihalar, shotlar, vazifalar bo‘yicha qidiruv...",
+      "shortcut": "Ctrl K"
+    },
+    "userMenu": {
+      "open": "Foydalanuvchi menyusi",
+      "profile": "Profil",
+      "language": "Til",
+      "logout": "Chiqish"
+    },
+    "language": {
+      "label": "Til",
+      "saveFailed": "Tilni saqlab bo‘lmadi"
+    },
+    "bell": {
+      "title": "Bildirishnomalar",
+      "markAll": "Hammasini o‘qilgan deb belgilash",
+      "empty": "Hozircha bildirishnomalar yo‘q",
+      "unread": "{n} ta o‘qilmagan bildirishnoma"
+    },
+    "checkIn": {
+      "button": "Keldim",
+      "buttonAria": "Keldim — ishga kelganini belgilash",
+      "buttonTitle": "Ishga kelganini belgilash",
+      "corrected": "Kun tuzatilgan",
+      "correctedShort": "Tuzatilgan",
+      "leftAt": "{time} da ketdi",
+      "leftShort": "Ketdi {time}",
+      "atWorkSince": "{time} dan beri ishda",
+      "sinceShort": "{time} dan",
+      "today": "Bugun, {date}",
+      "arrival": "Kelish",
+      "departure": "Ketish",
+      "late": "{duration} kechikish",
+      "onTime": "o‘z vaqtida, boshlanish {start} da",
+      "stillAtWork": "hali ishda",
+      "correctedNote": "Kun administrator tomonidan tuzatilgan — tugmalar bilan belgilash shart emas.",
+      "checkOut": "Ketdim",
+      "checkInFailed": "Kelishni belgilab bo‘lmadi",
+      "checkOutFailed": "Ketishni belgilab bo‘lmadi"
+    },
+    "checkInPrompt": {
+      "title": "Belgilaning: «Keldim»",
+      "body": "Ishga kelganingizda bosing — vaqt server soati bo‘yicha yoziladi.",
+      "workdayStarts": "Ish kuni {start} da boshlanadi.",
+      "dayOff": "Bugun jadval bo‘yicha dam olish kuni."
+    },
+    "errorPage": {
+      "notFoundTitle": "Sahifa topilmadi",
+      "errorTitle": "Xato",
+      "somethingWrong": "Nimadir xato ketdi",
+      "notFoundBody": "Ehtimol, bu bo‘lim hali yaratilmagan yoki havola eskirgan.",
+      "forbiddenTitle": "Ruxsat yo‘q",
+      "forbiddenBody": "Sizda bu bo‘limga ruxsat yo‘q",
+      "unexpected": "Kutilmagan server xatosi.",
+      "toStart": "Bosh sahifaga",
+      "back": "Orqaga"
+    }
+  }
+}

@@ -5,9 +5,20 @@ import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { apiErrorBody, apiErrorMessage } from '~/composables/useApi'
+import LocaleSelect from '~/components/locale/LocaleSelect.vue'
+import type { Locale } from '@astir/types'
 
 definePageMeta({ layout: false })
-useHead({ title: 'Вход' })
+
+const { t } = useI18n()
+useHead({ title: computed(() => t('auth.login.pageTitle')) })
+
+/* Nobody is known yet: the choice goes to the cookie and the API reads it. */
+const { current: currentLocale, chooseAsGuest } = useAppLocale()
+const language = computed({
+  get: () => currentLocale.value,
+  set: (code: Locale | null) => { if (code) void chooseAsGuest(code) }
+})
 
 const auth = useAuthStore()
 const route = useRoute()
@@ -59,7 +70,7 @@ async function onSubmit() {
       scheduleResend(Number(body.details?.retryAfter?.[0] ?? DEFAULT_RESEND_SECONDS))
       return
     }
-    errorMessage.value = apiErrorMessage(err, 'Не удалось войти. Попробуйте ещё раз.')
+    errorMessage.value = apiErrorMessage(err, t('auth.login.failed'))
   }
 }
 
@@ -69,7 +80,7 @@ async function onVerify() {
     await auth.verifyCode(email.value, password.value, code.value)
     await enter()
   } catch (err: unknown) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось подтвердить код. Попробуйте ещё раз.')
+    errorMessage.value = apiErrorMessage(err, t('auth.code.verifyFailed'))
   }
 }
 
@@ -80,9 +91,9 @@ async function onResend() {
   notice.value = ''
   try {
     scheduleResend(await auth.resendCode(email.value))
-    notice.value = 'Новый код отправлен на ' + email.value
+    notice.value = t('auth.code.resent', { email: email.value })
   } catch (err: unknown) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось отправить код. Попробуйте ещё раз.')
+    errorMessage.value = apiErrorMessage(err, t('auth.code.resendFailed'))
   } finally {
     resending.value = false
   }
@@ -99,7 +110,11 @@ function back() {
 <template>
   <main class="grid min-h-svh lg:grid-cols-2">
     <!-- Form side -->
-    <div class="flex items-center justify-center px-6 py-12">
+    <div class="relative flex items-center justify-center px-6 py-12">
+      <!-- Before signing in the language is the visitor's to pick (cookie only). -->
+      <div class="absolute right-4 top-4">
+        <LocaleSelect v-model="language" compact :aria-label="t('shell.language.label')" />
+      </div>
       <div class="w-full max-w-sm">
         <div class="mb-10">
           <p class="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
@@ -107,31 +122,37 @@ function back() {
           </p>
           <template v-if="step === 'code'">
             <h1 class="mt-2 text-3xl font-semibold tracking-tight">
-              Подтвердите почту
+              {{ t('auth.code.title') }}
             </h1>
             <p class="mt-2 text-sm text-muted-foreground">
-              Первый вход: нужно доказать, что адрес ваш.
+              {{ t('auth.code.subtitle') }}
             </p>
           </template>
           <template v-else>
             <h1 class="mt-2 text-3xl font-semibold tracking-tight">
-              Вход
+              {{ t('auth.login.title') }}
             </h1>
             <p class="mt-2 text-sm text-muted-foreground">
-              Производственная система студии: проекты, задачи, сроки.
+              {{ t('auth.login.subtitle') }}
             </p>
           </template>
         </div>
 
         <form v-if="step === 'code'" class="space-y-5" @submit.prevent="onVerify">
-          <p class="rounded-md border bg-secondary px-3 py-2.5 text-sm text-secondary-foreground">
-            Мы отправили шестизначный код на
-            <span class="font-medium">{{ email }}</span>.
-            Он действует 15 минут.
-          </p>
+          <!-- The address stays bold wherever the language puts it in the sentence. -->
+          <i18n-t
+            keypath="auth.code.sentTo"
+            tag="p"
+            scope="global"
+            class="rounded-md border bg-secondary px-3 py-2.5 text-sm text-secondary-foreground"
+          >
+            <template #email>
+              <span class="font-medium">{{ email }}</span>
+            </template>
+          </i18n-t>
 
           <div class="space-y-2">
-            <Label for="code">Код из письма</Label>
+            <Label for="code">{{ t('auth.code.label') }}</Label>
             <Input
               id="code"
               v-model="code"
@@ -167,7 +188,7 @@ function back() {
             class="w-full"
             :disabled="auth.pending || String(code).length !== 6"
           >
-            {{ auth.pending ? 'Проверяем...' : 'Подтвердить и войти' }}
+            {{ auth.pending ? t('auth.code.submitting') : t('auth.code.submit') }}
           </Button>
 
           <!--
@@ -182,7 +203,7 @@ function back() {
               @click="back"
             >
               <Icon name="lucide:arrow-left" class="size-3.5" />
-              Назад
+              {{ t('auth.code.back') }}
             </button>
             <button
               type="button"
@@ -190,32 +211,32 @@ function back() {
               class="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline disabled:cursor-default disabled:no-underline disabled:opacity-60"
               @click="onResend"
             >
-              {{ resendIn > 0 ? 'Отправить ещё раз через ' + resendIn + ' с' : 'Отправить код ещё раз' }}
+              {{ resendIn > 0 ? t('auth.code.resendIn', { n: resendIn }) : t('auth.code.resend') }}
             </button>
           </div>
         </form>
 
         <form v-else class="space-y-5" @submit.prevent="onSubmit">
           <div class="space-y-2">
-            <Label for="email">Почта</Label>
+            <Label for="email">{{ t('auth.login.email') }}</Label>
             <Input
               id="email"
               v-model="email"
               type="email"
               autocomplete="email"
-              placeholder="Рабочая почта"
+              :placeholder="t('auth.login.emailPlaceholder')"
               required
             />
           </div>
 
           <div class="space-y-2">
             <div class="flex items-center justify-between">
-              <Label for="password">Пароль</Label>
+              <Label for="password">{{ t('auth.login.password') }}</Label>
               <NuxtLink
                 to="/forgot-password"
                 class="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
               >
-                Забыли пароль?
+                {{ t('auth.login.forgot') }}
               </NuxtLink>
             </div>
             <Input
@@ -236,7 +257,7 @@ function back() {
           </p>
 
           <Button type="submit" class="w-full" :disabled="auth.pending">
-            {{ auth.pending ? 'Входим...' : 'Войти' }}
+            {{ auth.pending ? t('auth.login.submitting') : t('auth.login.submit') }}
           </Button>
         </form>
       </div>
@@ -250,16 +271,15 @@ function back() {
       </div>
       <div class="relative flex h-full flex-col justify-end p-14">
         <blockquote class="max-w-md text-2xl font-medium leading-snug text-primary-foreground">
-          Полная прозрачность производства — от проекта до последней
-          утверждённой версии шота.
+          {{ t('auth.login.quote') }}
         </blockquote>
         <div class="mt-8 flex flex-wrap gap-2">
           <span
-            v-for="stage in ['Шот', 'Этап', 'Версия', 'Согласование', 'Сдача']"
+            v-for="stage in ['shot', 'stage', 'version', 'review', 'delivery']"
             :key="stage"
             class="rounded-md bg-primary-foreground/10 px-2.5 py-1 text-xs font-medium text-primary-foreground/80"
           >
-            {{ stage }}
+            {{ t('auth.login.stages.' + stage) }}
           </span>
         </div>
       </div>

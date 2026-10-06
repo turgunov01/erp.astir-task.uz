@@ -1,0 +1,76 @@
+{
+  "team": {
+    "profile": {
+      "eyebrow": "Account",
+      "title": "Profile",
+      "role": "Role: {role} — an administrator changes it in settings.",
+      "personal": "Personal details",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "phone": "Phone",
+      "avatarUrl": "Avatar link",
+      "avatarPlaceholder": "Link to an image",
+      "saveFailed": "Could not save the profile",
+      "language": {
+        "title": "Interface language",
+        "hint": "The interface, emails and exports will be in this language for you. “Studio default” follows the studio settings.",
+        "studioDefault": "Studio default ({language})",
+        "saved": "Language saved."
+      },
+      "password": {
+        "title": "Change password",
+        "why": "The current password is needed even while you are signed in — otherwise anyone at an unattended screen could lock you out of your own account.",
+        "current": "Current",
+        "next": "New",
+        "repeat": "Repeat the new one",
+        "submit": "Change password",
+        "submitting": "Changing...",
+        "done": "Password changed.",
+        "failed": "Could not change the password",
+        "enterCurrent": "Enter your current password",
+        "tooShort": "The new password is shorter than 8 characters",
+        "mismatch": "The new password and its repeat do not match"
+      }
+    },
+    "notificationSettings": {
+      "title": "Notifications",
+      "intro": "What arrives in the bell and what comes by email to {email}. Changes are saved at once.",
+      "loadFailed": "Could not load the notification settings.",
+      "saveFailed": "Could not save the setting",
+      "event": "Event",
+      "inApp": "In app",
+      "email": "Email",
+      "inAppAria": "{title}: in app",
+      "emailAria": "{title}: by email",
+      "noEmail": "No emails are sent for this event"
+    },
+    "settings": {
+      "eyebrow": "Administration",
+      "title": "Settings",
+      "readOnly": "You have view access: the fields are visible, but changes cannot be saved.",
+      "saveFailed": "Could not save the settings",
+      "tabs": {
+        "studio": "Studio",
+        "schedule": "Work schedule",
+        "mail": "Email",
+        "templates": "Pipeline templates",
+        "users": "Users",
+        "roles": "Roles and access"
+      },
+      "studio": {
+        "name": "Studio name",
+        "legalName": "Legal name",
+        "email": "Email",
+        "phone": "Phone",
+        "website": "Website",
+        "address": "Address",
+        "currency": "Default currency",
+        "timezone": "Time zone",
+        "invoicePrefix": "Invoice prefix",
+        "invoicePrefixHint": "For example, INV- gives INV-0001.",
+        "defaultLanguage": "Default language",
+        "defaultLanguageHint": "For everyone who has not picked a language in their profile, and for the sign-in page, emails and exports."
+      }
+    }
+  }
+}

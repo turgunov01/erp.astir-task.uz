@@ -1,0 +1,572 @@
+{
+  "common": {
+    "actions": {
+      "save": "Kaydet",
+      "saving": "Kaydediliyor...",
+      "cancel": "İptal",
+      "close": "Kapat",
+      "back": "Geri",
+      "delete": "Sil",
+      "edit": "Düzenle",
+      "create": "Oluştur",
+      "add": "Ekle",
+      "open": "Aç",
+      "retry": "Tekrar dene",
+      "apply": "Uygula",
+      "reset": "Sıfırla",
+      "confirm": "Onayla",
+      "more": "Daha fazla",
+      "later": "Sonra",
+      "search": "Ara",
+      "download": "İndir",
+      "running": "İşleniyor...",
+      "searchPlaceholder": "Ara..."
+    },
+    "table": {
+      "loadFailed": "Veriler yüklenemedi",
+      "range": "{total} kayıttan {from}–{to}",
+      "pagination": "Tablo sayfaları",
+      "previous": "Önceki sayfa",
+      "next": "Sonraki sayfa",
+      "page": "Sayfa {n}"
+    },
+    "states": {
+      "loading": "Yükleniyor...",
+      "saved": "Kaydedildi.",
+      "empty": "Hiçbir şey bulunamadı"
+    },
+    "errors": {
+      "generic": "Bir şeyler ters gitti",
+      "loadFailed": "Veriler yüklenemedi",
+      "saveFailed": "Kaydedilemedi",
+      "serviceUnavailable": "Veritabanına ulaşılamıyor. Bağlantı geri geldiğinde tekrar deneyin.",
+      "invalidCredentials": "E-posta veya şifre hatalı",
+      "unauthenticated": "Oturumunuzun süresi doldu, lütfen yeniden giriş yapın",
+      "forbidden": "Bu işlem için yetkiniz yok",
+      "rateLimited": "Çok fazla deneme, biraz bekleyin",
+      "internal": "Sunucu iç hatası"
+    },
+    "yes": "evet",
+    "no": "hayır",
+    "unknown": "Belirtilmemiş",
+    "time": {
+      "justNow": "az önce",
+      "minutesAgo": "{n} dk önce",
+      "hoursAgo": "{n} sa önce",
+      "daysAgo": "{n} gün önce"
+    },
+    "units": {
+      "bytes": "{n} B",
+      "kilobytes": "{n} KB",
+      "megabytes": "{n} MB",
+      "gigabytes": "{n} GB",
+      "minutes": "{m} dk",
+      "hoursMinutes": "{h} sa {m} dk"
+    },
+    "weekdayShort": {
+      "1": "Pzt",
+      "2": "Sal",
+      "3": "Çar",
+      "4": "Per",
+      "5": "Cum",
+      "6": "Cmt",
+      "7": "Paz"
+    },
+    "noWorkdays": "iş günü yok",
+    "count": {
+      "tasks": "{n} görev"
+    },
+    "statusChange": "“{from}” → “{to}”",
+    "enum": {
+      "assetType": {
+        "CHARACTER": "Karakter",
+        "ENVIRONMENT": "Ortam",
+        "PROP": "Aksesuar",
+        "MODEL": "Model",
+        "RIG": "Rig",
+        "TEXTURE": "Doku",
+        "ANIMATION": "Animasyon",
+        "AUDIO": "Ses",
+        "REFERENCE": "Referans",
+        "TEMPLATE": "Şablon",
+        "OTHER": "Diğer"
+      },
+      "priority": {
+        "LOW": "Düşük",
+        "NORMAL": "Normal",
+        "HIGH": "Yüksek",
+        "URGENT": "Acil"
+      },
+      "revisionStatus": {
+        "OPEN": "Açık",
+        "IN_PROGRESS": "Devam ediyor",
+        "READY_FOR_REVIEW": "İncelemeye hazır",
+        "COMPLETED": "Tamamlandı",
+        "CANCELLED": "İptal edildi"
+      },
+      "renderStatus": {
+        "QUEUED": "Sırada",
+        "RENDERING": "Render ediliyor",
+        "COMPLETED": "Tamamlandı",
+        "FAILED": "Başarısız",
+        "CANCELLED": "İptal edildi"
+      },
+      "productionStatus": {
+        "NOT_STARTED": "Başlanmadı",
+        "IN_PROGRESS": "Devam ediyor",
+        "REVIEW": "İncelemede",
+        "REVISION": "Düzeltmede",
+        "APPROVED": "Onaylandı",
+        "COMPLETED": "Tamamlandı",
+        "ON_HOLD": "Beklemede"
+      },
+      "clientStatus": {
+        "ACTIVE": "Aktif",
+        "INACTIVE": "Pasif",
+        "ARCHIVED": "Arşivde"
+      },
+      "role": {
+        "OWNER": "Sahip",
+        "ADMIN": "Yönetici",
+        "PRODUCER": "Yapımcı",
+        "PROJECT_MANAGER": "Proje yöneticisi",
+        "ART_DIRECTOR": "Sanat yönetmeni",
+        "ARTIST": "Sanatçı",
+        "CLIENT": "Müşteri",
+        "FINANCE": "Finans"
+      },
+      "notificationType": {
+        "TASK_ASSIGNED": {
+          "title": "Yeni görev",
+          "hint": "Bir göreve atandınız"
+        },
+        "PROJECT_ASSIGNED": {
+          "title": "Yeni proje",
+          "hint": "Bir proje ekibine eklendiniz"
+        },
+        "TASK_REVIEW": {
+          "title": "İncelenecek görev",
+          "hint": "Bir görev incelemeniz için size iletildi"
+        },
+        "TASK_OVERDUE": {
+          "title": "Gecikme",
+          "hint": "Bir görevin süresi geçti"
+        },
+        "COMMENT_MENTION": {
+          "title": "Bahsetme",
+          "hint": "Bir yorumda sizden bahsedildi"
+        },
+        "VERSION_SUBMITTED": {
+          "title": "Yeni sürüm",
+          "hint": "İnceleme için bir sürüm yüklendi"
+        },
+        "VERSION_APPROVED": {
+          "title": "Sürüm onaylandı",
+          "hint": "Sürümünüz kabul edildi"
+        },
+        "CHANGES_REQUESTED": {
+          "title": "Düzeltme gerekli",
+          "hint": "Bir sürüm için değişiklik istendi"
+        },
+        "REVISION_CREATED": {
+          "title": "Yeni düzeltme",
+          "hint": "Çalışmanız için bir düzeltme oluşturuldu"
+        },
+        "PROJECT_DEADLINE": {
+          "title": "Proje teslim tarihi",
+          "hint": "Bir projenin teslim tarihi yaklaşıyor"
+        },
+        "SHOT_DEADLINE": {
+          "title": "Çekim teslim tarihi",
+          "hint": "Bir çekimin teslim tarihi yaklaşıyor"
+        },
+        "RENDER_FAILED": {
+          "title": "Render hatası",
+          "hint": "Bir render hatayla sonuçlandı"
+        }
+      },
+      "employmentType": {
+        "FULL_TIME": "Tam zamanlı",
+        "PART_TIME": "Yarı zamanlı",
+        "FREELANCE": "Serbest",
+        "INTERN": "Stajyer"
+      },
+      "employeeStatus": {
+        "ACTIVE": "Çalışıyor",
+        "ON_LEAVE": "İzinde",
+        "INACTIVE": "Çalışmıyor"
+      },
+      "documentType": {
+        "CONTRACT": "Sözleşme",
+        "BRIEF": "Brif",
+        "SPECIFICATION": "Şartname",
+        "INVOICE": "Fatura",
+        "ACT": "Teslim tutanağı",
+        "NDA": "NDA",
+        "OTHER": "Diğer"
+      },
+      "reviewStatus": {
+        "PENDING": "Bekliyor",
+        "IN_REVIEW": "Görüşülüyor",
+        "CHANGES_REQUESTED": "Düzeltme istendi",
+        "APPROVED": "Onaylandı",
+        "REJECTED": "Reddedildi",
+        "EXPIRED": "Kapandı"
+      },
+      "reviewType": {
+        "INTERNAL": "Dahili",
+        "ART_DIRECTOR": "Sanat yönetmeni",
+        "CLIENT": "Müşteri",
+        "FINAL": "Son"
+      },
+      "projectStatus": {
+        "DRAFT": "Taslak",
+        "PLANNING": "Planlama",
+        "PRE_PRODUCTION": "Ön prodüksiyon",
+        "PRODUCTION": "Prodüksiyon",
+        "POST_PRODUCTION": "Post prodüksiyon",
+        "CLIENT_REVIEW": "Müşteride",
+        "DELIVERY": "Teslim",
+        "COMPLETED": "Tamamlandı",
+        "ON_HOLD": "Beklemede",
+        "CANCELLED": "İptal edildi",
+        "ARCHIVED": "Arşivde"
+      },
+      "projectType": {
+        "2D_ANIMATION": "2D animasyon",
+        "3D_ANIMATION": "3D animasyon",
+        "MOTION_DESIGN": "Hareketli grafik",
+        "COMMERCIAL": "Reklam",
+        "SHORT_FILM": "Kısa film",
+        "SERIES": "Dizi",
+        "FEATURE_FILM": "Uzun metraj",
+        "OTHER": "Diğer"
+      },
+      "taskStatus": {
+        "BACKLOG": "Bekleyen",
+        "READY": "Hazır",
+        "IN_PROGRESS": "Devam ediyor",
+        "REVIEW": "İncelemede",
+        "REVISION": "Düzeltmede",
+        "APPROVED": "Onaylandı",
+        "DONE": "Tamamlandı",
+        "BLOCKED": "Engellendi"
+      },
+      "stageStatus": {
+        "NOT_STARTED": "Başlanmadı",
+        "READY": "Hazır",
+        "IN_PROGRESS": "Devam ediyor",
+        "REVIEW": "İncelemede",
+        "BLOCKED": "Engellendi",
+        "DONE": "Tamamlandı"
+      },
+      "versionStatus": {
+        "WORKING": "Devam ediyor",
+        "SUBMITTED": "Gönderildi",
+        "IN_REVIEW": "Görüşülüyor",
+        "CHANGES_REQUESTED": "Düzeltme istendi",
+        "APPROVED": "Onaylandı",
+        "REJECTED": "Reddedildi",
+        "SUPERSEDED": "Yenisiyle değiştirildi"
+      },
+      "notificationChannel": {
+        "IN_APP": "Uygulamada",
+        "EMAIL": "E-posta",
+        "TELEGRAM": "Telegram"
+      },
+      "expenseCategory": {
+        "EMPLOYEE": "Kadro",
+        "FREELANCER": "Serbest çalışan",
+        "RENDER": "Render",
+        "SOFTWARE": "Yazılım",
+        "HARDWARE": "Donanım",
+        "AUDIO": "Ses",
+        "PRODUCTION": "Prodüksiyon",
+        "OFFICE": "Kira ve ofis",
+        "TAXES": "Vergi ve harçlar",
+        "MARKETING": "Pazarlama",
+        "OTHER": "Diğer"
+      },
+      "paymentMethod": {
+        "BANK_TRANSFER": "Havale",
+        "CASH": "Nakit",
+        "CARD": "Kart",
+        "OTHER": "Diğer"
+      },
+      "paymentStatus": {
+        "PENDING": "Ödeme bekleniyor",
+        "PARTIALLY_PAID": "Kısmen ödendi",
+        "PAID": "Ödendi",
+        "OVERDUE": "Gecikmiş",
+        "CANCELLED": "İptal edildi"
+      },
+      "payrollType": {
+        "ADVANCE": "Avans",
+        "BONUS": "Prim",
+        "PENALTY": "Ceza",
+        "LATENESS": "Geç kalma cezası",
+        "DEDUCTION": "Kesinti",
+        "OTHER_ACCRUAL": "Diğer tahakkuk"
+      },
+      "payrollStatus": {
+        "DRAFT": "Taslak",
+        "APPROVED": "Onaylandı",
+        "PAID": "Ödendi",
+        "CANCELLED": "İptal edildi"
+      },
+      "payrollSource": {
+        "MANUAL": "Elle",
+        "TIMESHEET": "Puantaj ve devamdan",
+        "EXTERNAL": "Harici sistemden"
+      },
+      "risk": {
+        "LOW": "Düşük",
+        "MEDIUM": "Orta",
+        "HIGH": "Yüksek",
+        "CRITICAL": "Kritik"
+      },
+      "activityAction": {
+        "created": "oluşturuldu",
+        "updated": "güncellendi",
+        "deleted": "silindi",
+        "project": {
+          "created": "bir proje oluşturdu",
+          "status_changed": "proje durumunu değiştirdi",
+          "archived": "projeyi arşivledi",
+          "hard_deleted": "projeyi kalıcı olarak sildi"
+        },
+        "member": {
+          "added": "projeye üye ekledi",
+          "removed": "projeden üye çıkardı"
+        },
+        "stage": {
+          "created": "bir aşama oluşturdu",
+          "status_changed": "aşama durumunu değiştirdi"
+        },
+        "episode": {
+          "created": "bir bölüm oluşturdu",
+          "status_changed": "bölüm durumunu değiştirdi"
+        },
+        "scene": {
+          "created": "bir sahne oluşturdu",
+          "status_changed": "sahne durumunu değiştirdi"
+        },
+        "shot": {
+          "created": "bir çekim oluşturdu",
+          "status_changed": "çekim durumunu değiştirdi"
+        },
+        "shot_stage": {
+          "status_changed": "çekim aşamasının durumunu değiştirdi"
+        },
+        "task": {
+          "created": "bir görev oluşturdu",
+          "assigned": "görev atadı",
+          "status_changed": "görev durumunu değiştirdi",
+          "archived": "görevi arşivledi",
+          "unarchived": "görevi arşivden geri aldı",
+          "deleted": "görevi sildi"
+        },
+        "version": {
+          "created": "bir sürüm yükledi",
+          "submitted": "sürümü onaya gönderdi",
+          "deleted": "sürümü sildi"
+        },
+        "revision": {
+          "created": "bir düzeltme açtı",
+          "status_changed": "düzeltme durumunu değiştirdi",
+          "deleted": "düzeltmeyi sildi"
+        },
+        "render": {
+          "queued": "render kuyruğuna iş ekledi"
+        },
+        "asset": {
+          "created": "bir varlık ekledi"
+        },
+        "file": {
+          "uploaded": "bir dosya yükledi"
+        },
+        "review": {
+          "approved": "sürümü onayladı",
+          "changes_requested": "sürüm için düzeltme istedi",
+          "rejected": "sürümü reddetti"
+        },
+        "finance": {
+          "budget_saved": "proje bütçesini kaydetti",
+          "budget_deleted": "proje bütçesini sildi",
+          "expense_created": "bir gider ekledi",
+          "expense_updated": "gideri değiştirdi",
+          "expense_deleted": "gideri sildi",
+          "invoice_created": "fatura düzenledi",
+          "invoice_updated": "faturayı değiştirdi",
+          "invoice_deleted": "faturayı sildi",
+          "payment_created": "ödeme kaydetti",
+          "payment_updated": "ödemeyi değiştirdi",
+          "payment_deleted": "ödemeyi sildi"
+        },
+        "settings": {
+          "updated": "stüdyo ayarlarını değiştirdi",
+          "template_created": "süreç şablonu oluşturdu",
+          "template_updated": "süreç şablonunu değiştirdi",
+          "template_deleted": "süreç şablonunu sildi",
+          "mail_tested": "e-posta ayarlarını test etti"
+        },
+        "client": {
+          "created": "bir müşteri oluşturdu",
+          "updated": "müşteriyi değiştirdi",
+          "archived": "müşteriyi arşivledi"
+        },
+        "department": {
+          "created": "bir departman oluşturdu",
+          "updated": "departmanı değiştirdi",
+          "deleted": "departmanı sildi"
+        },
+        "employee": {
+          "updated": "çalışanı değiştirdi",
+          "email_verified_manually": "çalışanın e-postasını elle doğruladı"
+        },
+        "user": {
+          "created": "bir kullanıcı oluşturdu",
+          "role_changed": "kullanıcının rolünü değiştirdi",
+          "deactivated": "kullanıcıyı devre dışı bıraktı"
+        },
+        "attendance": {
+          "checked_in": "geldiğini bildirdi",
+          "checked_out": "çıkışını bildirdi"
+        }
+      },
+      "activityFamily": {
+        "created": "Oluşturma",
+        "updated": "Güncelleme",
+        "deleted": "Silme",
+        "project": "Projeler",
+        "member": "Proje ekipleri",
+        "stage": "Aşamalar",
+        "episode": "Bölümler",
+        "scene": "Sahneler",
+        "shot": "Çekimler",
+        "shot_stage": "Çekim aşamaları",
+        "task": "Görevler",
+        "version": "Sürümler",
+        "review": "Onay",
+        "revision": "Düzeltmeler",
+        "render": "Render",
+        "asset": "Varlıklar",
+        "file": "Dosyalar",
+        "finance": "Finans",
+        "settings": "Ayarlar",
+        "client": "Müşteriler",
+        "department": "Departmanlar",
+        "employee": "Çalışanlar",
+        "user": "Kullanıcılar",
+        "payroll": "Bordro",
+        "attendance": "Devam",
+        "comment": "Yorumlar",
+        "timesheet": "Puantaj"
+      },
+      "entityType": {
+        "Project": "Proje",
+        "ProjectStage": "Aşama",
+        "ProjectMember": "Üye",
+        "Episode": "Bölüm",
+        "Scene": "Sahne",
+        "Shot": "Çekim",
+        "ShotStage": "Çekim aşaması",
+        "Task": "Görev",
+        "Version": "Sürüm",
+        "Review": "Onay",
+        "Revision": "Düzeltme",
+        "RenderJob": "Render işi",
+        "Asset": "Varlık",
+        "Document": "Belge",
+        "Client": "Müşteri",
+        "Department": "Departman",
+        "Employee": "Çalışan",
+        "User": "Kullanıcı",
+        "ProjectBudget": "Bütçe",
+        "Expense": "Gider",
+        "Invoice": "Fatura",
+        "Payment": "Ödeme",
+        "StudioSettings": "Stüdyo ayarları",
+        "PipelineTemplate": "Süreç şablonu"
+      }
+    },
+    "permission": {
+      "group": {
+        "dashboard": "Kontrol paneli",
+        "projects": "Projeler",
+        "production": "Prodüksiyon: bölümler, sahneler, çekimler, takvim",
+        "tasks": "Görevler",
+        "versions": "Sürümler",
+        "reviews": "Onay",
+        "revisions": "Düzeltmeler",
+        "assets": "Varlık kütüphanesi",
+        "render": "Render kuyruğu",
+        "team": "Ekip",
+        "attendance": "Devam: geliş, gecikmeler",
+        "time": "Zaman takibi",
+        "clients": "Müşteriler",
+        "finance": "Finans",
+        "payroll": "Bordro: avanslar, cezalar, primler",
+        "reports": "Raporlar",
+        "documents": "Belgeler",
+        "activity": "Etkinlik akışı ve denetim",
+        "settings": "Ayarlar"
+      },
+      "item": {
+        "dashboard_view": "Paneli açma",
+        "project_view": "Projeleri görme",
+        "project_create": "Oluşturma",
+        "project_update": "Düzenleme",
+        "project_archive": "Arşivleme",
+        "project_delete": "Silme",
+        "production_view": "Görme",
+        "production_manage": "Yönetme",
+        "pipeline_manage": "Süreci yapılandırma",
+        "task_view_own": "Kendi görevlerini görme (bölümü açar)",
+        "task_view": "Tüm görevleri görme",
+        "task_create": "Oluşturma",
+        "task_update": "Değiştirme",
+        "task_assign": "Kişi atama",
+        "version_view": "Görme",
+        "version_upload": "Yükleme",
+        "version_delete_approved": "Onaylananları silme",
+        "review_view": "Görme",
+        "review_internal": "Dahili inceleme",
+        "review_client": "Müşteri incelemesi",
+        "review_approve": "Onaylama",
+        "revision_view": "Görme",
+        "revision_manage": "Yönetme",
+        "asset_view": "Görme",
+        "asset_manage": "Yönetme",
+        "render_view": "Görme",
+        "render_manage": "Yönetme",
+        "team_view": "Çalışanları ve departmanları görme",
+        "team_manage": "Çalışanları yönetme",
+        "workload_view": "İş yükünü görme",
+        "attendance_view": "Kimin geldiğini ve kimin geç kaldığını görme (bölümü açar)",
+        "attendance_self": "“Geldim” / “Çıkıyorum” düğmesiyle giriş-çıkış bildirme",
+        "attendance_manage": "Günleri düzeltme ve geç kalma cezası uygulama",
+        "timesheet_view_own": "Kendi puantajını görme (bölümü açar)",
+        "timesheet_view_all": "Herkesin puantajını görme",
+        "timesheet_submit": "Puantaj doldurma",
+        "client_view": "Görme",
+        "client_manage": "Yönetme",
+        "finance_view": "Finansı görme",
+        "finance_manage": "Yönetme",
+        "budget_view": "Bütçeleri görme",
+        "payroll_view_own": "Kendi bordro kayıtlarını görme (bölümü açar)",
+        "payroll_view": "Herkesin bordro kayıtlarını görme",
+        "payroll_manage": "Girme, onaylama ve ödeme",
+        "report_view": "Raporları görme",
+        "document_view": "Görme",
+        "document_manage": "Yönetme",
+        "activity_view": "Akışı görme",
+        "audit_view": "Denetim kaydını görme",
+        "settings_view": "Ayarları açma",
+        "settings_manage": "Ayarları değiştirme",
+        "user_manage": "Kullanıcıları yönetme",
+        "permission_manage": "Rol yetkilerini düzenleme"
+      }
+    }
+  }
+}

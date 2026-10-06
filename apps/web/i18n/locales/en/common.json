@@ -1,0 +1,572 @@
+{
+  "common": {
+    "actions": {
+      "save": "Save",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "close": "Close",
+      "back": "Back",
+      "delete": "Delete",
+      "edit": "Edit",
+      "create": "Create",
+      "add": "Add",
+      "open": "Open",
+      "retry": "Try again",
+      "apply": "Apply",
+      "reset": "Reset",
+      "confirm": "Confirm",
+      "more": "More",
+      "later": "Later",
+      "search": "Search",
+      "download": "Download",
+      "running": "Working...",
+      "searchPlaceholder": "Search..."
+    },
+    "table": {
+      "loadFailed": "Could not load the data",
+      "range": "{from}–{to} of {total}",
+      "pagination": "Table pages",
+      "previous": "Previous page",
+      "next": "Next page",
+      "page": "Page {n}"
+    },
+    "states": {
+      "loading": "Loading...",
+      "saved": "Saved.",
+      "empty": "Nothing found"
+    },
+    "errors": {
+      "generic": "Something went wrong",
+      "loadFailed": "Could not load the data",
+      "saveFailed": "Could not save",
+      "serviceUnavailable": "The database is unavailable. Try again once the connection is back.",
+      "invalidCredentials": "Wrong email or password",
+      "unauthenticated": "Your session has expired, please sign in again",
+      "forbidden": "You do not have permission to do this",
+      "rateLimited": "Too many attempts, please wait a moment",
+      "internal": "Internal server error"
+    },
+    "yes": "yes",
+    "no": "no",
+    "unknown": "Not specified",
+    "time": {
+      "justNow": "just now",
+      "minutesAgo": "{n} min ago",
+      "hoursAgo": "{n} h ago",
+      "daysAgo": "{n} d ago"
+    },
+    "units": {
+      "bytes": "{n} B",
+      "kilobytes": "{n} KB",
+      "megabytes": "{n} MB",
+      "gigabytes": "{n} GB",
+      "minutes": "{m} min",
+      "hoursMinutes": "{h} h {m} min"
+    },
+    "weekdayShort": {
+      "1": "Mon",
+      "2": "Tue",
+      "3": "Wed",
+      "4": "Thu",
+      "5": "Fri",
+      "6": "Sat",
+      "7": "Sun"
+    },
+    "noWorkdays": "no working days",
+    "count": {
+      "tasks": "{n} task | {n} tasks"
+    },
+    "statusChange": "“{from}” → “{to}”",
+    "enum": {
+      "assetType": {
+        "CHARACTER": "Character",
+        "ENVIRONMENT": "Environment",
+        "PROP": "Prop",
+        "MODEL": "Model",
+        "RIG": "Rig",
+        "TEXTURE": "Texture",
+        "ANIMATION": "Animation",
+        "AUDIO": "Audio",
+        "REFERENCE": "Reference",
+        "TEMPLATE": "Template",
+        "OTHER": "Other"
+      },
+      "priority": {
+        "LOW": "Low",
+        "NORMAL": "Normal",
+        "HIGH": "High",
+        "URGENT": "Urgent"
+      },
+      "revisionStatus": {
+        "OPEN": "Open",
+        "IN_PROGRESS": "In progress",
+        "READY_FOR_REVIEW": "Ready for review",
+        "COMPLETED": "Completed",
+        "CANCELLED": "Cancelled"
+      },
+      "renderStatus": {
+        "QUEUED": "Queued",
+        "RENDERING": "Rendering",
+        "COMPLETED": "Done",
+        "FAILED": "Failed",
+        "CANCELLED": "Cancelled"
+      },
+      "productionStatus": {
+        "NOT_STARTED": "Not started",
+        "IN_PROGRESS": "In progress",
+        "REVIEW": "In review",
+        "REVISION": "In revision",
+        "APPROVED": "Approved",
+        "COMPLETED": "Completed",
+        "ON_HOLD": "On hold"
+      },
+      "clientStatus": {
+        "ACTIVE": "Active",
+        "INACTIVE": "Inactive",
+        "ARCHIVED": "Archived"
+      },
+      "role": {
+        "OWNER": "Owner",
+        "ADMIN": "Administrator",
+        "PRODUCER": "Producer",
+        "PROJECT_MANAGER": "Project manager",
+        "ART_DIRECTOR": "Art director",
+        "ARTIST": "Artist",
+        "CLIENT": "Client",
+        "FINANCE": "Finance"
+      },
+      "notificationType": {
+        "TASK_ASSIGNED": {
+          "title": "New task",
+          "hint": "You were made the assignee of a task"
+        },
+        "PROJECT_ASSIGNED": {
+          "title": "New project",
+          "hint": "You were added to a project team"
+        },
+        "TASK_REVIEW": {
+          "title": "Task to review",
+          "hint": "A task was handed to you for review"
+        },
+        "TASK_OVERDUE": {
+          "title": "Overdue",
+          "hint": "A task is past its deadline"
+        },
+        "COMMENT_MENTION": {
+          "title": "Mention",
+          "hint": "You were mentioned in a comment"
+        },
+        "VERSION_SUBMITTED": {
+          "title": "New version",
+          "hint": "A version was uploaded for review"
+        },
+        "VERSION_APPROVED": {
+          "title": "Version approved",
+          "hint": "Your version was approved"
+        },
+        "CHANGES_REQUESTED": {
+          "title": "Changes needed",
+          "hint": "Changes were requested on a version"
+        },
+        "REVISION_CREATED": {
+          "title": "New revision",
+          "hint": "A revision was created for your work"
+        },
+        "PROJECT_DEADLINE": {
+          "title": "Project deadline",
+          "hint": "A project deadline is approaching"
+        },
+        "SHOT_DEADLINE": {
+          "title": "Shot deadline",
+          "hint": "A shot deadline is approaching"
+        },
+        "RENDER_FAILED": {
+          "title": "Render failed",
+          "hint": "A render finished with an error"
+        }
+      },
+      "employmentType": {
+        "FULL_TIME": "Full-time",
+        "PART_TIME": "Part-time",
+        "FREELANCE": "Freelance",
+        "INTERN": "Internship"
+      },
+      "employeeStatus": {
+        "ACTIVE": "Active",
+        "ON_LEAVE": "On leave",
+        "INACTIVE": "Inactive"
+      },
+      "documentType": {
+        "CONTRACT": "Contract",
+        "BRIEF": "Brief",
+        "SPECIFICATION": "Specification",
+        "INVOICE": "Invoice",
+        "ACT": "Acceptance certificate",
+        "NDA": "NDA",
+        "OTHER": "Other"
+      },
+      "reviewStatus": {
+        "PENDING": "Pending",
+        "IN_REVIEW": "Under discussion",
+        "CHANGES_REQUESTED": "Changes requested",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected",
+        "EXPIRED": "Closed"
+      },
+      "reviewType": {
+        "INTERNAL": "Internal",
+        "ART_DIRECTOR": "Art director",
+        "CLIENT": "Client",
+        "FINAL": "Final"
+      },
+      "projectStatus": {
+        "DRAFT": "Draft",
+        "PLANNING": "Planning",
+        "PRE_PRODUCTION": "Pre-production",
+        "PRODUCTION": "Production",
+        "POST_PRODUCTION": "Post-production",
+        "CLIENT_REVIEW": "With client",
+        "DELIVERY": "Delivery",
+        "COMPLETED": "Completed",
+        "ON_HOLD": "On hold",
+        "CANCELLED": "Cancelled",
+        "ARCHIVED": "Archived"
+      },
+      "projectType": {
+        "2D_ANIMATION": "2D animation",
+        "3D_ANIMATION": "3D animation",
+        "MOTION_DESIGN": "Motion design",
+        "COMMERCIAL": "Commercial",
+        "SHORT_FILM": "Short film",
+        "SERIES": "Series",
+        "FEATURE_FILM": "Feature film",
+        "OTHER": "Other"
+      },
+      "taskStatus": {
+        "BACKLOG": "Backlog",
+        "READY": "Ready",
+        "IN_PROGRESS": "In progress",
+        "REVIEW": "In review",
+        "REVISION": "In revision",
+        "APPROVED": "Approved",
+        "DONE": "Done",
+        "BLOCKED": "Blocked"
+      },
+      "stageStatus": {
+        "NOT_STARTED": "Not started",
+        "READY": "Ready",
+        "IN_PROGRESS": "In progress",
+        "REVIEW": "In review",
+        "BLOCKED": "Blocked",
+        "DONE": "Done"
+      },
+      "versionStatus": {
+        "WORKING": "In progress",
+        "SUBMITTED": "Submitted",
+        "IN_REVIEW": "Under discussion",
+        "CHANGES_REQUESTED": "Changes requested",
+        "APPROVED": "Approved",
+        "REJECTED": "Rejected",
+        "SUPERSEDED": "Superseded"
+      },
+      "notificationChannel": {
+        "IN_APP": "In app",
+        "EMAIL": "Email",
+        "TELEGRAM": "Telegram"
+      },
+      "expenseCategory": {
+        "EMPLOYEE": "Staff",
+        "FREELANCER": "Contractors",
+        "RENDER": "Render",
+        "SOFTWARE": "Software",
+        "HARDWARE": "Hardware",
+        "AUDIO": "Audio",
+        "PRODUCTION": "Production",
+        "OFFICE": "Rent and office",
+        "TAXES": "Taxes and fees",
+        "MARKETING": "Marketing",
+        "OTHER": "Other"
+      },
+      "paymentMethod": {
+        "BANK_TRANSFER": "Bank transfer",
+        "CASH": "Cash",
+        "CARD": "Card",
+        "OTHER": "Other"
+      },
+      "paymentStatus": {
+        "PENDING": "Awaiting payment",
+        "PARTIALLY_PAID": "Partially paid",
+        "PAID": "Paid",
+        "OVERDUE": "Overdue",
+        "CANCELLED": "Cancelled"
+      },
+      "payrollType": {
+        "ADVANCE": "Advance",
+        "BONUS": "Bonus",
+        "PENALTY": "Fine",
+        "LATENESS": "Lateness fine",
+        "DEDUCTION": "Deduction",
+        "OTHER_ACCRUAL": "Other accrual"
+      },
+      "payrollStatus": {
+        "DRAFT": "Draft",
+        "APPROVED": "Approved",
+        "PAID": "Paid",
+        "CANCELLED": "Cancelled"
+      },
+      "payrollSource": {
+        "MANUAL": "Manual",
+        "TIMESHEET": "From timesheets and attendance",
+        "EXTERNAL": "From an external system"
+      },
+      "risk": {
+        "LOW": "Low",
+        "MEDIUM": "Medium",
+        "HIGH": "High",
+        "CRITICAL": "Critical"
+      },
+      "activityAction": {
+        "created": "created",
+        "updated": "updated",
+        "deleted": "deleted",
+        "project": {
+          "created": "created a project",
+          "status_changed": "changed the project status",
+          "archived": "archived a project",
+          "hard_deleted": "permanently deleted a project"
+        },
+        "member": {
+          "added": "added a member to the project",
+          "removed": "removed a member from the project"
+        },
+        "stage": {
+          "created": "created a stage",
+          "status_changed": "changed a stage status"
+        },
+        "episode": {
+          "created": "created an episode",
+          "status_changed": "changed an episode status"
+        },
+        "scene": {
+          "created": "created a scene",
+          "status_changed": "changed a scene status"
+        },
+        "shot": {
+          "created": "created a shot",
+          "status_changed": "changed a shot status"
+        },
+        "shot_stage": {
+          "status_changed": "changed a shot stage status"
+        },
+        "task": {
+          "created": "created a task",
+          "assigned": "assigned someone",
+          "status_changed": "changed a task status",
+          "archived": "archived a task",
+          "unarchived": "restored a task from the archive",
+          "deleted": "deleted a task"
+        },
+        "version": {
+          "created": "uploaded a version",
+          "submitted": "submitted a version for review",
+          "deleted": "deleted a version"
+        },
+        "revision": {
+          "created": "opened a revision",
+          "status_changed": "changed a revision status",
+          "deleted": "deleted a revision"
+        },
+        "render": {
+          "queued": "queued a render job"
+        },
+        "asset": {
+          "created": "added an asset"
+        },
+        "file": {
+          "uploaded": "uploaded a file"
+        },
+        "review": {
+          "approved": "approved a version",
+          "changes_requested": "requested changes on a version",
+          "rejected": "rejected a version"
+        },
+        "finance": {
+          "budget_saved": "saved a project budget",
+          "budget_deleted": "deleted a project budget",
+          "expense_created": "added an expense",
+          "expense_updated": "changed an expense",
+          "expense_deleted": "deleted an expense",
+          "invoice_created": "issued an invoice",
+          "invoice_updated": "changed an invoice",
+          "invoice_deleted": "deleted an invoice",
+          "payment_created": "recorded a payment",
+          "payment_updated": "changed a payment",
+          "payment_deleted": "deleted a payment"
+        },
+        "settings": {
+          "updated": "changed the studio settings",
+          "template_created": "created a pipeline template",
+          "template_updated": "changed a pipeline template",
+          "template_deleted": "deleted a pipeline template",
+          "mail_tested": "tested the mail settings"
+        },
+        "client": {
+          "created": "created a client",
+          "updated": "changed a client",
+          "archived": "archived a client"
+        },
+        "department": {
+          "created": "created a department",
+          "updated": "changed a department",
+          "deleted": "deleted a department"
+        },
+        "employee": {
+          "updated": "changed an employee",
+          "email_verified_manually": "confirmed an employee’s email manually"
+        },
+        "user": {
+          "created": "created a user",
+          "role_changed": "changed a user’s role",
+          "deactivated": "deactivated a user"
+        },
+        "attendance": {
+          "checked_in": "checked in",
+          "checked_out": "checked out"
+        }
+      },
+      "activityFamily": {
+        "created": "Created",
+        "updated": "Updated",
+        "deleted": "Deleted",
+        "project": "Projects",
+        "member": "Project teams",
+        "stage": "Stages",
+        "episode": "Episodes",
+        "scene": "Scenes",
+        "shot": "Shots",
+        "shot_stage": "Shot stages",
+        "task": "Tasks",
+        "version": "Versions",
+        "review": "Reviews",
+        "revision": "Revisions",
+        "render": "Render",
+        "asset": "Assets",
+        "file": "Files",
+        "finance": "Finance",
+        "settings": "Settings",
+        "client": "Clients",
+        "department": "Departments",
+        "employee": "Employees",
+        "user": "Users",
+        "payroll": "Payroll",
+        "attendance": "Attendance",
+        "comment": "Comments",
+        "timesheet": "Timesheets"
+      },
+      "entityType": {
+        "Project": "Project",
+        "ProjectStage": "Stage",
+        "ProjectMember": "Member",
+        "Episode": "Episode",
+        "Scene": "Scene",
+        "Shot": "Shot",
+        "ShotStage": "Shot stage",
+        "Task": "Task",
+        "Version": "Version",
+        "Review": "Review",
+        "Revision": "Revision",
+        "RenderJob": "Render job",
+        "Asset": "Asset",
+        "Document": "Document",
+        "Client": "Client",
+        "Department": "Department",
+        "Employee": "Employee",
+        "User": "User",
+        "ProjectBudget": "Budget",
+        "Expense": "Expense",
+        "Invoice": "Invoice",
+        "Payment": "Payment",
+        "StudioSettings": "Studio settings",
+        "PipelineTemplate": "Pipeline template"
+      }
+    },
+    "permission": {
+      "group": {
+        "dashboard": "Dashboard",
+        "projects": "Projects",
+        "production": "Production: episodes, scenes, shots, calendar",
+        "tasks": "Tasks",
+        "versions": "Versions",
+        "reviews": "Reviews",
+        "revisions": "Revisions",
+        "assets": "Asset library",
+        "render": "Render queue",
+        "team": "Team",
+        "attendance": "Attendance: arrivals, lateness",
+        "time": "Time tracking",
+        "clients": "Clients",
+        "finance": "Finance",
+        "payroll": "Payroll: advances, fines, bonuses",
+        "reports": "Reports",
+        "documents": "Documents",
+        "activity": "Activity feed and audit",
+        "settings": "Settings"
+      },
+      "item": {
+        "dashboard_view": "Open the dashboard",
+        "project_view": "See projects",
+        "project_create": "Create",
+        "project_update": "Edit",
+        "project_archive": "Archive",
+        "project_delete": "Delete",
+        "production_view": "View",
+        "production_manage": "Manage",
+        "pipeline_manage": "Configure the pipeline",
+        "task_view_own": "See own tasks (opens the section)",
+        "task_view": "See all tasks",
+        "task_create": "Create",
+        "task_update": "Change",
+        "task_assign": "Assign people",
+        "version_view": "View",
+        "version_upload": "Upload",
+        "version_delete_approved": "Delete approved ones",
+        "review_view": "View",
+        "review_internal": "Internal review",
+        "review_client": "Client review",
+        "review_approve": "Approve",
+        "revision_view": "View",
+        "revision_manage": "Manage",
+        "asset_view": "View",
+        "asset_manage": "Manage",
+        "render_view": "View",
+        "render_manage": "Manage",
+        "team_view": "See employees and departments",
+        "team_manage": "Manage employees",
+        "workload_view": "See workload",
+        "attendance_view": "See who came in and who was late (opens the section)",
+        "attendance_self": "Check in and out with “I’m in” / “I’m leaving”",
+        "attendance_manage": "Correct days and charge lateness fines",
+        "timesheet_view_own": "See own timesheet (opens the section)",
+        "timesheet_view_all": "See everyone’s timesheets",
+        "timesheet_submit": "Fill in timesheets",
+        "client_view": "View",
+        "client_manage": "Manage",
+        "finance_view": "See finance",
+        "finance_manage": "Manage",
+        "budget_view": "See budgets",
+        "payroll_view_own": "See own pay entries (opens the section)",
+        "payroll_view": "See everyone’s pay entries",
+        "payroll_manage": "Enter, approve and pay",
+        "report_view": "See reports",
+        "document_view": "View",
+        "document_manage": "Manage",
+        "activity_view": "See the feed",
+        "audit_view": "See the audit log",
+        "settings_view": "Open settings",
+        "settings_manage": "Change settings",
+        "user_manage": "Manage users",
+        "permission_manage": "Edit role permissions"
+      }
+    }
+  }
+}

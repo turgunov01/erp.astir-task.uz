@@ -75,7 +75,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
     if (permission && !auth.can(permission)) {
       throw createError({
         statusCode: 403,
-        statusMessage: 'У вас нет доступа к этому разделу'
+        statusMessage: translate('shell.errorPage.forbiddenBody')
       })
     }
   }

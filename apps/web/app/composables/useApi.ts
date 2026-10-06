@@ -38,7 +38,7 @@ export function useListResource<T, S = unknown>(
 
   const errorMessage = computed(() => {
     if (!error.value) return ''
-    return apiErrorMessage(error.value, 'Не удалось загрузить данные')
+    return apiErrorMessage(error.value, translate('common.errors.loadFailed'))
   })
 
   return { items, meta, summary, pending, error, errorMessage, refresh }
@@ -53,19 +53,19 @@ export async function apiRequest<T>(
 }
 
 /**
- * Operational failures the user can act on, worded in the interface language.
+ * Codes the client words itself, whatever the server said.
  *
- * The API answers in English and its wording is aimed at developers; these
- * few codes are the ones a user actually sees, so they get a translation
- * rather than a raw server string.
+ * FORBIDDEN is always the same short sentence: the server's text can name a
+ * permission or a rule the user cannot act on. That is why a message the
+ * user must actually read is thrown as badRequest on the API, never forbidden().
+ * The others cover answers that may not come from our API at all (a proxy, a
+ * dropped connection) and so may not be in the user's language.
  */
-const ERROR_MESSAGE_RU: Record<string, string> = {
-  SERVICE_UNAVAILABLE: 'База данных недоступна. Попробуйте ещё раз, когда соединение восстановится.',
-  INVALID_CREDENTIALS: 'Неверная почта или пароль',
-  UNAUTHENTICATED: 'Сессия истекла, войдите заново',
-  FORBIDDEN: 'Недостаточно прав для этого действия',
-  RATE_LIMITED: 'Слишком много попыток, подождите немного',
-  INTERNAL_ERROR: 'Внутренняя ошибка сервера'
+const CLIENT_WORDED: Record<string, string> = {
+  SERVICE_UNAVAILABLE: 'common.errors.serviceUnavailable',
+  FORBIDDEN: 'common.errors.forbidden',
+  RATE_LIMITED: 'common.errors.rateLimited',
+  INTERNAL_ERROR: 'common.errors.internal'
 }
 
 interface ApiErrorBody {
@@ -79,15 +79,18 @@ export function apiErrorBody(err: unknown): ApiErrorBody | undefined {
   return (err as { data?: { error?: ApiErrorBody } })?.data?.error
 }
 
-/** A message is shown as is only when it is already Russian. */
-const CYRILLIC = /[А-Яа-яЁё]/
-
-export function apiErrorMessage(err: unknown, fallback = 'Что-то пошло не так'): string {
+/**
+ * What to tell the user about a failed request.
+ *
+ * The API words its messages in the language of the request (the
+ * astir_locale cookie / Accept-Language / the account's language), so its
+ * message is shown as it is. Without an API envelope — the network failed,
+ * a proxy answered — the caller's fallback is shown, worded by the caller.
+ */
+export function apiErrorMessage(err: unknown, fallback?: string): string {
   const body = apiErrorBody(err)
   const code = body?.code
-  if (code && ERROR_MESSAGE_RU[code]) return ERROR_MESSAGE_RU[code] as string
-  const message = body?.message
-  // An English message (an older server, a proxy, the network layer) is
-  // never put in front of the user; the caller's Russian fallback is.
-  return message && CYRILLIC.test(message) ? message : fallback
+  if (code && CLIENT_WORDED[code]) return translate(CLIENT_WORDED[code] as string)
+  const message = body?.message?.trim()
+  return message || fallback || translate('common.errors.generic')
 }

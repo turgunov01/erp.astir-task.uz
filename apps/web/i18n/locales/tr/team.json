@@ -1,0 +1,76 @@
+{
+  "team": {
+    "profile": {
+      "eyebrow": "Hesap",
+      "title": "Profil",
+      "role": "Rol: {role} — bunu yönetici ayarlardan değiştirir.",
+      "personal": "Kişisel bilgiler",
+      "firstName": "Ad",
+      "lastName": "Soyadı",
+      "phone": "Telefon",
+      "avatarUrl": "Avatar bağlantısı",
+      "avatarPlaceholder": "Görsel bağlantısı",
+      "saveFailed": "Profil kaydedilemedi",
+      "language": {
+        "title": "Arayüz dili",
+        "hint": "Arayüz, e-postalar ve dışa aktarımlar sizin için bu dilde olur. “Stüdyo varsayılanı” stüdyo ayarlarındaki dili izler.",
+        "studioDefault": "Stüdyo varsayılanı ({language})",
+        "saved": "Dil kaydedildi."
+      },
+      "password": {
+        "title": "Şifre değiştirme",
+        "why": "Oturum açıkken bile mevcut şifre gerekir — aksi hâlde başında kimse olmayan bir ekran sizi kendi hesabınızın dışında bırakabilirdi.",
+        "current": "Mevcut",
+        "next": "Yeni",
+        "repeat": "Yeniyi tekrarlayın",
+        "submit": "Şifreyi değiştir",
+        "submitting": "Değiştiriliyor...",
+        "done": "Şifre değiştirildi.",
+        "failed": "Şifre değiştirilemedi",
+        "enterCurrent": "Mevcut şifrenizi girin",
+        "tooShort": "Yeni şifre 8 karakterden kısa",
+        "mismatch": "Yeni şifre ile tekrarı eşleşmiyor"
+      }
+    },
+    "notificationSettings": {
+      "title": "Bildirimler",
+      "intro": "Zile neyin geleceği ve {email} adresine e-postayla neyin geleceği. Değişiklikler hemen kaydedilir.",
+      "loadFailed": "Bildirim ayarları yüklenemedi.",
+      "saveFailed": "Ayar kaydedilemedi",
+      "event": "Olay",
+      "inApp": "Uygulamada",
+      "email": "E-posta",
+      "inAppAria": "{title}: uygulamada",
+      "emailAria": "{title}: e-postayla",
+      "noEmail": "Bu olay için e-posta gönderilmez"
+    },
+    "settings": {
+      "eyebrow": "Yönetim",
+      "title": "Ayarlar",
+      "readOnly": "Görüntüleme erişiminiz var: alanlar görünür ama değişiklikler kaydedilemez.",
+      "saveFailed": "Ayarlar kaydedilemedi",
+      "tabs": {
+        "studio": "Stüdyo",
+        "schedule": "Çalışma programı",
+        "mail": "E-posta",
+        "templates": "Süreç şablonları",
+        "users": "Kullanıcılar",
+        "roles": "Roller ve erişim"
+      },
+      "studio": {
+        "name": "Stüdyo adı",
+        "legalName": "Ticari unvan",
+        "email": "E-posta",
+        "phone": "Telefon",
+        "website": "Web sitesi",
+        "address": "Adres",
+        "currency": "Varsayılan para birimi",
+        "timezone": "Saat dilimi",
+        "invoicePrefix": "Fatura öneki",
+        "invoicePrefixHint": "Örneğin INV-, INV-0001 verir.",
+        "defaultLanguage": "Varsayılan dil",
+        "defaultLanguageHint": "Profilinde dil seçmemiş herkes ile giriş sayfası, e-postalar ve dışa aktarımlar için."
+      }
+    }
+  }
+}

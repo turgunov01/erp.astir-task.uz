@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
 import { useVisibleNavigation, type NavItem } from '~/composables/useNavigation'
-import { Button } from '~/components/ui/button'
 import { Separator } from '~/components/ui/separator'
 import CheckInButton from '~/components/attendance/CheckInButton.vue'
 import CheckInPrompt from '~/components/attendance/CheckInPrompt.vue'
+import LocaleMenuSub from '~/components/locale/LocaleMenuSub.vue'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger
 } from '~/components/ui/dropdown-menu'
 
+const { t } = useI18n()
 const auth = useAuthStore()
 const navigation = useVisibleNavigation()
 const brand = useBrand()
@@ -21,14 +22,16 @@ const brand = useBrand()
 const brandInitial = computed(() => brand.value.name.trim().charAt(0).toUpperCase() || 'E')
 const route = useRoute()
 
-const collapsed = ref(false)
-// Keyed by the nav label, so this has to move with the translation.
-const openGroups = ref<Set<string>>(new Set(['Производство']))
+/** A nav entry's words; the key also identifies a group, whatever the language. */
+const navLabel = (item: NavItem) => t('shell.nav.' + item.key)
 
-function toggleGroup(label: string) {
+const collapsed = ref(false)
+const openGroups = ref<Set<string>>(new Set(['production']))
+
+function toggleGroup(key: string) {
   const next = new Set(openGroups.value)
-  if (next.has(label)) next.delete(label)
-  else next.add(label)
+  if (next.has(key)) next.delete(key)
+  else next.add(key)
   openGroups.value = next
 }
 
@@ -75,17 +78,22 @@ const flatNav = computed(() =>
  * is never short and never shows a tab that leads to a refusal.
  */
 /**
- * Shorter names for the bar.
+ * Shorter names for the bar (shell.phoneTab.*).
  *
  * A tab is about seventy pixels wide, and a label that truncates to an
  * ellipsis names nothing. Only the entries that do not fit are overridden.
  */
-const PHONE_TAB_LABEL: Record<string, string> = {
-  '/dashboard': 'Панель',
-  '/tasks/my': 'Мои',
-  '/team/attendance': 'Посещаемость',
-  '/finance': 'Финансы',
-  '/activity': 'События'
+const PHONE_TAB_KEY: Record<string, string> = {
+  '/dashboard': 'dashboard',
+  '/tasks/my': 'myTasks',
+  '/team/attendance': 'attendance',
+  '/finance': 'finance',
+  '/activity': 'activity'
+}
+
+function phoneTabLabel(item: NavItem) {
+  const key = item.to ? PHONE_TAB_KEY[item.to] : undefined
+  return key ? t('shell.phoneTab.' + key) : navLabel(item)
 }
 
 // Own tasks come before the full task list: on a phone the person checking in
@@ -120,51 +128,53 @@ watch(() => route.path, () => { moreOpen.value = false })
         </div>
         <div v-if="!collapsed" class="min-w-0">
           <p class="truncate text-sm font-semibold leading-tight">{{ brand.name }}</p>
-          <p class="truncate text-xs text-muted-foreground">Управление производством</p>
+          <p class="truncate text-xs text-muted-foreground">{{ t('shell.tagline') }}</p>
         </div>
       </div>
 
       <Separator />
 
-      <nav class="scrollbar-none flex-1 space-y-0.5 overflow-y-auto p-2" aria-label="Основная навигация">
-        <template v-for="item in navigation" :key="item.label">
+      <nav class="scrollbar-none flex-1 space-y-0.5 overflow-y-auto p-2" :aria-label="t('shell.layout.mainNavigation')">
+        <template v-for="item in navigation" :key="item.key">
           <NuxtLink
             v-if="item.to"
             :to="item.to"
             class="flex items-center gap-3 rounded-md px-2.5 py-2 text-sm"
             :class="isActive(item.to) ? 'bg-secondary font-medium text-secondary-foreground' : 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground'"
+            :title="collapsed ? navLabel(item) : undefined"
           >
             <Icon :name="item.icon" class="size-4 shrink-0" />
-            <span v-if="!collapsed" class="truncate">{{ item.label }}</span>
+            <span v-if="!collapsed" class="truncate">{{ navLabel(item) }}</span>
           </NuxtLink>
 
           <div v-else>
             <button
               type="button"
               class="flex w-full items-center gap-3 rounded-md px-2.5 py-2 text-sm text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
-              :aria-expanded="openGroups.has(item.label)"
-              @click="toggleGroup(item.label)"
+              :aria-expanded="openGroups.has(item.key)"
+              :title="collapsed ? navLabel(item) : undefined"
+              @click="toggleGroup(item.key)"
             >
               <Icon :name="item.icon" class="size-4 shrink-0" />
-              <span v-if="!collapsed" class="flex-1 truncate text-left">{{ item.label }}</span>
+              <span v-if="!collapsed" class="flex-1 truncate text-left">{{ navLabel(item) }}</span>
               <Icon
                 v-if="!collapsed"
                 name="lucide:chevron-down"
                 class="size-3.5"
-                :class="openGroups.has(item.label) ? 'rotate-180' : ''"
+                :class="openGroups.has(item.key) ? 'rotate-180' : ''"
               />
             </button>
 
-            <div v-if="!collapsed && openGroups.has(item.label)" class="mt-0.5 space-y-0.5 pl-4">
+            <div v-if="!collapsed && openGroups.has(item.key)" class="mt-0.5 space-y-0.5 pl-4">
               <NuxtLink
                 v-for="child in item.children"
-                :key="child.label"
+                :key="child.key"
                 :to="child.to!"
                 class="flex items-center gap-3 rounded-md px-2.5 py-1.5 text-sm"
                 :class="isActive(child.to) ? 'bg-secondary font-medium text-secondary-foreground' : 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground'"
               >
                 <Icon :name="child.icon" class="size-3.5 shrink-0" />
-                <span class="truncate">{{ child.label }}</span>
+                <span class="truncate">{{ navLabel(child) }}</span>
               </NuxtLink>
             </div>
           </div>
@@ -176,10 +186,11 @@ watch(() => route.path, () => { moreOpen.value = false })
         <button
           type="button"
           class="flex w-full items-center gap-3 rounded-md px-2.5 py-2 text-sm text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
+          :aria-label="collapsed ? t('shell.layout.collapse') : undefined"
           @click="collapsed = !collapsed"
         >
           <Icon :name="collapsed ? 'lucide:panel-left-open' : 'lucide:panel-left-close'" class="size-4" />
-          <span v-if="!collapsed">Свернуть</span>
+          <span v-if="!collapsed">{{ t('shell.layout.collapse') }}</span>
         </button>
       </div>
     </aside>
@@ -206,11 +217,12 @@ watch(() => route.path, () => { moreOpen.value = false })
           />
           <input
             type="search"
-            placeholder="Поиск по проектам, шотам, задачам..."
+            :placeholder="t('shell.search.placeholder')"
+            :aria-label="t('common.actions.search')"
             class="h-9 w-full rounded-md border bg-background pl-8 pr-16 text-sm outline-none focus:border-ring"
           >
           <kbd class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-            Ctrl K
+            {{ t('shell.search.shortcut') }}
           </kbd>
         </div>
 
@@ -224,6 +236,7 @@ watch(() => route.path, () => { moreOpen.value = false })
               <button
                 type="button"
                 class="flex items-center gap-2 rounded-md px-1.5 py-1 hover:bg-secondary"
+                :aria-label="t('shell.userMenu.open')"
               >
                 <span class="grid size-7 place-items-center rounded-full bg-primary text-xs font-medium text-primary-foreground">
                   {{ auth.initials }}
@@ -239,11 +252,13 @@ watch(() => route.path, () => { moreOpen.value = false })
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem @select="navigateTo('/profile')">
-                <Icon name="lucide:user" class="mr-2 size-4" /> Профиль
+                <Icon name="lucide:user" class="size-4" /> {{ t('shell.userMenu.profile') }}
               </DropdownMenuItem>
+              <!-- The language lives here, one tap from anywhere (client request). -->
+              <LocaleMenuSub />
               <DropdownMenuSeparator />
               <DropdownMenuItem @select="auth.logout()">
-                <Icon name="lucide:log-out" class="mr-2 size-4" /> Выйти
+                <Icon name="lucide:log-out" class="size-4" /> {{ t('shell.userMenu.logout') }}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -261,17 +276,17 @@ watch(() => route.path, () => { moreOpen.value = false })
       -->
       <nav
         class="flex shrink-0 items-stretch border-t bg-card pb-[env(safe-area-inset-bottom)] print:hidden lg:hidden"
-        aria-label="Основные разделы"
+        :aria-label="t('shell.layout.phoneNavigation')"
       >
         <NuxtLink
           v-for="item in bottomTabs"
-          :key="item.label"
+          :key="item.key"
           :to="item.to!"
           class="flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px]"
           :class="isActive(item.to) ? 'text-foreground' : 'text-muted-foreground'"
         >
           <Icon :name="item.icon" class="size-5" />
-          <span class="max-w-full truncate px-1">{{ PHONE_TAB_LABEL[item.to!] ?? item.label }}</span>
+          <span class="max-w-full truncate px-1">{{ phoneTabLabel(item) }}</span>
         </NuxtLink>
 
         <button
@@ -282,7 +297,7 @@ watch(() => route.path, () => { moreOpen.value = false })
           @click="moreOpen = !moreOpen"
         >
           <Icon :name="moreOpen ? 'lucide:x' : 'lucide:menu'" class="size-5" />
-          <span>{{ moreOpen ? 'Закрыть' : 'Ещё' }}</span>
+          <span>{{ moreOpen ? t('shell.layout.close') : t('shell.layout.more') }}</span>
         </button>
       </nav>
     </div>
@@ -292,20 +307,20 @@ watch(() => route.path, () => { moreOpen.value = false })
       <button
         type="button"
         class="flex-1 bg-black/50"
-        aria-label="Закрыть меню"
+        :aria-label="t('shell.layout.closeMenu')"
         @click="moreOpen = false"
       />
 
       <div class="max-h-[75svh] overflow-y-auto overscroll-contain rounded-t-2xl border-t bg-card pb-[env(safe-area-inset-bottom)]">
         <div class="sticky top-0 flex items-center justify-between border-b bg-card px-5 py-3">
-          <p class="text-sm font-medium">Навигация</p>
+          <p class="text-sm font-medium">{{ t('shell.layout.navigation') }}</p>
           <button type="button" class="text-sm text-muted-foreground" @click="moreOpen = false">
-            Закрыть
+            {{ t('shell.layout.close') }}
           </button>
         </div>
 
         <div class="p-2">
-          <template v-for="item in navigation" :key="item.label">
+          <template v-for="item in navigation" :key="item.key">
             <NuxtLink
               v-if="item.to"
               :to="item.to"
@@ -313,25 +328,25 @@ watch(() => route.path, () => { moreOpen.value = false })
               :class="isActive(item.to) ? 'bg-secondary font-medium' : 'text-muted-foreground'"
             >
               <Icon :name="item.icon" class="size-4 shrink-0" />
-              {{ item.label }}
+              {{ navLabel(item) }}
             </NuxtLink>
 
             <p
               v-else
               class="px-3 pb-1 pt-3 text-xs font-medium uppercase tracking-wider text-muted-foreground"
             >
-              {{ item.label }}
+              {{ navLabel(item) }}
             </p>
 
             <NuxtLink
               v-for="child in item.children ?? []"
-              :key="child.label"
+              :key="child.key"
               :to="child.to!"
               class="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm"
               :class="isActive(child.to) ? 'bg-secondary font-medium' : 'text-muted-foreground'"
             >
               <Icon :name="child.icon" class="size-4 shrink-0" />
-              {{ child.label }}
+              {{ navLabel(child) }}
             </NuxtLink>
           </template>
         </div>

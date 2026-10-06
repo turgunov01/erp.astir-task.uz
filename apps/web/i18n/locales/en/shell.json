@@ -1,0 +1,117 @@
+{
+  "shell": {
+    "tagline": "Production management",
+    "nav": {
+      "dashboard": "Dashboard",
+      "attendance": "Attendance",
+      "myTasks": "My tasks",
+      "projects": "Projects",
+      "production": "Production",
+      "episodes": "Episodes",
+      "scenes": "Scenes",
+      "shots": "Shots",
+      "tasks": "Tasks",
+      "reviews": "Reviews",
+      "revisions": "Revisions",
+      "render": "Render queue",
+      "assets": "Asset library",
+      "calendar": "Calendar",
+      "team": "Team",
+      "employees": "Employees",
+      "departments": "Departments",
+      "workload": "Workload",
+      "timesheets": "Time tracking",
+      "timeline": "Timeline",
+      "clients": "Clients",
+      "finance": "Finance",
+      "financeOverview": "Overview",
+      "budgets": "Budgets",
+      "expenses": "Expenses",
+      "payments": "Payments",
+      "invoices": "Invoices",
+      "payroll": "Payroll",
+      "reports": "Reports",
+      "reportProduction": "Production",
+      "reportFinance": "Finance",
+      "reportTime": "Time and people",
+      "reportClients": "Clients",
+      "documents": "Documents",
+      "activity": "Activity feed",
+      "settings": "Settings"
+    },
+    "phoneTab": {
+      "dashboard": "Dashboard",
+      "myTasks": "Mine",
+      "attendance": "Attendance",
+      "finance": "Finance",
+      "activity": "Activity"
+    },
+    "layout": {
+      "mainNavigation": "Main navigation",
+      "phoneNavigation": "Main sections",
+      "collapse": "Collapse",
+      "more": "More",
+      "close": "Close",
+      "closeMenu": "Close the menu",
+      "navigation": "Navigation"
+    },
+    "search": {
+      "placeholder": "Search projects, shots, tasks...",
+      "shortcut": "Ctrl K"
+    },
+    "userMenu": {
+      "open": "User menu",
+      "profile": "Profile",
+      "language": "Language",
+      "logout": "Sign out"
+    },
+    "language": {
+      "label": "Language",
+      "saveFailed": "Could not save the language"
+    },
+    "bell": {
+      "title": "Notifications",
+      "markAll": "Mark all as read",
+      "empty": "No notifications yet",
+      "unread": "{n} unread notification | {n} unread notifications"
+    },
+    "checkIn": {
+      "button": "I’m in",
+      "buttonAria": "I’m in — mark arrival at work",
+      "buttonTitle": "Mark arrival at work",
+      "corrected": "Day corrected",
+      "correctedShort": "Corrected",
+      "leftAt": "Left at {time}",
+      "leftShort": "Left {time}",
+      "atWorkSince": "At work since {time}",
+      "sinceShort": "from {time}",
+      "today": "Today, {date}",
+      "arrival": "Arrival",
+      "departure": "Departure",
+      "late": "{duration} late",
+      "onTime": "on time, start at {start}",
+      "stillAtWork": "still at work",
+      "correctedNote": "The day was corrected by an administrator — no need to check in or out.",
+      "checkOut": "I’m leaving",
+      "checkInFailed": "Could not mark arrival",
+      "checkOutFailed": "Could not mark departure"
+    },
+    "checkInPrompt": {
+      "title": "Check in: “I’m in”",
+      "body": "Press it when you arrive at work — the time is taken from the server clock.",
+      "workdayStarts": "The working day starts at {start}.",
+      "dayOff": "Today is a day off on the schedule."
+    },
+    "errorPage": {
+      "notFoundTitle": "Page not found",
+      "errorTitle": "Error",
+      "somethingWrong": "Something went wrong",
+      "notFoundBody": "This section may not exist yet, or the link is out of date.",
+      "forbiddenTitle": "No access",
+      "forbiddenBody": "You do not have access to this section",
+      "unexpected": "Unexpected server error.",
+      "toStart": "Go to start",
+      "back": "Back"
+    }
+  }
+}

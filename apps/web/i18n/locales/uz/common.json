@@ -1,0 +1,572 @@
+{
+  "common": {
+    "actions": {
+      "save": "Saqlash",
+      "saving": "Saqlanmoqda...",
+      "cancel": "Bekor qilish",
+      "close": "Yopish",
+      "back": "Orqaga",
+      "delete": "O‘chirish",
+      "edit": "Tahrirlash",
+      "create": "Yaratish",
+      "add": "Qo‘shish",
+      "open": "Ochish",
+      "retry": "Qayta urinish",
+      "apply": "Qo‘llash",
+      "reset": "Tozalash",
+      "confirm": "Tasdiqlash",
+      "more": "Yana",
+      "later": "Keyinroq",
+      "search": "Qidiruv",
+      "download": "Yuklab olish",
+      "running": "Bajarilmoqda...",
+      "searchPlaceholder": "Qidiruv..."
+    },
+    "table": {
+      "loadFailed": "Ma’lumotlarni yuklab bo‘lmadi",
+      "range": "{total} tadan {from}–{to}",
+      "pagination": "Jadval sahifalari",
+      "previous": "Oldingi sahifa",
+      "next": "Keyingi sahifa",
+      "page": "{n}-sahifa"
+    },
+    "states": {
+      "loading": "Yuklanmoqda...",
+      "saved": "Saqlandi.",
+      "empty": "Hech narsa topilmadi"
+    },
+    "errors": {
+      "generic": "Nimadir xato ketdi",
+      "loadFailed": "Ma’lumotlarni yuklab bo‘lmadi",
+      "saveFailed": "Saqlab bo‘lmadi",
+      "serviceUnavailable": "Ma’lumotlar bazasi mavjud emas. Ulanish tiklangach, qayta urinib ko‘ring.",
+      "invalidCredentials": "Pochta yoki parol noto‘g‘ri",
+      "unauthenticated": "Seans muddati tugadi, qaytadan kiring",
+      "forbidden": "Bu amal uchun huquqingiz yetarli emas",
+      "rateLimited": "Urinishlar juda ko‘p, biroz kuting",
+      "internal": "Serverning ichki xatosi"
+    },
+    "yes": "ha",
+    "no": "yo‘q",
+    "unknown": "Ko‘rsatilmagan",
+    "time": {
+      "justNow": "hozirgina",
+      "minutesAgo": "{n} daqiqa oldin",
+      "hoursAgo": "{n} soat oldin",
+      "daysAgo": "{n} kun oldin"
+    },
+    "units": {
+      "bytes": "{n} B",
+      "kilobytes": "{n} KB",
+      "megabytes": "{n} MB",
+      "gigabytes": "{n} GB",
+      "minutes": "{m} daq",
+      "hoursMinutes": "{h} soat {m} daq"
+    },
+    "weekdayShort": {
+      "1": "Du",
+      "2": "Se",
+      "3": "Ch",
+      "4": "Pa",
+      "5": "Ju",
+      "6": "Sh",
+      "7": "Ya"
+    },
+    "noWorkdays": "ish kunlari yo‘q",
+    "count": {
+      "tasks": "{n} ta vazifa"
+    },
+    "statusChange": "«{from}» → «{to}»",
+    "enum": {
+      "assetType": {
+        "CHARACTER": "Personaj",
+        "ENVIRONMENT": "Muhit",
+        "PROP": "Rekvizit",
+        "MODEL": "Model",
+        "RIG": "Rig",
+        "TEXTURE": "Tekstura",
+        "ANIMATION": "Animatsiya",
+        "AUDIO": "Ovoz",
+        "REFERENCE": "Referens",
+        "TEMPLATE": "Shablon",
+        "OTHER": "Boshqa"
+      },
+      "priority": {
+        "LOW": "Past",
+        "NORMAL": "Oddiy",
+        "HIGH": "Yuqori",
+        "URGENT": "Shoshilinch"
+      },
+      "revisionStatus": {
+        "OPEN": "Ochiq",
+        "IN_PROGRESS": "Jarayonda",
+        "READY_FOR_REVIEW": "Tekshiruvda",
+        "COMPLETED": "Yakunlangan",
+        "CANCELLED": "Bekor qilingan"
+      },
+      "renderStatus": {
+        "QUEUED": "Navbatda",
+        "RENDERING": "Render qilinmoqda",
+        "COMPLETED": "Tayyor",
+        "FAILED": "Xato",
+        "CANCELLED": "Bekor qilingan"
+      },
+      "productionStatus": {
+        "NOT_STARTED": "Boshlanmagan",
+        "IN_PROGRESS": "Jarayonda",
+        "REVIEW": "Tekshiruvda",
+        "REVISION": "Tuzatishda",
+        "APPROVED": "Tasdiqlangan",
+        "COMPLETED": "Yakunlangan",
+        "ON_HOLD": "To‘xtatilgan"
+      },
+      "clientStatus": {
+        "ACTIVE": "Faol",
+        "INACTIVE": "Nofaol",
+        "ARCHIVED": "Arxivda"
+      },
+      "role": {
+        "OWNER": "Egasi",
+        "ADMIN": "Administrator",
+        "PRODUCER": "Prodyuser",
+        "PROJECT_MANAGER": "Loyiha menejeri",
+        "ART_DIRECTOR": "Art-direktor",
+        "ARTIST": "Rassom",
+        "CLIENT": "Mijoz",
+        "FINANCE": "Moliya"
+      },
+      "notificationType": {
+        "TASK_ASSIGNED": {
+          "title": "Yangi vazifa",
+          "hint": "Sizni vazifa ijrochisi etib tayinlashdi"
+        },
+        "PROJECT_ASSIGNED": {
+          "title": "Yangi loyiha",
+          "hint": "Sizni loyiha jamoasiga qo‘shishdi"
+        },
+        "TASK_REVIEW": {
+          "title": "Tekshiruvga vazifa",
+          "hint": "Vazifa sizga tekshirish uchun topshirildi"
+        },
+        "TASK_OVERDUE": {
+          "title": "Muddati o‘tdi",
+          "hint": "Vazifa muddatidan o‘tib ketdi"
+        },
+        "COMMENT_MENTION": {
+          "title": "Eslatish",
+          "hint": "Sizni izohda eslatishdi"
+        },
+        "VERSION_SUBMITTED": {
+          "title": "Yangi versiya",
+          "hint": "Ko‘rib chiqish uchun versiya yuklandi"
+        },
+        "VERSION_APPROVED": {
+          "title": "Versiya tasdiqlandi",
+          "hint": "Versiyangiz qabul qilindi"
+        },
+        "CHANGES_REQUESTED": {
+          "title": "Tuzatish kerak",
+          "hint": "Versiya bo‘yicha o‘zgartirish so‘raldi"
+        },
+        "REVISION_CREATED": {
+          "title": "Yangi tuzatish",
+          "hint": "Ishingiz bo‘yicha tuzatish yaratildi"
+        },
+        "PROJECT_DEADLINE": {
+          "title": "Loyiha muddati",
+          "hint": "Loyiha muddati yaqinlashmoqda"
+        },
+        "SHOT_DEADLINE": {
+          "title": "Shot muddati",
+          "hint": "Shot muddati yaqinlashmoqda"
+        },
+        "RENDER_FAILED": {
+          "title": "Render xatosi",
+          "hint": "Render xato bilan tugadi"
+        }
+      },
+      "employmentType": {
+        "FULL_TIME": "To‘liq stavka",
+        "PART_TIME": "Yarim stavka",
+        "FREELANCE": "Frilans",
+        "INTERN": "Amaliyot"
+      },
+      "employeeStatus": {
+        "ACTIVE": "Ishlamoqda",
+        "ON_LEAVE": "Ta’tilda",
+        "INACTIVE": "Ishlamaydi"
+      },
+      "documentType": {
+        "CONTRACT": "Shartnoma",
+        "BRIEF": "Brif",
+        "SPECIFICATION": "Spetsifikatsiya",
+        "INVOICE": "Hisob-faktura",
+        "ACT": "Dalolatnoma",
+        "NDA": "NDA",
+        "OTHER": "Boshqa"
+      },
+      "reviewStatus": {
+        "PENDING": "Kutilmoqda",
+        "IN_REVIEW": "Muhokamada",
+        "CHANGES_REQUESTED": "Tuzatish kerak",
+        "APPROVED": "Kelishildi",
+        "REJECTED": "Rad etildi",
+        "EXPIRED": "Yopildi"
+      },
+      "reviewType": {
+        "INTERNAL": "Ichki",
+        "ART_DIRECTOR": "Art-direktor",
+        "CLIENT": "Mijoz",
+        "FINAL": "Yakuniy"
+      },
+      "projectStatus": {
+        "DRAFT": "Qoralama",
+        "PLANNING": "Rejalashtirish",
+        "PRE_PRODUCTION": "Preprodakshn",
+        "PRODUCTION": "Prodakshn",
+        "POST_PRODUCTION": "Postprodakshn",
+        "CLIENT_REVIEW": "Mijozda",
+        "DELIVERY": "Topshirish",
+        "COMPLETED": "Yakunlangan",
+        "ON_HOLD": "To‘xtatilgan",
+        "CANCELLED": "Bekor qilingan",
+        "ARCHIVED": "Arxivda"
+      },
+      "projectType": {
+        "2D_ANIMATION": "2D animatsiya",
+        "3D_ANIMATION": "3D animatsiya",
+        "MOTION_DESIGN": "Motion dizayn",
+        "COMMERCIAL": "Reklama",
+        "SHORT_FILM": "Qisqa metrajli film",
+        "SERIES": "Serial",
+        "FEATURE_FILM": "To‘liq metrajli film",
+        "OTHER": "Boshqa"
+      },
+      "taskStatus": {
+        "BACKLOG": "Beklog",
+        "READY": "Ishga tayyor",
+        "IN_PROGRESS": "Jarayonda",
+        "REVIEW": "Tekshiruvda",
+        "REVISION": "Tuzatishda",
+        "APPROVED": "Tasdiqlangan",
+        "DONE": "Bajarilgan",
+        "BLOCKED": "Bloklangan"
+      },
+      "stageStatus": {
+        "NOT_STARTED": "Boshlanmagan",
+        "READY": "Ishga tayyor",
+        "IN_PROGRESS": "Jarayonda",
+        "REVIEW": "Tekshiruvda",
+        "BLOCKED": "Bloklangan",
+        "DONE": "Bajarilgan"
+      },
+      "versionStatus": {
+        "WORKING": "Jarayonda",
+        "SUBMITTED": "Yuborildi",
+        "IN_REVIEW": "Muhokamada",
+        "CHANGES_REQUESTED": "Tuzatish kerak",
+        "APPROVED": "Tasdiqlangan",
+        "REJECTED": "Rad etilgan",
+        "SUPERSEDED": "Yangisi bilan almashtirilgan"
+      },
+      "notificationChannel": {
+        "IN_APP": "Ilovada",
+        "EMAIL": "Pochta",
+        "TELEGRAM": "Telegram"
+      },
+      "expenseCategory": {
+        "EMPLOYEE": "Shtat",
+        "FREELANCER": "Pudrat",
+        "RENDER": "Render",
+        "SOFTWARE": "Dasturlar",
+        "HARDWARE": "Uskunalar",
+        "AUDIO": "Ovoz",
+        "PRODUCTION": "Prodakshn",
+        "OFFICE": "Ijara va ofis",
+        "TAXES": "Soliq va yig‘imlar",
+        "MARKETING": "Marketing",
+        "OTHER": "Boshqa"
+      },
+      "paymentMethod": {
+        "BANK_TRANSFER": "Bank o‘tkazmasi",
+        "CASH": "Naqd pul",
+        "CARD": "Karta",
+        "OTHER": "Boshqa"
+      },
+      "paymentStatus": {
+        "PENDING": "To‘lov kutilmoqda",
+        "PARTIALLY_PAID": "Qisman to‘langan",
+        "PAID": "To‘langan",
+        "OVERDUE": "Muddati o‘tgan",
+        "CANCELLED": "Bekor qilingan"
+      },
+      "payrollType": {
+        "ADVANCE": "Avans",
+        "BONUS": "Mukofot",
+        "PENALTY": "Jarima",
+        "LATENESS": "Kechikish uchun jarima",
+        "DEDUCTION": "Ushlab qolish",
+        "OTHER_ACCRUAL": "Boshqa hisoblash"
+      },
+      "payrollStatus": {
+        "DRAFT": "Qoralama",
+        "APPROVED": "Tasdiqlangan",
+        "PAID": "To‘langan",
+        "CANCELLED": "Bekor qilingan"
+      },
+      "payrollSource": {
+        "MANUAL": "Qo‘lda",
+        "TIMESHEET": "Tabel va davomatdan",
+        "EXTERNAL": "Tashqi tizimdan"
+      },
+      "risk": {
+        "LOW": "Past",
+        "MEDIUM": "O‘rta",
+        "HIGH": "Yuqori",
+        "CRITICAL": "Jiddiy"
+      },
+      "activityAction": {
+        "created": "yaratildi",
+        "updated": "o‘zgartirildi",
+        "deleted": "o‘chirildi",
+        "project": {
+          "created": "loyiha yaratdi",
+          "status_changed": "loyiha holatini o‘zgartirdi",
+          "archived": "loyihani arxivladi",
+          "hard_deleted": "loyihani butunlay o‘chirdi"
+        },
+        "member": {
+          "added": "loyihaga ishtirokchi qo‘shdi",
+          "removed": "loyihadan ishtirokchini chiqardi"
+        },
+        "stage": {
+          "created": "bosqich yaratdi",
+          "status_changed": "bosqich holatini o‘zgartirdi"
+        },
+        "episode": {
+          "created": "epizod yaratdi",
+          "status_changed": "epizod holatini o‘zgartirdi"
+        },
+        "scene": {
+          "created": "sahna yaratdi",
+          "status_changed": "sahna holatini o‘zgartirdi"
+        },
+        "shot": {
+          "created": "shot yaratdi",
+          "status_changed": "shot holatini o‘zgartirdi"
+        },
+        "shot_stage": {
+          "status_changed": "shot bosqichi holatini o‘zgartirdi"
+        },
+        "task": {
+          "created": "vazifa yaratdi",
+          "assigned": "ijrochi tayinladi",
+          "status_changed": "vazifa holatini o‘zgartirdi",
+          "archived": "vazifani arxivladi",
+          "unarchived": "vazifani arxivdan qaytardi",
+          "deleted": "vazifani o‘chirdi"
+        },
+        "version": {
+          "created": "versiya yukladi",
+          "submitted": "versiyani kelishuvga yubordi",
+          "deleted": "versiyani o‘chirdi"
+        },
+        "revision": {
+          "created": "tuzatish ochdi",
+          "status_changed": "tuzatish holatini o‘zgartirdi",
+          "deleted": "tuzatishni o‘chirdi"
+        },
+        "render": {
+          "queued": "render navbatiga vazifa qo‘ydi"
+        },
+        "asset": {
+          "created": "asset qo‘shdi"
+        },
+        "file": {
+          "uploaded": "fayl yukladi"
+        },
+        "review": {
+          "approved": "versiyani tasdiqladi",
+          "changes_requested": "versiya bo‘yicha tuzatish so‘radi",
+          "rejected": "versiyani rad etdi"
+        },
+        "finance": {
+          "budget_saved": "loyiha byudjetini saqladi",
+          "budget_deleted": "loyiha byudjetini o‘chirdi",
+          "expense_created": "xarajat qo‘shdi",
+          "expense_updated": "xarajatni o‘zgartirdi",
+          "expense_deleted": "xarajatni o‘chirdi",
+          "invoice_created": "hisob-faktura berdi",
+          "invoice_updated": "hisob-fakturani o‘zgartirdi",
+          "invoice_deleted": "hisob-fakturani o‘chirdi",
+          "payment_created": "to‘lovni o‘tkazdi",
+          "payment_updated": "to‘lovni o‘zgartirdi",
+          "payment_deleted": "to‘lovni o‘chirdi"
+        },
+        "settings": {
+          "updated": "studiya sozlamalarini o‘zgartirdi",
+          "template_created": "pipeline shablonini yaratdi",
+          "template_updated": "pipeline shablonini o‘zgartirdi",
+          "template_deleted": "pipeline shablonini o‘chirdi",
+          "mail_tested": "pochta sozlamalarini tekshirdi"
+        },
+        "client": {
+          "created": "mijoz yaratdi",
+          "updated": "mijozni o‘zgartirdi",
+          "archived": "mijozni arxivladi"
+        },
+        "department": {
+          "created": "bo‘lim yaratdi",
+          "updated": "bo‘limni o‘zgartirdi",
+          "deleted": "bo‘limni o‘chirdi"
+        },
+        "employee": {
+          "updated": "xodimni o‘zgartirdi",
+          "email_verified_manually": "xodim pochtasini qo‘lda tasdiqladi"
+        },
+        "user": {
+          "created": "foydalanuvchi yaratdi",
+          "role_changed": "foydalanuvchi rolini o‘zgartirdi",
+          "deactivated": "foydalanuvchini o‘chirib qo‘ydi"
+        },
+        "attendance": {
+          "checked_in": "kelganini belgiladi",
+          "checked_out": "ketganini belgiladi"
+        }
+      },
+      "activityFamily": {
+        "created": "Yaratish",
+        "updated": "O‘zgartirish",
+        "deleted": "O‘chirish",
+        "project": "Loyihalar",
+        "member": "Loyiha jamoalari",
+        "stage": "Bosqichlar",
+        "episode": "Epizodlar",
+        "scene": "Sahnalar",
+        "shot": "Shotlar",
+        "shot_stage": "Shot bosqichlari",
+        "task": "Vazifalar",
+        "version": "Versiyalar",
+        "review": "Kelishuv",
+        "revision": "Tuzatishlar",
+        "render": "Render",
+        "asset": "Assetlar",
+        "file": "Fayllar",
+        "finance": "Moliya",
+        "settings": "Sozlamalar",
+        "client": "Mijozlar",
+        "department": "Bo‘limlar",
+        "employee": "Xodimlar",
+        "user": "Foydalanuvchilar",
+        "payroll": "Ish haqi",
+        "attendance": "Davomat",
+        "comment": "Izohlar",
+        "timesheet": "Tabel"
+      },
+      "entityType": {
+        "Project": "Loyiha",
+        "ProjectStage": "Bosqich",
+        "ProjectMember": "Ishtirokchi",
+        "Episode": "Epizod",
+        "Scene": "Sahna",
+        "Shot": "Shot",
+        "ShotStage": "Shot bosqichi",
+        "Task": "Vazifa",
+        "Version": "Versiya",
+        "Review": "Kelishuv",
+        "Revision": "Tuzatish",
+        "RenderJob": "Render",
+        "Asset": "Asset",
+        "Document": "Hujjat",
+        "Client": "Mijoz",
+        "Department": "Bo‘lim",
+        "Employee": "Xodim",
+        "User": "Foydalanuvchi",
+        "ProjectBudget": "Byudjet",
+        "Expense": "Xarajat",
+        "Invoice": "Hisob-faktura",
+        "Payment": "To‘lov",
+        "StudioSettings": "Studiya sozlamalari",
+        "PipelineTemplate": "Pipeline shabloni"
+      }
+    },
+    "permission": {
+      "group": {
+        "dashboard": "Boshqaruv paneli",
+        "projects": "Loyihalar",
+        "production": "Ishlab chiqarish: epizodlar, sahnalar, shotlar, taqvim",
+        "tasks": "Vazifalar",
+        "versions": "Versiyalar",
+        "reviews": "Kelishuv",
+        "revisions": "Tuzatishlar",
+        "assets": "Assetlar kutubxonasi",
+        "render": "Render navbati",
+        "team": "Jamoa",
+        "attendance": "Davomat: kelish, kechikishlar",
+        "time": "Vaqt hisobi",
+        "clients": "Mijozlar",
+        "finance": "Moliya",
+        "payroll": "Ish haqi: avanslar, jarimalar, mukofotlar",
+        "reports": "Hisobotlar",
+        "documents": "Hujjatlar",
+        "activity": "Voqealar lentasi va audit",
+        "settings": "Sozlamalar"
+      },
+      "item": {
+        "dashboard_view": "Panelni ochish",
+        "project_view": "Loyihalarni ko‘rish",
+        "project_create": "Yaratish",
+        "project_update": "Tahrirlash",
+        "project_archive": "Arxivlash",
+        "project_delete": "O‘chirish",
+        "production_view": "Ko‘rish",
+        "production_manage": "Boshqarish",
+        "pipeline_manage": "Konveyerni sozlash",
+        "task_view_own": "O‘z vazifalarini ko‘rish (bo‘limni ochadi)",
+        "task_view": "Barcha vazifalarni ko‘rish",
+        "task_create": "Yaratish",
+        "task_update": "O‘zgartirish",
+        "task_assign": "Ijrochilarni tayinlash",
+        "version_view": "Ko‘rish",
+        "version_upload": "Yuklash",
+        "version_delete_approved": "Tasdiqlanganlarini o‘chirish",
+        "review_view": "Ko‘rish",
+        "review_internal": "Ichki ko‘rib chiqish",
+        "review_client": "Mijoz ko‘rib chiqishi",
+        "review_approve": "Tasdiqlash",
+        "revision_view": "Ko‘rish",
+        "revision_manage": "Boshqarish",
+        "asset_view": "Ko‘rish",
+        "asset_manage": "Boshqarish",
+        "render_view": "Ko‘rish",
+        "render_manage": "Boshqarish",
+        "team_view": "Xodimlar va bo‘limlarni ko‘rish",
+        "team_manage": "Xodimlarni boshqarish",
+        "workload_view": "Yuklamani ko‘rish",
+        "attendance_view": "Kim kelgani va kim kechikkanini ko‘rish (bo‘limni ochadi)",
+        "attendance_self": "«Keldim» / «Ketdim» tugmasi bilan belgilanish",
+        "attendance_manage": "Kunlarni tuzatish va kechikish uchun jarima hisoblash",
+        "timesheet_view_own": "O‘z tabelini ko‘rish (bo‘limni ochadi)",
+        "timesheet_view_all": "Barcha tabellarni ko‘rish",
+        "timesheet_submit": "Tabelni to‘ldirish",
+        "client_view": "Ko‘rish",
+        "client_manage": "Boshqarish",
+        "finance_view": "Moliyani ko‘rish",
+        "finance_manage": "Boshqarish",
+        "budget_view": "Byudjetlarni ko‘rish",
+        "payroll_view_own": "O‘z hisoblashlarini ko‘rish (bo‘limni ochadi)",
+        "payroll_view": "Barcha hisoblashlarni ko‘rish",
+        "payroll_manage": "Kiritish, tasdiqlash va to‘lash",
+        "report_view": "Hisobotlarni ko‘rish",
+        "document_view": "Ko‘rish",
+        "document_manage": "Boshqarish",
+        "activity_view": "Lentani ko‘rish",
+        "audit_view": "Audit jurnalini ko‘rish",
+        "settings_view": "Sozlamalarni ochish",
+        "settings_manage": "Sozlamalarni o‘zgartirish",
+        "user_manage": "Foydalanuvchilarni boshqarish",
+        "permission_manage": "Rollar huquqlarini tahrirlash"
+      }
+    }
+  }
+}

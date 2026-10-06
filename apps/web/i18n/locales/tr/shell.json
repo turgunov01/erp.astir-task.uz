@@ -1,0 +1,117 @@
+{
+  "shell": {
+    "tagline": "Prodüksiyon yönetimi",
+    "nav": {
+      "dashboard": "Kontrol paneli",
+      "attendance": "Devam",
+      "myTasks": "Görevlerim",
+      "projects": "Projeler",
+      "production": "Prodüksiyon",
+      "episodes": "Bölümler",
+      "scenes": "Sahneler",
+      "shots": "Çekimler",
+      "tasks": "Görevler",
+      "reviews": "Onay",
+      "revisions": "Düzeltmeler",
+      "render": "Render kuyruğu",
+      "assets": "Varlık kütüphanesi",
+      "calendar": "Takvim",
+      "team": "Ekip",
+      "employees": "Çalışanlar",
+      "departments": "Departmanlar",
+      "workload": "İş yükü",
+      "timesheets": "Zaman takibi",
+      "timeline": "Zaman çizelgesi",
+      "clients": "Müşteriler",
+      "finance": "Finans",
+      "financeOverview": "Genel bakış",
+      "budgets": "Bütçeler",
+      "expenses": "Giderler",
+      "payments": "Ödemeler",
+      "invoices": "Faturalar",
+      "payroll": "Bordro",
+      "reports": "Raporlar",
+      "reportProduction": "Prodüksiyon",
+      "reportFinance": "Finans",
+      "reportTime": "Zaman ve kişiler",
+      "reportClients": "Müşteriler",
+      "documents": "Belgeler",
+      "activity": "Etkinlik akışı",
+      "settings": "Ayarlar"
+    },
+    "phoneTab": {
+      "dashboard": "Panel",
+      "myTasks": "Benim",
+      "attendance": "Devam",
+      "finance": "Finans",
+      "activity": "Etkinlik"
+    },
+    "layout": {
+      "mainNavigation": "Ana gezinme",
+      "phoneNavigation": "Ana bölümler",
+      "collapse": "Daralt",
+      "more": "Daha",
+      "close": "Kapat",
+      "closeMenu": "Menüyü kapat",
+      "navigation": "Gezinme"
+    },
+    "search": {
+      "placeholder": "Projelerde, çekimlerde, görevlerde ara...",
+      "shortcut": "Ctrl K"
+    },
+    "userMenu": {
+      "open": "Kullanıcı menüsü",
+      "profile": "Profil",
+      "language": "Dil",
+      "logout": "Çıkış yap"
+    },
+    "language": {
+      "label": "Dil",
+      "saveFailed": "Dil kaydedilemedi"
+    },
+    "bell": {
+      "title": "Bildirimler",
+      "markAll": "Tümünü okundu say",
+      "empty": "Henüz bildirim yok",
+      "unread": "{n} okunmamış bildirim"
+    },
+    "checkIn": {
+      "button": "Geldim",
+      "buttonAria": "Geldim — işe gelişi bildir",
+      "buttonTitle": "İşe gelişi bildir",
+      "corrected": "Gün düzeltildi",
+      "correctedShort": "Düzeltildi",
+      "leftAt": "{time} çıktı",
+      "leftShort": "Çıktı {time}",
+      "atWorkSince": "{time} itibarıyla işte",
+      "sinceShort": "{time} itibarıyla",
+      "today": "Bugün, {date}",
+      "arrival": "Geliş",
+      "departure": "Çıkış",
+      "late": "{duration} gecikme",
+      "onTime": "zamanında, başlangıç {start}",
+      "stillAtWork": "hâlâ işte",
+      "correctedNote": "Gün bir yönetici tarafından düzeltildi — düğmelerle bildirmeye gerek yok.",
+      "checkOut": "Çıkıyorum",
+      "checkInFailed": "Geliş bildirilemedi",
+      "checkOutFailed": "Çıkış bildirilemedi"
+    },
+    "checkInPrompt": {
+      "title": "Giriş yapın: “Geldim”",
+      "body": "İşe geldiğinizde basın — saat sunucu saatine göre kaydedilir.",
+      "workdayStarts": "İş günü {start} saatinde başlar.",
+      "dayOff": "Bugün programa göre izin günü."
+    },
+    "errorPage": {
+      "notFoundTitle": "Sayfa bulunamadı",
+      "errorTitle": "Hata",
+      "somethingWrong": "Bir şeyler ters gitti",
+      "notFoundBody": "Bu bölüm henüz olmayabilir ya da bağlantı eskimiş olabilir.",
+      "forbiddenTitle": "Erişim yok",
+      "forbiddenBody": "Bu bölüme erişiminiz yok",
+      "unexpected": "Beklenmeyen sunucu hatası.",
+      "toStart": "Ana sayfaya",
+      "back": "Geri"
+    }
+  }
+}

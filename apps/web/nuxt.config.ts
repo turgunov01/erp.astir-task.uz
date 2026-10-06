@@ -2,18 +2,45 @@ import tailwindcss from '@tailwindcss/vite'
 
 const API_ORIGIN = process.env.NUXT_API_ORIGIN || 'http://127.0.0.1:4000'
 
+/**
+ * Message files per language, split by area so several people (or agents)
+ * can translate different parts of the app without touching the same file.
+ * See i18n/README.md.
+ */
+const I18N_NAMESPACES = ['common', 'shell', 'auth', 'production', 'projects', 'finance', 'team']
+const localeFiles = (code: string) => I18N_NAMESPACES.map(name => code + '/' + name + '.json')
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: ['shadcn-nuxt', '@pinia/nuxt', '@vueuse/nuxt', '@nuxt/icon'],
+  modules: ['shadcn-nuxt', '@pinia/nuxt', '@vueuse/nuxt', '@nuxt/icon', '@nuxtjs/i18n'],
 
   devtools: { enabled: true },
 
-  // The interface is Russian-only: lang drives hyphenation, screen readers and
-  // the browser's own widgets (date pickers, spell check) to Russian.
-  app: {
-    head: {
-      htmlAttrs: { lang: 'ru' }
-    }
+  /*
+   * Interface languages. No URL prefixes: the language is a person's
+   * preference, not part of an address, so a link means the same page for
+   * everyone. app/plugins/locale.ts picks it — the signed-in user's choice,
+   * then the astir_locale cookie, then the studio default, then Russian — and
+   * <html lang> follows it (layouts and error.vue set it through useHead).
+   * Messages are loaded per language on demand.
+   */
+  i18n: {
+    strategy: 'no_prefix',
+    defaultLocale: 'ru',
+    langDir: 'locales',
+    locales: [
+      { code: 'ru', language: 'ru-RU', name: 'Русский', files: localeFiles('ru') },
+      { code: 'uz', language: 'uz-Latn-UZ', name: 'O‘zbekcha', files: localeFiles('uz') },
+      { code: 'en', language: 'en-GB', name: 'English', files: localeFiles('en') },
+      { code: 'tr', language: 'tr-TR', name: 'Türkçe', files: localeFiles('tr') }
+    ],
+    /*
+     * Off on purpose: the module would otherwise follow the browser's language
+     * and write its guess into the cookie, which would then outrank the studio
+     * default. The astir_locale cookie holds explicit choices only, written by
+     * useAppLocale().
+     */
+    detectBrowserLanguage: false
   },
 
   css: ['~/assets/css/tailwind.css'],

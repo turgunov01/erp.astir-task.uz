@@ -152,14 +152,9 @@ export function isLate(task: Pick<TimelineTask, 'deadline' | 'status'>, today = 
   return startOfDay(task.deadline) < today
 }
 
-/** "1 задача", "3 задачи", "5 задач". */
+/** "1 задача", "3 задачи", "5 задач" — plural forms of the current language. */
 export function tasksWord(count: number) {
-  const tens = count % 100
-  const ones = count % 10
-  if (tens >= 11 && tens <= 14) return count + ' задач'
-  if (ones === 1) return count + ' задача'
-  if (ones >= 2 && ones <= 4) return count + ' задачи'
-  return count + ' задач'
+  return translate('common.count.tasks', count)
 }
 
 export function personName(person: { firstName: string, lastName: string } | null) {
@@ -167,7 +162,7 @@ export function personName(person: { firstName: string, lastName: string } | nul
 }
 
 export function shortDay(value: Date | string) {
-  return new Date(value).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })
+  return new Date(value).toLocaleDateString(intlTag(), { day: 'numeric', month: 'short' })
 }
 
 export interface TimelineGroupRow {
