@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Column } from '~/components/DataTable.vue'
-import type { MediaItem } from '~/components/media/MediaGallery.vue'
+import type { DocumentLike } from '~/utils/media'
 import { useListResource } from '~/composables/useApi'
 import { useTaskPanels } from '~/composables/useTaskPanels'
 import { useEntityCrud } from '~/composables/useEntityCrud'
@@ -33,8 +33,9 @@ const filters = computed(() => ({
   archived: archivedView.value ? 'true' : undefined
 }))
 
-interface DocRow extends MediaItem {
+interface DocRow extends DocumentLike {
   type: string
+  fileSize: string | null
   createdAt: string
   task: { id: string, title: string, status: string } | null
   project: { id: string, code: string } | null
@@ -50,22 +51,20 @@ const { data: projectData } = await useFetch<{ data: Array<{ id: string, code: s
 )
 const projects = computed(() => projectData.value?.data ?? [])
 
-/** Only media rows can enter the gallery; documents open in a new tab. */
 const media = computed(() =>
-  items.value.filter(item => item.mimeType && /^(image|video|audio)\//.test(item.mimeType))
+  items.value.filter(item => ['image', 'video', 'audio'].includes(mediaKind(item.mimeType, item.name)))
 )
 
-const galleryOpen = ref(false)
-const galleryStart = ref(0)
+const viewer = useMediaViewer()
 
-function openGallery(row: DocRow) {
-  const position = media.value.findIndex(item => item.id === row.id)
-  if (position === -1) {
-    window.open(row.fileUrl, '_blank', 'noopener')
-    return
-  }
-  galleryStart.value = position
-  galleryOpen.value = true
+/** A row opens in the viewer with the rest of the page a swipe away. */
+function openRow(row: DocRow) {
+  viewer.open(items.value.map(documentToViewerItem), row.id)
+}
+
+/** The header button pages through pictures, clips and sound only. */
+function openGallery() {
+  viewer.open(media.value.map(documentToViewerItem))
 }
 
 const crud = useEntityCrud({
@@ -88,25 +87,8 @@ const columns: Column[] = [
   { key: 'actions', label: '', width: '56px' }
 ]
 
-function isImage(row: DocRow) {
-  return Boolean(row.mimeType?.startsWith('image/'))
-}
-
-function iconFor(row: DocRow) {
-  const mime = row.mimeType ?? ''
-  if (mime.startsWith('image/')) return 'lucide:image'
-  if (mime.startsWith('video/')) return 'lucide:video'
-  if (mime.startsWith('audio/')) return 'lucide:music'
-  if (mime === 'application/pdf') return 'lucide:file-text'
-  return 'lucide:file'
-}
-
 function formatSize(bytes: string | null) {
-  if (!bytes) return '—'
-  const value = Number(bytes)
-  if (value < 1024) return value + ' B'
-  if (value < 1024 * 1024) return Math.round(value / 1024) + ' KB'
-  return (value / (1024 * 1024)).toFixed(1) + ' MB'
+  return formatBytes(bytes) || '—'
 }
 </script>
 
@@ -126,7 +108,7 @@ function formatSize(bytes: string | null) {
         v-if="media.length > 1"
         type="button"
         class="inline-flex h-9 items-center gap-2 rounded-md border px-3.5 text-sm hover:bg-secondary"
-        @click="galleryOpen = true"
+        @click="openGallery"
       >
         <Icon name="lucide:images" class="size-4" />
         Посмотреть галерею
@@ -176,17 +158,10 @@ function formatSize(bytes: string | null) {
           type="button"
           class="flex w-full items-center gap-2.5 text-left"
           :aria-label="'Открыть ' + row.name"
-          @click="openGallery(row)"
+          @click="openRow(row)"
         >
-          <span class="grid size-9 shrink-0 place-items-center overflow-hidden rounded-md bg-secondary">
-            <img
-              v-if="isImage(row)"
-              :src="row.fileUrl"
-              :alt="row.name"
-              loading="lazy"
-              class="size-full object-cover"
-            >
-            <Icon v-else :name="iconFor(row)" class="size-4 text-muted-foreground" />
+          <span class="block size-9 shrink-0 overflow-hidden rounded-md bg-secondary">
+            <MediaThumb :item="documentToViewerItem(row)" icon-class="size-4" :show-badge="false" />
           </span>
           <span class="min-w-0 truncate font-medium hover:underline">{{ row.name }}</span>
         </button>
@@ -237,12 +212,5 @@ function formatSize(bytes: string | null) {
     </DataTable>
 
     <EntityCrudHost :crud="crud" :config="DOCUMENT_FORM" />
-
-    <MediaGallery
-      v-if="galleryOpen && media.length > 0"
-      :items="media"
-      :start-index="galleryStart"
-      @close="galleryOpen = false"
-    />
   </div>
 </template>

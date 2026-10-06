@@ -67,6 +67,20 @@ export function createApp() {
     })
   )
 
+  /*
+   * Local storage mode serves blobs directly; object storage would sign URLs.
+   *
+   * Mounted ahead of the limiter: a video player seeks with a Range request per
+   * jump and a file grid loads a thumbnail per tile, so a minute of reviewing
+   * footage would otherwise spend the whole API budget. Range (206) answers
+   * come from serve-static itself, which is what makes seeking work.
+   */
+  app.use('/uploads', express.static(env.STORAGE_PATH, {
+    maxAge: '1h',
+    index: false,
+    acceptRanges: true
+  }))
+
   // Blanket limiter; per-route limiters tighten sensitive endpoints (spec 69).
   app.use(
     rateLimit({
@@ -76,9 +90,6 @@ export function createApp() {
       legacyHeaders: false
     })
   )
-
-  // Local storage mode serves blobs directly; object storage would sign URLs.
-  app.use('/uploads', express.static(env.STORAGE_PATH, { maxAge: '1h', index: false }))
 
   // Carries ?archived=true down to the Prisma archive filter.
   app.use((req, _res, next) => {

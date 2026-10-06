@@ -20,6 +20,8 @@ astir-erp-deploy.tar.gz
 
 # Recorded demo videos: large binaries, produced on demand
 media/
+# ...but not the viewer components, which share the folder name.
+!apps/web/app/components/media/
 
 # Personal Claude Code overrides
 .claude/settings.local.json

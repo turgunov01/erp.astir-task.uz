@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useTaskPanels } from '~/composables/useTaskPanels'
+import type { ViewerItem } from '~/utils/media'
 
 const props = defineProps<{ id: string, offset: number }>()
 const emit = defineEmits<{ (e: 'close'): void }>()
@@ -12,6 +13,12 @@ interface AssetVersion {
   versionNumber: number
   status: string
   createdAt: string
+  fileUrl: string | null
+  previewUrl: string | null
+  fileName: string | null
+  fileSize: string | null
+  mimeType: string | null
+  uploadedBy: { firstName: string, lastName: string } | null
 }
 
 interface Asset {
@@ -36,6 +43,46 @@ const { data, pending, error, refresh } = await useFetch<{ data: Asset }>(
 
 const asset = computed(() => data.value?.data)
 const versions = computed(() => asset.value?.versions ?? [])
+
+/**
+ * The thumbnail and every version with a file, as one gallery: opening any of
+ * them lets the artist flip through the asset's history side by side.
+ */
+const viewerItems = computed<ViewerItem[]>(() => {
+  const item = asset.value
+  if (!item) return []
+  const list: ViewerItem[] = []
+  if (item.thumbnailUrl) {
+    list.push({
+      id: 'thumb-' + item.id,
+      name: item.name,
+      url: item.thumbnailUrl,
+      mimeType: null,
+      caption: 'Обложка ассета'
+    })
+  }
+  for (const version of versions.value) {
+    if (!version.fileUrl) continue
+    list.push({
+      id: version.id,
+      name: version.fileName || version.label,
+      url: version.fileUrl,
+      mimeType: version.mimeType,
+      size: version.fileSize,
+      previewUrl: version.previewUrl,
+      author: version.uploadedBy ? fullName(version.uploadedBy) : null,
+      createdAt: version.createdAt,
+      caption: version.label + ' · v' + version.versionNumber
+    })
+  }
+  return list
+})
+
+const viewer = useMediaViewer()
+
+function openInViewer(id: string) {
+  viewer.open(viewerItems.value, id)
+}
 </script>
 
 <template>
@@ -55,13 +102,20 @@ const versions = computed(() => asset.value?.versions ?? [])
       <div class="bg-background">
         <div class="border-b p-5">
           <div class="aspect-video w-full overflow-hidden rounded-lg border bg-secondary">
-            <img
+            <button
               v-if="asset.thumbnailUrl"
-              :src="asset.thumbnailUrl"
-              :alt="asset.name"
-              class="size-full object-cover"
-              loading="lazy"
+              type="button"
+              class="block size-full cursor-zoom-in"
+              :aria-label="'Открыть обложку ' + asset.name"
+              @click="openInViewer('thumb-' + asset.id)"
             >
+              <img
+                :src="asset.thumbnailUrl"
+                :alt="asset.name"
+                class="size-full object-cover"
+                loading="lazy"
+              >
+            </button>
             <div v-else class="grid size-full place-items-center">
               <Icon name="lucide:box" class="size-10 text-muted-foreground/50" />
             </div>
@@ -121,9 +175,21 @@ const versions = computed(() => asset.value?.versions ?? [])
           <li
             v-for="version in versions"
             :key="version.id"
-            class="flex items-start justify-between gap-3 px-5 py-3"
+            class="flex items-center gap-3 px-5 py-3"
           >
-            <div class="min-w-0">
+            <button
+              v-if="version.fileUrl"
+              type="button"
+              class="block size-12 shrink-0 overflow-hidden rounded-md border bg-secondary hover:opacity-90"
+              :aria-label="'Открыть файл версии ' + version.label"
+              @click="openInViewer(version.id)"
+            >
+              <MediaThumb
+                :item="{ name: version.fileName || version.label, url: version.fileUrl, mimeType: version.mimeType, previewUrl: version.previewUrl }"
+                icon-class="size-4"
+              />
+            </button>
+            <div class="min-w-0 flex-1">
               <p class="truncate text-sm font-medium">{{ version.label }}</p>
               <p class="mt-0.5 text-xs text-muted-foreground">
                 v{{ version.versionNumber }} · {{ formatDateTime(version.createdAt) }}

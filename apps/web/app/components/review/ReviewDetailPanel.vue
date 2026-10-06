@@ -25,6 +25,8 @@ interface Review {
     status: string
     fileUrl: string | null
     previewUrl: string | null
+    fileName?: string | null
+    fileSize?: string | null
     mimeType: string | null
     notes: string | null
     createdAt: string
@@ -78,6 +80,25 @@ const canDecide = computed(() => {
 
 const isImage = computed(() => Boolean(review.value?.version.mimeType?.startsWith('image/')))
 const isVideo = computed(() => Boolean(review.value?.version.mimeType?.startsWith('video/')))
+
+const viewer = useMediaViewer()
+
+/** The version under review, full screen: zoom into a frame, step through a clip. */
+function openVersion() {
+  const version = review.value?.version
+  if (!version?.fileUrl) return
+  viewer.open([{
+    id: version.id,
+    name: version.fileName || version.label,
+    url: version.fileUrl,
+    mimeType: version.mimeType,
+    size: version.fileSize ?? null,
+    previewUrl: version.previewUrl,
+    author: version.uploadedBy ? fullName(version.uploadedBy) : null,
+    createdAt: version.createdAt,
+    caption: version.label + ' · v' + version.versionNumber
+  }])
+}
 
 async function decide(decision: 'APPROVED' | 'CHANGES_REQUESTED' | 'REJECTED') {
   saving.value = decision
@@ -166,13 +187,20 @@ async function decide(decision: 'APPROVED' | 'CHANGES_REQUESTED' | 'REJECTED') {
     </div>
 
     <div v-else-if="review" class="flex-1 overflow-y-auto">
-      <div class="grid h-52 place-items-center border-b bg-muted/40">
-        <img
+      <div class="relative grid h-52 place-items-center border-b bg-muted/40">
+        <button
           v-if="isImage && review.version.fileUrl"
-          :src="review.version.fileUrl"
-          :alt="review.version.label"
-          class="size-full object-contain"
+          type="button"
+          class="size-full cursor-zoom-in"
+          :aria-label="'Открыть ' + review.version.label + ' на весь экран'"
+          @click="openVersion"
         >
+          <img
+            :src="review.version.fileUrl"
+            :alt="review.version.label"
+            class="size-full object-contain"
+          >
+        </button>
         <video
           v-else-if="isVideo && review.version.fileUrl"
           :src="review.version.fileUrl"
@@ -185,6 +213,16 @@ async function decide(decision: 'APPROVED' | 'CHANGES_REQUESTED' | 'REJECTED') {
             Превью недоступно · {{ review.version.mimeType ?? 'файл не загружен' }}
           </p>
         </div>
+
+        <button
+          v-if="review.version.fileUrl"
+          type="button"
+          class="absolute right-2 top-2 inline-flex items-center gap-1.5 rounded-md bg-background/90 px-2 py-1 text-xs shadow-sm hover:bg-background"
+          @click="openVersion"
+        >
+          <Icon name="lucide:maximize-2" class="size-3.5" />
+          {{ isImage || isVideo ? 'На весь экран' : 'Открыть файл' }}
+        </button>
       </div>
 
       <dl class="divide-y text-sm">

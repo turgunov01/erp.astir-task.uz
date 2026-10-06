@@ -67,7 +67,12 @@ assetsRouter.get(
           ...INCLUDE,
           versions: {
             orderBy: { versionNumber: 'desc' },
-            select: { id: true, label: true, versionNumber: true, status: true, createdAt: true }
+            // The file fields let the panel open each version in the viewer.
+            select: {
+              id: true, label: true, versionNumber: true, status: true, createdAt: true,
+              fileUrl: true, previewUrl: true, fileName: true, fileSize: true, mimeType: true,
+              uploadedBy: { select: { firstName: true, lastName: true } }
+            }
           }
         }
       })

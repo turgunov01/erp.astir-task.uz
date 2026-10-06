@@ -36,19 +36,11 @@ const dragging = ref(false)
 
 const TYPES = Object.values(DOCUMENT_TYPE)
 
-function isImage(doc: Doc) {
-  return Boolean(doc.mimeType && doc.mimeType.startsWith('image/'))
-}
+const viewer = useMediaViewer()
 
-function isVideo(doc: Doc) {
-  return Boolean(doc.mimeType && doc.mimeType.startsWith('video/'))
-}
-
-function iconFor(doc: Doc) {
-  if (isImage(doc)) return 'lucide:image'
-  if (isVideo(doc)) return 'lucide:video'
-  if (doc.mimeType === 'application/pdf') return 'lucide:file-text'
-  return 'lucide:file'
+/** Any file opens in the viewer, with the rest of the project's files beside it. */
+function openFile(doc: Doc) {
+  viewer.open(files.value.map(documentToViewerItem), doc.id)
 }
 
 function formatSize(bytes: string | null) {
@@ -189,28 +181,26 @@ function onDrop(event: DragEvent) {
         :key="doc.id"
         class="group overflow-hidden rounded-lg border bg-background"
       >
-        <div class="grid h-32 place-items-center bg-muted/40">
-          <img
-            v-if="isImage(doc)"
-            :src="doc.fileUrl"
-            :alt="doc.name"
-            loading="lazy"
-            class="size-full object-cover"
-          >
-          <video v-else-if="isVideo(doc)" :src="doc.fileUrl" class="size-full object-cover" muted />
-          <Icon v-else :name="iconFor(doc)" class="size-8 text-muted-foreground/60" />
-        </div>
+        <button
+          type="button"
+          class="block h-32 w-full bg-muted/40 transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring motion-reduce:transition-none"
+          tabindex="-1"
+          :aria-label="'Просмотр ' + doc.name"
+          @click="openFile(doc)"
+        >
+          <MediaThumb :item="documentToViewerItem(doc)" icon-class="size-8 text-muted-foreground/60" />
+        </button>
 
         <div class="flex items-start justify-between gap-2 px-3 py-2.5">
           <div class="min-w-0">
-            <a
-              :href="doc.fileUrl"
-              target="_blank"
-              rel="noopener"
-              class="block truncate text-sm font-medium hover:underline"
+            <button
+              type="button"
+              class="block max-w-full truncate text-left text-sm font-medium hover:underline"
+              :aria-label="'Открыть ' + doc.name"
+              @click="openFile(doc)"
             >
               {{ doc.name }}
-            </a>
+            </button>
             <p class="mt-0.5 text-xs text-muted-foreground">
               {{ doc.type }} · {{ formatSize(doc.fileSize) }}
             </p>

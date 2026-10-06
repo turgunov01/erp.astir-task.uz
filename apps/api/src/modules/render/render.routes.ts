@@ -101,7 +101,7 @@ renderRouter.get(
         where: { id: req.params.id as string },
         include: {
           ...INCLUDE,
-          version: { select: { id: true, label: true, status: true, fileUrl: true } }
+          version: { select: { id: true, label: true, status: true, fileUrl: true, fileName: true, fileSize: true, mimeType: true } }
         }
       })
       if (!job) throw notFound('Render job')
