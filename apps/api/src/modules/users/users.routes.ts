@@ -3,13 +3,14 @@ import { z } from 'zod'
 import bcrypt from 'bcryptjs'
 import type { Prisma } from '@prisma/client'
 import { idParamSchema, listQuerySchema } from '@astir/validation'
-import { PERMISSION, ROLE_PERMISSIONS } from '@astir/types'
+import { LOCALES, PERMISSION, ROLE_PERMISSIONS } from '@astir/types'
 import { authenticate, requirePermission } from '../../middleware/auth'
 import { validate, validatedQuery } from '../../middleware/validate'
 import { badRequest, notFound } from '../../lib/errors'
 import { buildMeta, sendItem, sendList, toSkipTake } from '../../lib/http'
 import { prisma } from '../../lib/prisma'
 import { recordActivity, recordAudit } from '../../lib/activity'
+import { t } from '../../i18n'
 
 /**
  * Accounts, as distinct from employment records.
@@ -33,6 +34,7 @@ const accountSelect = {
   role: true,
   phone: true,
   avatarUrl: true,
+  locale: true,
   isActive: true,
   emailVerifiedAt: true,
   lastLoginAt: true,
@@ -47,7 +49,9 @@ const profileSchema = z.object({
   firstName: z.string().trim().min(1).max(80).optional(),
   lastName: z.string().trim().min(1).max(80).optional(),
   phone: z.string().trim().max(40).optional().nullable(),
-  avatarUrl: z.string().trim().max(500).optional().nullable()
+  avatarUrl: z.string().trim().max(500).optional().nullable(),
+  /** Own interface language; null goes back to the studio default. */
+  locale: z.enum(LOCALES).optional().nullable()
 })
 
 /*
@@ -60,7 +64,7 @@ usersRouter.patch(
   async (req, res, next) => {
     try {
       const id = req.user?.id
-      if (!id) throw badRequest('Сессия не найдена, войдите заново')
+      if (!id) throw badRequest(t('common.errors.sessionNotFound'))
 
       const user = await prisma.user.update({
         where: { id },
@@ -76,7 +80,7 @@ usersRouter.patch(
 
 const passwordSchema = z.object({
   currentPassword: z.string().min(1),
-  newPassword: z.string().min(8, 'Пароль короче 8 символов').max(200)
+  newPassword: z.string().min(8, { error: () => t('auth.account.passwordTooShort') }).max(200)
 })
 
 /**
@@ -92,13 +96,13 @@ usersRouter.post(
   async (req, res, next) => {
     try {
       const id = req.user?.id
-      if (!id) throw badRequest('Сессия не найдена, войдите заново')
+      if (!id) throw badRequest(t('common.errors.sessionNotFound'))
 
       const user = await prisma.user.findUnique({ where: { id } })
       if (!user) throw notFound('User')
 
       const matches = await bcrypt.compare(req.body.currentPassword, user.passwordHash)
-      if (!matches) throw badRequest('Текущий пароль неверен')
+      if (!matches) throw badRequest(t('auth.account.currentPasswordWrong'))
 
       await prisma.user.update({
         where: { id },
@@ -191,10 +195,10 @@ usersRouter.patch(
        */
       if (id === req.user?.id) {
         if (req.body.role && req.body.role !== before.role) {
-          throw badRequest('Нельзя сменить роль собственной учётной записи')
+          throw badRequest(t('auth.account.cannotChangeOwnRole'))
         }
         if (req.body.isActive === false) {
-          throw badRequest('Нельзя отключить собственную учётную запись')
+          throw badRequest(t('auth.account.cannotDisableSelf'))
         }
       }
 

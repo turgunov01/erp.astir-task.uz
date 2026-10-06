@@ -10,8 +10,9 @@ import {
 } from '../../lib/http'
 import { sendCsv } from '../../lib/csv'
 import {
-  EXPENSE_CATEGORY_RU, PAYMENT_METHOD_RU, PAYMENT_STATUS_RU, labelRu
-} from '../../lib/labels-ru'
+  enumLabel
+} from '../../lib/labels'
+import { t } from '../../i18n'
 import { badRequest } from '../../lib/errors'
 import { prisma } from '../../lib/prisma'
 import { recordAudit } from '../../lib/activity'
@@ -128,10 +129,6 @@ function currentMonth(): { from: string, to: string } {
   return { from: prefix + '-01', to: prefix + '-' + String(last).padStart(2, '0') }
 }
 
-const methodLabel = PAYMENT_METHOD_RU
-const statusLabel = PAYMENT_STATUS_RU
-const categoryLabel = EXPENSE_CATEGORY_RU
-const label = labelRu
 
 /** An emptied link field is cleared, not stored as an empty string. */
 function expenseData<T extends Record<string, unknown>>(body: T): T {
@@ -241,19 +238,19 @@ financeRouter.get(
 
       if (query.format === 'csv') {
         return sendCsv(res, 'expenses', [
-          { header: 'Дата', value: row => row.date },
-          { header: 'Проект', value: row => row.project?.code ?? 'Студия (без проекта)' },
-          { header: 'Клиент', value: row => row.project?.client?.name },
-          { header: 'Категория', value: row => label(categoryLabel, row.category) },
-          { header: 'Контрагент', value: row => row.vendor },
-          { header: 'Описание', value: row => row.description },
-          { header: 'Способ оплаты', value: row => label(methodLabel, row.paymentMethod) },
-          { header: 'Документ №', value: row => row.documentNumber },
-          { header: 'Ссылка на документ', value: row => row.documentUrl },
-          { header: 'Сумма', value: row => Number(row.amount) },
-          { header: 'В т.ч. НДС', value: row => (row.vatAmount === null ? null : Number(row.vatAmount)) },
-          { header: 'Валюта', value: row => row.currency },
-          { header: 'Внёс', value: row => (row.createdBy ? row.createdBy.firstName + ' ' + row.createdBy.lastName : '') }
+          { header: t('finance.csv.date'), value: row => row.date },
+          { header: t('finance.csv.project'), value: row => row.project?.code ?? t('finance.csv.studioOverhead') },
+          { header: t('finance.csv.client'), value: row => row.project?.client?.name },
+          { header: t('finance.csv.category'), value: row => enumLabel('expenseCategory', row.category) },
+          { header: t('finance.csv.vendor'), value: row => row.vendor },
+          { header: t('finance.csv.description'), value: row => row.description },
+          { header: t('finance.csv.paymentMethod'), value: row => enumLabel('paymentMethod', row.paymentMethod) },
+          { header: t('finance.csv.documentNumber'), value: row => row.documentNumber },
+          { header: t('finance.csv.documentUrl'), value: row => row.documentUrl },
+          { header: t('finance.csv.amount'), value: row => Number(row.amount) },
+          { header: t('finance.csv.vatIncluded'), value: row => (row.vatAmount === null ? null : Number(row.vatAmount)) },
+          { header: t('finance.csv.currency'), value: row => row.currency },
+          { header: t('finance.csv.createdBy'), value: row => (row.createdBy ? row.createdBy.firstName + ' ' + row.createdBy.lastName : '') }
         ], [...items])
       }
       return sendListWithSummary(res, items, buildMeta(total, query.page, query.limit), summary)
@@ -327,18 +324,18 @@ financeRouter.get(
 
       if (query.format === 'csv') {
         return sendCsv(res, 'payments', [
-          { header: 'Дата оплаты', value: row => row.paidDate },
-          { header: 'Срок', value: row => row.dueDate },
-          { header: 'Клиент', value: row => row.client?.name },
-          { header: 'Проект', value: row => row.project?.code },
-          { header: 'Счёт', value: row => row.invoice?.number },
-          { header: 'Статус', value: row => label(statusLabel, row.status) },
-          { header: 'Способ', value: row => label(methodLabel, row.method) },
-          { header: 'Номер транзакции', value: row => row.reference },
-          { header: 'Сумма', value: row => Number(row.amount) },
-          { header: 'Комиссия', value: row => Number(row.fee) },
-          { header: 'Валюта', value: row => row.currency },
-          { header: 'Примечание', value: row => row.notes }
+          { header: t('finance.csv.paidDate'), value: row => row.paidDate },
+          { header: t('finance.csv.dueDate'), value: row => row.dueDate },
+          { header: t('finance.csv.client'), value: row => row.client?.name },
+          { header: t('finance.csv.project'), value: row => row.project?.code },
+          { header: t('finance.csv.invoice'), value: row => row.invoice?.number },
+          { header: t('finance.csv.status'), value: row => enumLabel('paymentStatus', row.status) },
+          { header: t('finance.csv.method'), value: row => enumLabel('paymentMethod', row.method) },
+          { header: t('finance.csv.reference'), value: row => row.reference },
+          { header: t('finance.csv.amount'), value: row => Number(row.amount) },
+          { header: t('finance.csv.fee'), value: row => Number(row.fee) },
+          { header: t('finance.csv.currency'), value: row => row.currency },
+          { header: t('finance.csv.notes'), value: row => row.notes }
         ], [...items])
       }
       return sendListWithSummary(res, items, buildMeta(total, query.page, query.limit), summary)
@@ -360,19 +357,19 @@ financeRouter.get(
 
       if (query.format === 'csv') {
         return sendCsv(res, 'invoices', [
-          { header: 'Номер', value: row => row.number },
-          { header: 'Выставлен', value: row => row.issuedAt },
-          { header: 'Оплатить до', value: row => row.dueDate },
-          { header: 'Клиент', value: row => row.client?.name },
-          { header: 'Проект', value: row => row.project?.code },
-          { header: 'Назначение', value: row => row.description },
-          { header: 'Статус', value: row => label(statusLabel, row.status) },
-          { header: 'Просрочен, дней', value: row => (row.overdue ? row.daysLate : null) },
-          { header: 'Сумма', value: row => Number(row.amount) },
-          { header: 'В т.ч. НДС', value: row => (row.vatAmount === null ? null : Number(row.vatAmount)) },
-          { header: 'Оплачено', value: row => row.paidTotal },
-          { header: 'Остаток', value: row => row.remaining },
-          { header: 'Валюта', value: row => row.currency }
+          { header: t('finance.csv.number'), value: row => row.number },
+          { header: t('finance.csv.issuedAt'), value: row => row.issuedAt },
+          { header: t('finance.csv.payBy'), value: row => row.dueDate },
+          { header: t('finance.csv.client'), value: row => row.client?.name },
+          { header: t('finance.csv.project'), value: row => row.project?.code },
+          { header: t('finance.csv.purpose'), value: row => row.description },
+          { header: t('finance.csv.status'), value: row => enumLabel('paymentStatus', row.status) },
+          { header: t('finance.csv.daysOverdue'), value: row => (row.overdue ? row.daysLate : null) },
+          { header: t('finance.csv.amount'), value: row => Number(row.amount) },
+          { header: t('finance.csv.vatIncluded'), value: row => (row.vatAmount === null ? null : Number(row.vatAmount)) },
+          { header: t('finance.csv.paid'), value: row => row.paidTotal },
+          { header: t('finance.csv.remaining'), value: row => row.remaining },
+          { header: t('finance.csv.currency'), value: row => row.currency }
         ], [...items])
       }
       return sendListWithSummary(res, items, buildMeta(total, query.page, query.limit), summary)

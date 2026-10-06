@@ -202,15 +202,16 @@ export async function decide(
 
   // Telling the author is best-effort; it must not undo the decision.
   if (version.uploadedBy && version.uploadedBy.id !== actorId) {
-    const titles: Record<string, string> = {
-      APPROVED: 'Версия согласована: ',
-      CHANGES_REQUESTED: 'Запрошены правки: ',
-      REJECTED: 'Версия отклонена: '
-    }
+    const titles = {
+      APPROVED: 'team.notifications.versionApproved',
+      CHANGES_REQUESTED: 'team.notifications.changesRequested',
+      REJECTED: 'team.notifications.versionRejected'
+    } as const
+    const titleKey = titles[input.decision as keyof typeof titles] ?? titles.CHANGES_REQUESTED
     await notify({
       userId: version.uploadedBy.id,
       type: input.decision === 'APPROVED' ? 'VERSION_APPROVED' : 'CHANGES_REQUESTED',
-      title: (titles[input.decision] ?? '') + version.label,
+      title: t => t(titleKey, { label: version.label }),
       body: input.comment ?? version.project.code,
       linkUrl: '/reviews?review=' + id,
       entityType: 'Review',

@@ -10,7 +10,7 @@ const PRIORITY = ['LOW', 'NORMAL', 'HIGH', 'URGENT'] as const
 
 const optionalDate = z
   .string()
-  .refine(value => !Number.isNaN(Date.parse(value)), 'Invalid date')
+  .refine(value => !Number.isNaN(Date.parse(value)), 'i18n:common.validation.invalidDate')
   .optional()
   .nullable()
 
@@ -21,7 +21,7 @@ export const createTaskSchema = z.object({
   shotId: uuidSchema.optional().nullable(),
   stageId: uuidSchema.optional().nullable(),
 
-  title: z.string().trim().min(2, 'Title must be at least 2 characters').max(200),
+  title: z.string().trim().min(2).max(200),
   description: z.string().trim().max(4000).optional().nullable(),
 
   status: z.enum(TASK_STATUS).default('BACKLOG'),
@@ -72,7 +72,7 @@ export const changeTaskStatusSchema = z.object({
   .refine(
     data => (data.comment ?? '').trim().length >= 3 || Boolean(data.documentId),
     {
-      message: 'Приложите файл или опишите, что сделано',
+      message: 'i18n:common.validation.attachOrDescribe',
       path: ['comment']
     }
   )

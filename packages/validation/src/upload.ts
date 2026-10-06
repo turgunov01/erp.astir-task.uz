@@ -33,7 +33,7 @@ export const documentUploadFieldsSchema = z.object({
 const fileShape = {
   fileName: z.string().trim().min(1).max(255),
   mimeType: z.string().trim().min(1).max(200),
-  size: z.number().int().min(1).max(MAX_FILE_BYTES, 'Файл больше 1 ГБ')
+  size: z.number().int().min(1).max(MAX_FILE_BYTES, 'i18n:common.validation.fileOver1Gb')
 }
 
 /**

@@ -1,4 +1,5 @@
 import { prisma } from '../../lib/prisma'
+import { t, type MessageKey } from '../../i18n'
 
 /**
  * Reporting reads (spec 6).
@@ -206,7 +207,8 @@ export async function financial(period: Period) {
   const now = Date.now()
   const ageing = AGEING_BUCKETS.map(entry => ({
     key: entry.key,
-    label: entry.label,
+    // Worded for the reader; the bucket list keeps only the Russian source.
+    label: t(('finance.ageing.' + entry.key) as MessageKey),
     amount: 0,
     count: 0
   }))

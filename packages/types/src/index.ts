@@ -1,4 +1,5 @@
 export * from './enums'
+export * from './i18n'
 export * from './rbac'
 export * from './api'
 export * from './upload'

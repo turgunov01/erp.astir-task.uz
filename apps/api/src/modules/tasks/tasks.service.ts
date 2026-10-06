@@ -7,7 +7,8 @@ import { notifyTaskAssigned } from '../../lib/notify'
 import { announceOverdueEdit, isOverdue } from '../../lib/overdue'
 import * as comments from '../comments/comments.service'
 import { recalcProject } from '../production/rollup'
-import { taskStatusChangeRu } from '../../lib/labels-ru'
+import { taskStatusChange } from '../../lib/labels'
+import { t } from '../../i18n'
 import * as repo from './tasks.repository'
 
 /** Statuses that count as "this task is finished" for dependency purposes. */
@@ -241,7 +242,7 @@ export async function changeStatus(
       deadline: task.deadline as Date,
       actorId,
       reason: (overdueReason ?? '').trim(),
-      change: 'статус ' + taskStatusChangeRu(task.status, status)
+      change: t => t('production.tasks.statusChange', { change: taskStatusChange(t, task.status, status) })
     })
   }
 
@@ -251,7 +252,7 @@ export async function changeStatus(
       {
         entityType: 'Task',
         entityId: id,
-        message: taskStatusChangeRu(task.status, status) + ': ' + note
+        message: taskStatusChange(t, task.status, status) + ': ' + note
       },
       actorId
     ).catch(() => undefined)

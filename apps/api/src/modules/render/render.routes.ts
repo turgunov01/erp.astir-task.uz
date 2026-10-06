@@ -162,7 +162,7 @@ renderRouter.patch(
         await notify({
           userId: existing.submittedById,
           type: 'RENDER_FAILED',
-          title: 'Рендер упал: ' + (existing.shot?.code ?? existing.project.code),
+          title: t => t('team.notifications.renderFailed', { code: existing.shot?.code ?? existing.project.code }),
           body: req.body.errorMessage ?? null,
           linkUrl: '/render',
           entityType: 'RenderJob',

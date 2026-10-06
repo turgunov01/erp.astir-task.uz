@@ -17,6 +17,14 @@ datasource db {
 
 // ---------------------------------------------------------------- enums
 
+/// Interface languages: Russian (the source), Uzbek (Latin script), English, Turkish.
+enum Locale {
+  ru
+  uz
+  en
+  tr
+}
+
 enum Role {
   OWNER
   ADMIN
@@ -299,6 +307,9 @@ model User {
   /// Set when the address was proven by entering an emailed code.
   emailVerifiedAt DateTime?
   lastLoginAt  DateTime?
+  /// The language this person reads the interface, letters and exports in.
+  /// Empty means the studio default (StudioSettings.defaultLocale).
+  locale       Locale?
 
   // Set only for Role.CLIENT — scopes the client portal to one client (spec 36).
   clientId String? @db.Uuid
@@ -1582,6 +1593,10 @@ model StudioSettings {
 
   /// Prefix for derived invoice numbers, e.g. INV- in INV-0001.
   invoicePrefix String @default("INV-")
+
+  /// Interface language for everyone who has not picked their own, and for
+  /// the sign-in page before anyone is known.
+  defaultLocale Locale @default(ru)
 
   /// Work schedule for attendance control, in studio-local time (HH:MM).
   workDayStart     String @default("09:00")

@@ -6,6 +6,7 @@ import { badRequest, conflict, notFound } from '../../lib/errors'
 import { buildMeta, toSkipTake } from '../../lib/http'
 import { recordActivity } from '../../lib/activity'
 import { notifyProjectAssigned } from '../../lib/notify'
+import type { MessageKey } from '../../i18n'
 import { storage } from '../../lib/storage'
 import * as repo from './projects.repository'
 import { calculateProgress, calculateRisk } from './projects.progress'
@@ -146,9 +147,9 @@ interface ProjectLeads {
   producerId?: string | null
 }
 
-const LEAD_ROLES: Array<{ key: keyof ProjectLeads, label: string }> = [
-  { key: 'projectManagerId', label: 'Менеджер проекта' },
-  { key: 'producerId', label: 'Продюсер' }
+const LEAD_ROLES: Array<{ key: keyof ProjectLeads, label: MessageKey }> = [
+  { key: 'projectManagerId', label: 'projects.leadRole.projectManager' },
+  { key: 'producerId', label: 'projects.leadRole.producer' }
 ]
 
 /**
@@ -162,7 +163,7 @@ async function announceLeads(
   actorId: string | undefined,
   tx?: Prisma.TransactionClient
 ): Promise<void> {
-  const rolesByUser = new Map<string, string[]>()
+  const rolesByUser = new Map<string, MessageKey[]>()
   for (const { key, label } of LEAD_ROLES) {
     const userId = project[key]
     if (!userId || userId === previous[key]) continue
@@ -177,7 +178,8 @@ async function announceLeads(
         projectId: project.id,
         projectCode: project.code,
         projectName: project.name,
-        roleLabel: roles.join(', '),
+        // Named in the recipient's language: notify() words it for them.
+        roleLabel: t => roles.map(role => t(role)).join(', '),
         deadline: project.deadline
       },
       tx

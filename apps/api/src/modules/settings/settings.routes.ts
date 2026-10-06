@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { idParamSchema } from '@astir/validation'
 import {
   ALL_PERMISSIONS,
+  LOCALES,
   PERMISSION,
   ROLE,
   ROLE_CEILING,
@@ -16,6 +17,7 @@ import { badRequest, notFound } from '../../lib/errors'
 import { sendItem, sendList, sendNoContent } from '../../lib/http'
 import { prisma } from '../../lib/prisma'
 import { recordAudit } from '../../lib/activity'
+import { t } from '../../i18n'
 import { sendMail } from '../../lib/mailer'
 import { publicStudioSettings, saveStudioSettings, studioSettings } from '../../lib/settings'
 import {
@@ -30,13 +32,18 @@ import {
 export const settingsRouter = Router()
 
 /**
- * What the sign-in page may know before anyone is signed in: the name and
- * the logo. Nothing else from the settings row leaves without a session.
+ * What the sign-in page may know before anyone is signed in: the name, the
+ * logo and the language to greet a stranger in. Nothing else from the
+ * settings row leaves without a session.
  */
 settingsRouter.get('/brand', async (_req, res, next) => {
   try {
     const settings = await studioSettings()
-    return sendItem(res, { name: settings.name, logoUrl: settings.logoUrl })
+    return sendItem(res, {
+      name: settings.name,
+      logoUrl: settings.logoUrl,
+      defaultLocale: settings.defaultLocale
+    })
   } catch (err) {
     next(err)
   }
@@ -45,7 +52,7 @@ settingsRouter.get('/brand', async (_req, res, next) => {
 settingsRouter.use(authenticate)
 
 const optionalText = (max: number) => z.string().trim().max(max).optional().nullable()
-const clockSchema = z.string().trim().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Ожидается время ЧЧ:ММ')
+const clockSchema = z.string().trim().regex(/^([01]\d|2[0-3]):[0-5]\d$/, { error: () => t('common.validation.timeFormat') })
 
 const updateSettingsSchema = z.object({
   name: z.string().trim().min(1).max(120).optional(),
@@ -59,13 +66,15 @@ const updateSettingsSchema = z.object({
   currency: z.string().trim().length(3).toUpperCase().optional(),
   timezone: z.string().trim().max(60).optional(),
   invoicePrefix: z.string().trim().max(10).optional(),
+  /** Language for everyone without their own choice, and for the sign-in page. */
+  defaultLocale: z.enum(LOCALES).optional(),
 
   // Work schedule for attendance control (HH:MM, studio-local time).
   workDayStart: clockSchema.optional(),
   workDayEnd: clockSchema.optional(),
   lateGraceMinutes: z.coerce.number().int().min(0).max(240).optional(),
   workWeekdays: z.array(z.coerce.number().int().min(1).max(7))
-    .min(1, 'Выберите хотя бы один рабочий день')
+    .min(1, { error: () => t('team.settings.pickWorkday') })
     .max(7)
     .transform(days => [...new Set(days)].sort((a, b) => a - b))
     .optional(),
@@ -112,7 +121,7 @@ settingsRouter.patch(
         const current = await studioSettings()
         const start = patch.workDayStart ?? current.workDayStart
         const end = patch.workDayEnd ?? current.workDayEnd
-        if (end <= start) throw badRequest('Конец рабочего дня должен быть позже начала')
+        if (end <= start) throw badRequest(t('team.settings.workDayEndBeforeStart'))
       }
 
       const saved = await saveStudioSettings(patch)
@@ -148,13 +157,13 @@ settingsRouter.post(
   async (req, res, next) => {
     try {
       const to = req.user?.email
-      if (!to) throw badRequest('У текущей учётной записи нет почты')
+      if (!to) throw badRequest(t('team.settings.noEmail'))
 
       const settings = await studioSettings()
       const result = await sendMail({
         to,
-        subject: settings.name + ' — проверка почты',
-        text: 'Если вы читаете это письмо, отправка почты из ' + settings.name + ' настроена верно.'
+        subject: t('team.settings.mailTestSubject', { studio: settings.name }),
+        text: t('team.settings.mailTestBody', { studio: settings.name })
       })
 
       await recordAudit({
@@ -170,8 +179,8 @@ settingsRouter.post(
         to,
         // Not an error: without SMTP the message goes to the log on purpose.
         message: result.delivered
-          ? 'Письмо отправлено на ' + to
-          : 'SMTP не настроен — письмо записано в лог сервера, а не отправлено'
+          ? t('team.settings.mailTestSent', { email: to })
+          : t('team.settings.mailTestLogged')
       })
     } catch (err) {
       next(err)
@@ -184,7 +193,7 @@ settingsRouter.post(
 const templateSchema = z.object({
   name: z.string().trim().min(2).max(80),
   description: z.string().trim().max(400).optional().nullable(),
-  stages: z.array(z.string().trim().min(1).max(80)).min(1, 'Нужен хотя бы один этап').max(40),
+  stages: z.array(z.string().trim().min(1).max(80)).min(1, { error: () => t('team.settings.templateNeedsStage') }).max(40),
   isDefault: z.boolean().optional()
 })
 

@@ -32,7 +32,7 @@ export const notificationPreferenceSchema = z.object({
 export const updateNotificationPreferencesSchema = z.object({
   preferences: z
     .array(notificationPreferenceSchema)
-    .min(1, 'Нет изменений для сохранения')
+    .min(1, 'i18n:common.validation.nothingToSave')
     .max(NOTIFICATION_TYPES.length * CONFIGURABLE_CHANNELS.length)
 })
 

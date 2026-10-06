@@ -3,6 +3,7 @@ import rateLimit from 'express-rate-limit'
 import { loginSchema, resendCodeSchema, verifyCodeSchema } from '@astir/validation'
 import { validate } from '../../middleware/validate'
 import { authenticate } from '../../middleware/auth'
+import { t } from '../../i18n'
 import {
   loginHandler,
   logoutHandler,
@@ -22,10 +23,11 @@ const loginLimiter = rateLimit({
   skipSuccessfulRequests: true,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
-  message: {
+  // A function, so the sentence is worded per request, in the reader's language.
+  message: () => ({
     success: false,
-    error: { code: 'RATE_LIMITED', message: 'Слишком много попыток входа. Попробуйте позже.' }
-  }
+    error: { code: 'RATE_LIMITED', message: t('common.errors.loginRateLimited') }
+  })
 })
 
 export const authRouter = Router()

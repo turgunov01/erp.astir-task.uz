@@ -6,6 +6,8 @@ import { hasPermission } from '../lib/rbac'
 import { forbidden, tokenExpired, unauthenticated } from '../lib/errors'
 import { ACCESS_COOKIE, verifyAccessToken } from '../modules/auth/tokens'
 import { notePresence } from '../modules/attendance/presence'
+import { rememberUserLocale } from '../lib/request-context'
+import { t } from '../i18n'
 
 function extractToken(req: Request): string | null {
   const header = req.headers.authorization
@@ -31,7 +33,7 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
       payload = verifyAccessToken(token)
     } catch (err) {
       if (err instanceof jwt.TokenExpiredError) throw tokenExpired()
-      throw unauthenticated('Сессия недействительна, войдите заново')
+      throw unauthenticated(t('common.errors.sessionInvalid'))
     }
 
     const user = await prisma.user.findFirst({
@@ -44,12 +46,15 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
         role: true,
         avatarUrl: true,
         clientId: true,
+        locale: true,
         isActive: true
       }
     })
 
-    if (!user) throw unauthenticated('Учётная запись больше не существует')
-    if (!user.isActive) throw forbidden('Учётная запись отключена')
+    if (!user) throw unauthenticated(t('common.errors.accountGone'))
+    // From here on every message in this request is in the user's own language.
+    rememberUserLocale(user.locale)
+    if (!user.isActive) throw forbidden(t('common.errors.accountDisabled'))
 
     const { isActive: _isActive, ...authUser } = user
     req.user = authUser

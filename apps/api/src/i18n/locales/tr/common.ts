@@ -1,0 +1,120 @@
+import type { Messages } from '../../types'
+import type ru from '../ru/common'
+
+export default {
+  errors: {
+    unauthenticated: 'Lütfen giriş yapın',
+    invalidCredentials: 'E-posta veya şifre hatalı',
+    tokenExpired: 'Oturumunuzun süresi doldu, lütfen yeniden giriş yapın',
+    sessionInvalid: 'Oturum geçersiz, lütfen yeniden giriş yapın',
+    sessionNotFound: 'Oturum bulunamadı, lütfen yeniden giriş yapın',
+    sessionRevoked: 'Bu oturum artık geçerli değil, lütfen yeniden giriş yapın',
+    accountGone: 'Bu hesap artık mevcut değil',
+    accountDisabled: 'Hesap devre dışı bırakıldı',
+    forbidden: 'Bu işlem için yetkiniz yok',
+    rateLimited: 'Çok fazla istek. Bir dakika bekleyip tekrar deneyin.',
+    loginRateLimited: 'Çok fazla giriş denemesi. Daha sonra tekrar deneyin.',
+    routeNotFound: '{method} {path} adresi mevcut değil',
+    fileTooLargeForOneRequest: 'Dosya tek bir istek için çok büyük — /api/uploads üzerinden parça parça yükleyin',
+    checkFields: 'Lütfen alanları kontrol edin',
+    duplicate: 'Bu değere sahip bir kayıt zaten var ({target})',
+    recordNotFound: 'Kayıt bulunamadı',
+    relatedConflict: 'İlişkili kayıt bulunamadı veya hâlâ kullanılıyor',
+    databaseUnavailable: 'Veritabanına ulaşılamıyor. Bağlantı geri geldiğinde tekrar deneyin.',
+    internal: 'Sunucu iç hatası',
+    unknown: 'Bilinmeyen hata'
+  },
+  notFound: {
+    asset: 'Varlık bulunamadı',
+    budget: 'Bütçe bulunamadı',
+    client: 'Müşteri bulunamadı',
+    comment: 'Yorum bulunamadı',
+    parentComment: 'Yanıtladığınız yorum bulunamadı',
+    department: 'Departman bulunamadı',
+    document: 'Belge bulunamadı',
+    employee: 'Çalışan bulunamadı',
+    episode: 'Bölüm bulunamadı',
+    expense: 'Gider bulunamadı',
+    invoice: 'Fatura bulunamadı',
+    payment: 'Ödeme bulunamadı',
+    notification: 'Bildirim bulunamadı',
+    payrollEntry: 'Bordro kaydı bulunamadı',
+    pipelineTemplate: 'Süreç şablonu bulunamadı',
+    prerequisiteTask: 'Önkoşul görev bulunamadı',
+    project: 'Proje bulunamadı',
+    projectMember: 'Proje üyesi bulunamadı',
+    renderJob: 'Render işi bulunamadı',
+    review: 'Onay süreci bulunamadı',
+    revision: 'Düzeltme bulunamadı',
+    role: 'Rol bulunamadı',
+    scene: 'Sahne bulunamadı',
+    shot: 'Çekim bulunamadı',
+    shotStage: 'Çekim aşaması bulunamadı',
+    stage: 'Aşama bulunamadı',
+    target: 'Nesne bulunamadı',
+    task: 'Görev bulunamadı',
+    timesheetEntry: 'Zaman çizelgesi kaydı bulunamadı',
+    uploadSession: 'Yükleme bulunamadı veya zaten tamamlandı',
+    user: 'Kullanıcı bulunamadı',
+    version: 'Sürüm bulunamadı'
+  },
+  validation: {
+    required: 'Zorunlu alan',
+    invalidFormat: 'Geçersiz değer biçimi',
+    chooseFromList: 'Listeden bir değer seçin',
+    invalidEmail: 'Geçersiz e-posta adresi',
+    invalidId: 'Geçersiz kimlik',
+    invalidUrl: 'Geçersiz bağlantı',
+    invalidDate: 'Geçersiz tarih',
+    fillIn: 'Bu alanı doldurun',
+    minLength: 'En az {count} karakter',
+    maxLength: 'En fazla {count} karakter',
+    minValue: 'Değer en az {limit} olmalı',
+    maxValue: 'Değer en fazla {limit} olmalı',
+    minItems: 'En az {limit} tane seçin',
+    maxItems: 'En fazla {limit} tane',
+    timeFormat: 'Saat SS:DD biçiminde olmalı',
+    passwordsMismatch: 'Şifreler eşleşmiyor',
+    codeSixDigits: 'Kod altı haneden oluşur',
+    commentEmpty: 'Yorum boş olamaz',
+    nothingToSave: 'Kaydedilecek değişiklik yok',
+    deadlineBeforeStart: 'Teslim tarihi başlangıç tarihinden önce olamaz',
+    describeChanges: 'Neyin düzeltilmesi gerektiğini yazın',
+    attachOrDescribe: 'Bir dosya ekleyin veya ne yapıldığını yazın',
+    fileOver1Gb: 'Dosya 1 GB’tan büyük',
+    projectCodeFormat: 'Yalnızca büyük Latin harfleri, rakamlar ve tire kullanın'
+  },
+  yes: 'evet',
+  no: 'hayır',
+  unknownValue: 'Belirtilmemiş',
+  enum: {
+    taskStatus: {
+      BACKLOG: 'Bekleyen', READY: 'Hazır', IN_PROGRESS: 'Devam ediyor', REVIEW: 'İncelemede',
+      REVISION: 'Düzeltmede', APPROVED: 'Onaylandı', DONE: 'Tamamlandı', BLOCKED: 'Engellendi'
+    },
+    projectStatus: {
+      DRAFT: 'Taslak', PLANNING: 'Planlama', PRE_PRODUCTION: 'Ön prodüksiyon',
+      PRODUCTION: 'Prodüksiyon', POST_PRODUCTION: 'Post prodüksiyon', CLIENT_REVIEW: 'Müşteride',
+      DELIVERY: 'Teslim', COMPLETED: 'Tamamlandı', ON_HOLD: 'Beklemede',
+      CANCELLED: 'İptal edildi', ARCHIVED: 'Arşivde'
+    },
+    risk: { LOW: 'Düşük', MEDIUM: 'Orta', HIGH: 'Yüksek', CRITICAL: 'Kritik' },
+    clientStatus: { ACTIVE: 'Aktif', INACTIVE: 'Pasif', ARCHIVED: 'Arşivde' },
+    paymentMethod: { BANK_TRANSFER: 'Havale', CASH: 'Nakit', CARD: 'Kart', OTHER: 'Diğer' },
+    paymentStatus: {
+      PENDING: 'Ödeme bekleniyor', PARTIALLY_PAID: 'Kısmen ödendi', PAID: 'Ödendi',
+      OVERDUE: 'Gecikmiş', CANCELLED: 'İptal edildi'
+    },
+    expenseCategory: {
+      EMPLOYEE: 'Kadro', FREELANCER: 'Serbest çalışan', RENDER: 'Render', SOFTWARE: 'Yazılım',
+      HARDWARE: 'Donanım', AUDIO: 'Ses', PRODUCTION: 'Prodüksiyon', OFFICE: 'Kira ve ofis',
+      TAXES: 'Vergi ve harçlar', MARKETING: 'Pazarlama', OTHER: 'Diğer'
+    },
+    role: {
+      OWNER: 'Sahip', ADMIN: 'Yönetici', PRODUCER: 'Yapımcı',
+      PROJECT_MANAGER: 'Proje yöneticisi', ART_DIRECTOR: 'Sanat yönetmeni',
+      ARTIST: 'Sanatçı', CLIENT: 'Müşteri', FINANCE: 'Finans'
+    }
+  },
+  statusChange: '“{from}” → “{to}”'
+} satisfies Messages<typeof ru>

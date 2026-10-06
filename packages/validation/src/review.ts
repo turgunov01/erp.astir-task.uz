@@ -26,13 +26,13 @@ export const reviewDecisionSchema = z
     /** Deadline for the revision opened by a CHANGES_REQUESTED decision. */
     revisionDeadline: z
       .string()
-      .refine(value => !Number.isNaN(Date.parse(value)), 'Invalid date')
+      .refine(value => !Number.isNaN(Date.parse(value)), 'i18n:common.validation.invalidDate')
       .optional()
       .nullable()
   })
   .refine(
     data => data.decision !== 'CHANGES_REQUESTED' || Boolean(data.comment && data.comment.length > 0),
-    { message: 'Опишите, что нужно исправить', path: ['comment'] }
+    { message: 'i18n:common.validation.describeChanges', path: ['comment'] }
   )
 export type ReviewDecisionInput = z.infer<typeof reviewDecisionSchema>
 

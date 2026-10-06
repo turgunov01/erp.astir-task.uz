@@ -7,7 +7,7 @@ const ENTITY_TYPES = ['Task', 'Shot', 'Version', 'Review', 'Revision', 'Project'
 export const createCommentSchema = z.object({
   entityType: z.enum(ENTITY_TYPES),
   entityId: uuidSchema,
-  message: z.string().trim().min(1, 'Комментарий не может быть пустым').max(4000),
+  message: z.string().trim().min(1, 'i18n:common.validation.commentEmpty').max(4000),
   /** Reply target; the thread is one level deep by design. */
   parentId: uuidSchema.optional().nullable()
 })

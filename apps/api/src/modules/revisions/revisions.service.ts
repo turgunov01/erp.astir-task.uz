@@ -123,8 +123,8 @@ export async function create(input: Record<string, unknown>, actorId?: string) {
     await notify({
       userId: revision.assignedToId,
       type: 'REVISION_CREATED',
-      title: 'Новая правка: ' + revision.title,
-      body: project.code + ' · раунд ' + revision.round,
+      title: t => t('team.notifications.revisionCreated', { title: revision.title }),
+      body: t => t('team.notifications.revisionRound', { code: project.code, round: revision.round }),
       linkUrl: '/revisions?revision=' + revision.id,
       entityType: 'Revision',
       entityId: revision.id
@@ -160,7 +160,7 @@ export async function update(id: string, input: Record<string, unknown>, actorId
     await notify({
       userId: input.assignedToId as string,
       type: 'REVISION_CREATED',
-      title: 'Вам назначена правка: ' + existing.title,
+      title: t => t('team.notifications.revisionAssigned', { title: existing.title }),
       body: existing.project.code,
       linkUrl: '/revisions?revision=' + id,
       entityType: 'Revision',

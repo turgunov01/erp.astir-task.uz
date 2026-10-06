@@ -1,0 +1,120 @@
+import type { Messages } from '../../types'
+import type ru from '../ru/common'
+
+export default {
+  errors: {
+    unauthenticated: 'Please sign in',
+    invalidCredentials: 'Wrong email or password',
+    tokenExpired: 'Your session has expired, please sign in again',
+    sessionInvalid: 'Your session is no longer valid, please sign in again',
+    sessionNotFound: 'No session found, please sign in again',
+    sessionRevoked: 'This session has ended, please sign in again',
+    accountGone: 'This account no longer exists',
+    accountDisabled: 'This account is disabled',
+    forbidden: 'You do not have permission to do this',
+    rateLimited: 'Too many requests. Wait a minute and try again.',
+    loginRateLimited: 'Too many sign-in attempts. Try again later.',
+    routeNotFound: '{method} {path} does not exist',
+    fileTooLargeForOneRequest: 'The file is too large for a single request — upload it in parts via /api/uploads',
+    checkFields: 'Please check the highlighted fields',
+    duplicate: 'A record with this value already exists ({target})',
+    recordNotFound: 'Record not found',
+    relatedConflict: 'A related record is missing or still in use',
+    databaseUnavailable: 'The database is unavailable. Try again once the connection is back.',
+    internal: 'Internal server error',
+    unknown: 'Unknown error'
+  },
+  notFound: {
+    asset: 'Asset not found',
+    budget: 'Budget not found',
+    client: 'Client not found',
+    comment: 'Comment not found',
+    parentComment: 'The comment you are replying to was not found',
+    department: 'Department not found',
+    document: 'Document not found',
+    employee: 'Employee not found',
+    episode: 'Episode not found',
+    expense: 'Expense not found',
+    invoice: 'Invoice not found',
+    payment: 'Payment not found',
+    notification: 'Notification not found',
+    payrollEntry: 'Payroll entry not found',
+    pipelineTemplate: 'Pipeline template not found',
+    prerequisiteTask: 'Prerequisite task not found',
+    project: 'Project not found',
+    projectMember: 'Project member not found',
+    renderJob: 'Render job not found',
+    review: 'Review not found',
+    revision: 'Revision not found',
+    role: 'Role not found',
+    scene: 'Scene not found',
+    shot: 'Shot not found',
+    shotStage: 'Shot stage not found',
+    stage: 'Stage not found',
+    target: 'Item not found',
+    task: 'Task not found',
+    timesheetEntry: 'Timesheet entry not found',
+    uploadSession: 'Upload not found or already finished',
+    user: 'User not found',
+    version: 'Version not found'
+  },
+  validation: {
+    required: 'Required field',
+    invalidFormat: 'Invalid value',
+    chooseFromList: 'Choose a value from the list',
+    invalidEmail: 'Invalid email address',
+    invalidId: 'Invalid identifier',
+    invalidUrl: 'Invalid link',
+    invalidDate: 'Invalid date',
+    fillIn: 'Fill in this field',
+    minLength: 'At least {count} character | At least {count} characters',
+    maxLength: 'At most {count} character | At most {count} characters',
+    minValue: 'Must be at least {limit}',
+    maxValue: 'Must be at most {limit}',
+    minItems: 'Choose at least {limit}',
+    maxItems: 'No more than {limit}',
+    timeFormat: 'Expected time as HH:MM',
+    passwordsMismatch: 'Passwords do not match',
+    codeSixDigits: 'The code is six digits',
+    commentEmpty: 'A comment cannot be empty',
+    nothingToSave: 'Nothing to save',
+    deadlineBeforeStart: 'The deadline cannot be before the start date',
+    describeChanges: 'Describe what needs to be fixed',
+    attachOrDescribe: 'Attach a file or describe what was done',
+    fileOver1Gb: 'The file is larger than 1 GB',
+    projectCodeFormat: 'Use capital Latin letters, digits and dashes only'
+  },
+  yes: 'yes',
+  no: 'no',
+  unknownValue: 'Not specified',
+  enum: {
+    taskStatus: {
+      BACKLOG: 'Backlog', READY: 'Ready', IN_PROGRESS: 'In progress', REVIEW: 'In review',
+      REVISION: 'In revision', APPROVED: 'Approved', DONE: 'Done', BLOCKED: 'Blocked'
+    },
+    projectStatus: {
+      DRAFT: 'Draft', PLANNING: 'Planning', PRE_PRODUCTION: 'Pre-production',
+      PRODUCTION: 'Production', POST_PRODUCTION: 'Post-production', CLIENT_REVIEW: 'With client',
+      DELIVERY: 'Delivery', COMPLETED: 'Completed', ON_HOLD: 'On hold',
+      CANCELLED: 'Cancelled', ARCHIVED: 'Archived'
+    },
+    risk: { LOW: 'Low', MEDIUM: 'Medium', HIGH: 'High', CRITICAL: 'Critical' },
+    clientStatus: { ACTIVE: 'Active', INACTIVE: 'Inactive', ARCHIVED: 'Archived' },
+    paymentMethod: { BANK_TRANSFER: 'Bank transfer', CASH: 'Cash', CARD: 'Card', OTHER: 'Other' },
+    paymentStatus: {
+      PENDING: 'Awaiting payment', PARTIALLY_PAID: 'Partially paid', PAID: 'Paid',
+      OVERDUE: 'Overdue', CANCELLED: 'Cancelled'
+    },
+    expenseCategory: {
+      EMPLOYEE: 'Staff', FREELANCER: 'Contractors', RENDER: 'Render', SOFTWARE: 'Software',
+      HARDWARE: 'Hardware', AUDIO: 'Audio', PRODUCTION: 'Production', OFFICE: 'Rent and office',
+      TAXES: 'Taxes and fees', MARKETING: 'Marketing', OTHER: 'Other'
+    },
+    role: {
+      OWNER: 'Owner', ADMIN: 'Administrator', PRODUCER: 'Producer',
+      PROJECT_MANAGER: 'Project manager', ART_DIRECTOR: 'Art director',
+      ARTIST: 'Artist', CLIENT: 'Client', FINANCE: 'Finance'
+    }
+  },
+  statusChange: '“{from}” → “{to}”'
+} satisfies Messages<typeof ru>

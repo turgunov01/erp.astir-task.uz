@@ -1,5 +1,5 @@
-// First: every schema built after this answers in Russian.
-import './lib/zod-ru'
+// First: every validation message is worded in the language of the request.
+import './lib/zod-i18n'
 import express from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
@@ -37,6 +37,8 @@ import { activityRouter } from './modules/activity/activity.routes'
 import { settingsRouter } from './modules/settings/settings.routes'
 import { usersRouter } from './modules/users/users.routes'
 import { runWithRequestContext } from './lib/request-context'
+import { studioSettings } from './lib/settings'
+import { LOCALE_COOKIE, isLocale, localeFromAcceptLanguage, t } from './i18n'
 import { timesheetsRouter } from './modules/timesheets/timesheets.routes'
 import { attendanceRouter } from './modules/attendance/attendance.routes'
 
@@ -85,22 +87,38 @@ export function createApp() {
     acceptRanges: true
   }))
 
+  /*
+   * Request context: ?archived=true for the Prisma archive filter, and the
+   * language the answer is worded in. Ahead of the limiter so even a 429 is
+   * in the reader's language. The cookie is the web app's own choice; the
+   * header covers other clients. A signed-in user's saved language takes over
+   * in `authenticate`.
+   */
+  app.use(async (req, _res, next) => {
+    const flag = req.query.archived
+    const includeArchived = flag === 'true' || flag === '1'
+    const cookie: unknown = req.cookies?.[LOCALE_COOKIE]
+    const requestLocale = isLocale(cookie)
+      ? cookie
+      : localeFromAcceptLanguage(req.headers['accept-language'])
+    // Warms the cached settings row the studio-default fallback reads synchronously.
+    await studioSettings().catch(() => null)
+    runWithRequestContext({ includeArchived, requestLocale, user: { locale: null } }, next)
+  })
+
   // Blanket limiter; per-route limiters tighten sensitive endpoints (spec 69).
   app.use(
     rateLimit({
       windowMs: 60 * 1000,
       limit: 300,
       standardHeaders: 'draft-7',
-      legacyHeaders: false
+      legacyHeaders: false,
+      message: () => ({
+        success: false,
+        error: { code: 'RATE_LIMITED', message: t('common.errors.rateLimited') }
+      })
     })
   )
-
-  // Carries ?archived=true down to the Prisma archive filter.
-  app.use((req, _res, next) => {
-    const flag = req.query.archived
-    const includeArchived = flag === 'true' || flag === '1'
-    runWithRequestContext({ includeArchived }, next)
-  })
 
   app.use('/api/health', healthRouter)
   app.use('/api/auth', authRouter)

@@ -77,7 +77,7 @@ export async function create(
     await notify({
       userId,
       type: 'COMMENT_MENTION',
-      title: 'Вас упомянули в обсуждении',
+      title: t => t('team.notifications.commentMention'),
       body: input.message.slice(0, 140),
       linkUrl: linkFor(input.entityType, input.entityId),
       entityType: input.entityType,
