@@ -335,7 +335,7 @@ function who(row: EntryRow) {
 
     <!-- Reporting views summarise instead of listing every entry. -->
     <section v-if="view === 'projects' || view === 'reports'" class="mb-5 grid gap-4 lg:grid-cols-2">
-      <div class="rounded-xl border bg-card p-4">
+      <div class="min-w-0 rounded-xl border bg-card p-4">
         <h2 class="text-xs font-medium uppercase tracking-wider text-muted-foreground">
           {{ t('team.timesheets.byProject') }}
         </h2>
@@ -359,7 +359,7 @@ function who(row: EntryRow) {
         </ul>
       </div>
 
-      <div class="rounded-xl border bg-card p-4">
+      <div class="min-w-0 rounded-xl border bg-card p-4">
         <h2 class="text-xs font-medium uppercase tracking-wider text-muted-foreground">
           {{ t('team.timesheets.byEmployee') }}
         </h2>

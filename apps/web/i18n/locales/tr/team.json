@@ -138,7 +138,7 @@
     "noMatches": "Seçilen koşullara uyan kimse yok.",
     "employees": {
       "title": "Çalışanlar",
-      "entity": "çalışanı",
+      "entity": "çalışan",
       "count": "{n} çalışan",
       "columns": {
         "name": "Çalışan",
@@ -156,7 +156,7 @@
     },
     "departments": {
       "title": "Departmanlar",
-      "entity": "departmanı",
+      "entity": "departman",
       "count": "{n} departman",
       "columns": {
         "name": "Departman",

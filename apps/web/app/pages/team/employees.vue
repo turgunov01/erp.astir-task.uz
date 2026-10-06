@@ -59,7 +59,7 @@ const departments = computed(() => departmentsResponse.value?.data ?? [])
 const crud = useEntityCrud({
   endpoint: '/api/employees',
   refresh: () => refresh(),
-  entityLabel: t('team.employees.entity'),
+  entityLabel: () => t('team.employees.entity'),
   archivedView
 })
 

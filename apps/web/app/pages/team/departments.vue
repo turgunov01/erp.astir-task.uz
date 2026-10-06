@@ -38,7 +38,7 @@ const { items, meta, pending, errorMessage, refresh } =
 const crud = useEntityCrud({
   endpoint: '/api/departments',
   refresh: () => refresh(),
-  entityLabel: t('team.departments.entity'),
+  entityLabel: () => t('team.departments.entity'),
   archivedView
 })
 

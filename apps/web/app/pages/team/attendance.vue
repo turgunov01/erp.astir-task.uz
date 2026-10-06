@@ -75,7 +75,7 @@ const schedule = computed(() => boardHead.value?.data.schedule ?? null)
             grace: schedule.graceMinutes
           }) }}
         </template>
-        <NuxtLink
+        {{ ' ' }}<NuxtLink
           v-if="canSeeSchedule"
           :to="{ path: '/settings', query: { tab: 'schedule' } }"
           class="whitespace-nowrap underline underline-offset-2 hover:text-foreground"

@@ -138,7 +138,7 @@
     "noMatches": "Tanlangan shartlarga hech kim mos kelmadi.",
     "employees": {
       "title": "Xodimlar",
-      "entity": "xodimni",
+      "entity": "xodim",
       "count": "{n} nafar xodim",
       "columns": {
         "name": "Xodim",
@@ -156,7 +156,7 @@
     },
     "departments": {
       "title": "Bo‘limlar",
-      "entity": "bo‘limni",
+      "entity": "bo‘lim",
       "count": "{n} ta bo‘lim",
       "columns": {
         "name": "Bo‘lim",
