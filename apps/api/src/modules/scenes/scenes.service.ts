@@ -101,7 +101,7 @@ export async function create(input: Record<string, unknown>, actorId?: string) {
   if (!project) throw notFound('Project')
   if (episodeId && !episode) throw notFound('Episode')
   if (episode && episode.projectId !== projectId) {
-    throw conflict('That episode belongs to a different project')
+    throw conflict('Этот эпизод относится к другому проекту')
   }
 
   const sceneNumber =
@@ -111,7 +111,7 @@ export async function create(input: Record<string, unknown>, actorId?: string) {
     where: episodeId ? { episodeId, sceneNumber } : { projectId, episodeId: null, sceneNumber },
     select: { id: true }
   })
-  if (duplicate) throw conflict('Scene ' + sceneNumber + ' already exists here')
+  if (duplicate) throw conflict('Сцена ' + sceneNumber + ' здесь уже есть')
 
   const scene = await prisma.scene.create({
     data: {
@@ -160,7 +160,7 @@ export async function update(id: string, input: Record<string, unknown>, actorId
 export async function remove(id: string) {
   const scene = await getById(id)
   if (scene._count.shots > 0) {
-    throw conflict('Scene still has ' + scene._count.shots + ' shot(s). Remove them first.')
+    throw conflict('В сцене ещё есть шоты: ' + scene._count.shots + '. Сначала удалите их.')
   }
 
   await prisma.scene.update({ where: { id }, data: { deletedAt: new Date() } })

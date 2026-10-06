@@ -83,7 +83,7 @@ export async function create(input: CreateShotInput, actorId?: string) {
     where: { projectId: input.projectId, code },
     select: { id: true }
   })
-  if (duplicate) throw conflict('Shot ' + code + ' already exists in this project')
+  if (duplicate) throw conflict('Шот ' + code + ' уже есть в этом проекте')
 
   const shot = await prisma.$transaction(async tx => {
     const created = await tx.shot.create({

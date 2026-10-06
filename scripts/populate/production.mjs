@@ -95,8 +95,8 @@ export async function createTasks(ctx, project, production) {
       const shot = production.shots.find(s => s.sceneIndex === scene.index)
       const ref = await enter({
         stage: seed.stage, title: seed.prefix + ': «' + scene.name + '»', assignee: seed.assignee ?? shot.assigneeKey,
-        reviewer: seed.stage === 'Animation' ? 'ad' : 'marat', estimate: seed.estimate, actual: seed.estimate + (scene.index % 3) - 1,
-        priority: seed.stage === 'Animation' ? 'HIGH' : 'NORMAL', sceneId: scene.id, episodeId: scene.episodeId,
+        reviewer: seed.stage === 'Анимация' ? 'ad' : 'marat', estimate: seed.estimate, actual: seed.estimate + (scene.index % 3) - 1,
+        priority: seed.stage === 'Анимация' ? 'HIGH' : 'NORMAL', sceneId: scene.id, episodeId: scene.episodeId,
         after: previous ? [previous] : [], from: start, to: start + Math.ceil(span * 0.35)
       })
       previous = ref.title
@@ -242,7 +242,7 @@ export async function closeOut(ctx, project, production) {
   const pm = people.pm.session
   for (const shot of production.shots) {
     for (const stage of production.stages) {
-      const lead = people[S.DEPARTMENT_LEAD[stage.department?.name ?? 'Production'] ?? 'pm'] ?? people.pm
+      const lead = people[S.DEPARTMENT_LEAD[stage.department?.name ?? 'Продакшн'] ?? 'pm'] ?? people.pm
       await lead.session.patch('/api/shots/' + shot.id + '/stages/' + stage.id, { status: 'DONE', progress: 100 })
     }
     await pm.patch('/api/shots/' + shot.id, { status: 'COMPLETED' })
@@ -251,7 +251,7 @@ export async function closeOut(ctx, project, production) {
   for (const episode of production.episodes) await pm.patch('/api/episodes/' + episode.id, { status: 'COMPLETED' })
   for (const stage of production.stages) {
     const [from, to] = S.STAGE_WINDOWS[stage.name] ?? [0, 1]
-    const lead = people[S.DEPARTMENT_LEAD[stage.department?.name ?? 'Production'] ?? 'pm'] ?? people.pm
+    const lead = people[S.DEPARTMENT_LEAD[stage.department?.name ?? 'Продакшн'] ?? 'pm'] ?? people.pm
     await pm.patch('/api/stages/' + stage.id, { status: 'DONE', progress: 100, assigneeId: lead.userId, deadline: S.day(to, 18) })
   }
   log('shot stages, scenes, episodes and pipeline stages closed')

@@ -272,7 +272,7 @@ function onAudioMeta(event: Event) {
                 <p class="mt-4 break-words text-sm font-medium">{{ current.name }}</p>
                 <p class="mt-1 text-xs text-white/55">
                   Предпросмотр для этого типа недоступен
-                  <template v-if="current.mimeType"> · {{ current.mimeType }}</template>
+                  <template v-if="fileFormat(current.name)"> · {{ fileFormat(current.name) }}</template>
                 </p>
                 <a
                   v-if="url"

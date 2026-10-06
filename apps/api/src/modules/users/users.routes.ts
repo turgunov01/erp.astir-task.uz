@@ -60,7 +60,7 @@ usersRouter.patch(
   async (req, res, next) => {
     try {
       const id = req.user?.id
-      if (!id) throw badRequest('No session')
+      if (!id) throw badRequest('Сессия не найдена, войдите заново')
 
       const user = await prisma.user.update({
         where: { id },
@@ -92,7 +92,7 @@ usersRouter.post(
   async (req, res, next) => {
     try {
       const id = req.user?.id
-      if (!id) throw badRequest('No session')
+      if (!id) throw badRequest('Сессия не найдена, войдите заново')
 
       const user = await prisma.user.findUnique({ where: { id } })
       if (!user) throw notFound('User')

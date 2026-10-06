@@ -40,7 +40,7 @@ export class UploadRequestError extends Error {
   readonly data: ErrorEnvelope
 
   constructor(statusCode: number, data: ErrorEnvelope) {
-    super(data?.error?.message ?? 'Upload request failed with status ' + statusCode)
+    super(data?.error?.message ?? 'Загрузка не удалась, код ответа ' + statusCode)
     this.name = 'UploadRequestError'
     this.statusCode = statusCode
     this.data = data

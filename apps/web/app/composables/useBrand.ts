@@ -12,5 +12,5 @@ export interface Brand {
 }
 
 export function useBrand() {
-  return useState<Brand>('brand', () => ({ name: 'ERP', logoUrl: null }))
+  return useState<Brand>('brand', () => ({ name: 'Astir Studio', logoUrl: null }))
 }

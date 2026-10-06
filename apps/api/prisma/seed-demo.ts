@@ -40,12 +40,12 @@ const EXTRA_STAFF = [
   { email: 'marat@aster.studio', firstName: 'Marat', lastName: 'Yuldashev', role: 'ARTIST', position: 'Layout Artist', department: '3D', rate: 24 },
   { email: 'gulnora@aster.studio', firstName: 'Gulnora', lastName: 'Akhmedova', role: 'ARTIST', position: 'Storyboard Artist', department: '2D', rate: 25 },
   { email: 'shohruh@aster.studio', firstName: 'Shohruh', lastName: 'Nazarov', role: 'ARTIST', position: 'FX Artist', department: '3D', rate: 30 },
-  { email: 'zilola@aster.studio', firstName: 'Zilola', lastName: 'Umarova', role: 'ARTIST', position: 'Texture Artist', department: 'Modeling', rate: 23 },
-  { email: 'farrux@aster.studio', firstName: 'Farrux', lastName: 'Sobirov', role: 'ARTIST', position: 'Editor', department: 'Editing', rate: 26 },
-  { email: 'dilshod@aster.studio', firstName: 'Dilshod', lastName: 'Rustamov', role: 'ARTIST', position: 'Sound Designer', department: 'Sound', rate: 27 },
-  { email: 'lola@aster.studio', firstName: 'Lola', lastName: 'Yusupova', role: 'PROJECT_MANAGER', position: 'Project Manager', department: 'Production', rate: 34 },
+  { email: 'zilola@aster.studio', firstName: 'Zilola', lastName: 'Umarova', role: 'ARTIST', position: 'Texture Artist', department: 'Моделинг', rate: 23 },
+  { email: 'farrux@aster.studio', firstName: 'Farrux', lastName: 'Sobirov', role: 'ARTIST', position: 'Editor', department: 'Монтаж', rate: 26 },
+  { email: 'dilshod@aster.studio', firstName: 'Dilshod', lastName: 'Rustamov', role: 'ARTIST', position: 'Sound Designer', department: 'Звук', rate: 27 },
+  { email: 'lola@aster.studio', firstName: 'Lola', lastName: 'Yusupova', role: 'PROJECT_MANAGER', position: 'Project Manager', department: 'Продакшн', rate: 34 },
   { email: 'islom@aster.studio', firstName: 'Islom', lastName: 'Tashkentov', role: 'ART_DIRECTOR', position: 'Art Director', department: '3D', rate: 42 },
-  { email: 'sevara@aster.studio', firstName: 'Sevara', lastName: 'Kamalova', role: 'ARTIST', position: 'Lighting TD', department: 'Lighting', rate: 29 }
+  { email: 'sevara@aster.studio', firstName: 'Sevara', lastName: 'Kamalova', role: 'ARTIST', position: 'Lighting TD', department: 'Свет', rate: 29 }
 ] as const
 
 const EXTRA_CLIENTS = [
@@ -66,11 +66,11 @@ interface ProjectSeed {
 }
 
 const PROJECTS: ProjectSeed[] = [
-  { code: 'AST-010', name: 'Silk Road Legends — Season 1', template: '3D Animation', type: 'SERIES', status: 'PRODUCTION', priority: 'HIGH', budget: 420000, startOffset: -120, deadlineOffset: 90 },
-  { code: 'AST-011', name: 'Nur Bank — Brand Film', template: 'Commercial', type: 'COMMERCIAL', status: 'POST_PRODUCTION', priority: 'URGENT', budget: 85000, startOffset: -60, deadlineOffset: 14 },
-  { code: 'AST-012', name: 'Bright Kids — Learning Shorts', template: '2D Animation', type: 'SHORT_FILM', status: 'CLIENT_REVIEW', priority: 'NORMAL', budget: 130000, startOffset: -95, deadlineOffset: 30 },
-  { code: 'AST-013', name: 'Amber — Title Sequence', template: 'Motion Design', type: 'MOTION_DESIGN', status: 'PRE_PRODUCTION', priority: 'NORMAL', budget: 46000, startOffset: -20, deadlineOffset: 65 },
-  { code: 'AST-014', name: 'TMG — Documentary Opener', template: 'Commercial', type: 'OTHER', status: 'COMPLETED', priority: 'LOW', budget: 32000, startOffset: -210, deadlineOffset: -30 }
+  { code: 'AST-010', name: 'Silk Road Legends — Season 1', template: '3D-анимация', type: 'SERIES', status: 'PRODUCTION', priority: 'HIGH', budget: 420000, startOffset: -120, deadlineOffset: 90 },
+  { code: 'AST-011', name: 'Nur Bank — Brand Film', template: 'Рекламный ролик', type: 'COMMERCIAL', status: 'POST_PRODUCTION', priority: 'URGENT', budget: 85000, startOffset: -60, deadlineOffset: 14 },
+  { code: 'AST-012', name: 'Bright Kids — Learning Shorts', template: '2D-анимация', type: 'SHORT_FILM', status: 'CLIENT_REVIEW', priority: 'NORMAL', budget: 130000, startOffset: -95, deadlineOffset: 30 },
+  { code: 'AST-013', name: 'Amber — Title Sequence', template: 'Моушн-дизайн', type: 'MOTION_DESIGN', status: 'PRE_PRODUCTION', priority: 'NORMAL', budget: 46000, startOffset: -20, deadlineOffset: 65 },
+  { code: 'AST-014', name: 'TMG — Documentary Opener', template: 'Рекламный ролик', type: 'OTHER', status: 'COMPLETED', priority: 'LOW', budget: 32000, startOffset: -210, deadlineOffset: -30 }
 ]
 
 async function seedPeopleAndClients() {
@@ -228,7 +228,7 @@ async function seedProjects(
     // Milestones
     const milestoneCount = await prisma.milestone.count({ where: { projectId: project.id } })
     if (milestoneCount === 0) {
-      const names = ['Script Approved', 'Animatic Approved', 'Animation Complete', 'Final Client Approval', 'Delivery']
+      const names = ['Сценарий утверждён', 'Аниматик утверждён', 'Анимация завершена', 'Финальное согласование клиента', 'Сдача']
       await prisma.milestone.createMany({
         data: names.map((name, order) => ({
           projectId: project.id,

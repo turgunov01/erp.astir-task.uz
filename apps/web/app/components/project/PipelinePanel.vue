@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { STAGE_STATUS_LABEL, labelOf } from '~/utils/labels'
 import { PERMISSION, STAGE_STATUS } from '@astir/types'
 import { apiErrorMessage, apiRequest } from '~/composables/useApi'
 import { useAuthStore } from '~/stores/auth'
@@ -114,7 +115,7 @@ async function patchStage(stage: Stage, payload: Record<string, unknown>) {
           <p class="mt-0.5 text-xs text-muted-foreground">
             вес {{ stage.weight }}
             <template v-if="stage.department"> · {{ stage.department.name }}</template>
-            <template v-if="stage._count.tasks > 0"> · {{ stage._count.tasks }} задач</template>
+            <template v-if="stage._count.tasks > 0"> · {{ countLabel(stage._count.tasks, 'задача', 'задачи', 'задач') }}</template>
           </p>
         </div>
 
@@ -143,9 +144,9 @@ async function patchStage(stage: Stage, payload: Record<string, unknown>) {
             :aria-label="'Статус стадии ' + stage.name"
             @change="patchStage(stage, { status: ($event.target as HTMLSelectElement).value })"
           >
-            <option v-for="s in STATUSES" :key="s" :value="s">{{ s.split('_').join(' ') }}</option>
+            <option v-for="s in STATUSES" :key="s" :value="s">{{ labelOf(STAGE_STATUS_LABEL, s) }}</option>
           </select>
-          <StatusBadge v-else :status="stage.status" />
+          <StatusBadge v-else :status="stage.status" kind="stage" />
         </div>
       </li>
     </ol>

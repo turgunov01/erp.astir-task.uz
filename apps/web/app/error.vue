@@ -6,7 +6,13 @@ const props = defineProps<{ error: NuxtError }>()
 
 const isNotFound = computed(() => props.error?.statusCode === 404)
 
-useHead({ title: computed(() => (isNotFound.value ? 'Page not found' : 'Error') + '') })
+useHead({ title: computed(() => (isNotFound.value ? 'Страница не найдена' : 'Ошибка')) })
+
+/** Framework and network errors arrive in English; only a Russian message is shown as is. */
+const message = computed(() => {
+  const text = props.error?.message ?? ''
+  return /[А-Яа-яЁё]/.test(text) ? text : 'Непредвиденная ошибка сервера.'
+})
 </script>
 
 <template>
@@ -23,7 +29,7 @@ useHead({ title: computed(() => (isNotFound.value ? 'Page not found' : 'Error') 
       <p class="mt-2 text-sm text-muted-foreground">
         {{ isNotFound
           ? 'Возможно, этот раздел ещё не реализован или ссылка устарела.'
-          : error?.message || 'Непредвиденная ошибка сервера.' }}
+          : message }}
       </p>
 
       <div class="mt-8 flex items-center justify-center gap-3">

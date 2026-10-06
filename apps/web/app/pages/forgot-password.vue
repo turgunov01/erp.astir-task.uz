@@ -4,7 +4,7 @@ import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 
 definePageMeta({ layout: false })
-useHead({ title: 'Reset password' })
+useHead({ title: 'Восстановление пароля' })
 
 const email = ref('')
 const submitted = ref(false)
@@ -25,27 +25,27 @@ function onSubmit() {
         class="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <Icon name="lucide:arrow-left" class="size-3.5" />
-        Back to sign in
+        Назад ко входу
       </NuxtLink>
 
-      <h1 class="mt-6 text-2xl font-semibold tracking-tight">Reset your password</h1>
+      <h1 class="mt-6 text-2xl font-semibold tracking-tight">Восстановление пароля</h1>
       <p class="mt-2 text-sm text-muted-foreground">
-        Enter your email and we will send a reset link.
+        Укажите рабочую почту — мы пришлём ссылку для сброса пароля.
       </p>
 
       <p
         v-if="submitted"
         class="mt-6 rounded-md border bg-secondary px-3 py-2.5 text-sm text-secondary-foreground"
       >
-        If an account exists for that address, a reset link is on its way.
+        Если такой адрес есть в системе, письмо со ссылкой уже в пути.
       </p>
 
       <form v-else class="mt-6 space-y-4" @submit.prevent="onSubmit">
         <div class="space-y-2">
-          <Label for="email">Email</Label>
+          <Label for="email">Почта</Label>
           <Input id="email" v-model="email" type="email" autocomplete="email" required />
         </div>
-        <Button type="submit" class="w-full">Send reset link</Button>
+        <Button type="submit" class="w-full">Отправить ссылку</Button>
       </form>
     </div>
   </main>

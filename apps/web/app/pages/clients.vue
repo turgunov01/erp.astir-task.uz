@@ -6,7 +6,7 @@ import { CLIENT_FORM } from '~/utils/entity-forms'
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Clients' })
+useHead({ title: 'Клиенты' })
 
 const route = useRoute()
 const page = ref(Number(route.query.page ?? 1))
@@ -49,11 +49,11 @@ const crud = useEntityCrud({
 watch(archivedView, () => { page.value = 1 })
 
 const columns: Column[] = [
-  { key: 'name', label: 'Client', width: '28%' },
-  { key: 'email', label: 'Email', width: '24%' },
-  { key: 'country', label: 'Country', width: '16%' },
-  { key: 'projects', label: 'Projects', width: '12%', numeric: true },
-  { key: 'status', label: 'Status', width: '14%' },
+  { key: 'name', label: 'Клиент', width: '28%' },
+  { key: 'email', label: 'Почта', width: '24%' },
+  { key: 'country', label: 'Страна', width: '16%' },
+  { key: 'projects', label: 'Проекты', width: '12%', numeric: true },
+  { key: 'status', label: 'Статус', width: '14%' },
   { key: 'actions', label: '', width: '56px' }
 ]
 </script>
@@ -61,7 +61,7 @@ const columns: Column[] = [
 <template>
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Clients</p>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Коммерция</p>
       <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Клиенты</h1>
       <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
         <p class="text-sm text-muted-foreground">{{ meta.total }} клиент(ов)</p>
@@ -76,7 +76,7 @@ const columns: Column[] = [
       :meta="meta"
       :pending="pending"
       :error-message="errorMessage"
-      search-placeholder="Поиск по имени, компании, email..."
+      search-placeholder="Поиск по имени, компании, почте..."
       empty-icon="lucide:handshake"
       empty-title="Пока нет клиентов"
       empty-body="Клиент — владелец проектов и получатель поставки."

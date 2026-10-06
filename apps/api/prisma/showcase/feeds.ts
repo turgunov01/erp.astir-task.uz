@@ -147,7 +147,7 @@ export async function seedFeeds(
     notifications.push({ userId: owner.userId, type: 'CHANGES_REQUESTED', title: 'Клиент запросил правки по ролику 1', body: 'Цвет CTA и логотип в финале', linkUrl: '/reviews?review=' + clientChanges.id, entityType: 'Review', entityId: clientChanges.id, readAt: clientChanges.completedAt, createdAt: clientChanges.completedAt })
   }
   if (failedJob) {
-    notifications.push({ userId: owner.userId, type: 'RENDER_FAILED', title: 'Рендер ' + failedJob.shotCode + ' упал', body: 'Out of memory on frame 1043 — перезапущен на другой ноде', linkUrl: '/render', entityType: 'RenderJob', entityId: failedJob.id, readAt: addDays(failedJob.createdAt, 1), createdAt: failedJob.createdAt })
+    notifications.push({ userId: owner.userId, type: 'RENDER_FAILED', title: 'Рендер ' + failedJob.shotCode + ' упал', body: 'Не хватило памяти на кадре 1043 — перезапущен на другой ноде', linkUrl: '/render', entityType: 'RenderJob', entityId: failedJob.id, readAt: addDays(failedJob.createdAt, 1), createdAt: failedJob.createdAt })
   }
   if (finalRenderTask) {
     notifications.push({ userId: pm.userId, type: 'TASK_REVIEW', title: 'Задача «' + finalRenderTask.title + '» ждёт проверки', body: PROJECT_CODE, linkUrl: '/tasks?task=' + finalRenderTask.id, entityType: 'Task', entityId: finalRenderTask.id, readAt: finalRenderTask.deadline, createdAt: new Date(finalRenderTask.deadline.getTime() - 26 * 3_600_000) })

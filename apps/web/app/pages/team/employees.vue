@@ -6,7 +6,7 @@ import { EMPLOYEE_FORM } from '~/utils/entity-forms'
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Employees' })
+useHead({ title: 'Сотрудники' })
 
 const page = ref(1)
 const search = ref('')
@@ -65,12 +65,12 @@ const crud = useEntityCrud({
 watch(archivedView, () => { page.value = 1 })
 
 const columns: Column[] = [
-  { key: 'name', label: 'Employee', width: '26%' },
-  { key: 'position', label: 'Position', width: '20%' },
-  { key: 'department', label: 'Department', width: '16%' },
-  { key: 'role', label: 'Role', width: '16%' },
-  { key: 'capacity', label: 'Capacity', width: '10%', numeric: true },
-  { key: 'status', label: 'Status', width: '12%' },
+  { key: 'name', label: 'Сотрудник', width: '26%' },
+  { key: 'position', label: 'Должность', width: '20%' },
+  { key: 'department', label: 'Отдел', width: '16%' },
+  { key: 'role', label: 'Роль', width: '16%' },
+  { key: 'capacity', label: 'Часов в неделю', width: '10%', numeric: true },
+  { key: 'status', label: 'Статус', width: '12%' },
   { key: 'actions', label: '', width: '56px' }
 ]
 
@@ -82,7 +82,7 @@ function initials(row: EmployeeRow) {
 <template>
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Team</p>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Команда</p>
       <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Сотрудники</h1>
       <p class="mt-1 text-sm text-muted-foreground">{{ meta.total }} сотрудник(ов)</p>
     </header>
@@ -101,7 +101,7 @@ function initials(row: EmployeeRow) {
       :meta="meta"
       :pending="pending"
       :error-message="errorMessage"
-      search-placeholder="Поиск по имени, email, должности..."
+      search-placeholder="Поиск по имени, почте, должности..."
       empty-icon="lucide:users"
       empty-title="Нет сотрудников"
       empty-body="Добавьте сотрудников, чтобы назначать их на задачи."

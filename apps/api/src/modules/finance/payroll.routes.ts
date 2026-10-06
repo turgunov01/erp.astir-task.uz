@@ -23,7 +23,7 @@ const ENTRY_STATUSES = ['DRAFT', 'APPROVED', 'PAID', 'CANCELLED'] as const
 const ENTRY_SOURCES = ['MANUAL', 'TIMESHEET', 'EXTERNAL'] as const
 
 const periodSchema = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'Ожидается месяц в формате ГГГГ-ММ')
-const dateSchema = z.string().refine(value => !Number.isNaN(Date.parse(value)), 'Invalid date')
+const dateSchema = z.string().refine(value => !Number.isNaN(Date.parse(value)), 'Неверная дата')
 const currencyCode = z.string().trim().length(3).toUpperCase()
 
 const listSchema = listQuerySchema.extend({

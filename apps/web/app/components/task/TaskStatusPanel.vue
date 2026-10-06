@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { TASK_STATUS_LABEL, labelOf } from '~/utils/labels'
 import { PERMISSION, PRIORITY, TASK_STATUS } from '@astir/types'
 import { apiErrorMessage, apiRequest } from '~/composables/useApi'
 import { useTaskPanels } from '~/composables/useTaskPanels'
@@ -52,7 +53,7 @@ const errorMessage = ref('')
 const STATUSES = Object.values(TASK_STATUS)
 const PRIORITIES = Object.values(PRIORITY)
 
-const label = computed(() => props.status.split('_').join(' '))
+const label = computed(() => labelOf(TASK_STATUS_LABEL, props.status))
 
 const overdue = computed(() =>
   tasks.value.filter(task =>
@@ -71,7 +72,7 @@ async function moveTo(task: Task, status: string) {
   try {
     await apiRequest('/api/tasks/' + task.id + '/status', {
       method: 'POST',
-      body: { status, comment: 'Перенесено из панели статуса: ' + task.status + ' -> ' + status }
+      body: { status, comment: 'Перенесено из панели статуса: ' + statusChangeText(task.status, status) }
     })
     await refresh()
   } catch (err) {
@@ -216,7 +217,7 @@ function priorityDot(value: string) {
           :aria-label="'Перенести задачу ' + task.title"
           @change="moveTo(task, ($event.target as HTMLSelectElement).value)"
         >
-          <option v-for="s in STATUSES" :key="s" :value="s">{{ s.split('_').join(' ') }}</option>
+          <option v-for="s in STATUSES" :key="s" :value="s">{{ labelOf(TASK_STATUS_LABEL, s) }}</option>
         </select>
       </li>
     </ul>

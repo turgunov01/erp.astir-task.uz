@@ -26,23 +26,23 @@ interface StaffSeed {
 }
 
 const STAFF: readonly StaffSeed[] = [
-  { key: 'owner', email: 'owner@astir.uz', firstName: 'Азиз', lastName: 'Каримов', role: 'OWNER', position: 'Основатель студии', department: 'Management', rate: null, hiredDaysBefore: 1400, phone: '+998 90 100 00 01' },
-  { key: 'producer', email: 'producer@astir.uz', firstName: 'Тимур', lastName: 'Юсупов', role: 'PRODUCER', position: 'Исполнительный продюсер', department: 'Production', rate: 45, hiredDaysBefore: 1100, phone: '+998 90 100 00 02' },
-  { key: 'pm', email: 'pm@astir.uz', firstName: 'Камила', lastName: 'Назарова', role: 'PROJECT_MANAGER', position: 'Проектный менеджер', department: 'Production', rate: 35, hiredDaysBefore: 800, phone: '+998 90 100 00 03' },
+  { key: 'owner', email: 'owner@astir.uz', firstName: 'Азиз', lastName: 'Каримов', role: 'OWNER', position: 'Основатель студии', department: 'Руководство', rate: null, hiredDaysBefore: 1400, phone: '+998 90 100 00 01' },
+  { key: 'producer', email: 'producer@astir.uz', firstName: 'Тимур', lastName: 'Юсупов', role: 'PRODUCER', position: 'Исполнительный продюсер', department: 'Продакшн', rate: 45, hiredDaysBefore: 1100, phone: '+998 90 100 00 02' },
+  { key: 'pm', email: 'pm@astir.uz', firstName: 'Камила', lastName: 'Назарова', role: 'PROJECT_MANAGER', position: 'Проектный менеджер', department: 'Продакшн', rate: 35, hiredDaysBefore: 800, phone: '+998 90 100 00 03' },
   { key: 'ad', email: 'art@astir.uz', firstName: 'Руслан', lastName: 'Абдуллаев', role: 'ART_DIRECTOR', position: 'Арт-директор', department: '2D', rate: 40, hiredDaysBefore: 1200, phone: '+998 90 100 00 04' },
-  { key: 'finance', email: 'finance@astir.uz', firstName: 'Малика', lastName: 'Турсунова', role: 'FINANCE', position: 'Финансовый менеджер', department: 'Finance', rate: 30, hiredDaysBefore: 900, phone: '+998 90 100 00 05' },
+  { key: 'finance', email: 'finance@astir.uz', firstName: 'Малика', lastName: 'Турсунова', role: 'FINANCE', position: 'Финансовый менеджер', department: 'Финансы', rate: 30, hiredDaysBefore: 900, phone: '+998 90 100 00 05' },
   { key: 'gulnora', email: 'gulnora@astir.uz', firstName: 'Гульнора', lastName: 'Ахмедова', role: 'ARTIST', position: 'Сторибордист', department: '2D', rate: 25, hiredDaysBefore: 600, phone: '+998 90 100 00 06' },
-  { key: 'bekzod', email: 'bekzod@astir.uz', firstName: 'Бекзод', lastName: 'Исмоилов', role: 'ARTIST', position: '3D-моделлер', department: 'Modeling', rate: 25, hiredDaysBefore: 700, phone: '+998 90 100 00 07' },
-  { key: 'zilola', email: 'zilola@astir.uz', firstName: 'Зилола', lastName: 'Умарова', role: 'ARTIST', position: 'Художник по текстурам', department: 'Modeling', rate: 23, employment: 'PART_TIME', hiredDaysBefore: 300, phone: '+998 90 100 00 08' },
-  { key: 'sardor', email: 'sardor@astir.uz', firstName: 'Сардор', lastName: 'Эргашев', role: 'ARTIST', position: 'Риггер', department: 'Rigging', rate: 26, hiredDaysBefore: 650, phone: '+998 90 100 00 09' },
+  { key: 'bekzod', email: 'bekzod@astir.uz', firstName: 'Бекзод', lastName: 'Исмоилов', role: 'ARTIST', position: '3D-моделлер', department: 'Моделинг', rate: 25, hiredDaysBefore: 700, phone: '+998 90 100 00 07' },
+  { key: 'zilola', email: 'zilola@astir.uz', firstName: 'Зилола', lastName: 'Умарова', role: 'ARTIST', position: 'Художник по текстурам', department: 'Моделинг', rate: 23, employment: 'PART_TIME', hiredDaysBefore: 300, phone: '+998 90 100 00 08' },
+  { key: 'sardor', email: 'sardor@astir.uz', firstName: 'Сардор', lastName: 'Эргашев', role: 'ARTIST', position: 'Риггер', department: 'Риггинг', rate: 26, hiredDaysBefore: 650, phone: '+998 90 100 00 09' },
   { key: 'marat', email: 'marat@astir.uz', firstName: 'Марат', lastName: 'Юлдашев', role: 'ARTIST', position: 'Layout-артист', department: '3D', rate: 24, hiredDaysBefore: 400, phone: '+998 90 100 00 10' },
-  { key: 'anna', email: 'anna@astir.uz', firstName: 'Анна', lastName: 'Волкова', role: 'ARTIST', position: 'Старший аниматор', department: 'Animation', rate: 28, hiredDaysBefore: 1000, phone: '+998 90 100 00 11' },
+  { key: 'anna', email: 'anna@astir.uz', firstName: 'Анна', lastName: 'Волкова', role: 'ARTIST', position: 'Старший аниматор', department: 'Анимация', rate: 28, hiredDaysBefore: 1000, phone: '+998 90 100 00 11' },
   { key: 'shohruh', email: 'shohruh@astir.uz', firstName: 'Шохрух', lastName: 'Назаров', role: 'ARTIST', position: 'FX-артист', department: '3D', rate: 30, employment: 'FREELANCE', hiredDaysBefore: 200, phone: '+998 90 100 00 12' },
-  { key: 'nigora', email: 'nigora@astir.uz', firstName: 'Нигора', lastName: 'Саидова', role: 'ARTIST', position: 'Художник по свету', department: 'Lighting', rate: 27, hiredDaysBefore: 500, phone: '+998 90 100 00 13' },
-  { key: 'sherzod', email: 'sherzod@astir.uz', firstName: 'Шерзод', lastName: 'Мирзаев', role: 'ARTIST', position: 'Render TD', department: 'Rendering', rate: 29, hiredDaysBefore: 450, phone: '+998 90 100 00 14' },
-  { key: 'javohir', email: 'javohir@astir.uz', firstName: 'Жавохир', lastName: 'Кодиров', role: 'ARTIST', position: 'Композер', department: 'Compositing', rate: 26, hiredDaysBefore: 550, phone: '+998 90 100 00 15' },
-  { key: 'dilshod', email: 'dilshod@astir.uz', firstName: 'Дилшод', lastName: 'Рустамов', role: 'ARTIST', position: 'Саунд-дизайнер', department: 'Sound', rate: 27, employment: 'FREELANCE', hiredDaysBefore: 250, phone: '+998 90 100 00 16' },
-  { key: 'farrux', email: 'farrux@astir.uz', firstName: 'Фаррух', lastName: 'Собиров', role: 'ARTIST', position: 'Монтажёр', department: 'Editing', rate: 26, hiredDaysBefore: 350, phone: '+998 90 100 00 17' }
+  { key: 'nigora', email: 'nigora@astir.uz', firstName: 'Нигора', lastName: 'Саидова', role: 'ARTIST', position: 'Художник по свету', department: 'Свет', rate: 27, hiredDaysBefore: 500, phone: '+998 90 100 00 13' },
+  { key: 'sherzod', email: 'sherzod@astir.uz', firstName: 'Шерзод', lastName: 'Мирзаев', role: 'ARTIST', position: 'Render TD', department: 'Рендер', rate: 29, hiredDaysBefore: 450, phone: '+998 90 100 00 14' },
+  { key: 'javohir', email: 'javohir@astir.uz', firstName: 'Жавохир', lastName: 'Кодиров', role: 'ARTIST', position: 'Композер', department: 'Композитинг', rate: 26, hiredDaysBefore: 550, phone: '+998 90 100 00 15' },
+  { key: 'dilshod', email: 'dilshod@astir.uz', firstName: 'Дилшод', lastName: 'Рустамов', role: 'ARTIST', position: 'Саунд-дизайнер', department: 'Звук', rate: 27, employment: 'FREELANCE', hiredDaysBefore: 250, phone: '+998 90 100 00 16' },
+  { key: 'farrux', email: 'farrux@astir.uz', firstName: 'Фаррух', lastName: 'Собиров', role: 'ARTIST', position: 'Монтажёр', department: 'Монтаж', rate: 26, hiredDaysBefore: 350, phone: '+998 90 100 00 17' }
 ]
 
 /** Which team member normally owns each pipeline department. */
@@ -212,17 +212,17 @@ export async function seedStudio() {
   })
 
   const descriptions: Record<string, string> = {
-    '2D Animation': 'Полный 2D-цикл: от брифа и раскадровки до композитинга и сдачи.',
-    '3D Animation': 'Полный 3D-цикл с моделингом, ригом, симуляциями и рендером.',
-    'Commercial': 'Рекламный ролик: короткий препродакшн, анимация, звук и сдача.',
-    'Motion Design': 'Моушн-графика без 3D-этапов.',
-    'Series Episode': 'Серийный эпизод: препродакшн уже сделан, только производство.'
+    '2D-анимация': 'Полный 2D-цикл: от брифа и раскадровки до композитинга и сдачи.',
+    '3D-анимация': 'Полный 3D-цикл с моделингом, ригом, симуляциями и рендером.',
+    'Рекламный ролик': 'Рекламный ролик: короткий препродакшн, анимация, звук и сдача.',
+    'Моушн-дизайн': 'Моушн-графика без 3D-этапов.',
+    'Серия сериала': 'Серийный эпизод: препродакшн уже сделан, только производство.'
   }
   for (const [name, stages] of Object.entries(PROJECT_TEMPLATES)) {
     await prisma.pipelineTemplate.upsert({
       where: { name },
-      update: { stages: [...stages], isDefault: name === '3D Animation' },
-      create: { name, description: descriptions[name] ?? null, stages: [...stages], isDefault: name === '3D Animation' }
+      update: { stages: [...stages], isDefault: name === '3D-анимация' },
+      create: { name, description: descriptions[name] ?? null, stages: [...stages], isDefault: name === '3D-анимация' }
     })
   }
   log('studio settings + ' + Object.keys(PROJECT_TEMPLATES).length + ' pipeline templates')

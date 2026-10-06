@@ -31,7 +31,7 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
       payload = verifyAccessToken(token)
     } catch (err) {
       if (err instanceof jwt.TokenExpiredError) throw tokenExpired()
-      throw unauthenticated('Invalid access token')
+      throw unauthenticated('Сессия недействительна, войдите заново')
     }
 
     const user = await prisma.user.findFirst({
@@ -48,8 +48,8 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
       }
     })
 
-    if (!user) throw unauthenticated('Account no longer exists')
-    if (!user.isActive) throw forbidden('Account is disabled')
+    if (!user) throw unauthenticated('Учётная запись больше не существует')
+    if (!user.isActive) throw forbidden('Учётная запись отключена')
 
     const { isActive: _isActive, ...authUser } = user
     req.user = authUser
@@ -73,7 +73,7 @@ export function requirePermission(permission: Permission) {
     try {
       if (!req.user) return next(unauthenticated())
       if (!(await hasPermission(req.user.role, permission))) {
-        return next(forbidden('Missing permission: ' + permission))
+        return next(forbidden())
       }
       next()
     } catch (err) {

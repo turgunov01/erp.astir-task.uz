@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Dashboard' })
+useHead({ title: 'Обзор' })
 
 const auth = useAuthStore()
 
@@ -51,7 +51,7 @@ const kpis = computed(() => {
     { label: 'Активные проекты', value: kpi?.activeProjects ?? 0, icon: 'lucide:folder-kanban', hint: 'в производстве', to: '/projects', signal: false },
     { label: 'Проекты в риске', value: kpi?.atRisk ?? 0, icon: 'lucide:triangle-alert', hint: 'отставание от графика', to: '/projects', signal: true },
     { label: 'Просроченные задачи', value: kpi?.overdueTasks ?? 0, icon: 'lucide:clock-alert', hint: 'дедлайн прошёл', to: '/tasks?view=overdue', signal: true },
-    { label: 'Ждут согласования', value: kpi?.pendingReviews ?? 0, icon: 'lucide:eye', hint: 'версии на review', to: '/reviews', signal: false },
+    { label: 'Ждут согласования', value: kpi?.pendingReviews ?? 0, icon: 'lucide:eye', hint: 'версии на согласовании', to: '/reviews', signal: false },
     { label: 'Шоты в работе', value: kpi?.activeShots ?? 0, icon: 'lucide:camera', hint: 'активное производство', to: '/shots', signal: false },
     { label: 'Открытые правки', value: kpi?.openRevisions ?? 0, icon: 'lucide:rotate-ccw', hint: 'запросы на доработку', to: '/revisions', signal: false }
   ]
@@ -72,7 +72,7 @@ function formatDate(value: string | null) {
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-8">
       <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-        Dashboard
+        Обзор
       </p>
       <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">
         Добрый день, {{ auth.user?.firstName }}
@@ -241,7 +241,7 @@ function formatDate(value: string | null) {
                 <span class="text-muted-foreground">
                   {{ event.actor ? event.actor.firstName + ' ' + event.actor.lastName : 'Система' }}
                 </span>
-                — {{ enumLabel(ACTIVITY_ACTION_LABEL, event.action) }}
+                — {{ labelOf(ACTIVITY_ACTION_LABEL, event.action, 'выполнил действие') }}
               </span>
               <span class="shrink-0 text-xs text-muted-foreground">
                 {{ timeAgo(event.createdAt) }}

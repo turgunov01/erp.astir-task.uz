@@ -30,7 +30,7 @@ export interface TimesheetListQuery {
 
 function dateOnly(value: string) {
   const date = new Date(value)
-  if (Number.isNaN(date.getTime())) throw badRequest('Invalid date: ' + value)
+  if (Number.isNaN(date.getTime())) throw badRequest('Неверная дата: ' + value)
   // Entries are day-grained, so a time part would only create false mismatches.
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
 }

@@ -5,7 +5,7 @@ import RoleMatrix from '~/components/settings/RoleMatrix.vue'
 import WorkSchedule from '~/components/settings/WorkSchedule.vue'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Settings' })
+useHead({ title: 'Настройки' })
 
 const auth = useAuthStore()
 const route = useRoute()
@@ -271,7 +271,7 @@ const isSelf = (row: Account) => row.id === auth.user?.id
 <template>
   <div class="mx-auto max-w-5xl px-6 py-8">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Settings</p>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Администрирование</p>
       <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Настройки</h1>
       <p v-if="!canManage" class="mt-1 text-sm text-muted-foreground">
         У вас доступ на просмотр: поля видны, но сохранить изменения нельзя.
@@ -320,7 +320,7 @@ const isSelf = (row: Account) => row.id === auth.user?.id
           <input v-model="form.legalName" :disabled="!canManage" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring disabled:opacity-60">
         </label>
         <label class="block">
-          <span class="text-sm font-medium">Email</span>
+          <span class="text-sm font-medium">Почта</span>
           <input v-model="form.email" :disabled="!canManage" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring disabled:opacity-60">
         </label>
         <label class="block">
@@ -378,7 +378,7 @@ const isSelf = (row: Account) => row.id === auth.user?.id
       <div class="grid gap-4 rounded-xl border bg-card p-5 sm:grid-cols-2">
         <label class="block">
           <span class="text-sm font-medium">Сервер</span>
-          <input v-model="form.smtpHost" :disabled="!canManage" placeholder="smtp.example.com" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring disabled:opacity-60">
+          <input v-model="form.smtpHost" :disabled="!canManage" placeholder="Адрес почтового сервера" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring disabled:opacity-60">
         </label>
         <label class="block">
           <span class="text-sm font-medium">Порт</span>
@@ -405,7 +405,7 @@ const isSelf = (row: Account) => row.id === auth.user?.id
         </label>
         <label class="block sm:col-span-2">
           <span class="text-sm font-medium">Отправитель</span>
-          <input v-model="form.smtpFrom" :disabled="!canManage" placeholder="Aster ERP &lt;noreply@example.com&gt;" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring disabled:opacity-60">
+          <input v-model="form.smtpFrom" :disabled="!canManage" placeholder="Имя и адрес отправителя" class="mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring disabled:opacity-60">
         </label>
       </div>
 
@@ -533,7 +533,7 @@ const isSelf = (row: Account) => row.id === auth.user?.id
 
       <input
         v-model="userSearch"
-        placeholder="Поиск по имени или email..."
+        placeholder="Поиск по имени или почте..."
         class="h-9 w-full rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring sm:max-w-sm"
         @input="userPage = 1"
       >

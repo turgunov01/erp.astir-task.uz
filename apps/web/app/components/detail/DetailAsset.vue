@@ -88,7 +88,7 @@ function openInViewer(id: string) {
 <template>
   <DetailPanel
     :title="asset?.name ?? 'Ассет'"
-    :subtitle="asset ? (ASSET_TYPE_LABEL[asset.type] ?? asset.type) : 'Библиотека ассетов'"
+    :subtitle="asset ? labelOf(ASSET_TYPE_LABEL, asset.type) : 'Библиотека ассетов'"
     :offset="props.offset"
     :pending="pending"
     :error="Boolean(error)"
@@ -123,7 +123,7 @@ function openInViewer(id: string) {
           <div class="mt-3 flex flex-wrap items-center gap-2">
             <StatusBadge :status="asset.status" />
             <span class="rounded-md bg-secondary px-2 py-0.5 text-xs">
-              {{ ASSET_TYPE_LABEL[asset.type] ?? asset.type }}
+              {{ labelOf(ASSET_TYPE_LABEL, asset.type) }}
             </span>
             <span class="text-xs text-muted-foreground">
               {{ asset._count.versions }} версий
@@ -140,7 +140,7 @@ function openInViewer(id: string) {
 
         <dl class="divide-y">
           <DetailRow label="Статус">
-            {{ PRODUCTION_STATUS_LABEL[asset.status] ?? asset.status }}
+            {{ labelOf(PRODUCTION_STATUS_LABEL, asset.status) }}
           </DetailRow>
           <DetailRow label="Проект">
             <NuxtLink

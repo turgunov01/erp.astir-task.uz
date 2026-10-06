@@ -24,7 +24,7 @@ const loginLimiter = rateLimit({
   legacyHeaders: false,
   message: {
     success: false,
-    error: { code: 'RATE_LIMITED', message: 'Too many login attempts. Try again later.' }
+    error: { code: 'RATE_LIMITED', message: 'Слишком много попыток входа. Попробуйте позже.' }
   }
 })
 

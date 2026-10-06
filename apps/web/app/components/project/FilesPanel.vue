@@ -4,6 +4,8 @@ import { apiErrorMessage } from '~/composables/useApi'
 import { isUploadCancelled, useChunkedUpload } from '~/composables/useChunkedUpload'
 import { useAuthStore } from '~/stores/auth'
 import { Button } from '~/components/ui/button'
+import { DOCUMENT_TYPE_LABEL, labelOf } from '~/utils/labels'
+import { formatBytes } from '~/utils/media'
 
 interface Doc {
   id: string
@@ -45,11 +47,7 @@ function openFile(doc: Doc) {
 }
 
 function formatSize(bytes: string | null) {
-  if (!bytes) return ''
-  const value = Number(bytes)
-  if (value < 1024) return value + ' B'
-  if (value < 1024 * 1024) return Math.round(value / 1024) + ' KB'
-  return (value / (1024 * 1024)).toFixed(1) + ' MB'
+  return formatBytes(bytes)
 }
 
 const {
@@ -122,7 +120,7 @@ function onDrop(event: DragEvent) {
         class="h-8 rounded-md border bg-background px-2 text-xs outline-none focus:border-ring"
         aria-label="Тип документа"
       >
-        <option v-for="t in TYPES" :key="t" :value="t">{{ t }}</option>
+        <option v-for="t in TYPES" :key="t" :value="t">{{ labelOf(DOCUMENT_TYPE_LABEL, t) }}</option>
       </select>
     </header>
 
@@ -242,7 +240,7 @@ function onDrop(event: DragEvent) {
               {{ doc.name }}
             </button>
             <p class="mt-0.5 text-xs text-muted-foreground">
-              {{ doc.type }} · {{ formatSize(doc.fileSize) }}
+              {{ labelOf(DOCUMENT_TYPE_LABEL, doc.type) }}<template v-if="formatSize(doc.fileSize)"> · {{ formatSize(doc.fileSize) }}</template>
             </p>
           </div>
           <button

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PRIORITY_LABEL, TASK_STATUS_LABEL, labelOf } from '~/utils/labels'
 import { PRIORITY, TASK_STATUS } from '@astir/types'
 import { apiErrorMessage, apiRequest } from '~/composables/useApi'
 
@@ -281,7 +282,7 @@ onMounted(() => {
               v-model="form.status"
               class="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:border-ring"
             >
-              <option v-for="s in STATUSES" :key="s" :value="s">{{ s.split('_').join(' ') }}</option>
+              <option v-for="s in STATUSES" :key="s" :value="s">{{ labelOf(TASK_STATUS_LABEL, s) }}</option>
             </select>
           </div>
 
@@ -292,7 +293,7 @@ onMounted(() => {
               v-model="form.priority"
               class="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:border-ring"
             >
-              <option v-for="p in PRIORITIES" :key="p" :value="p">{{ p }}</option>
+              <option v-for="p in PRIORITIES" :key="p" :value="p">{{ labelOf(PRIORITY_LABEL, p) }}</option>
             </select>
           </div>
 

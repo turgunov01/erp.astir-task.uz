@@ -48,7 +48,7 @@ export const CLIENT_FORM: EntityFormConfig = {
   fields: [
     { key: 'name', label: 'Имя', type: 'text', required: true, placeholder: 'Как обращаться' },
     { key: 'companyName', label: 'Компания', type: 'text' },
-    { key: 'email', label: 'Email', type: 'text', placeholder: 'name@example.com' },
+    { key: 'email', label: 'Почта', type: 'text', placeholder: 'name@example.com' },
     { key: 'phone', label: 'Телефон', type: 'text' },
     { key: 'country', label: 'Страна', type: 'text' },
     {
@@ -229,7 +229,7 @@ export const SHOT_FORM: EntityFormConfig = {
     },
     { key: 'name', label: 'Название', type: 'text' },
     { key: 'shotNumber', label: 'Номер', type: 'number', hint: 'Пусто — следующий свободный' },
-    { key: 'fps', label: 'FPS', type: 'number' },
+    { key: 'fps', label: 'Кадров в секунду', type: 'number' },
     { key: 'startFrame', label: 'Первый кадр', type: 'number' },
     { key: 'endFrame', label: 'Последний кадр', type: 'number' },
     { key: 'duration', label: 'Длительность, сек', type: 'number' },
@@ -430,7 +430,7 @@ export const EMPLOYEE_FORM: EntityFormConfig = {
     { key: 'lastName', label: 'Фамилия', type: 'text', required: true },
     {
       key: 'email',
-      label: 'Email',
+      label: 'Почта',
       type: 'text',
       required: true,
       createOnly: true,

@@ -125,7 +125,7 @@ const LABEL = 'text-xs uppercase tracking-wider text-muted-foreground'
 <template>
   <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Finance</p>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Финансы</p>
       <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Финансовый обзор</h1>
       <p class="mt-1 max-w-3xl text-sm text-muted-foreground">
         Кассовый взгляд на период: поступления — оплаченные платежи, расходы — внесённые
@@ -443,7 +443,7 @@ const LABEL = 'text-xs uppercase tracking-wider text-muted-foreground'
           </p>
           <ul class="mt-2 flex flex-wrap gap-x-6 gap-y-1.5 text-sm">
             <li v-for="row in stats.payroll.period" :key="row.type + row.currency">
-              <span class="text-muted-foreground">{{ PAYROLL_PERIOD_LABEL[row.type] ?? row.type }}</span>
+              <span class="text-muted-foreground">{{ labelOf(PAYROLL_PERIOD_LABEL, row.type) }}</span>
               <span class="ml-1.5 font-medium tabular-nums">{{ money(row.amount, row.currency) }}</span>
               <span class="ml-1 text-xs text-muted-foreground">({{ row.count }})</span>
             </li>

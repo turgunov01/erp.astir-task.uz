@@ -194,7 +194,7 @@ const SELECT = 'h-9 rounded-md border bg-background px-2.5 text-sm outline-none 
 <template>
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Payroll</p>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Финансы</p>
       <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Зарплата: авансы, штрафы, премии</h1>
       <p class="mt-1 text-sm text-muted-foreground">
         <template v-if="ownOnly">Ваши начисления и удержания по месяцам. Черновики не показываются, пока их не утвердят.</template>

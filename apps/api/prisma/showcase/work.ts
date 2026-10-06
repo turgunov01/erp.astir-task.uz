@@ -20,34 +20,34 @@ interface GeneralTask {
 }
 
 const GENERAL: readonly GeneralTask[] = [
-  { stage: 'Brief', title: 'Бриф клиента и референсы', description: 'Встреча с CEO и Head of Marketing, фиксация целей запуска, сбор референсов по стилю.', assignee: 'pm', reviewer: 'producer', estimate: 6, actual: 5, priority: 'HIGH' },
-  { stage: 'Script', title: 'Сценарии трёх роликов (60″ / 45″ / 30″)', description: 'Три сценария с таймингом по секундам, ключевые реплики маскота, места для CTA.', assignee: 'pm', reviewer: 'ad', estimate: 24, actual: 26, after: 'Бриф клиента и референсы' },
-  { stage: 'Storyboard', title: 'Раскадровка: 27 шотов', description: 'По три шота на сцену, композиция и движение камеры, пометки для аниматика.', assignee: 'gulnora', reviewer: 'ad', estimate: 40, actual: 44, after: 'Сценарии трёх роликов (60″ / 45″ / 30″)' },
-  { stage: 'Animatic', title: 'Аниматик с черновой озвучкой', description: 'Монтаж раскадровки в тайминг с временной озвучкой и джинглом.', assignee: 'gulnora', reviewer: 'ad', estimate: 20, actual: 18, after: 'Раскадровка: 27 шотов' },
-  { stage: 'Concept Art', title: 'Концепт: маскот «24» и стиль интерфейса', description: 'Три варианта маскота, палитра из брендбука, стиль 3D-интерфейса чата.', assignee: 'ad', reviewer: 'producer', estimate: 30, actual: 32, priority: 'HIGH' },
-  { stage: 'Character Design', title: 'Дизайн персонажей: маскот, менеджер, клиент', description: 'Финальные листы персонажей с ракурсами и выражениями.', assignee: 'ad', reviewer: 'producer', estimate: 28, actual: 30, after: 'Концепт: маскот «24» и стиль интерфейса' },
-  { stage: 'Environment Design', title: 'Дизайн окружения: чат, панель менеджера, офис', assignee: 'gulnora', reviewer: 'ad', estimate: 24, actual: 22, after: 'Концепт: маскот «24» и стиль интерфейса' },
-  { stage: 'Modeling', title: 'Моделинг маскота «24»', description: 'Blockout → high-poly → ретопология под риг. Готово к текстурам.', assignee: 'bekzod', reviewer: 'ad', estimate: 36, actual: 40, priority: 'HIGH', after: 'Дизайн персонажей: маскот, менеджер, клиент' },
-  { stage: 'Modeling', title: 'Моделинг смартфона Hero (high-poly)', assignee: 'bekzod', reviewer: 'ad', estimate: 24, actual: 22 },
-  { stage: 'Modeling', title: 'Текстуры и материалы UI (glass / matte)', assignee: 'zilola', reviewer: 'ad', estimate: 30, actual: 31, after: 'Моделинг маскота «24»' },
-  { stage: 'Rigging', title: 'Риг маскота: body + лицевой', description: 'Контролы для «печатающего» жеста и мимики; тест на аниматоре.', assignee: 'sardor', reviewer: 'anna', estimate: 32, actual: 35, priority: 'HIGH', after: 'Моделинг маскота «24»' },
-  { stage: 'Rigging', title: 'Риг смартфона и пузырей сообщений', assignee: 'sardor', reviewer: 'anna', estimate: 12, actual: 10, after: 'Моделинг смартфона Hero (high-poly)' },
-  { stage: 'Sound', title: 'Джингл, саунд-дизайн и озвучка UZ / RU / EN', description: 'Фирменный джингл 24reply, UI-звуки, запись диктора на трёх языках.', assignee: 'dilshod', reviewer: 'pm', estimate: 40, actual: 38 },
-  { stage: 'Editing', title: 'Монтаж трёх роликов', assignee: 'farrux', reviewer: 'ad', estimate: 30, actual: 28, after: 'Джингл, саунд-дизайн и озвучка UZ / RU / EN' },
-  { stage: 'Internal Review', title: 'Внутренний просмотр с продюсером', assignee: 'pm', reviewer: 'producer', estimate: 4, actual: 4, after: 'Монтаж трёх роликов' },
-  { stage: 'Client Review', title: 'Презентация клиенту и сбор правок', description: 'Просмотр с CEO 24reply. Две правки: цвет CTA и логотип в финале.', assignee: 'pm', reviewer: 'producer', estimate: 6, actual: 7, priority: 'HIGH', after: 'Внутренний просмотр с продюсером' },
-  { stage: 'Corrections', title: 'Правки клиента: цвет CTA и логотип в финале', assignee: 'javohir', reviewer: 'ad', estimate: 8, actual: 6, priority: 'URGENT', after: 'Презентация клиенту и сбор правок' },
-  { stage: 'Final Render', title: 'Финальный рендер 4K и мастеринг', description: 'ProRes 4444 4K + H.264 1080p для соцсетей, три языковые версии.', assignee: 'sherzod', reviewer: 'pm', estimate: 16, actual: 14, priority: 'HIGH', after: 'Правки клиента: цвет CTA и логотип в финале' },
-  { stage: 'Delivery', title: 'Сдача мастер-файлов и исходников', assignee: 'pm', reviewer: 'producer', estimate: 4, actual: 3, after: 'Финальный рендер 4K и мастеринг' }
+  { stage: 'Бриф', title: 'Бриф клиента и референсы', description: 'Встреча с CEO и Head of Marketing, фиксация целей запуска, сбор референсов по стилю.', assignee: 'pm', reviewer: 'producer', estimate: 6, actual: 5, priority: 'HIGH' },
+  { stage: 'Сценарий', title: 'Сценарии трёх роликов (60″ / 45″ / 30″)', description: 'Три сценария с таймингом по секундам, ключевые реплики маскота, места для CTA.', assignee: 'pm', reviewer: 'ad', estimate: 24, actual: 26, after: 'Бриф клиента и референсы' },
+  { stage: 'Раскадровка', title: 'Раскадровка: 27 шотов', description: 'По три шота на сцену, композиция и движение камеры, пометки для аниматика.', assignee: 'gulnora', reviewer: 'ad', estimate: 40, actual: 44, after: 'Сценарии трёх роликов (60″ / 45″ / 30″)' },
+  { stage: 'Аниматик', title: 'Аниматик с черновой озвучкой', description: 'Монтаж раскадровки в тайминг с временной озвучкой и джинглом.', assignee: 'gulnora', reviewer: 'ad', estimate: 20, actual: 18, after: 'Раскадровка: 27 шотов' },
+  { stage: 'Концепт-арт', title: 'Концепт: маскот «24» и стиль интерфейса', description: 'Три варианта маскота, палитра из брендбука, стиль 3D-интерфейса чата.', assignee: 'ad', reviewer: 'producer', estimate: 30, actual: 32, priority: 'HIGH' },
+  { stage: 'Дизайн персонажей', title: 'Дизайн персонажей: маскот, менеджер, клиент', description: 'Финальные листы персонажей с ракурсами и выражениями.', assignee: 'ad', reviewer: 'producer', estimate: 28, actual: 30, after: 'Концепт: маскот «24» и стиль интерфейса' },
+  { stage: 'Дизайн окружения', title: 'Дизайн окружения: чат, панель менеджера, офис', assignee: 'gulnora', reviewer: 'ad', estimate: 24, actual: 22, after: 'Концепт: маскот «24» и стиль интерфейса' },
+  { stage: 'Моделинг', title: 'Моделинг маскота «24»', description: 'Blockout → high-poly → ретопология под риг. Готово к текстурам.', assignee: 'bekzod', reviewer: 'ad', estimate: 36, actual: 40, priority: 'HIGH', after: 'Дизайн персонажей: маскот, менеджер, клиент' },
+  { stage: 'Моделинг', title: 'Моделинг смартфона Hero (high-poly)', assignee: 'bekzod', reviewer: 'ad', estimate: 24, actual: 22 },
+  { stage: 'Моделинг', title: 'Текстуры и материалы UI (glass / matte)', assignee: 'zilola', reviewer: 'ad', estimate: 30, actual: 31, after: 'Моделинг маскота «24»' },
+  { stage: 'Риггинг', title: 'Риг маскота: body + лицевой', description: 'Контролы для «печатающего» жеста и мимики; тест на аниматоре.', assignee: 'sardor', reviewer: 'anna', estimate: 32, actual: 35, priority: 'HIGH', after: 'Моделинг маскота «24»' },
+  { stage: 'Риггинг', title: 'Риг смартфона и пузырей сообщений', assignee: 'sardor', reviewer: 'anna', estimate: 12, actual: 10, after: 'Моделинг смартфона Hero (high-poly)' },
+  { stage: 'Звук', title: 'Джингл, саунд-дизайн и озвучка UZ / RU / EN', description: 'Фирменный джингл 24reply, UI-звуки, запись диктора на трёх языках.', assignee: 'dilshod', reviewer: 'pm', estimate: 40, actual: 38 },
+  { stage: 'Монтаж', title: 'Монтаж трёх роликов', assignee: 'farrux', reviewer: 'ad', estimate: 30, actual: 28, after: 'Джингл, саунд-дизайн и озвучка UZ / RU / EN' },
+  { stage: 'Внутренний просмотр', title: 'Внутренний просмотр с продюсером', assignee: 'pm', reviewer: 'producer', estimate: 4, actual: 4, after: 'Монтаж трёх роликов' },
+  { stage: 'Просмотр клиентом', title: 'Презентация клиенту и сбор правок', description: 'Просмотр с CEO 24reply. Две правки: цвет CTA и логотип в финале.', assignee: 'pm', reviewer: 'producer', estimate: 6, actual: 7, priority: 'HIGH', after: 'Внутренний просмотр с продюсером' },
+  { stage: 'Правки', title: 'Правки клиента: цвет CTA и логотип в финале', assignee: 'javohir', reviewer: 'ad', estimate: 8, actual: 6, priority: 'URGENT', after: 'Презентация клиенту и сбор правок' },
+  { stage: 'Финальный рендер', title: 'Финальный рендер 4K и мастеринг', description: 'ProRes 4444 4K + H.264 1080p для соцсетей, три языковые версии.', assignee: 'sherzod', reviewer: 'pm', estimate: 16, actual: 14, priority: 'HIGH', after: 'Правки клиента: цвет CTA и логотип в финале' },
+  { stage: 'Сдача', title: 'Сдача мастер-файлов и исходников', assignee: 'pm', reviewer: 'producer', estimate: 4, actual: 3, after: 'Финальный рендер 4K и мастеринг' }
 ]
 
 /** Per-scene work, in pipeline order; FX only where the scene needs it. */
 const PER_SCENE = [
-  { stage: 'Layout', prefix: 'Лейаут', assignee: 'marat', estimate: [10, 14] as const },
-  { stage: 'Animation', prefix: 'Анимация', assignee: null, estimate: [28, 40] as const },
-  { stage: 'Simulation / FX', prefix: 'FX: частицы и свечение', assignee: 'shohruh', estimate: [12, 16] as const, only: [1, 4, 7] },
-  { stage: 'Lighting', prefix: 'Свет и шейдинг', assignee: 'nigora', estimate: [14, 18] as const },
-  { stage: 'Compositing', prefix: 'Композитинг', assignee: 'javohir', estimate: [12, 16] as const }
+  { stage: 'Лейаут', prefix: 'Лейаут', assignee: 'marat', estimate: [10, 14] as const },
+  { stage: 'Анимация', prefix: 'Анимация', assignee: null, estimate: [28, 40] as const },
+  { stage: 'Симуляции и FX', prefix: 'FX: частицы и свечение', assignee: 'shohruh', estimate: [12, 16] as const, only: [1, 4, 7] },
+  { stage: 'Свет', prefix: 'Свет и шейдинг', assignee: 'nigora', estimate: [14, 18] as const },
+  { stage: 'Композитинг', prefix: 'Композитинг', assignee: 'javohir', estimate: [12, 16] as const }
 ]
 
 const COMMENTS: Record<string, Array<[string, string]>> = {
@@ -193,10 +193,10 @@ export async function seedWork(staff: Staff, production: Production) {
         title: seed.prefix + ': «' + scene.name + '»',
         stage: seed.stage,
         assigneeKey,
-        reviewerKey: seed.stage === 'Animation' ? 'ad' : 'marat',
+        reviewerKey: seed.stage === 'Анимация' ? 'ad' : 'marat',
         estimate,
         actual: estimate + between(-3, 4),
-        priority: seed.stage === 'Animation' ? 'HIGH' : 'NORMAL',
+        priority: seed.stage === 'Анимация' ? 'HIGH' : 'NORMAL',
         from,
         to,
         sceneIndex: scene.index

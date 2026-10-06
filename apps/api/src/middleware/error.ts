@@ -29,7 +29,7 @@ function firstLine(message: string) {
     .split(String.fromCharCode(10))
     .map(part => part.trim())
     .find(part => part.length > 0)
-  return (line ?? 'Unknown error').slice(0, 200)
+  return (line ?? 'Неизвестная ошибка').slice(0, 200)
 }
 
 export function notFoundHandler(req: Request, res: Response) {
@@ -37,7 +37,7 @@ export function notFoundHandler(req: Request, res: Response) {
     success: false,
     error: {
       code: ERROR_CODE.NOT_FOUND,
-      message: 'Route ' + req.method + ' ' + req.path + ' does not exist'
+      message: 'Адрес ' + req.method + ' ' + req.path + ' не существует'
     }
   })
 }
@@ -74,7 +74,7 @@ export function errorHandler(
       success: false,
       error: {
         code: ERROR_CODE.VALIDATION_FAILED,
-        message: 'Validation failed',
+        message: 'Проверьте заполнение полей',
         details: zodDetails(err)
       }
     })
@@ -85,19 +85,19 @@ export function errorHandler(
       const target = (err.meta?.target as string[] | undefined)?.join(', ') ?? 'field'
       return res.status(409).json({
         success: false,
-        error: { code: ERROR_CODE.CONFLICT, message: target + ' already exists' }
+        error: { code: ERROR_CODE.CONFLICT, message: 'Запись с таким значением уже существует (' + target + ')' }
       })
     }
     if (err.code === 'P2025') {
       return res.status(404).json({
         success: false,
-        error: { code: ERROR_CODE.NOT_FOUND, message: 'Resource not found' }
+        error: { code: ERROR_CODE.NOT_FOUND, message: 'Запись не найдена' }
       })
     }
     if (err.code === 'P2003') {
       return res.status(409).json({
         success: false,
-        error: { code: ERROR_CODE.CONFLICT, message: 'Related record is missing or still in use' }
+        error: { code: ERROR_CODE.CONFLICT, message: 'Связанная запись не найдена или ещё используется' }
       })
     }
   }
@@ -120,7 +120,7 @@ export function errorHandler(
       success: false,
       error: {
         code: ERROR_CODE.SERVICE_UNAVAILABLE,
-        message: 'Database is unavailable. Try again once the connection is restored.'
+        message: 'База данных недоступна. Попробуйте ещё раз, когда соединение восстановится.'
       }
     })
   }
@@ -134,10 +134,10 @@ export function errorHandler(
       // Outside production the message helps debugging, but a Prisma error
       // embeds the source path and query, so those are cut to one line.
       message: isProduction
-        ? 'Internal server error'
+        ? 'Внутренняя ошибка сервера'
         : err instanceof Error
           ? firstLine(err.message)
-          : 'Unknown error'
+          : 'Неизвестная ошибка'
     }
   })
 }

@@ -12,7 +12,7 @@ import * as service from './timesheets.service'
 const dayString = z
   .string()
   .trim()
-  .refine(value => !Number.isNaN(Date.parse(value)), 'Invalid date')
+  .refine(value => !Number.isNaN(Date.parse(value)), 'Неверная дата')
 
 const listSchema = listQuerySchema.extend({
   employeeId: uuidSchema.optional(),
@@ -146,7 +146,7 @@ timesheetsRouter.post(
       // Logging hours against someone else is a supervisor action.
       const employeeId = req.body.employeeId && !ownOnly ? req.body.employeeId : own
       if (!employeeId) {
-        throw forbidden('Your account has no employment record to log hours against')
+        throw forbidden('Ваша учётная запись не привязана к сотруднику, поэтому часы записать нельзя')
       }
 
       const entry = await service.create({ ...req.body, employeeId })
@@ -172,7 +172,7 @@ async function assertMayModify(
   if (!user) throw unauthenticated()
   const own = await service.employeeIdForUser(user.id)
   if (employeeId !== own && OWN_ONLY_ROLES.includes(user.role)) {
-    throw forbidden('You can only change your own timesheet entries')
+    throw forbidden('Менять можно только свои записи табеля')
   }
 }
 

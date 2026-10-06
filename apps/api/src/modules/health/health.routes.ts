@@ -19,7 +19,7 @@ healthRouter.get('/', async (_req, res) => {
   } catch {
     return res.status(503).json({
       success: false,
-      error: { code: 'INTERNAL_ERROR', message: 'Database unreachable' }
+      error: { code: 'INTERNAL_ERROR', message: 'База данных недоступна' }
     })
   }
 })

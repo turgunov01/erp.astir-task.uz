@@ -45,7 +45,7 @@ export async function archive(id: string) {
   await getById(id)
   const active = await repo.countActiveProjects(id)
   if (active > 0) {
-    throw conflict('Client still has ' + active + ' active project(s).')
+    throw conflict('У клиента есть активные проекты: ' + active + '. Сначала завершите или переназначьте их.')
   }
   return repo.softDelete(id)
 }

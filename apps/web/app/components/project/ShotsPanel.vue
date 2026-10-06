@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PRODUCTION_STATUS_LABEL, labelOf } from '~/utils/labels'
 import { PERMISSION, PRODUCTION_STATUS } from '@astir/types'
 import { apiErrorMessage, apiRequest } from '~/composables/useApi'
 import { useAuthStore } from '~/stores/auth'
@@ -116,7 +117,7 @@ function sceneLabel(scene: { sceneNumber: number, name: string, episode: { numbe
           aria-label="Фильтр по статусу"
         >
           <option value="">Все статусы</option>
-          <option v-for="s in STATUSES" :key="s" :value="s">{{ s.split('_').join(' ') }}</option>
+          <option v-for="s in STATUSES" :key="s" :value="s">{{ labelOf(PRODUCTION_STATUS_LABEL, s) }}</option>
         </select>
         <Button
           v-if="canManage"
@@ -216,7 +217,7 @@ function sceneLabel(scene: { sceneNumber: number, name: string, episode: { numbe
             {{ shot.name || shot.scene?.name || 'Без названия' }}
           </p>
           <p class="mt-0.5 text-xs text-muted-foreground">
-            {{ shot.fps }} fps · {{ shot._count.tasks }} задач · {{ shot._count.versions }} версий
+            {{ shot.fps }} к/с · {{ countLabel(shot._count.tasks, 'задача', 'задачи', 'задач') }} · {{ countLabel(shot._count.versions, 'версия', 'версии', 'версий') }}
             <template v-if="shot.assignee">
               · {{ shot.assignee.firstName }} {{ shot.assignee.lastName }}
             </template>

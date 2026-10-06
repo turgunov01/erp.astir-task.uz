@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PRIORITY_LABEL, labelOf } from '~/utils/labels'
 import { PERMISSION, PROJECT_STATUS, PROJECT_TYPE, PRIORITY } from '@astir/types'
 import { PROJECT_TEMPLATES } from '@astir/config'
 import { apiErrorMessage, apiRequest } from '~/composables/useApi'
@@ -40,7 +41,7 @@ const form = reactive({
   deadline: '',
   budget: '',
   currency: 'USD',
-  template: '3D Animation',
+  template: '3D-анимация',
   description: ''
 })
 
@@ -145,7 +146,7 @@ async function onSubmit() {
               id="name"
               v-model="form.name"
               required
-              placeholder="Animated Series — Episode 01"
+              placeholder="Например, Анимационный сериал — эпизод 01"
               class="h-10"
             />
             <p v-if="fieldErrors.name" class="pt-0.5 text-xs text-destructive">
@@ -219,7 +220,7 @@ async function onSubmit() {
                 v-model="form.priority"
                 class="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:border-ring"
               >
-                <option v-for="p in priorities" :key="p" :value="p">{{ p }}</option>
+                <option v-for="p in priorities" :key="p" :value="p">{{ labelOf(PRIORITY_LABEL, p) }}</option>
               </select>
             </div>
           </div>

@@ -6,7 +6,7 @@ import { useEntityCrud } from '~/composables/useEntityCrud'
 import { SHOT_FORM } from '~/utils/entity-forms'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Shots' })
+useHead({ title: 'Шоты' })
 
 const route = useRoute()
 const router = useRouter()
@@ -78,12 +78,12 @@ const crud = useEntityCrud({
 watch(archivedView, () => { page.value = 1 })
 
 const columns: Column[] = [
-  { key: 'code', label: 'Shot', width: '18%' },
-  { key: 'project', label: 'Project', width: '18%' },
-  { key: 'scene', label: 'Scene', width: '18%' },
-  { key: 'assignee', label: 'Artist', width: '16%' },
-  { key: 'progress', label: 'Progress', width: '16%' },
-  { key: 'status', label: 'Status', width: '14%' },
+  { key: 'code', label: 'Шот', width: '18%' },
+  { key: 'project', label: 'Проект', width: '18%' },
+  { key: 'scene', label: 'Сцена', width: '18%' },
+  { key: 'assignee', label: 'Исполнитель', width: '16%' },
+  { key: 'progress', label: 'Прогресс', width: '16%' },
+  { key: 'status', label: 'Статус', width: '14%' },
   { key: 'actions', label: '', width: '56px' }
 ]
 
@@ -99,7 +99,7 @@ function formatDate(value: string | null) {
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
       <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-        Production
+        Производство
       </p>
       <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Шоты</h1>
       <p class="mt-1 text-sm text-muted-foreground">

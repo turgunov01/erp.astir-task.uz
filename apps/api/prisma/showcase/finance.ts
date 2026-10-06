@@ -165,7 +165,7 @@ export async function seedFinance(
     { pool: 'pdf', type: 'INVOICE', name: 'Счёт INV-0003 — финальный платёж', onDay: 127, uploader: 'finance' },
     { pool: 'docx', type: 'ACT', name: 'Акт приёма-передачи мастер-файлов', onDay: 127, uploader: 'pm', owner: { clientId: client.id } },
     { pool: 'csv', type: 'OTHER', name: 'Манифест мастер-файлов', onDay: 127, uploader: 'sherzod' },
-    { pool: 'pdf', type: 'OTHER', name: 'Регламент отдела анимации', onDay: -120, uploader: 'anna', owner: { departmentId: departmentId.get('Animation') }, noProject: true },
+    { pool: 'pdf', type: 'OTHER', name: 'Регламент отдела анимации', onDay: -120, uploader: 'anna', owner: { departmentId: departmentId.get('Анимация') }, noProject: true },
     { pool: 'pdf', type: 'CONTRACT', name: 'Трудовой договор — Анна Волкова', onDay: -1000, uploader: 'finance', owner: { employeeId: staff.anna?.employeeId }, noProject: true }
   ]
 

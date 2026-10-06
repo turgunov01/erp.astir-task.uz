@@ -21,8 +21,8 @@ export const PAYMENT_METHODS = ['BANK_TRANSFER', 'CASH', 'CARD', 'OTHER'] as con
 export const OPEN_INVOICE: Prisma.InvoiceWhereInput = { status: { notIn: ['PAID', 'CANCELLED'] } }
 
 /** A calendar day as YYYY-MM-DD; the period is always whole days. */
-const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected YYYY-MM-DD')
-  .refine(value => !Number.isNaN(Date.parse(value)), 'Invalid date')
+const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Дата должна быть в формате ГГГГ-ММ-ДД')
+  .refine(value => !Number.isNaN(Date.parse(value)), 'Неверная дата')
 
 export const currencyFilter = z.string().trim().length(3).toUpperCase()
 

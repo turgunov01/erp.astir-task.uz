@@ -140,7 +140,7 @@ function daysWaiting(value: string) {
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
       <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-        Production
+        Производство
       </p>
       <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Согласование</h1>
       <p class="mt-1 text-sm text-muted-foreground">
@@ -185,7 +185,7 @@ function daysWaiting(value: string) {
       search-placeholder="Поиск недоступен в этом разделе"
       empty-icon="lucide:eye"
       empty-title="Нет согласований"
-      empty-body="Версии, отправленные на review, появятся здесь."
+      empty-body="Версии, отправленные на согласование, появятся здесь."
       @update:page="page = $event"
       @retry="refresh"
       @row-click="openReview($event.id)"
@@ -229,7 +229,7 @@ function daysWaiting(value: string) {
 
       <template #cell-type="{ row }">
         <span class="text-xs text-muted-foreground">
-          {{ TYPE_LABEL[row.reviewType] ?? row.reviewType }}
+          {{ labelOf(TYPE_LABEL, row.reviewType) }}
         </span>
       </template>
 

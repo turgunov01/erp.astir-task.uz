@@ -2,7 +2,7 @@
 import { useListResource } from '~/composables/useApi'
 import { useFilterOptions } from '~/composables/useFilterOptions'
 
-useHead({ title: 'Activity' })
+useHead({ title: 'Лента событий' })
 
 const route = useRoute()
 const router = useRouter()
@@ -99,7 +99,7 @@ const actionFamilies = computed(() => {
     families.set(family, (families.get(family) ?? 0) + row.count)
   }
   return [...families.entries()]
-    .map(([family, count]) => ({ value: family + '.', label: family, count }))
+    .map(([family, count]) => ({ value: family + '.', label: labelOf(ACTIVITY_FAMILY_LABEL, family, 'Прочее'), count }))
     .sort((a, b) => a.label.localeCompare(b.label))
 })
 
@@ -163,7 +163,7 @@ const grouped = computed(() => {
 <template>
   <div class="mx-auto max-w-5xl px-6 py-8">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Activity</p>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Студия</p>
       <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Лента событий</h1>
       <p class="mt-1 max-w-2xl text-sm text-muted-foreground">
         Что происходило в студии: кто что создал, переназначил и перевёл в другой
@@ -211,7 +211,7 @@ const grouped = computed(() => {
         >
           <option value="">Любые объекты</option>
           <option v-for="row in entityTypes" :key="row.value" :value="row.value">
-            {{ enumLabel(ENTITY_TYPE_LABEL, row.value) }} ({{ row.count }})
+            {{ labelOf(ENTITY_TYPE_LABEL, row.value, 'Запись') }} ({{ row.count }})
           </option>
         </select>
 
@@ -313,14 +313,14 @@ const grouped = computed(() => {
                   {{ row.actor ? row.actor.firstName + ' ' + row.actor.lastName : 'Система' }}
                 </span>
                 {{ ' ' }}
-                <span>{{ enumLabel(ACTIVITY_ACTION_LABEL, row.action) }}</span>
+                <span>{{ labelOf(ACTIVITY_ACTION_LABEL, row.action, 'выполнил действие') }}</span>
                 <span v-if="detail(row)" class="text-muted-foreground">
                   {{ ' ' }}{{ detail(row) }}
                 </span>
               </p>
 
               <p class="mt-0.5 text-xs text-muted-foreground">
-                <span>{{ enumLabel(ENTITY_TYPE_LABEL, row.entityType) }}</span>
+                <span>{{ labelOf(ENTITY_TYPE_LABEL, row.entityType, 'Запись') }}</span>
                 <template v-if="row.project">
                   ·
                   <NuxtLink :to="'/projects/' + row.project.id" class="hover:underline">

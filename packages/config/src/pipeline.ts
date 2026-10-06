@@ -14,45 +14,45 @@ export interface PipelineStageTemplate {
 }
 
 export const DEFAULT_PIPELINE: readonly PipelineStageTemplate[] = [
-  { name: 'Brief', order: 1, weight: 1, department: 'Management' },
-  { name: 'Script', order: 2, weight: 1, department: 'Management' },
-  { name: 'Storyboard', order: 3, weight: 2, department: '2D' },
-  { name: 'Animatic', order: 4, weight: 2, department: '2D' },
-  { name: 'Concept Art', order: 5, weight: 2, department: '2D' },
-  { name: 'Character Design', order: 6, weight: 2, department: '2D' },
-  { name: 'Environment Design', order: 7, weight: 2, department: '2D' },
-  { name: 'Modeling', order: 8, weight: 3, department: 'Modeling' },
-  { name: 'Rigging', order: 9, weight: 3, department: 'Rigging' },
-  { name: 'Layout', order: 10, weight: 2, department: '3D' },
-  { name: 'Animation', order: 11, weight: 5, department: 'Animation' },
-  { name: 'Simulation / FX', order: 12, weight: 3, department: '3D' },
-  { name: 'Lighting', order: 13, weight: 3, department: 'Lighting' },
-  { name: 'Rendering', order: 14, weight: 4, department: 'Rendering' },
-  { name: 'Compositing', order: 15, weight: 3, department: 'Compositing' },
-  { name: 'Sound', order: 16, weight: 2, department: 'Sound' },
-  { name: 'Editing', order: 17, weight: 2, department: 'Editing' },
-  { name: 'Internal Review', order: 18, weight: 1, department: 'Production' },
-  { name: 'Client Review', order: 19, weight: 1, department: 'Production' },
-  { name: 'Corrections', order: 20, weight: 2, department: 'Production' },
-  { name: 'Final Render', order: 21, weight: 2, department: 'Rendering' },
-  { name: 'Delivery', order: 22, weight: 1, department: 'Production' }
+  { name: 'Бриф', order: 1, weight: 1, department: 'Руководство' },
+  { name: 'Сценарий', order: 2, weight: 1, department: 'Руководство' },
+  { name: 'Раскадровка', order: 3, weight: 2, department: '2D' },
+  { name: 'Аниматик', order: 4, weight: 2, department: '2D' },
+  { name: 'Концепт-арт', order: 5, weight: 2, department: '2D' },
+  { name: 'Дизайн персонажей', order: 6, weight: 2, department: '2D' },
+  { name: 'Дизайн окружения', order: 7, weight: 2, department: '2D' },
+  { name: 'Моделинг', order: 8, weight: 3, department: 'Моделинг' },
+  { name: 'Риггинг', order: 9, weight: 3, department: 'Риггинг' },
+  { name: 'Лейаут', order: 10, weight: 2, department: '3D' },
+  { name: 'Анимация', order: 11, weight: 5, department: 'Анимация' },
+  { name: 'Симуляции и FX', order: 12, weight: 3, department: '3D' },
+  { name: 'Свет', order: 13, weight: 3, department: 'Свет' },
+  { name: 'Рендер', order: 14, weight: 4, department: 'Рендер' },
+  { name: 'Композитинг', order: 15, weight: 3, department: 'Композитинг' },
+  { name: 'Звук', order: 16, weight: 2, department: 'Звук' },
+  { name: 'Монтаж', order: 17, weight: 2, department: 'Монтаж' },
+  { name: 'Внутренний просмотр', order: 18, weight: 1, department: 'Продакшн' },
+  { name: 'Просмотр клиентом', order: 19, weight: 1, department: 'Продакшн' },
+  { name: 'Правки', order: 20, weight: 2, department: 'Продакшн' },
+  { name: 'Финальный рендер', order: 21, weight: 2, department: 'Рендер' },
+  { name: 'Сдача', order: 22, weight: 1, department: 'Продакшн' }
 ]
 
 /** Departments seeded on a fresh studio (spec 30). */
 export const DEFAULT_DEPARTMENTS: readonly string[] = [
-  'Production',
+  'Продакшн',
   '2D',
   '3D',
-  'Animation',
-  'Modeling',
-  'Rigging',
-  'Lighting',
-  'Rendering',
-  'Compositing',
-  'Sound',
-  'Editing',
-  'Management',
-  'Finance'
+  'Анимация',
+  'Моделинг',
+  'Риггинг',
+  'Свет',
+  'Рендер',
+  'Композитинг',
+  'Звук',
+  'Монтаж',
+  'Руководство',
+  'Финансы'
 ]
 
 /**
@@ -60,31 +60,31 @@ export const DEFAULT_DEPARTMENTS: readonly string[] = [
  * that applies; anything not listed is skipped for that project type.
  */
 export const PROJECT_TEMPLATES: Readonly<Record<string, readonly string[]>> = {
-  '2D Animation': [
-    'Brief', 'Script', 'Storyboard', 'Animatic', 'Concept Art',
-    'Character Design', 'Environment Design', 'Animation', 'Compositing',
-    'Sound', 'Editing', 'Internal Review', 'Client Review', 'Corrections',
-    'Final Render', 'Delivery'
+  '2D-анимация': [
+    'Бриф', 'Сценарий', 'Раскадровка', 'Аниматик', 'Концепт-арт',
+    'Дизайн персонажей', 'Дизайн окружения', 'Анимация', 'Композитинг',
+    'Звук', 'Монтаж', 'Внутренний просмотр', 'Просмотр клиентом', 'Правки',
+    'Финальный рендер', 'Сдача'
   ],
-  '3D Animation': [
-    'Brief', 'Script', 'Storyboard', 'Animatic', 'Concept Art',
-    'Character Design', 'Environment Design', 'Modeling', 'Rigging', 'Layout',
-    'Animation', 'Simulation / FX', 'Lighting', 'Rendering', 'Compositing',
-    'Sound', 'Editing', 'Internal Review', 'Client Review', 'Corrections',
-    'Final Render', 'Delivery'
+  '3D-анимация': [
+    'Бриф', 'Сценарий', 'Раскадровка', 'Аниматик', 'Концепт-арт',
+    'Дизайн персонажей', 'Дизайн окружения', 'Моделинг', 'Риггинг', 'Лейаут',
+    'Анимация', 'Симуляции и FX', 'Свет', 'Рендер', 'Композитинг',
+    'Звук', 'Монтаж', 'Внутренний просмотр', 'Просмотр клиентом', 'Правки',
+    'Финальный рендер', 'Сдача'
   ],
-  'Commercial': [
-    'Brief', 'Script', 'Storyboard', 'Animatic', 'Animation', 'Compositing',
-    'Sound', 'Editing', 'Internal Review', 'Client Review', 'Corrections',
-    'Final Render', 'Delivery'
+  'Рекламный ролик': [
+    'Бриф', 'Сценарий', 'Раскадровка', 'Аниматик', 'Анимация', 'Композитинг',
+    'Звук', 'Монтаж', 'Внутренний просмотр', 'Просмотр клиентом', 'Правки',
+    'Финальный рендер', 'Сдача'
   ],
-  'Motion Design': [
-    'Brief', 'Script', 'Storyboard', 'Animation', 'Compositing', 'Sound',
-    'Editing', 'Internal Review', 'Client Review', 'Corrections', 'Delivery'
+  'Моушн-дизайн': [
+    'Бриф', 'Сценарий', 'Раскадровка', 'Анимация', 'Композитинг', 'Звук',
+    'Монтаж', 'Внутренний просмотр', 'Просмотр клиентом', 'Правки', 'Сдача'
   ],
-  'Series Episode': [
-    'Brief', 'Storyboard', 'Animatic', 'Layout', 'Animation', 'Lighting',
-    'Rendering', 'Compositing', 'Sound', 'Editing', 'Internal Review',
-    'Client Review', 'Corrections', 'Final Render', 'Delivery'
+  'Серия сериала': [
+    'Бриф', 'Раскадровка', 'Аниматик', 'Лейаут', 'Анимация', 'Свет',
+    'Рендер', 'Композитинг', 'Звук', 'Монтаж', 'Внутренний просмотр',
+    'Просмотр клиентом', 'Правки', 'Финальный рендер', 'Сдача'
   ]
 }

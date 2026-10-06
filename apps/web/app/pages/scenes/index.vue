@@ -6,7 +6,7 @@ import { useEntityCrud } from '~/composables/useEntityCrud'
 import { SCENE_FORM } from '~/utils/entity-forms'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Scenes' })
+useHead({ title: 'Сцены' })
 
 const route = useRoute()
 const page = ref(Number(route.query.page ?? 1))
@@ -60,12 +60,12 @@ const crud = useEntityCrud({
 watch(archivedView, () => { page.value = 1 })
 
 const columns: Column[] = [
-  { key: 'code', label: 'Scene', width: '26%' },
-  { key: 'project', label: 'Project', width: '14%' },
-  { key: 'episode', label: 'Episode', width: '16%' },
-  { key: 'shots', label: 'Shots', width: '10%', numeric: true },
-  { key: 'progress', label: 'Progress', width: '18%' },
-  { key: 'status', label: 'Status', width: '16%' },
+  { key: 'code', label: 'Сцена', width: '26%' },
+  { key: 'project', label: 'Проект', width: '14%' },
+  { key: 'episode', label: 'Эпизод', width: '16%' },
+  { key: 'shots', label: 'Шоты', width: '10%', numeric: true },
+  { key: 'progress', label: 'Прогресс', width: '18%' },
+  { key: 'status', label: 'Статус', width: '16%' },
   { key: 'actions', label: '', width: '56px' }
 ]
 
@@ -79,7 +79,7 @@ function pad(value: number) {
 <template>
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Production</p>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Производство</p>
       <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Сцены</h1>
       <p class="mt-1 text-sm text-muted-foreground">{{ meta.total }} сцен(ы)</p>
     </header>

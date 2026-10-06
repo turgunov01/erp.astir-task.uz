@@ -60,13 +60,13 @@ async function staff(owner, departmentIds) {
 }
 
 async function studio(owner, departmentIds) {
-  const logo = await owner.upload('/api/files', { departmentId: departmentIds.get('Management'), type: 'OTHER', name: 'Логотип студии' }, next('image', 'astir-logo'))
+  const logo = await owner.upload('/api/files', { departmentId: departmentIds.get('Руководство'), type: 'OTHER', name: 'Логотип студии' }, next('image', 'astir-logo'))
   await owner.patch('/api/settings', { ...S.STUDIO, ...(logo?.fileUrl ? { logoUrl: logo.fileUrl } : {}) })
   const existing = await owner.get('/api/settings/templates')
   const names = new Set((existing.data ?? []).map(t => t.name))
   for (const [name, stages] of Object.entries(S.TEMPLATES)) {
     if (names.has(name)) continue
-    await owner.post('/api/settings/templates', { name, stages, isDefault: name === '3D Animation', description: 'Шаблон «' + name + '»' })
+    await owner.post('/api/settings/templates', { name, stages, isDefault: name === '3D-анимация', description: 'Шаблон «' + name + '»' })
   }
   log('studio settings and ' + Object.keys(S.TEMPLATES).length + ' templates')
 }

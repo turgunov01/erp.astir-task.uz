@@ -246,7 +246,6 @@ async function resetRole(role: string) {
             <tr v-for="permission in group.permissions" :key="permission.key" class="border-t hover:bg-secondary/30">
               <td class="sticky left-0 z-[1] w-44 bg-card px-4 py-1.5 sm:w-auto">
                 <span>{{ permission.label }}</span>
-                <span class="ml-2 hidden font-mono text-[11px] text-muted-foreground/70 sm:inline">{{ permission.key }}</span>
               </td>
               <td v-for="role in ROLES" :key="role" class="px-2 py-1.5 text-center">
                 <button

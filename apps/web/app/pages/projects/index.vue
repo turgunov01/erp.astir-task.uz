@@ -5,7 +5,7 @@ import { useAuthStore } from '~/stores/auth'
 import { useEntityCrud } from '~/composables/useEntityCrud'
 import { PERMISSION, PROJECT_STATUS } from '@astir/types'
 
-useHead({ title: 'Projects' })
+useHead({ title: 'Проекты' })
 
 const auth = useAuthStore()
 const route = useRoute()
@@ -68,13 +68,13 @@ const crud = useEntityCrud({
 watch(archivedView, () => { page.value = 1 })
 
 const columns: Column[] = [
-  { key: 'code', label: 'Code', width: '10%' },
-  { key: 'name', label: 'Project', width: '26%' },
-  { key: 'client', label: 'Client', width: '16%' },
-  { key: 'status', label: 'Status', width: '14%' },
-  { key: 'progress', label: 'Progress', width: '16%' },
-  { key: 'deadline', label: 'Deadline', width: '12%' },
-  { key: 'risk', label: 'Risk', width: '10%' },
+  { key: 'code', label: 'Код', width: '10%' },
+  { key: 'name', label: 'Проект', width: '26%' },
+  { key: 'client', label: 'Клиент', width: '16%' },
+  { key: 'status', label: 'Статус', width: '14%' },
+  { key: 'progress', label: 'Прогресс', width: '16%' },
+  { key: 'deadline', label: 'Срок', width: '12%' },
+  { key: 'risk', label: 'Риск', width: '10%' },
   { key: 'actions', label: '', width: '56px' }
 ]
 
@@ -97,7 +97,7 @@ function isOverdue(deadline: string | null, progress: number) {
     <header class="mb-6 flex flex-wrap items-start justify-between gap-4">
       <div>
         <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-          Projects
+          Портфель
         </p>
         <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Проекты</h1>
         <p class="mt-1 text-sm text-muted-foreground">
