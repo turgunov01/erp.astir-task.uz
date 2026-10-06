@@ -45,6 +45,9 @@ export const NAVIGATION: NavItem[] = [
       { label: 'Сотрудники', to: '/team/employees', icon: 'lucide:user', permission: PERMISSION.TEAM_VIEW },
       { label: 'Отделы', to: '/team/departments', icon: 'lucide:building-2', permission: PERMISSION.TEAM_VIEW },
       { label: 'Загрузка', to: '/team/workload', icon: 'lucide:gauge', permission: PERMISSION.WORKLOAD_VIEW },
+      // Arrivals, lateness and worked time; where the owner and the
+      // administrator start (auth store homePath).
+      { label: 'Активность сотрудников', to: '/team/attendance', icon: 'lucide:user-check', permission: PERMISSION.ATTENDANCE_VIEW },
       { label: 'Учёт времени', to: '/timesheets', icon: 'lucide:clock', permission: PERMISSION.TIMESHEET_VIEW_OWN },
       { label: 'Таймлайн', to: '/timeline', icon: 'lucide:chart-gantt', permission: PERMISSION.PRODUCTION_VIEW }
     ]

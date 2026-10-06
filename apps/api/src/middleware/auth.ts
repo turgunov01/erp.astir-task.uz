@@ -5,6 +5,7 @@ import { prisma } from '../lib/prisma'
 import { hasPermission } from '../lib/rbac'
 import { forbidden, tokenExpired, unauthenticated } from '../lib/errors'
 import { ACCESS_COOKIE, verifyAccessToken } from '../modules/auth/tokens'
+import { notePresence } from '../modules/attendance/presence'
 
 function extractToken(req: Request): string | null {
   const header = req.headers.authorization
@@ -52,6 +53,8 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
 
     const { isActive: _isActive, ...authUser } = user
     req.user = authUser
+    // Attendance: throttled, detached, never fails the request.
+    notePresence(user.id)
     next()
   } catch (err) {
     next(err)

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { appendResponseHeader } from 'h3'
 import type { H3Event } from 'h3'
-import { PERMISSION, type AuthUser, type Permission } from '@astir/types'
+import { PERMISSION, ROLE, type AuthUser, type Permission } from '@astir/types'
 
 interface SessionPayload {
   user: AuthUser
@@ -38,8 +38,22 @@ function mergeRequestCookies(event: H3Event, pairs: string[]): void {
     .join('; ')
 }
 
-/** The personal task list, where people doing the work start. */
+/** The personal task list, where every employee starts. */
 export const MY_TASKS_PATH = '/tasks/my'
+
+/** Employee activity control, where the owner and the administrator start. */
+export const ATTENDANCE_PATH = '/team/attendance'
+
+/**
+ * Pages a session without tasks or a dashboard (a client account) can open,
+ * in the order it should land on them. Each is scoped server-side to the
+ * caller's own client.
+ */
+const PORTAL_PAGES: ReadonlyArray<{ path: string, permission: Permission }> = [
+  { path: '/projects', permission: PERMISSION.PROJECT_VIEW },
+  { path: '/reviews', permission: PERMISSION.REVIEW_VIEW },
+  { path: '/documents', permission: PERMISSION.DOCUMENT_VIEW }
+]
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<AuthUser | null>(null)
@@ -69,18 +83,22 @@ export const useAuthStore = defineStore('auth', () => {
 
   /**
    * Where this session starts: after sign-in, on `/` and when a signed-in
-   * user opens a guest page.
+   * user opens a guest page. A `?redirect=` on the login page still wins.
    *
-   * Decided by permissions rather than by role name, because the matrix is
-   * editable in Settings. A session that may see only its own tasks is someone
-   * doing the work, and starts on that work; anyone who oversees the studio's
-   * tasks keeps the dashboard. A role without a dashboard but with tasks of its
-   * own also starts on them rather than on a refusal.
+   * The client's rule, literally: the owner and the administrator start on
+   * employee activity control; every employee starts on their own tasks.
+   * Each step also checks the page can actually be opened, so an edited role
+   * matrix degrades to the next sensible page instead of a 403 — and client
+   * accounts, which have neither, land in their portal.
    */
   const homePath = computed(() => {
-    const ownTasksOnly = can(PERMISSION.TASK_VIEW_OWN) && !can(PERMISSION.TASK_VIEW)
-    const tasksWithoutDashboard = can(PERMISSION.TASK_VIEW_OWN) && !can(PERMISSION.DASHBOARD_VIEW)
-    return ownTasksOnly || tasksWithoutDashboard ? MY_TASKS_PATH : '/dashboard'
+    const role = user.value?.role
+    const oversees = role === ROLE.OWNER || role === ROLE.ADMIN
+    if (oversees && can(PERMISSION.ATTENDANCE_VIEW)) return ATTENDANCE_PATH
+    if (can(PERMISSION.TASK_VIEW_OWN)) return MY_TASKS_PATH
+    if (can(PERMISSION.DASHBOARD_VIEW)) return '/dashboard'
+    const portal = PORTAL_PAGES.find(page => can(page.permission))
+    return portal ? portal.path : '/profile'
   })
 
   /**

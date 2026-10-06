@@ -3,6 +3,7 @@ import { ERROR_CODE, type AuthUser } from '@astir/types'
 import { prisma } from '../../lib/prisma'
 import { AppError, invalidCredentials, forbidden, unauthenticated } from '../../lib/errors'
 import { consumeLoginCode, issueLoginCode } from '../../lib/otp'
+import { notePresence } from '../attendance/presence'
 import {
   generateRefreshToken,
   hashRefreshToken,
@@ -124,6 +125,9 @@ export async function login(
     })
   ])
 
+  // Signing in opens the working day (attendance check-in).
+  notePresence(user.id, true)
+
   return issueSession(user, context)
 }
 
@@ -219,6 +223,9 @@ export async function verifyLoginCode(
       }
     })
   ])
+
+  // Signing in opens the working day (attendance check-in).
+  notePresence(user.id, true)
 
   return issueSession(user, context)
 }

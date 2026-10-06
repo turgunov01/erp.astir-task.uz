@@ -81,13 +81,15 @@ const flatNav = computed(() =>
 const PHONE_TAB_LABEL: Record<string, string> = {
   '/dashboard': 'Панель',
   '/tasks/my': 'Мои',
+  '/team/attendance': 'Активность',
   '/finance': 'Финансы',
   '/activity': 'События'
 }
 
 // Own tasks come before the full task list: on a phone the person checking in
 // is far more often looking for their next job than browsing everyone's.
-const PHONE_TABS = ['/dashboard', '/tasks/my', '/projects', '/calendar', '/tasks', '/finance', '/activity']
+// Attendance leads for the sessions that start there (owner, administrator).
+const PHONE_TABS = ['/team/attendance', '/dashboard', '/tasks/my', '/projects', '/calendar', '/tasks', '/finance', '/activity']
 
 const bottomTabs = computed(() => {
   const byPath = new Map(flatNav.value.map(item => [item.to, item]))

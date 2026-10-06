@@ -36,6 +36,7 @@ import { settingsRouter } from './modules/settings/settings.routes'
 import { usersRouter } from './modules/users/users.routes'
 import { runWithRequestContext } from './lib/request-context'
 import { timesheetsRouter } from './modules/timesheets/timesheets.routes'
+import { attendanceRouter } from './modules/attendance/attendance.routes'
 
 export function createApp() {
   const app = express()
@@ -115,6 +116,7 @@ export function createApp() {
   app.use('/api/notifications', notificationsRouter)
   app.use('/api/dashboard', dashboardRouter)
   app.use('/api/timesheets', timesheetsRouter)
+  app.use('/api/attendance', attendanceRouter)
   app.use('/api/reviews', reviewsRouter)
   app.use('/api/revisions', revisionsRouter)
   app.use('/api/versions', versionsRouter)

@@ -234,7 +234,8 @@ export const PAYROLL_STATUS_LABEL: Record<string, string> = {
 
 export const PAYROLL_SOURCE_LABEL: Record<string, string> = {
   MANUAL: 'Вручную',
-  TIMESHEET: 'Из табеля',
+  // Also lateness fines generated from employee activity (attendance).
+  TIMESHEET: 'Из табеля и посещаемости',
   EXTERNAL: 'Из внешней системы'
 }
 
@@ -428,6 +429,10 @@ export const PERMISSION_GROUPS: readonly PermissionGroup[] = [
     { key: 'team:view', label: 'Видеть сотрудников и отделы' },
     { key: 'team:manage', label: 'Управлять сотрудниками' },
     { key: 'workload:view', label: 'Видеть загрузку' }
+  ] },
+  { label: 'Активность сотрудников: приход, опоздания', permissions: [
+    { key: 'attendance:view', label: 'Видеть активность и опоздания (открывает раздел)' },
+    { key: 'attendance:manage', label: 'Исправлять дни и начислять штрафы за опоздания' }
   ] },
   { label: 'Учёт времени', permissions: [
     { key: 'timesheet:view:own', label: 'Видеть свой табель (открывает раздел)' },
