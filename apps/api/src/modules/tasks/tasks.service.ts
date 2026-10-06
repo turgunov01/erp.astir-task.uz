@@ -40,7 +40,7 @@ function toDate(value?: string | null): Date | null {
 export async function create(input: CreateTaskInput, actorId?: string) {
   const project = await prisma.project.findFirst({
     where: { id: input.projectId, deletedAt: null },
-    select: { id: true, code: true }
+    select: { id: true, code: true, name: true }
   })
   if (!project) throw notFound('Project')
 
@@ -95,6 +95,7 @@ export async function create(input: CreateTaskInput, actorId?: string) {
           taskId: created.id,
           taskTitle: created.title,
           projectCode: project.code,
+          projectName: project.name,
           deadline: created.deadline
         },
         tx
@@ -135,16 +136,23 @@ export async function update(id: string, input: Record<string, unknown>, actorId
   if ('deadline' in input) data.deadline = toDate(input.deadline as string | null)
   if ('startDate' in input) data.startDate = toDate(input.startDate as string | null)
 
-  await prisma.task.update({ where: { id }, data })
+  const updated = await prisma.task.update({
+    where: { id },
+    data,
+    select: { title: true, deadline: true }
+  })
 
+  // Reassignment only: the previous assignee is not told they were taken off.
   if (input.assigneeId && input.assigneeId !== existing.assigneeId) {
+    // The same edit may rename or reschedule, so announce what was saved.
     await notifyTaskAssigned({
       assigneeId: input.assigneeId as string,
       actorId,
       taskId: id,
-      taskTitle: existing.title,
+      taskTitle: updated.title,
       projectCode: existing.project?.code ?? null,
-      deadline: existing.deadline
+      projectName: existing.project?.name ?? null,
+      deadline: updated.deadline
     })
 
     await recordActivity({
@@ -153,7 +161,7 @@ export async function update(id: string, input: Record<string, unknown>, actorId
       entityId: id,
       projectId: existing.projectId,
       action: 'task.assigned',
-      metadata: { title: existing.title }
+      metadata: { title: updated.title }
     })
   }
 

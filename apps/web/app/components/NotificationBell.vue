@@ -58,6 +58,7 @@ function pluralUnread(count: number) {
 function iconFor(type: string) {
   if (type.startsWith('TASK')) return 'lucide:list-checks'
   if (type.startsWith('VERSION')) return 'lucide:layers'
+  if (type === 'PROJECT_ASSIGNED') return 'lucide:folder-plus'
   if (type.includes('DEADLINE')) return 'lucide:calendar-clock'
   return 'lucide:bell'
 }

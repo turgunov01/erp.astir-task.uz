@@ -1,6 +1,7 @@
 import { prisma } from '../../lib/prisma'
 import { conflict, notFound } from '../../lib/errors'
 import { recordActivity } from '../../lib/activity'
+import { notifyProjectAssigned } from '../../lib/notify'
 
 const MEMBER_INCLUDE = {
   user: {
@@ -43,7 +44,7 @@ export async function add(
   const [project, user] = await Promise.all([
     prisma.project.findFirst({
       where: { id: projectId, deletedAt: null },
-      select: { id: true }
+      select: { id: true, code: true, name: true, deadline: true }
     }),
     prisma.user.findFirst({
       where: { id: input.userId, deletedAt: null },
@@ -61,24 +62,42 @@ export async function add(
   })
   if (existing) throw conflict('This person is already on the project')
 
-  const member = await prisma.projectMember.create({
-    data: { projectId, userId: input.userId, roleLabel: input.roleLabel ?? null },
-    include: MEMBER_INCLUDE
-  })
+  return prisma.$transaction(async tx => {
+    const member = await tx.projectMember.create({
+      data: { projectId, userId: input.userId, roleLabel: input.roleLabel ?? null },
+      include: MEMBER_INCLUDE
+    })
 
-  await recordActivity({
-    actorId,
-    entityType: 'ProjectMember',
-    entityId: member.id,
-    projectId,
-    action: 'member.added',
-    metadata: {
-      name: user.firstName + ' ' + user.lastName,
-      roleLabel: input.roleLabel ?? undefined
-    }
-  })
+    await recordActivity(
+      {
+        actorId,
+        entityType: 'ProjectMember',
+        entityId: member.id,
+        projectId,
+        action: 'member.added',
+        metadata: {
+          name: user.firstName + ' ' + user.lastName,
+          roleLabel: input.roleLabel ?? undefined
+        }
+      },
+      tx
+    )
 
-  return member
+    await notifyProjectAssigned(
+      {
+        userId: input.userId,
+        actorId,
+        projectId,
+        projectCode: project.code,
+        projectName: project.name,
+        roleLabel: input.roleLabel ?? null,
+        deadline: project.deadline
+      },
+      tx
+    )
+
+    return member
+  })
 }
 
 export async function updateRoleLabel(

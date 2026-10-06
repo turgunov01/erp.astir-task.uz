@@ -214,6 +214,7 @@ enum NotificationType {
   SHOT_DEADLINE
   RENDER_FAILED
   COMMENT_MENTION
+  PROJECT_ASSIGNED
 }
 
 enum NotificationChannel {
