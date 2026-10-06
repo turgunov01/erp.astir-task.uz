@@ -57,12 +57,34 @@ function align(date: Date) {
 }
 
 const milestones = computed(() =>
-  props.projects.flatMap(project =>
-    project.milestones
-      .filter(item => item.dueDate)
-      .map(item => ({ ...item, due: startOfDay(item.dueDate as string), code: project.code }))
-  )
+  props.projects
+    .flatMap(project =>
+      project.milestones
+        .filter(item => item.dueDate)
+        .map(item => ({ ...item, due: startOfDay(item.dueDate as string), code: project.code }))
+    )
+    .sort((a, b) => a.due.getTime() - b.due.getTime())
 )
+
+/** Below this a milestone keeps only its diamond; the name stays in the tooltip. */
+const MIN_MILESTONE_LABEL = 28
+const MILESTONE_LABEL_MAX = 160
+const MILESTONE_GAP = 22
+
+/*
+ * Each name may run only up to the next diamond, so neighbouring milestones
+ * a few days apart never print over each other.
+ */
+const milestoneLabelWidth = computed(() => {
+  const widths = new Map<string, number>()
+  const list = milestones.value
+  list.forEach((item, index) => {
+    const next = list[index + 1]
+    const room = next ? x(next.due) - x(item.due) - MILESTONE_GAP : MILESTONE_LABEL_MAX
+    widths.set(item.id, Math.min(MILESTONE_LABEL_MAX, room))
+  })
+  return widths
+})
 
 /** Axis: the filter period when given, otherwise everything dated plus padding. */
 const axis = computed(() => {
@@ -371,7 +393,11 @@ watch(() => [props.scale, axis.value.start.getTime()], () => nextTick(scrollToTo
                     ? 'bg-emerald-600'
                     : item.due < today ? 'bg-destructive' : 'bg-violet-500'"
                 />
-                <span v-if="scale !== 'month'" class="max-w-40 truncate text-xs text-muted-foreground">
+                <span
+                  v-if="scale !== 'month' && (milestoneLabelWidth.get(item.id) ?? 0) >= MIN_MILESTONE_LABEL"
+                  class="truncate text-xs text-muted-foreground"
+                  :style="{ maxWidth: milestoneLabelWidth.get(item.id) + 'px' }"
+                >
                   {{ item.name }}
                 </span>
               </div>
