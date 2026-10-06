@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { formatPercent } from '~/utils/finance-period'
+
 /**
  * Project profitability, cumulative to the end of the chosen period: budget,
  * what was spent, what came in, the margin and how much of the planned cost
@@ -27,6 +29,8 @@ export interface ProjectRow {
 
 defineProps<{ rows: ProjectRow[] }>()
 
+const { t } = useI18n()
+
 const money = (value: number, currency: string) => formatMoney(value, currency, 0)
 
 function marginTone(value: number) {
@@ -49,12 +53,12 @@ const TH = 'px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-
     <table class="w-full min-w-[56rem] text-sm">
       <thead>
         <tr class="border-b text-left">
-          <th :class="TH">Проект</th>
-          <th :class="TH" class="text-right">Бюджет</th>
-          <th :class="TH" class="text-right">Факт расходов</th>
-          <th :class="TH" class="text-right">Поступления</th>
-          <th :class="TH" class="text-right">Маржа</th>
-          <th :class="TH" class="w-44">Освоение бюджета</th>
+          <th :class="TH">{{ t('finance.common.project') }}</th>
+          <th :class="TH" class="text-right">{{ t('finance.projects.budget') }}</th>
+          <th :class="TH" class="text-right">{{ t('finance.projects.actualCost') }}</th>
+          <th :class="TH" class="text-right">{{ t('finance.overview.inflow') }}</th>
+          <th :class="TH" class="text-right">{{ t('finance.projects.margin') }}</th>
+          <th :class="TH" class="w-44">{{ t('finance.projects.burn') }}</th>
         </tr>
       </thead>
       <tbody class="divide-y">
@@ -69,23 +73,23 @@ const TH = 'px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-
           <td class="px-4 py-3 text-right tabular-nums">
             <template v-if="row.hasBudget">
               {{ money(row.revenue, row.currency) }}
-              <span class="block text-xs text-muted-foreground">затраты {{ money(row.plannedCost, row.currency) }}</span>
+              <span class="block text-xs text-muted-foreground">{{ t('finance.projects.plannedCost', { amount: money(row.plannedCost, row.currency) }) }}</span>
             </template>
-            <span v-else class="text-xs text-muted-foreground">нет бюджета</span>
+            <span v-else class="text-xs text-muted-foreground">{{ t('finance.projects.noBudget') }}</span>
           </td>
           <td class="px-4 py-3 text-right tabular-nums">
             {{ money(row.actualCost, row.currency) }}
             <span class="block text-xs text-muted-foreground">
-              расходы {{ money(row.expenses, row.currency) }} · труд {{ money(row.labour, row.currency) }}
+              {{ t('finance.projects.expensesAmount', { amount: money(row.expenses, row.currency) }) }} · {{ t('finance.projects.labourAmount', { amount: money(row.labour, row.currency) }) }}
             </span>
           </td>
           <td class="px-4 py-3 text-right tabular-nums">
             {{ money(row.collected, row.currency) }}
-            <span class="block text-xs text-muted-foreground">выставлено {{ money(row.invoiced, row.currency) }}</span>
+            <span class="block text-xs text-muted-foreground">{{ t('finance.overview.invoicedAmount', { amount: money(row.invoiced, row.currency) }) }}</span>
           </td>
           <td class="px-4 py-3 text-right tabular-nums" :class="marginTone(row.margin)">
             {{ money(row.margin, row.currency) }}
-            <span class="block text-xs">{{ row.marginPct === null ? 'оплат не было' : row.marginPct + '%' }}</span>
+            <span class="block text-xs">{{ row.marginPct === null ? t('finance.projects.noPayments') : formatPercent(row.marginPct) }}</span>
           </td>
           <td class="px-4 py-3">
             <template v-if="row.burnPct !== null">
@@ -93,12 +97,12 @@ const TH = 'px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-
                 <div class="h-full rounded-full" :class="burnTone(row.burnPct)" :style="{ width: Math.min(100, row.burnPct) + '%' }" />
               </div>
               <span class="mt-1 block text-xs tabular-nums" :class="row.burnPct > 100 ? 'font-medium text-destructive' : 'text-muted-foreground'">
-                {{ row.burnPct }}% плана затрат
+                {{ t('finance.projects.burnOfPlan', { percent: formatPercent(row.burnPct) }) }}
               </span>
             </template>
-            <span v-else class="text-xs text-muted-foreground">нет плана затрат</span>
+            <span v-else class="text-xs text-muted-foreground">{{ t('finance.projects.noCostPlan') }}</span>
             <span v-if="row.otherCurrencies.length > 0" class="block text-xs text-signal-foreground">
-              + суммы в {{ row.otherCurrencies.join(', ') }} не учтены
+              {{ t('finance.projects.otherCurrenciesSkipped', { currencies: row.otherCurrencies.join(', ') }) }}
             </span>
           </td>
         </tr>

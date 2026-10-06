@@ -1,3 +1,407 @@
 {
-  "finance": {}
+  "finance": {
+    "nav": {
+      "overview": "Moliya",
+      "budgets": "Byudjetlar",
+      "expenses": "Xarajatlar",
+      "payments": "To‘lovlar",
+      "invoices": "Hisob-fakturalar",
+      "payroll": "Ish haqi: bo‘naklar, jarimalar, mukofotlar",
+      "financialReport": "Moliyaviy hisobot"
+    },
+    "period": {
+      "all": "Butun davr",
+      "allInline": "butun davr",
+      "quarter": "{year}-yil {quarter}-chorak",
+      "year": "{year}-yil",
+      "since": "{day} dan boshlab",
+      "until": "{day} gacha",
+      "kind": {
+        "all": "Butun davr",
+        "month": "Oy",
+        "quarter": "Chorak",
+        "year": "Yil",
+        "custom": "Oraliq"
+      },
+      "scale": "Davr ko‘lami",
+      "previous": "Oldingi davr",
+      "next": "Keyingi davr",
+      "from": "boshi",
+      "to": "oxiri"
+    },
+    "count": {
+      "invoices": "{n} ta hisob-faktura",
+      "drafts": "{n} ta qoralama",
+      "records": "{n} ta yozuv",
+      "payments": "{n} ta to‘lov"
+    },
+    "common": {
+      "currency": "Valyuta",
+      "project": "Loyiha",
+      "category": "Toifa",
+      "total": "Jami",
+      "employee": "Xodim",
+      "amount": "Summa",
+      "date": "Sana",
+      "client": "Mijoz",
+      "status": "Holat",
+      "invoice": "Hisob-faktura",
+      "paymentMethod": "To‘lov usuli",
+      "vatAmount": "QQS {amount}"
+    },
+    "payroll": {
+      "columns": {
+        "salaries": "Maoshlar",
+        "bonuses": "Mukofotlar",
+        "advances": "Bo‘naklar",
+        "penalties": "Jarimalar",
+        "deductions": "Ushlanmalar",
+        "net": "To‘lanadi",
+        "salary": "Maosh",
+        "lateness": "Kechikishlar",
+        "type": "Turi",
+        "reason": "Sabab"
+      },
+      "typeTotals": {
+        "ADVANCE": "Bo‘naklar",
+        "BONUS": "Mukofotlar",
+        "PENALTY": "Jarimalar",
+        "LATENESS": "Kechikish uchun jarimalar",
+        "DEDUCTION": "Ushlanmalar",
+        "OTHER_ACCRUAL": "Boshqa hisoblashmalar"
+      },
+      "summary": {
+        "ownTitle": "Mening oylik hisob-kitobim",
+        "title": "Xodimlar bo‘yicha oylik hisob-kitob",
+        "formula": "To‘lanadi = maosh + mukofotlar va hisoblashmalar − jarimalar va ushlanmalar − bo‘naklar. Faqat tasdiqlangan va to‘langan yozuvlar hisobga olinadi.",
+        "loadFailed": "Hisob-kitobni yuklab bo‘lmadi",
+        "ownEmpty": "Hisob-kitob hali yo‘q",
+        "ownEmptyHint": "U hisobingiz xodim kartochkasiga bog‘langanda paydo bo‘ladi.",
+        "empty": "Xodimlar yo‘q",
+        "emptyHint": "Bu yerda ishlayotgan xodimlar va oy uchun yozuvlari bor barcha kishilar ko‘rsatiladi.",
+        "drafts": "qoralamalar: {n}",
+        "lateness": "{count} marta · {minutes} daq",
+        "total": "Jami, {currency}"
+      },
+      "salary": {
+        "title": "Oylik maosh",
+        "invalid": "Maoshni noldan kam bo‘lmagan son bilan kiriting",
+        "saveFailed": "Maoshni saqlab bo‘lmadi",
+        "editAria": "Maoshni o‘zgartirish: {name}",
+        "notSet": "belgilanmagan",
+        "clear": "Maoshni olib tashlash"
+      },
+      "title": "Ish haqi",
+      "entity": "yozuv",
+      "create": "Yangi yozuv",
+      "introOwn": "Oylar bo‘yicha hisoblashmalaringiz va ushlanmalaringiz. Qoralamalar tasdiqlanmaguncha ko‘rsatilmaydi.",
+      "intro": "Yozuvlar qo‘lda kiritiladi; keyinchalik ularni davomat tizimi ham yarata oladi.",
+      "previousMonth": "Oldingi oy",
+      "nextMonth": "Keyingi oy",
+      "month": "Hisob-kitob oyi",
+      "view": "Ko‘rinish",
+      "tabs": {
+        "summary": "Hisob-kitob",
+        "entries": "Yozuvlar"
+      },
+      "entryType": "Yozuv turi",
+      "empty": "Bu oy uchun yozuvlar yo‘q",
+      "emptyBody": "Bo‘nak, mukofot, jarima yoki ushlanma tasdiqlangach oy hisob-kitobiga kiradi.",
+      "lateMinutes": "{minutes} daqiqa kechikish",
+      "settlesIn": "{month} hisob-kitobiga",
+      "actionsAria": "Amallar: {entry}",
+      "statusFailed": "Holatni o‘zgartirib bo‘lmadi",
+      "actions": {
+        "approve": "Tasdiqlash",
+        "cancel": "Bekor qilish",
+        "markPaid": "To‘langan deb belgilash",
+        "backToDraft": "Qoralamaga qaytarish",
+        "unmarkPaid": "To‘lov belgisini olib tashlash",
+        "restoreDraft": "Qoralama sifatida tiklash"
+      },
+      "deleteDetail": "Faqat qoralama yoki bekor qilingan yozuvni o‘chirish mumkin; u oy hisob-kitobiga kirmaydi."
+    },
+    "overview": {
+      "heading": "Moliyaviy sharh",
+      "intro": "Davr bo‘yicha kassa ko‘rinishi: tushumlar — to‘langan to‘lovlar, xarajatlar — kiritilgan xarajatlar. Debitorlik qarzi va muddati o‘tganlar — bugungi holat bo‘yicha. Turli valyutadagi summalar qo‘shilmaydi.",
+      "chartCurrency": "Grafiklar valyutasi",
+      "loadFailed": "Moliyaviy ma’lumotlarni yuklab bo‘lmadi",
+      "emptyPeriod": "{period} uchun to‘lovlar ham, xarajatlar ham, ochiq hisob-fakturalar ham yo‘q.",
+      "kpiAria": "{currency} bo‘yicha ko‘rsatkichlar",
+      "inflow": "Tushumlar",
+      "invoicedAmount": "hisob yozilgan: {amount}",
+      "feesAmount": "komissiyalar {amount}",
+      "outflow": "Xarajatlar",
+      "allExpenses": "barcha xarajatlar",
+      "profit": "Foyda",
+      "profitFormula": "tushumlar − komissiyalar − xarajatlar",
+      "receivable": "Debitorlik qarzi",
+      "receivableHint": "hisob-fakturalarning to‘lanmagan qoldig‘i",
+      "overdue": "Muddati o‘tgan",
+      "payrollDue": "To‘lanadigan ish haqi",
+      "forMonth": "{month} uchun",
+      "payrollNoAccess": "ish haqiga ruxsat yo‘q",
+      "sectionsAria": "Moliya bo‘limlari",
+      "cashflowTitle": "Oylar bo‘yicha pul oqimi",
+      "cashflowHint": "Har bir juftlik ostida — oy yakuni. Summani ko‘rish uchun ustunga sichqonchani olib boring.",
+      "categoriesTitle": "Toifalar bo‘yicha xarajatlar",
+      "categoriesHint": "Jami {total}. Toifani bossangiz, uning xarajatlari ro‘yxati ochiladi.",
+      "categoriesEmpty": "Davr mobaynida {currency} valyutasida xarajatlar yo‘q.",
+      "projectsTitle": "Loyihalar rentabelligi",
+      "projectsHint": "{date} holatiga jamlanma: fakt = xarajatlar + stavka bo‘yicha haq to‘lanadigan soatlar, marja = tushumlar − fakt. Eng past marja yuqorida.",
+      "projectsEmpty": "Byudjeti yoki pul harakati bor faol loyihalar yo‘q.",
+      "overdueTitle": "Muddati o‘tgan hisob-fakturalar",
+      "all": "barchasi",
+      "overdueEmpty": "Muddati o‘tgan hisob-fakturalar yo‘q.",
+      "due": "muddat {date}",
+      "daysLate": "{n} kun kechikkan",
+      "markedOverdue": "muddati o‘tgan deb belgilangan",
+      "ofAmount": "jami {amount}",
+      "upcomingTitle": "Keyingi {n} kunda to‘lanadiganlar",
+      "shownOf": "{total} tadan {shown} tasi ko‘rsatilgan",
+      "upcomingEmpty": "Yaqin kunlarda to‘lov muddatlari yo‘q.",
+      "dueToday": "bugun",
+      "inDays": "{n} kundan keyin",
+      "payrollTitle": "{month} uchun ish haqi",
+      "payrollHint": "Tasdiqlangan va to‘langan yozuvlar hisobga olingan. Ish haqi «{category}» toifasidagi xarajat sifatida kiritilmaguncha yuqoridagi xarajatlarga kirmaydi.",
+      "openPayroll": "Hisob-kitobni ochish",
+      "payrollEmpty": "Bu oy uchun maoshlar va yozuvlar yo‘q.",
+      "draftsNotCounted": "hisobga olinmagan: {drafts}",
+      "lateness": "kechikishlar {count} · {minutes} daq",
+      "wholePeriod": "Butun davr uchun: {from} — {to}"
+    },
+    "cashflow": {
+      "empty": "Davr mobaynida {currency} valyutasida pul harakati bo‘lmadi.",
+      "aria": "Oylar bo‘yicha tushumlar va xarajatlar, {currency}",
+      "inflowTitle": "{month} · tushumlar {amount}",
+      "outflowTitle": "{month} · xarajatlar {amount}",
+      "netTitle": "Oy yakuni: {amount}"
+    },
+    "totals": {
+      "aria": "Filtr bo‘yicha jami",
+      "total": "Jami {currency}",
+      "records": "{n} ta yozuv"
+    },
+    "projects": {
+      "budget": "Byudjet",
+      "actualCost": "Haqiqiy xarajatlar",
+      "margin": "Marja",
+      "burn": "Byudjetning o‘zlashtirilishi",
+      "plannedCost": "xarajatlar rejasi {amount}",
+      "noBudget": "byudjet yo‘q",
+      "expensesAmount": "xarajatlar {amount}",
+      "labourAmount": "mehnat {amount}",
+      "noPayments": "to‘lovlar bo‘lmagan",
+      "burnOfPlan": "xarajatlar rejasining {percent}",
+      "noCostPlan": "xarajatlar rejasi yo‘q",
+      "otherCurrenciesSkipped": "+ {currencies} dagi summalar hisobga olinmagan"
+    },
+    "budgetLines": {
+      "title": "Toifalar bo‘yicha byudjet",
+      "saveFailed": "Taqsimotni saqlab bo‘lmadi",
+      "otherCurrencies": "{currencies} dagi xarajatlar ham bor — ular {currency} dagi byudjet faktiga kirmaydi.",
+      "plan": "Reja",
+      "actual": "Fakt",
+      "planAria": "Reja: {category}",
+      "unplanned": "rejasiz",
+      "mismatch": "Toifalar bo‘yicha summa {lines} byudjetning rejadagi tannarxi {planned} bilan mos kelmaydi.",
+      "actualHint": "Fakt — loyihaning toifa bo‘yicha xarajatlari; tabel bo‘yicha mehnat taqsimotga kirmaydi.",
+      "savePlan": "Rejani saqlash"
+    },
+    "filters": {
+      "allProjects": "Barcha loyihalar",
+      "noProject": "Loyihasiz",
+      "allClients": "Barcha mijozlar",
+      "allCategories": "Barcha toifalar",
+      "anyMethod": "Istalgan usul",
+      "anyStatus": "Istalgan holat",
+      "allCurrencies": "Barcha valyutalar",
+      "onlyOverdue": "Faqat muddati o‘tganlar",
+      "nothingMatches": "Filtrga hech narsa mos kelmadi",
+      "allEmployees": "Barcha xodimlar",
+      "allTypes": "Barcha turlar",
+      "allStatuses": "Barcha holatlar"
+    },
+    "expenses": {
+      "entity": "xarajat",
+      "create": "Yangi xarajat",
+      "vatIncluded": "shu jumladan QQS",
+      "columns": {
+        "description": "Kontragent va tavsif",
+        "document": "Hujjat",
+        "author": "Kiritgan"
+      },
+      "studioNoProject": "Studiya — loyihasiz",
+      "studio": "Studiya",
+      "scan": "Skan",
+      "searchPlaceholder": "Kontragent, tavsif, hujjat №",
+      "empty": "Hozircha xarajatlar yo‘q",
+      "emptyBody": "Loyiha xarajati uning haqiqiy tannarxiga kiradi; loyihasiz xarajat — studiyaning ustama xarajatlariga.",
+      "deleteDetail": "Yozuv ro‘yxatlardan va loyihaning haqiqiy tannarxidan o‘chadi."
+    },
+    "payments": {
+      "entity": "to‘lov",
+      "create": "Yangi to‘lov",
+      "noClient": "mijozsiz",
+      "totals": {
+        "paid": "Olingan",
+        "expected": "Kutilmoqda",
+        "fees": "Komissiyalar"
+      },
+      "columns": {
+        "date": "To‘lov / muddat",
+        "method": "Usul va operatsiya №"
+      },
+      "periodHint": "To‘langan to‘lov to‘lov kuniga, kutilayotgani esa o‘z muddatiga tegishli.",
+      "searchPlaceholder": "Operatsiya №, mijoz, hisob-faktura",
+      "empty": "Hozircha to‘lovlar yo‘q",
+      "emptyBody": "To‘lov mijozga tegishli va unga yozilgan hisob-fakturani yopishi mumkin.",
+      "late": "muddati o‘tgan",
+      "feeAmount": "komissiya {amount}",
+      "deleteDetail": "To‘lov ro‘yxatlardan o‘chadi va hisob-faktura to‘loviga hisoblanmay qoladi.",
+      "cover": {
+        "title": "Hisob-faktura qoplandi",
+        "message": "{amount} miqdoridagi {number} hisob-faktura to‘lovlar bilan to‘liq qoplandi. Uni to‘langan deb belgilaymizmi?",
+        "detail": "Hisob-faktura holati faqat shu tasdiq bilan o‘zgaradi — to‘lovning o‘zi unga ta’sir qilmaydi.",
+        "confirm": "To‘langan deb belgilash",
+        "cancel": "O‘zgartirmaslik",
+        "failed": "Hisob-fakturani to‘langan deb belgilab bo‘lmadi"
+      }
+    },
+    "invoices": {
+      "entity": "hisob-faktura",
+      "create": "Yangi hisob-faktura",
+      "byIssueDate": "{period}, yozilgan sanasi bo‘yicha",
+      "totals": {
+        "invoiced": "Hisob yozilgan",
+        "paid": "To‘langan",
+        "outstanding": "Olinishi kerak"
+      },
+      "columns": {
+        "dueDate": "To‘lov muddati",
+        "remaining": "Qoldiq"
+      },
+      "searchPlaceholder": "Raqam, mijoz, maqsad",
+      "empty": "Hozircha hisob-fakturalar yo‘q",
+      "emptyBody": "Hisob-faktura mijozga yoziladi va u bo‘yicha to‘lovlar bilan yopiladi.",
+      "issuedOn": "{date} sanali",
+      "lateBy": "{n} kun kechikkan",
+      "deleteDetail": "Hisob-faktura ro‘yxatlardan o‘chadi. Unga oid to‘lovlar qoladi, lekin bog‘lanishini yo‘qotadi."
+    },
+    "budgets": {
+      "entity": "byudjet",
+      "create": "Yangi byudjet",
+      "intro": "Loyiha rejasi faktning yonida. Fakt kiritilmaydi: bu loyiha xarajatlari va stavka bo‘yicha haq to‘lanadigan soatlar yig‘indisi, byudjet valyutasida. Toifalar bo‘yicha taqsimot — qatordagi tugma orqali; barcha loyihalar bo‘yicha jamlanma — {link}da.",
+      "introLink": "moliyaviy sharh",
+      "columns": {
+        "plan": "Reja: tushum / xarajatlar",
+        "collected": "Tushgan",
+        "margin": "Marja reja / fakt"
+      },
+      "searchPlaceholder": "Loyiha yoki mijoz",
+      "empty": "Hozircha byudjetlar yo‘q",
+      "emptyBody": "Byudjet loyihaning rejadagi tushumi va tannarxini belgilaydi — marja va o‘zlashtirish shulardan hisoblanadi.",
+      "burned": "{percent} o‘zlashtirildi",
+      "otherCurrencies": "+ {currencies} dagi summalar",
+      "actualMargin": "fakt {amount}",
+      "byCategory": "Toifalar bo‘yicha",
+      "deleteDetail": "Rejadagi raqamlar va toifalar bo‘yicha taqsimot o‘chadi, loyiha esa o‘z kartochkasidagi byudjet bo‘yicha hisoblanadi."
+    },
+    "reports": {
+      "eyebrow": "Hisobotlar",
+      "from": "Boshi",
+      "to": "Oxiri",
+      "print": "Chop etish",
+      "failed": "Hisobotni tuzib bo‘lmadi",
+      "resetDates": "Sanalarni tozalash",
+      "days": "{n} kun",
+      "ageing": {
+        "current": "Muddati o‘tmagan",
+        "d30": "1-30 kun",
+        "d60": "31-60 kun",
+        "d90": "61-90 kun",
+        "over90": "90 kundan ortiq"
+      },
+      "financial": {
+        "intro": "Oylar bo‘yicha hisob yozilgan, olingan va sarflangan mablag‘lar, xarajatlar tarkibi va qarz muddatlari bo‘yicha debitorlik qarzi.",
+        "mixedCurrencies": "Tanlovda bir nechta valyuta bor ({currencies}). Quyidagi yakunlar ularni bitta valyutadek qo‘shadi — bu summalarga tayanishdan oldin davrni toraytiring yoki valyutalarni ajrating.",
+        "spent": "Sarflangan",
+        "byMonth": "Oylar bo‘yicha",
+        "monthsEmpty": "Tanlangan davrda pul harakati bo‘lmadi.",
+        "categoriesEmpty": "Davr uchun xarajatlar yo‘q.",
+        "ageingTitle": "Muddatlar bo‘yicha debitorlik qarzi",
+        "ageingHint": "Bugungi holatga to‘lanmagan hisob-fakturalar — hisobot davri bu jadvalga ta’sir qilmaydi."
+      },
+      "clients": {
+        "title": "Mijozlar bo‘yicha hisobot",
+        "heading": "Mijozlar",
+        "intro": "Har bir mijozga qancha hisob yozilgani, qancha olingani va qancha qolgani. Hisobot hisob-fakturalarga asoslanadi: hisob-fakturaga bog‘lanmagan to‘lov bu yerga tushmaydi — bunday pullar moliyaviy hisobotda ko‘rinadi. O‘rtacha to‘lov muddati faqat yopilgan hisob-fakturalar bo‘yicha hisoblanadi.",
+        "empty": "Tanlangan davrda mijozlarga hech qanday hisob yozilmagan.",
+        "mixedCurrencies": "Mijozlar turli valyutalarda. Quyidagi yakunlar ularni bitta valyutadek qo‘shadi — yig‘indini emas, qatorlarni o‘qing.",
+        "projects": "Loyihalar",
+        "invoices": "Hisob-fakturalar",
+        "daysToPay": "To‘lov muddati"
+      },
+      "time": {
+        "title": "Vaqt bo‘yicha hisobot",
+        "heading": "Vaqt va odamlar",
+        "intro": "Xodimlar bo‘yicha qayd etilgan soatlar, ularning stavkasi bo‘yicha baholangan. Stavkasiz soatlar hisoblanadi, lekin hech narsaga baholanmaydi — ular alohida ustunga chiqarilgan.",
+        "empty": "Tanlangan davrda hech kim soat qayd etmagan.",
+        "unpricedWarning": "Stavkasi yo‘q odamlar {hours} soat qayd etgan — bu soatlar qiymatga kirmagan. Quyidagi yakun aynan shuncha kam ko‘rsatilgan.",
+        "people": "Odamlar",
+        "hours": "Soatlar",
+        "cost": "Qiymat",
+        "position": "Lavozim",
+        "department": "Bo‘lim",
+        "rate": "Stavka",
+        "unpriced": "Stavkasiz",
+        "rateNotSet": "belgilanmagan"
+      },
+      "production": {
+        "title": "Ishlab chiqarish hisoboti",
+        "heading": "Ishlab chiqarish",
+        "intro": "Faol loyihalar holati: jarayon, buzilgan muddatlar va ochiq tuzatishlar. Bekor qilingan va arxivdagi loyihalar hisobotga kirmaydi.",
+        "empty": "Faol loyihalar yo‘q — hisobotda ko‘rsatadigan narsa yo‘q.",
+        "late": "Muddati buzilgan",
+        "overdueTasks": "Muddati o‘tgan vazifalar",
+        "openRevisions": "Ochiq tuzatishlar",
+        "risk": "Xavf",
+        "progress": "Jarayon",
+        "deadline": "Muddat",
+        "stages": "Bosqichlar",
+        "tasks": "Vazifalar",
+        "revisions": "Tuzatishlar"
+      }
+    },
+    "months": {
+      "long": {
+        "1": "yanvar",
+        "2": "fevral",
+        "3": "mart",
+        "4": "aprel",
+        "5": "may",
+        "6": "iyun",
+        "7": "iyul",
+        "8": "avgust",
+        "9": "sentabr",
+        "10": "oktabr",
+        "11": "noyabr",
+        "12": "dekabr"
+      },
+      "short": {
+        "1": "yan",
+        "2": "fev",
+        "3": "mar",
+        "4": "apr",
+        "5": "may",
+        "6": "iyn",
+        "7": "iyl",
+        "8": "avg",
+        "9": "sen",
+        "10": "okt",
+        "11": "noy",
+        "12": "dek"
+      }
+    }
+  }
 }

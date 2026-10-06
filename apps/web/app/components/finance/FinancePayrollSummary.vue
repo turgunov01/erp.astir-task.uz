@@ -41,6 +41,8 @@ interface Summary {
   totals: Array<Omit<SummaryRow, 'employee' | 'salary'> & { salary: number }>
 }
 
+const { t } = useI18n()
+
 const query = computed(() => ({ period: props.period }))
 const { data, pending, error, refresh } = useFetch<{ data: Summary }>(
   '/api/finance/payroll/summary',
@@ -81,7 +83,7 @@ async function saveSalary(clear = false) {
   if (!row) return
   const amount = clear ? null : Number(salaryAmount.value)
   if (!clear && (salaryAmount.value.trim() === '' || Number.isNaN(amount) || (amount ?? 0) < 0)) {
-    salaryError.value = 'Укажите оклад числом не меньше нуля'
+    salaryError.value = t('finance.payroll.salary.invalid')
     return
   }
   salarySaving.value = true
@@ -94,7 +96,7 @@ async function saveSalary(clear = false) {
     salaryTarget.value = null
     await refresh()
   } catch (err) {
-    salaryError.value = apiErrorMessage(err, 'Не удалось сохранить оклад')
+    salaryError.value = apiErrorMessage(err, t('finance.payroll.salary.saveFailed'))
   } finally {
     salarySaving.value = false
   }
@@ -108,19 +110,18 @@ const TH = 'px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-
     <header class="flex flex-wrap items-baseline justify-between gap-2 border-b px-5 py-3.5">
       <div>
         <h2 class="text-sm font-medium">
-          {{ props.ownOnly ? 'Мой расчёт за месяц' : 'Расчёт за месяц по сотрудникам' }}
+          {{ props.ownOnly ? t('finance.payroll.summary.ownTitle') : t('finance.payroll.summary.title') }}
         </h2>
         <p class="mt-1 text-xs text-muted-foreground">
-          К выплате = оклад + премии и начисления − штрафы и удержания − авансы.
-          Учитываются только утверждённые и выплаченные записи.
+          {{ t('finance.payroll.summary.formula') }}
         </p>
       </div>
     </header>
 
     <div v-if="error" class="px-5 py-12 text-center">
-      <p class="text-sm font-medium">Не удалось загрузить расчёт</p>
+      <p class="text-sm font-medium">{{ t('finance.payroll.summary.loadFailed') }}</p>
       <button type="button" class="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary" @click="refresh()">
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
@@ -134,15 +135,15 @@ const TH = 'px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-
     <div v-else-if="rows.length === 0" class="px-5 py-14 text-center">
       <Icon name="lucide:hand-coins" class="size-7 text-muted-foreground" />
       <template v-if="props.ownOnly">
-        <p class="mt-3 text-sm font-medium">Расчёта пока нет</p>
+        <p class="mt-3 text-sm font-medium">{{ t('finance.payroll.summary.ownEmpty') }}</p>
         <p class="mx-auto mt-1 max-w-md text-xs text-muted-foreground">
-          Он появится, когда ваша учётная запись связана с карточкой сотрудника.
+          {{ t('finance.payroll.summary.ownEmptyHint') }}
         </p>
       </template>
       <template v-else>
-        <p class="mt-3 text-sm font-medium">Нет сотрудников</p>
+        <p class="mt-3 text-sm font-medium">{{ t('finance.payroll.summary.empty') }}</p>
         <p class="mx-auto mt-1 max-w-md text-xs text-muted-foreground">
-          Здесь перечислены работающие сотрудники и все, у кого есть записи за месяц.
+          {{ t('finance.payroll.summary.emptyHint') }}
         </p>
       </template>
     </div>
@@ -151,15 +152,15 @@ const TH = 'px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-
       <table class="w-full min-w-[960px] text-sm">
         <thead>
           <tr class="border-b text-left">
-            <th :class="TH">Сотрудник</th>
-            <th :class="TH" class="text-right">Оклад</th>
-            <th :class="TH" class="text-right">Премии</th>
-            <th :class="TH" class="text-right">Прочие начисления</th>
-            <th :class="TH" class="text-right">Штрафы</th>
-            <th :class="TH" class="text-right">Опоздания</th>
-            <th :class="TH" class="text-right">Удержания</th>
-            <th :class="TH" class="text-right">Авансы</th>
-            <th :class="TH" class="text-right">К выплате</th>
+            <th :class="TH">{{ t('finance.common.employee') }}</th>
+            <th :class="TH" class="text-right">{{ t('finance.payroll.columns.salary') }}</th>
+            <th :class="TH" class="text-right">{{ t('finance.payroll.columns.bonuses') }}</th>
+            <th :class="TH" class="text-right">{{ t('finance.payroll.typeTotals.OTHER_ACCRUAL') }}</th>
+            <th :class="TH" class="text-right">{{ t('finance.payroll.columns.penalties') }}</th>
+            <th :class="TH" class="text-right">{{ t('finance.payroll.columns.lateness') }}</th>
+            <th :class="TH" class="text-right">{{ t('finance.payroll.columns.deductions') }}</th>
+            <th :class="TH" class="text-right">{{ t('finance.payroll.columns.advances') }}</th>
+            <th :class="TH" class="text-right">{{ t('finance.payroll.columns.net') }}</th>
           </tr>
         </thead>
         <tbody class="divide-y">
@@ -173,7 +174,7 @@ const TH = 'px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-
               <p class="mt-0.5 text-xs text-muted-foreground">
                 {{ row.employee.position }}
                 <span v-if="row.drafts > 0" class="ml-1 rounded bg-secondary px-1.5 py-0.5 text-[11px]">
-                  черновиков: {{ row.drafts }}
+                  {{ t('finance.payroll.summary.drafts', { n: row.drafts }) }}
                 </span>
               </p>
             </td>
@@ -182,11 +183,11 @@ const TH = 'px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-
                 v-if="props.canManage"
                 type="button"
                 class="group inline-flex items-center gap-1.5 rounded px-1 hover:bg-secondary"
-                :aria-label="'Изменить оклад: ' + row.employee.name"
+                :aria-label="t('finance.payroll.salary.editAria', { name: row.employee.name })"
                 @click="editSalary(row)"
               >
                 <span v-if="row.salary !== null">{{ formatMoney(row.salary, row.currency, 0) }}</span>
-                <span v-else class="text-muted-foreground">не задан</span>
+                <span v-else class="text-muted-foreground">{{ t('finance.payroll.salary.notSet') }}</span>
                 <Icon name="lucide:pencil" class="size-3 text-muted-foreground opacity-0 group-hover:opacity-100" />
               </button>
               <template v-else>
@@ -200,7 +201,7 @@ const TH = 'px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-
             <td class="px-4 py-3 text-right tabular-nums text-destructive">
               {{ money(row.lateness, row.currency) }}
               <p v-if="row.latenessCount > 0" class="text-[11px] text-muted-foreground">
-                {{ row.latenessCount }} раз · {{ row.lateMinutes }} мин
+                {{ t('finance.payroll.summary.lateness', { count: row.latenessCount, minutes: row.lateMinutes }) }}
               </p>
             </td>
             <td class="px-4 py-3 text-right tabular-nums text-destructive">{{ money(row.deductions, row.currency) }}</td>
@@ -212,7 +213,7 @@ const TH = 'px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-
         </tbody>
         <tfoot v-if="!props.ownOnly && totals.length > 0" class="border-t-2">
           <tr v-for="total in totals" :key="total.currency" class="bg-secondary/30 font-medium">
-            <td class="px-4 py-3">Итого, {{ total.currency }}</td>
+            <td class="px-4 py-3">{{ t('finance.payroll.summary.total', { currency: total.currency }) }}</td>
             <td class="px-4 py-3 text-right tabular-nums">{{ money(total.salary, total.currency) }}</td>
             <td class="px-4 py-3 text-right tabular-nums">{{ money(total.bonuses, total.currency) }}</td>
             <td class="px-4 py-3 text-right tabular-nums">{{ money(total.otherAccruals, total.currency) }}</td>
@@ -240,12 +241,12 @@ const TH = 'px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-
         class="dialog-panel relative w-full max-w-sm rounded-xl border bg-background p-6 shadow-xl"
         @submit.prevent="saveSalary()"
       >
-        <h2 id="salary-title" class="text-base font-semibold tracking-tight">Оклад в месяц</h2>
+        <h2 id="salary-title" class="text-base font-semibold tracking-tight">{{ t('finance.payroll.salary.title') }}</h2>
         <p class="mt-1 text-sm text-muted-foreground">{{ salaryTarget.employee.name }}</p>
 
         <div class="mt-4 grid grid-cols-[1fr_88px] gap-3">
           <label class="text-sm">
-            <span class="mb-1.5 block text-xs text-muted-foreground">Сумма</span>
+            <span class="mb-1.5 block text-xs text-muted-foreground">{{ t('finance.common.amount') }}</span>
             <input
               v-model="salaryAmount"
               type="number"
@@ -256,7 +257,7 @@ const TH = 'px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-
             >
           </label>
           <label class="text-sm">
-            <span class="mb-1.5 block text-xs text-muted-foreground">Валюта</span>
+            <span class="mb-1.5 block text-xs text-muted-foreground">{{ t('finance.common.currency') }}</span>
             <input
               v-model="salaryCurrency"
               maxlength="3"
@@ -275,19 +276,19 @@ const TH = 'px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-
             :disabled="salarySaving"
             @click="saveSalary(true)"
           >
-            Убрать оклад
+            {{ t('finance.payroll.salary.clear') }}
           </button>
           <span v-else />
           <div class="flex gap-2">
             <button type="button" class="rounded-md border px-3 py-1.5 text-sm hover:bg-secondary" @click="salaryTarget = null">
-              Отмена
+              {{ t('common.actions.cancel') }}
             </button>
             <button
               type="submit"
               class="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
               :disabled="salarySaving"
             >
-              Сохранить
+              {{ t('common.actions.save') }}
             </button>
           </div>
         </div>

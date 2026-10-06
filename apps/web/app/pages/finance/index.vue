@@ -2,10 +2,12 @@
 import { PERMISSION } from '@astir/types'
 import type { ProjectRow } from '~/components/finance/FinanceProjectTable.vue'
 import { useFinanceQuery } from '~/composables/useFinanceQuery'
-import { currentKey, shortMonth } from '~/utils/finance-period'
+import { currentKey, formatPercent, monthInline, shortMonth } from '~/utils/finance-period'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Финансы' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('finance.nav.overview')) })
 
 interface Kpi {
   currency: string
@@ -100,22 +102,18 @@ const auth = useAuthStore()
  * link.
  */
 const sectionLinks = computed(() => [
-  { to: '/finance/budgets', label: 'Бюджеты', icon: 'lucide:calculator', permission: PERMISSION.BUDGET_VIEW },
-  { to: '/finance/expenses', label: 'Расходы', icon: 'lucide:receipt', permission: PERMISSION.FINANCE_VIEW },
-  { to: '/finance/payments', label: 'Платежи', icon: 'lucide:credit-card', permission: PERMISSION.FINANCE_VIEW },
-  { to: '/finance/invoices', label: 'Счета', icon: 'lucide:file-text', permission: PERMISSION.FINANCE_VIEW },
-  { to: '/finance/payroll', label: 'Зарплата: авансы, штрафы, премии', icon: 'lucide:wallet', permission: PERMISSION.PAYROLL_VIEW_OWN },
-  { to: '/reports/financial', label: 'Финансовый отчёт', icon: 'lucide:chart-column', permission: [PERMISSION.FINANCE_VIEW, PERMISSION.REPORT_VIEW] }
+  { to: '/finance/budgets', label: t('finance.nav.budgets'), icon: 'lucide:calculator', permission: PERMISSION.BUDGET_VIEW },
+  { to: '/finance/expenses', label: t('finance.nav.expenses'), icon: 'lucide:receipt', permission: PERMISSION.FINANCE_VIEW },
+  { to: '/finance/payments', label: t('finance.nav.payments'), icon: 'lucide:credit-card', permission: PERMISSION.FINANCE_VIEW },
+  { to: '/finance/invoices', label: t('finance.nav.invoices'), icon: 'lucide:file-text', permission: PERMISSION.FINANCE_VIEW },
+  { to: '/finance/payroll', label: t('finance.nav.payroll'), icon: 'lucide:wallet', permission: PERMISSION.PAYROLL_VIEW_OWN },
+  { to: '/reports/financial', label: t('finance.nav.financialReport'), icon: 'lucide:chart-column', permission: [PERMISSION.FINANCE_VIEW, PERMISSION.REPORT_VIEW] }
 ].filter(link => [link.permission].flat().every(permission => auth.can(permission))))
 
-const PAYROLL_PERIOD_LABEL: Record<string, string> = {
-  ADVANCE: 'Авансы', BONUS: 'Премии', PENALTY: 'Штрафы', LATENESS: 'Штрафы за опоздания',
-  DEDUCTION: 'Удержания', OTHER_ACCRUAL: 'Прочие начисления'
-}
-
-function monthName(month: string) {
-  const [year, index] = month.split('-').map(Number) as [number, number]
-  return new Date(year, index - 1, 1).toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })
+/** Payroll entry kinds as totals over a span: «Авансы», «Премии»… */
+function payrollTypeTotal(type: string) {
+  const key = 'finance.payroll.typeTotals.' + type
+  return hasMessage(key) ? t(key) : enumLabel(PAYROLL_TYPE_LABEL, type)
 }
 
 const TILE = 'bg-card px-4 py-3.5 sm:px-5'
@@ -125,18 +123,17 @@ const LABEL = 'text-xs uppercase tracking-wider text-muted-foreground'
 <template>
   <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Финансы</p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Финансовый обзор</h1>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{{ t('finance.nav.overview') }}</p>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('finance.overview.heading') }}</h1>
       <p class="mt-1 max-w-3xl text-sm text-muted-foreground">
-        Кассовый взгляд на период: поступления — оплаченные платежи, расходы — внесённые
-        расходы. Дебиторка и просрочка — на сегодня. Суммы в разных валютах не складываются.
+        {{ t('finance.overview.intro') }}
       </p>
       <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
         <FinancePeriodPicker :period="period" @set="setPeriod" />
         <div
           v-if="(stats?.currencies.length ?? 0) > 1"
           role="group"
-          aria-label="Валюта графиков"
+          :aria-label="t('finance.overview.chartCurrency')"
           class="inline-flex rounded-md border bg-background p-0.5 text-sm"
         >
           <button
@@ -155,9 +152,9 @@ const LABEL = 'text-xs uppercase tracking-wider text-muted-foreground'
 
     <div v-if="error" class="rounded-xl border bg-card px-6 py-16 text-center">
       <Icon name="lucide:triangle-alert" class="size-8 text-destructive" />
-      <p class="mt-3 text-sm font-medium">Не удалось загрузить финансы</p>
+      <p class="mt-3 text-sm font-medium">{{ t('finance.overview.loadFailed') }}</p>
       <button type="button" class="mt-4 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary" @click="refresh()">
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
@@ -170,54 +167,54 @@ const LABEL = 'text-xs uppercase tracking-wider text-muted-foreground'
         v-if="stats.kpis.length === 0"
         class="rounded-xl border bg-card px-6 py-12 text-center text-sm text-muted-foreground"
       >
-        За {{ period.label.toLowerCase() }} нет ни платежей, ни расходов, ни открытых счетов.
+        {{ t('finance.overview.emptyPeriod', { period: period.inline }) }}
       </p>
 
       <!-- KPIs: one band per currency -->
       <section
         v-for="kpi in stats.kpis"
         :key="kpi.currency"
-        :aria-label="'Показатели в ' + kpi.currency"
+        :aria-label="t('finance.overview.kpiAria', { currency: kpi.currency })"
         class="mb-3 grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border md:grid-cols-3 xl:grid-cols-6"
         :class="pending ? 'opacity-70' : ''"
       >
         <div :class="TILE">
-          <p :class="LABEL">Поступления · {{ kpi.currency }}</p>
+          <p :class="LABEL">{{ t('finance.overview.inflow') }} · {{ kpi.currency }}</p>
           <p class="mt-1.5 text-xl font-semibold tabular-nums text-emerald-700 dark:text-emerald-400">
             {{ money(kpi.inflow, kpi.currency) }}
           </p>
           <p class="mt-1 text-xs text-muted-foreground">
-            выставлено {{ money(kpi.invoiced, kpi.currency) }}
-            <template v-if="kpi.fees > 0"><br>комиссии {{ money(kpi.fees, kpi.currency) }}</template>
+            {{ t('finance.overview.invoicedAmount', { amount: money(kpi.invoiced, kpi.currency) }) }}
+            <template v-if="kpi.fees > 0"><br>{{ t('finance.overview.feesAmount', { amount: money(kpi.fees, kpi.currency) }) }}</template>
           </p>
         </div>
         <div :class="TILE">
-          <p :class="LABEL">Расходы</p>
+          <p :class="LABEL">{{ t('finance.overview.outflow') }}</p>
           <p class="mt-1.5 text-xl font-semibold tabular-nums">{{ money(kpi.outflow, kpi.currency) }}</p>
           <NuxtLink
             :to="{ path: '/finance/expenses', query: { ...periodQuery, currency: kpi.currency } }"
             class="mt-1 inline-block text-xs text-muted-foreground hover:text-foreground hover:underline"
           >
-            все расходы →
+            {{ t('finance.overview.allExpenses') }} →
           </NuxtLink>
         </div>
         <div :class="TILE">
-          <p :class="LABEL">Прибыль</p>
+          <p :class="LABEL">{{ t('finance.overview.profit') }}</p>
           <p
             class="mt-1.5 text-xl font-semibold tabular-nums"
             :class="kpi.profit < 0 ? 'text-destructive' : 'text-emerald-700 dark:text-emerald-400'"
           >
             {{ money(kpi.profit, kpi.currency) }}
           </p>
-          <p class="mt-1 text-xs text-muted-foreground">поступления − комиссии − расходы</p>
+          <p class="mt-1 text-xs text-muted-foreground">{{ t('finance.overview.profitFormula') }}</p>
         </div>
         <div :class="TILE">
-          <p :class="LABEL">Дебиторка</p>
+          <p :class="LABEL">{{ t('finance.overview.receivable') }}</p>
           <p class="mt-1.5 text-xl font-semibold tabular-nums">{{ money(kpi.receivable, kpi.currency) }}</p>
-          <p class="mt-1 text-xs text-muted-foreground">неоплаченный остаток счетов</p>
+          <p class="mt-1 text-xs text-muted-foreground">{{ t('finance.overview.receivableHint') }}</p>
         </div>
         <div :class="TILE">
-          <p :class="LABEL">Просрочено</p>
+          <p :class="LABEL">{{ t('finance.overview.overdue') }}</p>
           <p class="mt-1.5 text-xl font-semibold tabular-nums" :class="kpi.overdue > 0 ? 'text-destructive' : ''">
             {{ money(kpi.overdue, kpi.currency) }}
           </p>
@@ -225,22 +222,22 @@ const LABEL = 'text-xs uppercase tracking-wider text-muted-foreground'
             :to="{ path: '/finance/invoices', query: { overdue: 'true', currency: kpi.currency } }"
             class="mt-1 inline-block text-xs text-muted-foreground hover:text-foreground hover:underline"
           >
-            {{ countLabel(kpi.overdueCount, 'счёт', 'счёта', 'счетов') }} →
+            {{ countLabel(kpi.overdueCount, 'finance.count.invoices') }} →
           </NuxtLink>
         </div>
         <div :class="TILE">
-          <p :class="LABEL">Зарплата к выплате</p>
+          <p :class="LABEL">{{ t('finance.overview.payrollDue') }}</p>
           <template v-if="stats.payroll">
             <p class="mt-1.5 text-xl font-semibold tabular-nums">
               {{ kpi.payrollNet === null ? '—' : money(kpi.payrollNet, kpi.currency) }}
             </p>
-            <p class="mt-1 text-xs text-muted-foreground">за {{ monthName(stats.payroll.month) }}</p>
+            <p class="mt-1 text-xs text-muted-foreground">{{ t('finance.overview.forMonth', { month: monthInline(stats.payroll.month) }) }}</p>
           </template>
-          <p v-else class="mt-1.5 text-sm text-muted-foreground">нет доступа к зарплатам</p>
+          <p v-else class="mt-1.5 text-sm text-muted-foreground">{{ t('finance.overview.payrollNoAccess') }}</p>
         </div>
       </section>
 
-      <nav class="mb-6 mt-5 flex flex-wrap gap-1.5" aria-label="Разделы финансов">
+      <nav class="mb-6 mt-5 flex flex-wrap gap-1.5" :aria-label="t('finance.overview.sectionsAria')">
         <NuxtLink
           v-for="link in sectionLinks"
           :key="link.to"
@@ -254,20 +251,20 @@ const LABEL = 'text-xs uppercase tracking-wider text-muted-foreground'
 
       <div v-if="stats.kpis.length > 0" class="grid gap-6 lg:grid-cols-5">
         <section class="rounded-xl border bg-card p-4 sm:p-5 lg:col-span-3">
-          <h2 class="text-sm font-semibold">Движение денег по месяцам · {{ currency }}</h2>
+          <h2 class="text-sm font-semibold">{{ t('finance.overview.cashflowTitle') }} · {{ currency }}</h2>
           <p class="mb-3 mt-0.5 text-xs text-muted-foreground">
-            Под каждой парой — итог месяца. Наведите на столбец, чтобы увидеть сумму.
+            {{ t('finance.overview.cashflowHint') }}
           </p>
           <FinanceCashflow :currency="currency" :months="flow" />
         </section>
 
         <section class="rounded-xl border bg-card p-4 sm:p-5 lg:col-span-2">
-          <h2 class="text-sm font-semibold">Расходы по категориям · {{ currency }}</h2>
+          <h2 class="text-sm font-semibold">{{ t('finance.overview.categoriesTitle') }} · {{ currency }}</h2>
           <p class="mt-0.5 text-xs text-muted-foreground">
-            Всего {{ money(categoryTotal, currency) }}. Категория открывает список её расходов.
+            {{ t('finance.overview.categoriesHint', { total: money(categoryTotal, currency) }) }}
           </p>
           <p v-if="categories.length === 0" class="py-10 text-center text-sm text-muted-foreground">
-            Расходов в {{ currency }} за период нет.
+            {{ t('finance.overview.categoriesEmpty', { currency }) }}
           </p>
           <ul v-else class="mt-4 space-y-2.5">
             <li v-for="row in categories" :key="row.category">
@@ -285,7 +282,7 @@ const LABEL = 'text-xs uppercase tracking-wider text-muted-foreground'
                   />
                   <span class="shrink-0 text-xs tabular-nums text-muted-foreground">
                     {{ money(row.amount, currency) }}
-                    · {{ Math.round((row.amount / categoryTotal) * 100) }}%
+                    · {{ formatPercent((row.amount / categoryTotal) * 100) }}
                   </span>
                 </span>
               </NuxtLink>
@@ -296,14 +293,13 @@ const LABEL = 'text-xs uppercase tracking-wider text-muted-foreground'
 
       <section class="mt-6 rounded-xl border bg-card">
         <header class="border-b px-5 py-3.5">
-          <h2 class="text-sm font-medium">Прибыльность проектов</h2>
+          <h2 class="text-sm font-medium">{{ t('finance.overview.projectsTitle') }}</h2>
           <p class="mt-1 text-xs text-muted-foreground">
-            Накопительно по {{ formatDay(stats.period.to) }}: факт = расходы + оплаченные по ставке часы,
-            маржа = поступления − факт. Худшая маржа сверху.
+            {{ t('finance.overview.projectsHint', { date: formatDay(stats.period.to) }) }}
           </p>
         </header>
         <p v-if="stats.projects.length === 0" class="px-5 py-14 text-center text-sm text-muted-foreground">
-          Нет активных проектов с бюджетом или движением денег.
+          {{ t('finance.overview.projectsEmpty') }}
         </p>
         <FinanceProjectTable v-else :rows="stats.projects" />
       </section>
@@ -311,16 +307,16 @@ const LABEL = 'text-xs uppercase tracking-wider text-muted-foreground'
       <div class="mt-6 grid gap-6 lg:grid-cols-2">
         <section class="rounded-xl border bg-card">
           <header class="flex items-center justify-between gap-3 border-b px-5 py-3.5">
-            <h2 class="text-sm font-medium">Просроченные счета</h2>
+            <h2 class="text-sm font-medium">{{ t('finance.overview.overdueTitle') }}</h2>
             <NuxtLink
               :to="{ path: '/finance/invoices', query: { overdue: 'true' } }"
               class="text-xs text-muted-foreground hover:text-foreground hover:underline"
             >
-              все →
+              {{ t('finance.overview.all') }} →
             </NuxtLink>
           </header>
           <p v-if="stats.invoices.overdue.length === 0" class="px-5 py-10 text-center text-sm text-muted-foreground">
-            Просроченных счетов нет.
+            {{ t('finance.overview.overdueEmpty') }}
           </p>
           <ul v-else class="divide-y">
             <li v-for="invoice in stats.invoices.overdue" :key="invoice.id">
@@ -332,12 +328,12 @@ const LABEL = 'text-xs uppercase tracking-wider text-muted-foreground'
                   <span class="font-medium tabular-nums">{{ invoice.number }}</span>
                   <span class="ml-2 text-sm text-muted-foreground">{{ invoice.client?.name }}</span>
                   <span class="block text-xs text-destructive">
-                    срок {{ formatDay(invoice.dueDate) }}<template v-if="invoice.daysLate > 0"> · {{ invoice.daysLate }} дн. просрочки</template><template v-else> · отмечен просроченным</template>
+                    {{ t('finance.overview.due', { date: formatDay(invoice.dueDate) }) }}<template v-if="invoice.daysLate > 0"> · {{ t('finance.overview.daysLate', invoice.daysLate) }}</template><template v-else> · {{ t('finance.overview.markedOverdue') }}</template>
                   </span>
                 </span>
                 <span class="shrink-0 text-right tabular-nums">
                   <span class="font-medium text-destructive">{{ money(invoice.remaining, invoice.currency) }}</span>
-                  <span class="block text-xs text-muted-foreground">из {{ money(invoice.amount, invoice.currency) }}</span>
+                  <span class="block text-xs text-muted-foreground">{{ t('finance.overview.ofAmount', { amount: money(invoice.amount, invoice.currency) }) }}</span>
                 </span>
               </NuxtLink>
             </li>
@@ -346,13 +342,13 @@ const LABEL = 'text-xs uppercase tracking-wider text-muted-foreground'
 
         <section class="rounded-xl border bg-card">
           <header class="border-b px-5 py-3.5">
-            <h2 class="text-sm font-medium">К оплате в ближайшие {{ stats.invoices.upcomingDays }} дней</h2>
+            <h2 class="text-sm font-medium">{{ t('finance.overview.upcomingTitle', stats.invoices.upcomingDays) }}</h2>
             <p v-if="stats.invoices.upcomingCount > stats.invoices.upcoming.length" class="mt-0.5 text-xs text-muted-foreground">
-              Показаны {{ stats.invoices.upcoming.length }} из {{ stats.invoices.upcomingCount }}
+              {{ t('finance.overview.shownOf', { shown: stats.invoices.upcoming.length, total: stats.invoices.upcomingCount }) }}
             </p>
           </header>
           <p v-if="stats.invoices.upcoming.length === 0" class="px-5 py-10 text-center text-sm text-muted-foreground">
-            В ближайшие дни сроков оплаты нет.
+            {{ t('finance.overview.upcomingEmpty') }}
           </p>
           <ul v-else class="divide-y">
             <li v-for="invoice in stats.invoices.upcoming" :key="invoice.id">
@@ -364,12 +360,12 @@ const LABEL = 'text-xs uppercase tracking-wider text-muted-foreground'
                   <span class="font-medium tabular-nums">{{ invoice.number }}</span>
                   <span class="ml-2 text-sm text-muted-foreground">{{ invoice.client?.name }}</span>
                   <span class="block text-xs text-muted-foreground">
-                    срок {{ formatDay(invoice.dueDate) }} · {{ invoice.daysLeft === 0 ? 'сегодня' : 'через ' + invoice.daysLeft + ' дн.' }}
+                    {{ t('finance.overview.due', { date: formatDay(invoice.dueDate) }) }} · {{ invoice.daysLeft === 0 ? t('finance.overview.dueToday') : t('finance.overview.inDays', invoice.daysLeft) }}
                   </span>
                 </span>
                 <span class="shrink-0 text-right tabular-nums">
                   <span class="font-medium">{{ money(invoice.remaining, invoice.currency) }}</span>
-                  <span class="block text-xs text-muted-foreground">из {{ money(invoice.amount, invoice.currency) }}</span>
+                  <span class="block text-xs text-muted-foreground">{{ t('finance.overview.ofAmount', { amount: money(invoice.amount, invoice.currency) }) }}</span>
                 </span>
               </NuxtLink>
             </li>
@@ -380,35 +376,34 @@ const LABEL = 'text-xs uppercase tracking-wider text-muted-foreground'
       <section v-if="stats.payroll" class="mt-6 rounded-xl border bg-card">
         <header class="flex flex-wrap items-start justify-between gap-3 border-b px-5 py-3.5">
           <div>
-            <h2 class="text-sm font-medium">Зарплата за {{ monthName(stats.payroll.month) }}</h2>
+            <h2 class="text-sm font-medium">{{ t('finance.overview.payrollTitle', { month: monthInline(stats.payroll.month) }) }}</h2>
             <p class="mt-1 text-xs text-muted-foreground">
-              Учтены утверждённые и выплаченные записи. Зарплата не входит в расходы выше,
-              пока её не внесли расходом категории «Штат».
+              {{ t('finance.overview.payrollHint', { category: enumLabel(EXPENSE_CATEGORY_LABEL, 'EMPLOYEE') }) }}
             </p>
           </div>
           <NuxtLink
             :to="{ path: '/finance/payroll', query: { period: stats.payroll.month } }"
             class="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
           >
-            Открыть расчёт
+            {{ t('finance.overview.openPayroll') }}
             <Icon name="lucide:arrow-right" class="size-4" />
           </NuxtLink>
         </header>
 
         <p v-if="stats.payroll.totals.length === 0" class="px-5 py-10 text-center text-sm text-muted-foreground">
-          За месяц нет окладов и записей.
+          {{ t('finance.overview.payrollEmpty') }}
         </p>
         <div v-else class="overflow-x-auto">
           <table class="w-full min-w-[44rem] text-sm">
             <thead>
               <tr class="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
-                <th class="px-5 py-2.5 font-medium">Валюта</th>
-                <th class="px-4 py-2.5 text-right font-medium">Оклады</th>
-                <th class="px-4 py-2.5 text-right font-medium">Премии</th>
-                <th class="px-4 py-2.5 text-right font-medium">Авансы</th>
-                <th class="px-4 py-2.5 text-right font-medium">Штрафы</th>
-                <th class="px-4 py-2.5 text-right font-medium">Удержания</th>
-                <th class="px-5 py-2.5 text-right font-medium">К выплате</th>
+                <th class="px-5 py-2.5 font-medium">{{ t('finance.common.currency') }}</th>
+                <th class="px-4 py-2.5 text-right font-medium">{{ t('finance.payroll.columns.salaries') }}</th>
+                <th class="px-4 py-2.5 text-right font-medium">{{ t('finance.payroll.columns.bonuses') }}</th>
+                <th class="px-4 py-2.5 text-right font-medium">{{ t('finance.payroll.columns.advances') }}</th>
+                <th class="px-4 py-2.5 text-right font-medium">{{ t('finance.payroll.columns.penalties') }}</th>
+                <th class="px-4 py-2.5 text-right font-medium">{{ t('finance.payroll.columns.deductions') }}</th>
+                <th class="px-5 py-2.5 text-right font-medium">{{ t('finance.payroll.columns.net') }}</th>
               </tr>
             </thead>
             <tbody class="divide-y">
@@ -416,7 +411,7 @@ const LABEL = 'text-xs uppercase tracking-wider text-muted-foreground'
                 <td class="px-5 py-3 font-medium">
                   {{ row.currency }}
                   <span v-if="row.drafts > 0" class="block text-xs font-normal text-signal-foreground">
-                    не учтено: {{ countLabel(row.drafts, 'черновик', 'черновика', 'черновиков') }}
+                    {{ t('finance.overview.draftsNotCounted', { drafts: countLabel(row.drafts, 'finance.count.drafts') }) }}
                   </span>
                 </td>
                 <td class="px-4 py-3 text-right tabular-nums">{{ money(row.salary, row.currency) }}</td>
@@ -425,7 +420,7 @@ const LABEL = 'text-xs uppercase tracking-wider text-muted-foreground'
                 <td class="px-4 py-3 text-right tabular-nums">
                   {{ money(row.penalties + row.lateness, row.currency) }}
                   <span v-if="row.latenessCount > 0" class="block text-xs text-muted-foreground">
-                    опозданий {{ row.latenessCount }} · {{ row.lateMinutes }} мин
+                    {{ t('finance.overview.lateness', { count: row.latenessCount, minutes: row.lateMinutes }) }}
                   </span>
                 </td>
                 <td class="px-4 py-3 text-right tabular-nums">{{ money(row.deductions, row.currency) }}</td>
@@ -439,11 +434,11 @@ const LABEL = 'text-xs uppercase tracking-wider text-muted-foreground'
 
         <div v-if="stats.period.months.length > 1 && stats.payroll.period.length > 0" class="border-t px-5 py-3.5">
           <p class="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-            За весь период: {{ shortMonth(stats.period.months[0]!) }} — {{ shortMonth(stats.period.months.at(-1)!) }}
+            {{ t('finance.overview.wholePeriod', { from: shortMonth(stats.period.months[0]!), to: shortMonth(stats.period.months.at(-1)!) }) }}
           </p>
           <ul class="mt-2 flex flex-wrap gap-x-6 gap-y-1.5 text-sm">
             <li v-for="row in stats.payroll.period" :key="row.type + row.currency">
-              <span class="text-muted-foreground">{{ labelOf(PAYROLL_PERIOD_LABEL, row.type) }}</span>
+              <span class="text-muted-foreground">{{ payrollTypeTotal(row.type) }}</span>
               <span class="ml-1.5 font-medium tabular-nums">{{ money(row.amount, row.currency) }}</span>
               <span class="ml-1 text-xs text-muted-foreground">({{ row.count }})</span>
             </li>

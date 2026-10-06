@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { apiErrorMessage, apiRequest } from '~/composables/useApi'
+import { formatPercent } from '~/utils/finance-period'
 
 /**
  * A project budget broken down by expense category: what was planned for each
@@ -21,6 +22,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{ close: [], saved: [] }>()
+
+const { t } = useI18n()
 
 const actualOf = (category: string) =>
   props.budget.byCategory.find(row => row.category === category)?.actual ?? 0
@@ -65,7 +68,7 @@ async function save() {
     })
     emit('saved')
   } catch (err) {
-    errorMessage.value = apiErrorMessage(err, 'Не удалось сохранить разбивку')
+    errorMessage.value = apiErrorMessage(err, t('finance.budgetLines.saveFailed'))
   } finally {
     saving.value = false
   }
@@ -99,7 +102,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     >
       <header class="flex items-start justify-between gap-4 border-b px-5 py-4">
         <div>
-          <h2 id="budget-lines-title" class="text-base font-semibold">Бюджет по категориям</h2>
+          <h2 id="budget-lines-title" class="text-base font-semibold">{{ t('finance.budgetLines.title') }}</h2>
           <p class="mt-0.5 text-sm text-muted-foreground">
             {{ budget.project?.code }} · {{ budget.project?.name }} · {{ budget.currency }}
           </p>
@@ -107,7 +110,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         <button
           type="button"
           class="grid size-8 place-items-center rounded-md hover:bg-secondary"
-          aria-label="Закрыть"
+          :aria-label="t('common.actions.close')"
           @click="emit('close')"
         >
           <Icon name="lucide:x" class="size-4" />
@@ -119,15 +122,15 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           v-if="budget.otherCurrencies.length > 0"
           class="border-b bg-signal/10 px-5 py-2 text-xs"
         >
-          Есть расходы в {{ budget.otherCurrencies.join(', ') }} — в факт бюджета в {{ budget.currency }} они не входят.
+          {{ t('finance.budgetLines.otherCurrencies', { currencies: budget.otherCurrencies.join(', '), currency: budget.currency }) }}
         </p>
 
         <table class="w-full text-sm">
           <thead>
             <tr class="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
-              <th class="px-5 py-2 font-medium">Категория</th>
-              <th class="px-3 py-2 text-right font-medium">План</th>
-              <th class="px-5 py-2 text-right font-medium">Факт</th>
+              <th class="px-5 py-2 font-medium">{{ t('finance.common.category') }}</th>
+              <th class="px-3 py-2 text-right font-medium">{{ t('finance.budgetLines.plan') }}</th>
+              <th class="px-5 py-2 text-right font-medium">{{ t('finance.budgetLines.actual') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -147,7 +150,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
                   step="any"
                   inputmode="decimal"
                   placeholder="—"
-                  :aria-label="'План: ' + enumLabel(EXPENSE_CATEGORY_LABEL, row.category)"
+                  :aria-label="t('finance.budgetLines.planAria', { category: enumLabel(EXPENSE_CATEGORY_LABEL, row.category) })"
                   class="h-8 w-28 rounded-md border bg-background px-2 text-right text-sm tabular-nums outline-none focus:border-ring sm:w-32"
                 >
                 <span v-else class="tabular-nums">{{ formatMoney(row.planned, budget.currency, 0) }}</span>
@@ -159,15 +162,15 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
                   class="block text-xs"
                   :class="row.percent > 100 ? 'text-destructive' : 'text-muted-foreground'"
                 >
-                  {{ row.percent }}%
+                  {{ formatPercent(row.percent) }}
                 </span>
-                <span v-else-if="row.actual > 0" class="block text-xs text-signal-foreground">без плана</span>
+                <span v-else-if="row.actual > 0" class="block text-xs text-signal-foreground">{{ t('finance.budgetLines.unplanned') }}</span>
               </td>
             </tr>
           </tbody>
           <tfoot>
             <tr class="border-t bg-muted/30 font-medium">
-              <td class="px-5 py-2.5">Итого</td>
+              <td class="px-5 py-2.5">{{ t('finance.common.total') }}</td>
               <td class="px-3 py-2.5 text-right tabular-nums">{{ formatMoney(plannedTotal, budget.currency, 0) }}</td>
               <td class="px-5 py-2.5 text-right tabular-nums">{{ formatMoney(actualTotal, budget.currency, 0) }}</td>
             </tr>
@@ -178,18 +181,17 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           v-if="plannedTotal > 0 && Math.round(plannedTotal) !== Math.round(plannedCost)"
           class="px-5 py-2 text-xs text-muted-foreground"
         >
-          Сумма по категориям {{ formatMoney(plannedTotal, budget.currency, 0) }} не совпадает с плановой
-          себестоимостью бюджета {{ formatMoney(plannedCost, budget.currency, 0) }}.
+          {{ t('finance.budgetLines.mismatch', { lines: formatMoney(plannedTotal, budget.currency, 0), planned: formatMoney(plannedCost, budget.currency, 0) }) }}
         </p>
         <p class="px-5 pb-3 text-xs text-muted-foreground">
-          Факт — расходы проекта по категории; труд по таймшитам в разбивку не входит.
+          {{ t('finance.budgetLines.actualHint') }}
         </p>
       </div>
 
       <footer v-if="canManage" class="flex flex-wrap items-center justify-end gap-2 border-t px-5 py-3">
         <p v-if="errorMessage" role="alert" class="mr-auto text-sm text-destructive">{{ errorMessage }}</p>
         <button type="button" class="h-9 rounded-md border px-3 text-sm hover:bg-secondary" @click="emit('close')">
-          Отмена
+          {{ t('common.actions.cancel') }}
         </button>
         <button
           type="button"
@@ -197,7 +199,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           :disabled="saving"
           @click="save"
         >
-          {{ saving ? 'Сохраняю…' : 'Сохранить план' }}
+          {{ saving ? t('common.actions.saving') : t('finance.budgetLines.savePlan') }}
         </button>
       </footer>
     </section>

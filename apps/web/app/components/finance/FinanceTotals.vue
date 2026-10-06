@@ -19,6 +19,8 @@ defineProps<{
   pending?: boolean
 }>()
 
+const { t } = useI18n()
+
 const TONE: Record<string, string> = {
   danger: 'text-destructive',
   positive: 'text-emerald-700 dark:text-emerald-400',
@@ -32,7 +34,7 @@ const num = (row: object, key: string) => Number((row as Record<string, unknown>
 <template>
   <section
     v-if="rows.length > 0"
-    aria-label="Итоги по фильтру"
+    :aria-label="t('finance.totals.aria')"
     class="mt-3 overflow-hidden rounded-xl border bg-card"
     :class="pending ? 'opacity-60' : ''"
   >
@@ -42,8 +44,8 @@ const num = (row: object, key: string) => Number((row as Record<string, unknown>
       class="flex flex-wrap items-baseline gap-x-6 gap-y-1.5 border-b px-4 py-3 last:border-0 sm:px-5"
     >
       <p class="w-full text-xs font-medium uppercase tracking-wider text-muted-foreground sm:w-auto sm:min-w-28">
-        Итого {{ row.currency }}
-        <span class="ml-1 font-normal normal-case tracking-normal">· {{ row.count }} зап.</span>
+        {{ t('finance.totals.total', { currency: row.currency }) }}
+        <span class="ml-1 font-normal normal-case tracking-normal">· {{ t('finance.totals.records', row.count) }}</span>
       </p>
       <template v-for="field in fields" :key="field.key">
         <p v-if="!(field.hideZero && num(row, field.key) === 0)" class="text-sm">

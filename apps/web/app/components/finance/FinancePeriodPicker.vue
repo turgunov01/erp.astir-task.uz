@@ -15,12 +15,14 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits<{ set: [key: string, from?: string, to?: string] }>()
 
+const { t } = useI18n()
+
 const kinds = computed(() => [
-  ...(props.allowAll ? [{ value: 'all', label: 'Всё время' }] : []),
-  { value: 'month', label: 'Месяц' },
-  { value: 'quarter', label: 'Квартал' },
-  { value: 'year', label: 'Год' },
-  { value: 'custom', label: 'Период' }
+  ...(props.allowAll ? [{ value: 'all', label: t('finance.period.kind.all') }] : []),
+  { value: 'month', label: t('finance.period.kind.month') },
+  { value: 'quarter', label: t('finance.period.kind.quarter') },
+  { value: 'year', label: t('finance.period.kind.year') },
+  { value: 'custom', label: t('finance.period.kind.custom') }
 ])
 
 const steppable = computed(() => ['month', 'quarter', 'year'].includes(props.period.kind))
@@ -60,7 +62,7 @@ function setDay(which: 'from' | 'to', value: string) {
   <div class="flex flex-wrap items-center gap-2">
     <div
       role="group"
-      aria-label="Масштаб периода"
+      :aria-label="t('finance.period.scale')"
       class="inline-flex rounded-md border bg-background p-0.5 text-sm"
     >
       <button
@@ -79,7 +81,7 @@ function setDay(which: 'from' | 'to', value: string) {
       <button
         type="button"
         class="grid size-8 place-items-center rounded-md border hover:bg-secondary focus-visible:outline-2 focus-visible:outline-ring"
-        aria-label="Предыдущий период"
+        :aria-label="t('finance.period.previous')"
         @click="step(-1)"
       >
         <Icon name="lucide:chevron-left" class="size-4" />
@@ -88,7 +90,7 @@ function setDay(which: 'from' | 'to', value: string) {
       <button
         type="button"
         class="grid size-8 place-items-center rounded-md border hover:bg-secondary focus-visible:outline-2 focus-visible:outline-ring"
-        aria-label="Следующий период"
+        :aria-label="t('finance.period.next')"
         @click="step(1)"
       >
         <Icon name="lucide:chevron-right" class="size-4" />
@@ -97,7 +99,7 @@ function setDay(which: 'from' | 'to', value: string) {
 
     <div v-else-if="period.kind === 'custom'" class="inline-flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
       <label class="flex items-center gap-1.5">
-        с
+        {{ t('finance.period.from') }}
         <input
           type="date"
           :value="period.from"
@@ -106,7 +108,7 @@ function setDay(which: 'from' | 'to', value: string) {
         >
       </label>
       <label class="flex items-center gap-1.5">
-        по
+        {{ t('finance.period.to') }}
         <input
           type="date"
           :value="period.to"
