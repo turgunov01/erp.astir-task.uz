@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { printReport, reportCsvHref, useReportPeriod } from '~/composables/useReport'
+import { monthShortTitle } from '~/utils/finance-period'
 
-useHead({ title: 'Финансовый отчёт' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('finance.nav.financialReport')) })
 
 const { from, to, params, reset, isFiltered } = useReportPeriod()
 
@@ -52,27 +55,28 @@ const mixedCurrencies = computed(() => (report.value?.currencies.length ?? 0) > 
 const csv = (section?: string) =>
   reportCsvHref('/api/reports/financial', { ...params.value, section })
 
-/** The API keys months as YYYY-MM; an axis reads better as "окт. 2026". */
-function monthLabel(month: string) {
-  const [year, index] = month.split('-')
-  const date = new Date(Number(year), Number(index) - 1, 1)
-  return date.toLocaleDateString('ru-RU', { month: 'short', year: 'numeric' })
+/** The API keys months as YYYY-MM; a row reads better as "окт. 2026". */
+const monthLabel = (month: string) => monthShortTitle(month)
+
+/** Ageing buckets are worded here, so they follow a language switch at once. */
+function ageingLabel(row: AgeingRow) {
+  const key = 'finance.reports.ageing.' + row.key
+  return hasMessage(key) ? t(key) : row.label
 }
 </script>
 
 <template>
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Отчёты</p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Финансы</h1>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{{ t('finance.reports.eyebrow') }}</p>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('finance.nav.overview') }}</h1>
       <p class="mt-1 max-w-2xl text-sm text-muted-foreground">
-        Выставлено, получено и потрачено по месяцам, структура расходов и
-        дебиторка по срокам долга.
+        {{ t('finance.reports.financial.intro') }}
       </p>
 
       <div class="mt-4 flex flex-wrap items-center gap-2 print:hidden">
         <label class="flex items-center gap-2 text-sm text-muted-foreground">
-          С
+          {{ t('finance.reports.from') }}
           <input
             v-model="from"
             type="date"
@@ -80,7 +84,7 @@ function monthLabel(month: string) {
           >
         </label>
         <label class="flex items-center gap-2 text-sm text-muted-foreground">
-          по
+          {{ t('finance.reports.to') }}
           <input
             v-model="to"
             type="date"
@@ -93,7 +97,7 @@ function monthLabel(month: string) {
           class="h-9 rounded-md px-2.5 text-sm text-muted-foreground hover:text-foreground"
           @click="reset()"
         >
-          Сбросить
+          {{ t('common.actions.reset') }}
         </button>
 
         <span class="flex-1" />
@@ -104,7 +108,7 @@ function monthLabel(month: string) {
           @click="printReport()"
         >
           <Icon name="lucide:printer" class="size-4" />
-          Печать
+          {{ t('finance.reports.print') }}
         </button>
       </div>
     </header>
@@ -114,13 +118,13 @@ function monthLabel(month: string) {
       class="grid place-items-center rounded-xl border bg-card px-6 py-16 text-center"
     >
       <Icon name="lucide:triangle-alert" class="size-7 text-destructive" />
-      <p class="mt-3 text-sm">Не удалось построить отчёт</p>
+      <p class="mt-3 text-sm">{{ t('finance.reports.failed') }}</p>
       <button
         type="button"
         class="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
         @click="refresh()"
       >
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
@@ -133,32 +137,30 @@ function monthLabel(month: string) {
         v-if="mixedCurrencies"
         class="mb-4 rounded-lg border border-signal/40 bg-signal/10 px-4 py-2.5 text-sm"
       >
-        В выборке несколько валют ({{ report.currencies.join(', ') }}). Итоги ниже
-        складывают их как одну — сузьте период или разнесите валюты, прежде чем
-        опираться на эти суммы.
+        {{ t('finance.reports.financial.mixedCurrencies', { currencies: report.currencies.join(', ') }) }}
       </p>
 
       <div class="mb-4 grid gap-3 sm:grid-cols-4">
         <div class="rounded-xl border bg-card px-4 py-3">
-          <p class="text-xs text-muted-foreground">Выставлено</p>
+          <p class="text-xs text-muted-foreground">{{ t('finance.invoices.totals.invoiced') }}</p>
           <p class="mt-1 text-xl font-semibold tabular-nums">
             {{ formatMoney(report.totals.invoiced, currency, 0) }}
           </p>
         </div>
         <div class="rounded-xl border bg-card px-4 py-3">
-          <p class="text-xs text-muted-foreground">Получено</p>
+          <p class="text-xs text-muted-foreground">{{ t('finance.payments.totals.paid') }}</p>
           <p class="mt-1 text-xl font-semibold tabular-nums">
             {{ formatMoney(report.totals.collected, currency, 0) }}
           </p>
         </div>
         <div class="rounded-xl border bg-card px-4 py-3">
-          <p class="text-xs text-muted-foreground">Потрачено</p>
+          <p class="text-xs text-muted-foreground">{{ t('finance.reports.financial.spent') }}</p>
           <p class="mt-1 text-xl font-semibold tabular-nums">
             {{ formatMoney(report.totals.spent, currency, 0) }}
           </p>
         </div>
         <div class="rounded-xl border bg-card px-4 py-3">
-          <p class="text-xs text-muted-foreground">Итого</p>
+          <p class="text-xs text-muted-foreground">{{ t('finance.common.total') }}</p>
           <p
             class="mt-1 text-xl font-semibold tabular-nums"
             :class="report.totals.net < 0 ? 'text-destructive' : ''"
@@ -170,7 +172,7 @@ function monthLabel(month: string) {
 
       <section class="mb-6 overflow-hidden rounded-xl border bg-card">
         <header class="flex items-center justify-between border-b px-5 py-3">
-          <h2 class="text-sm font-medium">По месяцам</h2>
+          <h2 class="text-sm font-medium">{{ t('finance.reports.financial.byMonth') }}</h2>
           <a
             :href="csv('months')"
             class="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground print:hidden"
@@ -181,18 +183,18 @@ function monthLabel(month: string) {
         </header>
 
         <p v-if="months.length === 0" class="px-5 py-10 text-center text-sm text-muted-foreground">
-          За выбранный период движения денег не было.
+          {{ t('finance.reports.financial.monthsEmpty') }}
         </p>
 
         <div v-else class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead class="border-b bg-muted/30 text-left text-xs text-muted-foreground">
               <tr>
-                <th class="px-5 py-2.5 font-medium">Месяц</th>
-                <th class="px-5 py-2.5 text-right font-medium">Выставлено</th>
-                <th class="px-5 py-2.5 text-right font-medium">Получено</th>
-                <th class="px-5 py-2.5 text-right font-medium">Потрачено</th>
-                <th class="px-5 py-2.5 text-right font-medium">Итого</th>
+                <th class="px-5 py-2.5 font-medium">{{ t('finance.period.kind.month') }}</th>
+                <th class="px-5 py-2.5 text-right font-medium">{{ t('finance.invoices.totals.invoiced') }}</th>
+                <th class="px-5 py-2.5 text-right font-medium">{{ t('finance.payments.totals.paid') }}</th>
+                <th class="px-5 py-2.5 text-right font-medium">{{ t('finance.reports.financial.spent') }}</th>
+                <th class="px-5 py-2.5 text-right font-medium">{{ t('finance.common.total') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -222,7 +224,7 @@ function monthLabel(month: string) {
       <div class="grid gap-6 lg:grid-cols-2">
         <section class="overflow-hidden rounded-xl border bg-card">
           <header class="flex items-center justify-between border-b px-5 py-3">
-            <h2 class="text-sm font-medium">Расходы по категориям</h2>
+            <h2 class="text-sm font-medium">{{ t('finance.overview.categoriesTitle') }}</h2>
             <a
               :href="csv('categories')"
               class="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground print:hidden"
@@ -236,7 +238,7 @@ function monthLabel(month: string) {
             v-if="report.byCategory.length === 0"
             class="px-5 py-10 text-center text-sm text-muted-foreground"
           >
-            Расходов за период нет.
+            {{ t('finance.reports.financial.categoriesEmpty') }}
           </p>
 
           <div v-else class="overflow-x-auto">
@@ -259,7 +261,7 @@ function monthLabel(month: string) {
 
         <section class="overflow-hidden rounded-xl border bg-card">
           <header class="flex items-center justify-between border-b px-5 py-3">
-            <h2 class="text-sm font-medium">Дебиторка по срокам</h2>
+            <h2 class="text-sm font-medium">{{ t('finance.reports.financial.ageingTitle') }}</h2>
             <a
               :href="csv('ageing')"
               class="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground print:hidden"
@@ -270,7 +272,7 @@ function monthLabel(month: string) {
           </header>
 
           <p class="border-b px-5 py-2 text-xs text-muted-foreground">
-            Неоплаченные счета на сегодня — период отчёта на эту таблицу не влияет.
+            {{ t('finance.reports.financial.ageingHint') }}
           </p>
 
           <div class="overflow-x-auto">
@@ -281,7 +283,7 @@ function monthLabel(month: string) {
                   class="px-5 py-2.5"
                   :class="row.key === 'over90' && row.count > 0 ? 'text-destructive' : ''"
                 >
-                  {{ row.label }}
+                  {{ ageingLabel(row) }}
                 </td>
                 <td class="px-5 py-2.5 text-right tabular-nums text-muted-foreground">
                   {{ row.count }}

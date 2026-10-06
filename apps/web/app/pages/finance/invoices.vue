@@ -6,10 +6,13 @@ import { useFilterOptions } from '~/composables/useFilterOptions'
 import { INVOICE_FORM } from '~/utils/entity-forms'
 import type { TotalsField } from '~/components/finance/FinanceTotals.vue'
 import { financeCsvHref, useFinanceQuery } from '~/composables/useFinanceQuery'
+import { formatPercent } from '~/utils/finance-period'
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Счета' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('finance.nav.invoices')) })
 
 const {
   filters, period, setPeriod, page, apiQuery, isFiltered, reset, searchDraft, onSearch
@@ -68,12 +71,12 @@ const { items, meta, summary, pending, errorMessage, refresh } =
   useListResource<InvoiceRow, InvoiceTotals[]>('/api/finance/invoices', query as never)
 
 const totals = computed(() => summary.value ?? [])
-const totalsFields: TotalsField[] = [
-  { key: 'amount', label: 'Выставлено' },
-  { key: 'paid', label: 'Оплачено', tone: 'positive' },
-  { key: 'outstanding', label: 'Осталось получить' },
-  { key: 'overdue', label: 'Просрочено', tone: 'danger', hideZero: true }
-]
+const totalsFields = computed<TotalsField[]>(() => [
+  { key: 'amount', label: t('finance.invoices.totals.invoiced') },
+  { key: 'paid', label: t('finance.invoices.totals.paid'), tone: 'positive' },
+  { key: 'outstanding', label: t('finance.invoices.totals.outstanding') },
+  { key: 'overdue', label: t('finance.overview.overdue'), tone: 'danger', hideZero: true }
+])
 const currencyOptions = computed(() =>
   [...new Set(['USD', 'UZS', 'EUR', 'RUB', ...totals.value.map(row => row.currency)])])
 const csvHref = computed(() => financeCsvHref('/api/finance/invoices', apiQuery.value))
@@ -82,7 +85,7 @@ const SELECT = 'h-9 w-full min-w-0 rounded-md sm:w-auto sm:max-w-56 border bg-ba
 const crud = useEntityCrud({
   endpoint: '/api/finance/invoices',
   refresh: () => refresh(),
-  entityLabel: 'счёт',
+  entityLabel: () => t('finance.invoices.entity'),
   // The number is the name here: it is what the client quotes back at you.
   nameOf: row => (row as InvoiceRow).number
 })
@@ -93,27 +96,27 @@ function coverPercent(row: InvoiceRow) {
   return Math.min(100, Math.round((row.paidTotal / amount) * 100))
 }
 
-const columns: Column[] = [
-  { key: 'number', label: 'Счёт', width: '19%' },
-  { key: 'client', label: 'Клиент', width: '15%' },
-  { key: 'dueDate', label: 'Оплатить до', width: '12%' },
-  { key: 'amount', label: 'Сумма', width: '15%', numeric: true },
-  { key: 'paid', label: 'Оплачено', width: '14%', numeric: true },
-  { key: 'remaining', label: 'Остаток', width: '13%', numeric: true },
-  { key: 'status', label: 'Статус', width: '12%' },
+const columns = computed<Column[]>(() => [
+  { key: 'number', label: t('finance.common.invoice'), width: '19%' },
+  { key: 'client', label: t('finance.common.client'), width: '15%' },
+  { key: 'dueDate', label: t('finance.invoices.columns.dueDate'), width: '12%' },
+  { key: 'amount', label: t('finance.common.amount'), width: '15%', numeric: true },
+  { key: 'paid', label: t('finance.invoices.totals.paid'), width: '14%', numeric: true },
+  { key: 'remaining', label: t('finance.invoices.columns.remaining'), width: '13%', numeric: true },
+  { key: 'status', label: t('finance.common.status'), width: '12%' },
   { key: 'actions', label: '', width: '56px' }
-]
+])
 </script>
 
 <template>
   <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Финансы</p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Счета</h1>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{{ t('finance.nav.overview') }}</p>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('finance.nav.invoices') }}</h1>
 
       <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
         <p class="text-sm text-muted-foreground">
-          {{ countLabel(meta.total, 'счёт', 'счёта', 'счетов') }} · {{ period.label.toLowerCase() }}, по дате выставления
+          {{ countLabel(meta.total, 'finance.count.invoices') }} · {{ t('finance.invoices.byIssueDate', { period: period.inline }) }}
         </p>
         <div class="flex flex-wrap items-center gap-2">
           <a
@@ -123,34 +126,34 @@ const columns: Column[] = [
             <Icon name="lucide:download" class="size-4" />
             CSV
           </a>
-          <EntityToolbar :crud="crud" create-label="Новый счёт" :can-manage="canManage" />
+          <EntityToolbar :crud="crud" :create-label="t('finance.invoices.create')" :can-manage="canManage" />
         </div>
       </div>
 
       <FinancePeriodPicker class="mt-4" :period="period" allow-all @set="setPeriod" />
 
       <div class="mt-3 flex flex-wrap gap-2">
-        <select v-model="filters.clientId" :class="SELECT" aria-label="Клиент">
-          <option value="">Все клиенты</option>
+        <select v-model="filters.clientId" :class="SELECT" :aria-label="t('finance.common.client')">
+          <option value="">{{ t('finance.filters.allClients') }}</option>
           <option v-for="option in clientOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </option>
         </select>
-        <select v-model="filters.projectId" :class="SELECT" aria-label="Проект">
-          <option value="">Все проекты</option>
-          <option value="none">Без проекта</option>
+        <select v-model="filters.projectId" :class="SELECT" :aria-label="t('finance.common.project')">
+          <option value="">{{ t('finance.filters.allProjects') }}</option>
+          <option value="none">{{ t('finance.filters.noProject') }}</option>
           <option v-for="option in projectOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </option>
         </select>
-        <select v-model="filters.status" :class="SELECT" aria-label="Статус">
-          <option value="">Любой статус</option>
+        <select v-model="filters.status" :class="SELECT" :aria-label="t('finance.common.status')">
+          <option value="">{{ t('finance.filters.anyStatus') }}</option>
           <option v-for="(label, value) in PAYMENT_STATUS_LABEL" :key="value" :value="value">
             {{ label }}
           </option>
         </select>
-        <select v-model="filters.currency" :class="SELECT" aria-label="Валюта">
-          <option value="">Все валюты</option>
+        <select v-model="filters.currency" :class="SELECT" :aria-label="t('finance.common.currency')">
+          <option value="">{{ t('finance.filters.allCurrencies') }}</option>
           <option v-for="code in currencyOptions" :key="code" :value="code">{{ code }}</option>
         </select>
         <label class="inline-flex h-9 items-center gap-2 rounded-md border px-2.5 text-sm">
@@ -160,7 +163,7 @@ const columns: Column[] = [
             class="size-4 accent-current"
             @change="filters.overdue = ($event.target as HTMLInputElement).checked ? 'true' : ''"
           >
-          Только просроченные
+          {{ t('finance.filters.onlyOverdue') }}
         </label>
         <button
           v-if="isFiltered"
@@ -168,7 +171,7 @@ const columns: Column[] = [
           class="h-9 rounded-md px-2.5 text-sm text-muted-foreground hover:text-foreground"
           @click="reset()"
         >
-          Сбросить
+          {{ t('common.actions.reset') }}
         </button>
       </div>
     </header>
@@ -180,17 +183,17 @@ const columns: Column[] = [
       :pending="pending"
       :error-message="errorMessage"
       :search="searchDraft"
-      search-placeholder="Номер, клиент, назначение"
+      :search-placeholder="t('finance.invoices.searchPlaceholder')"
       empty-icon="lucide:file-text"
-      :empty-title="isFiltered ? 'Под фильтр ничего не попало' : 'Пока нет счетов'"
-      empty-body="Счёт выставляется клиенту и закрывается платежами по нему."
+      :empty-title="isFiltered ? t('finance.filters.nothingMatches') : t('finance.invoices.empty')"
+      :empty-body="t('finance.invoices.emptyBody')"
       @update:search="onSearch"
       @update:page="page = $event"
       @retry="refresh"
     >
       <template #cell-number="{ row }">
         <span class="font-medium tabular-nums">{{ row.number }}</span>
-        <span class="block text-xs text-muted-foreground">от {{ formatDay(row.issuedAt) }}</span>
+        <span class="block text-xs text-muted-foreground">{{ t('finance.invoices.issuedOn', { date: formatDay(row.issuedAt) }) }}</span>
         <span v-if="row.description" class="mt-0.5 block truncate text-xs text-muted-foreground" :title="row.description">
           {{ row.description }}
         </span>
@@ -208,19 +211,19 @@ const columns: Column[] = [
       <template #cell-dueDate="{ row }">
         <span :class="row.overdue ? 'text-destructive' : ''">{{ formatDay(row.dueDate) }}</span>
         <span v-if="row.overdue" class="mt-0.5 block text-xs text-destructive">
-          {{ row.daysLate > 0 ? 'просрочен на ' + row.daysLate + ' дн.' : 'просрочен' }}
+          {{ row.daysLate > 0 ? t('finance.invoices.lateBy', row.daysLate) : t('finance.payments.late') }}
         </span>
       </template>
       <template #cell-amount="{ row }">
         <span class="tabular-nums">{{ formatMoney(Number(row.amount), row.currency) }}</span>
         <span v-if="row.vatAmount !== null" class="mt-0.5 block text-xs text-muted-foreground tabular-nums">
-          НДС {{ formatMoney(Number(row.vatAmount), row.currency) }}
+          {{ t('finance.common.vatAmount', { amount: formatMoney(Number(row.vatAmount), row.currency) }) }}
         </span>
       </template>
       <template #cell-paid="{ row }">
         <span class="tabular-nums">{{ formatMoney(row.paidTotal, row.currency) }}</span>
         <span class="mt-0.5 block text-xs text-muted-foreground">
-          {{ coverPercent(row) }}% · {{ countLabel(row._count.payments, 'платёж', 'платежа', 'платежей') }}
+          {{ formatPercent(coverPercent(row)) }} · {{ countLabel(row._count.payments, 'finance.count.payments') }}
         </span>
       </template>
       <template #cell-remaining="{ row }">
@@ -251,7 +254,7 @@ const columns: Column[] = [
     <EntityCrudHost
       :crud="crud"
       :config="INVOICE_FORM"
-      delete-detail="Счёт исчезнет из списков. Платежи по нему останутся, но потеряют привязку."
+      :delete-detail="t('finance.invoices.deleteDetail')"
     />
   </div>
 </template>

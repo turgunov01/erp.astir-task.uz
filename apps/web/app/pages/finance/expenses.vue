@@ -9,7 +9,9 @@ import { EXPENSE_FORM } from '~/utils/entity-forms'
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Расходы' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('finance.nav.expenses')) })
 
 const auth = useAuthStore()
 const canManage = computed(() => auth.can(PERMISSION.FINANCE_MANAGE))
@@ -56,10 +58,10 @@ const { items, meta, summary, pending, errorMessage, refresh } =
   useListResource<ExpenseRow, ExpenseTotals[]>('/api/finance/expenses', query as never)
 
 const totals = computed(() => summary.value ?? [])
-const totalsFields: TotalsField[] = [
-  { key: 'amount', label: 'Расходы' },
-  { key: 'vat', label: 'в т.ч. НДС', tone: 'muted', hideZero: true }
-]
+const totalsFields = computed<TotalsField[]>(() => [
+  { key: 'amount', label: t('finance.nav.expenses') },
+  { key: 'vat', label: t('finance.expenses.vatIncluded'), tone: 'muted', hideZero: true }
+])
 
 const currencyOptions = computed(() =>
   [...new Set(['USD', 'UZS', 'EUR', 'RUB', ...totals.value.map(row => row.currency)])])
@@ -69,7 +71,7 @@ const csvHref = computed(() => financeCsvHref('/api/finance/expenses', apiQuery.
 const crud = useEntityCrud({
   endpoint: '/api/finance/expenses',
   refresh: () => refresh(),
-  entityLabel: 'расход',
+  entityLabel: () => t('finance.expenses.entity'),
   // An expense has no name column, and a uuid in the delete dialog tells
   // nobody which of four render invoices they are about to remove.
   nameOf: row => describe(row as ExpenseRow)
@@ -85,27 +87,27 @@ const safeLink = (url: string | null) => (url && /^https?:\/\//i.test(url) ? url
 
 const SELECT = 'h-9 w-full min-w-0 rounded-md sm:w-auto sm:max-w-56 border bg-background px-2.5 text-sm outline-none focus:border-ring'
 
-const columns: Column[] = [
-  { key: 'date', label: 'Дата', width: '11%' },
-  { key: 'project', label: 'Проект', width: '13%' },
-  { key: 'category', label: 'Категория', width: '12%' },
-  { key: 'description', label: 'Контрагент и описание', width: '24%' },
-  { key: 'document', label: 'Документ', width: '13%' },
-  { key: 'amount', label: 'Сумма', width: '15%', numeric: true },
-  { key: 'author', label: 'Внёс', width: '12%' },
+const columns = computed<Column[]>(() => [
+  { key: 'date', label: t('finance.common.date'), width: '11%' },
+  { key: 'project', label: t('finance.common.project'), width: '13%' },
+  { key: 'category', label: t('finance.common.category'), width: '12%' },
+  { key: 'description', label: t('finance.expenses.columns.description'), width: '24%' },
+  { key: 'document', label: t('finance.expenses.columns.document'), width: '13%' },
+  { key: 'amount', label: t('finance.common.amount'), width: '15%', numeric: true },
+  { key: 'author', label: t('finance.expenses.columns.author'), width: '12%' },
   { key: 'actions', label: '', width: '56px' }
-]
+])
 </script>
 
 <template>
   <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Финансы</p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Расходы</h1>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{{ t('finance.nav.overview') }}</p>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('finance.nav.expenses') }}</h1>
 
       <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
         <p class="text-sm text-muted-foreground">
-          {{ meta.total }} записей · {{ period.label.toLowerCase() }}
+          {{ t('finance.count.records', meta.total) }} · {{ period.inline }}
         </p>
         <div class="flex flex-wrap items-center gap-2">
           <a
@@ -115,40 +117,40 @@ const columns: Column[] = [
             <Icon name="lucide:download" class="size-4" />
             CSV
           </a>
-          <EntityToolbar :crud="crud" create-label="Новый расход" :can-manage="canManage" />
+          <EntityToolbar :crud="crud" :create-label="t('finance.expenses.create')" :can-manage="canManage" />
         </div>
       </div>
 
       <FinancePeriodPicker class="mt-4" :period="period" allow-all @set="setPeriod" />
 
       <div class="mt-3 flex flex-wrap gap-2">
-        <select v-model="filters.projectId" :class="SELECT" aria-label="Проект">
-          <option value="">Все проекты</option>
-          <option value="none">Студия — без проекта</option>
+        <select v-model="filters.projectId" :class="SELECT" :aria-label="t('finance.common.project')">
+          <option value="">{{ t('finance.filters.allProjects') }}</option>
+          <option value="none">{{ t('finance.expenses.studioNoProject') }}</option>
           <option v-for="option in projectOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </option>
         </select>
-        <select v-model="filters.clientId" :class="SELECT" aria-label="Клиент">
-          <option value="">Все клиенты</option>
+        <select v-model="filters.clientId" :class="SELECT" :aria-label="t('finance.common.client')">
+          <option value="">{{ t('finance.filters.allClients') }}</option>
           <option v-for="option in clientOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </option>
         </select>
-        <select v-model="filters.category" :class="SELECT" aria-label="Категория">
-          <option value="">Все категории</option>
+        <select v-model="filters.category" :class="SELECT" :aria-label="t('finance.common.category')">
+          <option value="">{{ t('finance.filters.allCategories') }}</option>
           <option v-for="(label, value) in EXPENSE_CATEGORY_LABEL" :key="value" :value="value">
             {{ label }}
           </option>
         </select>
-        <select v-model="filters.method" :class="SELECT" aria-label="Способ оплаты">
-          <option value="">Любой способ</option>
+        <select v-model="filters.method" :class="SELECT" :aria-label="t('finance.common.paymentMethod')">
+          <option value="">{{ t('finance.filters.anyMethod') }}</option>
           <option v-for="(label, value) in PAYMENT_METHOD_LABEL" :key="value" :value="value">
             {{ label }}
           </option>
         </select>
-        <select v-model="filters.currency" :class="SELECT" aria-label="Валюта">
-          <option value="">Все валюты</option>
+        <select v-model="filters.currency" :class="SELECT" :aria-label="t('finance.common.currency')">
+          <option value="">{{ t('finance.filters.allCurrencies') }}</option>
           <option v-for="code in currencyOptions" :key="code" :value="code">{{ code }}</option>
         </select>
         <button
@@ -157,7 +159,7 @@ const columns: Column[] = [
           class="h-9 rounded-md px-2.5 text-sm text-muted-foreground hover:text-foreground"
           @click="reset()"
         >
-          Сбросить
+          {{ t('common.actions.reset') }}
         </button>
       </div>
     </header>
@@ -169,10 +171,10 @@ const columns: Column[] = [
       :pending="pending"
       :error-message="errorMessage"
       :search="searchDraft"
-      search-placeholder="Контрагент, описание, № документа"
+      :search-placeholder="t('finance.expenses.searchPlaceholder')"
       empty-icon="lucide:receipt"
-      :empty-title="isFiltered ? 'Под фильтр ничего не попало' : 'Пока нет расходов'"
-      empty-body="Расход проекта входит в его фактическую себестоимость; расход без проекта — в накладные студии."
+      :empty-title="isFiltered ? t('finance.filters.nothingMatches') : t('finance.expenses.empty')"
+      :empty-body="t('finance.expenses.emptyBody')"
       @update:search="onSearch"
       @update:page="page = $event"
       @retry="refresh"
@@ -187,7 +189,7 @@ const columns: Column[] = [
             {{ row.project.client.name }}
           </span>
         </template>
-        <span v-else class="text-muted-foreground">Студия</span>
+        <span v-else class="text-muted-foreground">{{ t('finance.expenses.studio') }}</span>
       </template>
       <template #cell-category="{ row }">
         {{ enumLabel(EXPENSE_CATEGORY_LABEL, row.category) }}
@@ -208,7 +210,7 @@ const columns: Column[] = [
           rel="noopener noreferrer"
           class="inline-flex items-center gap-1 hover:underline"
         >
-          {{ row.documentNumber ?? 'Скан' }}
+          {{ row.documentNumber ?? t('finance.expenses.scan') }}
           <Icon name="lucide:external-link" class="size-3.5 text-muted-foreground" />
         </a>
         <span v-else-if="row.documentNumber" class="tabular-nums">{{ row.documentNumber }}</span>
@@ -217,7 +219,7 @@ const columns: Column[] = [
       <template #cell-amount="{ row }">
         <span class="tabular-nums">{{ formatMoney(Number(row.amount), row.currency) }}</span>
         <span v-if="row.vatAmount !== null" class="mt-0.5 block text-xs text-muted-foreground tabular-nums">
-          НДС {{ formatMoney(Number(row.vatAmount), row.currency) }}
+          {{ t('finance.common.vatAmount', { amount: formatMoney(Number(row.vatAmount), row.currency) }) }}
         </span>
       </template>
       <template #cell-author="{ row }">
@@ -240,7 +242,7 @@ const columns: Column[] = [
     <EntityCrudHost
       :crud="crud"
       :config="EXPENSE_FORM"
-      delete-detail="Запись исчезнет из списков и из фактической себестоимости проекта."
+      :delete-detail="t('finance.expenses.deleteDetail')"
     />
   </div>
 </template>

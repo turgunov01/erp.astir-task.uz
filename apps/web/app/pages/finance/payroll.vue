@@ -11,6 +11,7 @@ import { apiErrorMessage, apiRequest, useListResource } from '~/composables/useA
 import { useEntityCrud } from '~/composables/useEntityCrud'
 import { useFilterOptions } from '~/composables/useFilterOptions'
 import { PAYROLL_FORM } from '~/utils/entity-forms'
+import { monthInline, monthTitle as formatMonthTitle } from '~/utils/finance-period'
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
 
@@ -22,7 +23,9 @@ import { useAuthStore } from '~/stores/auth'
  * produce it. Somebody with only the own-entries right sees both, narrowed to
  * themselves by the API.
  */
-useHead({ title: 'Зарплата' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('finance.payroll.title')) })
 
 const route = useRoute()
 const router = useRouter()
@@ -67,11 +70,7 @@ function shiftMonth(delta: number) {
   period.value = next.toISOString().slice(0, 7)
 }
 
-const monthTitle = computed(() => {
-  const [year, month] = period.value.split('-').map(Number) as [number, number]
-  return new Intl.DateTimeFormat('ru-RU', { month: 'long', year: 'numeric', timeZone: 'UTC' })
-    .format(new Date(Date.UTC(year, month - 1, 1)))
-})
+const monthTitle = computed(() => formatMonthTitle(period.value))
 
 /*
  * Only someone who sees everyone needs to pick a person; for the rest the
@@ -126,7 +125,7 @@ async function refreshAll() {
 const crud = useEntityCrud({
   endpoint: '/api/finance/payroll',
   refresh: refreshAll,
-  entityLabel: 'запись',
+  entityLabel: () => t('finance.payroll.entity'),
   nameOf: row => describe(row as PayrollRow)
 })
 
@@ -143,21 +142,22 @@ function signedAmount(row: PayrollRow) {
 
 /* ---- status transitions ---- */
 
-interface Transition { to: string, label: string, icon: string }
+/** `action` names a message under finance.payroll.actions. */
+interface Transition { to: string, action: string, icon: string }
 
 /** Mirrors the API's allowed moves; the API is still the one that decides. */
 const TRANSITIONS: Record<string, Transition[]> = {
   DRAFT: [
-    { to: 'APPROVED', label: 'Утвердить', icon: 'lucide:check' },
-    { to: 'CANCELLED', label: 'Отменить', icon: 'lucide:ban' }
+    { to: 'APPROVED', action: 'approve', icon: 'lucide:check' },
+    { to: 'CANCELLED', action: 'cancel', icon: 'lucide:ban' }
   ],
   APPROVED: [
-    { to: 'PAID', label: 'Отметить выплаченным', icon: 'lucide:banknote' },
-    { to: 'DRAFT', label: 'Вернуть в черновик', icon: 'lucide:undo-2' },
-    { to: 'CANCELLED', label: 'Отменить', icon: 'lucide:ban' }
+    { to: 'PAID', action: 'markPaid', icon: 'lucide:banknote' },
+    { to: 'DRAFT', action: 'backToDraft', icon: 'lucide:undo-2' },
+    { to: 'CANCELLED', action: 'cancel', icon: 'lucide:ban' }
   ],
-  PAID: [{ to: 'APPROVED', label: 'Снять отметку о выплате', icon: 'lucide:undo-2' }],
-  CANCELLED: [{ to: 'DRAFT', label: 'Восстановить как черновик', icon: 'lucide:rotate-ccw' }]
+  PAID: [{ to: 'APPROVED', action: 'unmarkPaid', icon: 'lucide:undo-2' }],
+  CANCELLED: [{ to: 'DRAFT', action: 'restoreDraft', icon: 'lucide:rotate-ccw' }]
 }
 
 const busyId = ref('')
@@ -170,7 +170,7 @@ async function moveTo(row: PayrollRow, to: string) {
     await apiRequest('/api/finance/payroll/' + row.id + '/status', { method: 'POST', body: { status: to } })
     await refreshAll()
   } catch (err) {
-    actionError.value = apiErrorMessage(err, 'Не удалось изменить статус')
+    actionError.value = apiErrorMessage(err, t('finance.payroll.statusFailed'))
   } finally {
     busyId.value = ''
   }
@@ -179,12 +179,12 @@ async function moveTo(row: PayrollRow, to: string) {
 const isDeletable = (row: PayrollRow) => row.status === 'DRAFT' || row.status === 'CANCELLED'
 
 const columns = computed<Column[]>(() => [
-  { key: 'date', label: 'Дата', width: '10%' },
-  ...(ownOnly.value ? [] : [{ key: 'employee', label: 'Сотрудник', width: '18%' }]),
-  { key: 'type', label: 'Вид', width: '16%' },
-  { key: 'reason', label: 'Причина', width: ownOnly.value ? '36%' : '24%' },
-  { key: 'amount', label: 'Сумма', width: '13%', numeric: true },
-  { key: 'status', label: 'Статус', width: '11%' },
+  { key: 'date', label: t('finance.common.date'), width: '10%' },
+  ...(ownOnly.value ? [] : [{ key: 'employee', label: t('finance.common.employee'), width: '18%' }]),
+  { key: 'type', label: t('finance.payroll.columns.type'), width: '16%' },
+  { key: 'reason', label: t('finance.payroll.columns.reason'), width: ownOnly.value ? '36%' : '24%' },
+  { key: 'amount', label: t('finance.common.amount'), width: '13%', numeric: true },
+  { key: 'status', label: t('finance.common.status'), width: '11%' },
   ...(canManage.value ? [{ key: 'actions', label: '', width: '56px' }] : [])
 ])
 
@@ -194,11 +194,11 @@ const SELECT = 'h-9 rounded-md border bg-background px-2.5 text-sm outline-none 
 <template>
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Финансы</p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Зарплата: авансы, штрафы, премии</h1>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{{ t('finance.nav.overview') }}</p>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('finance.nav.payroll') }}</h1>
       <p class="mt-1 text-sm text-muted-foreground">
-        <template v-if="ownOnly">Ваши начисления и удержания по месяцам. Черновики не показываются, пока их не утвердят.</template>
-        <template v-else>Записи вносятся вручную; позже их сможет создавать система учёта посещаемости.</template>
+        <template v-if="ownOnly">{{ t('finance.payroll.introOwn') }}</template>
+        <template v-else>{{ t('finance.payroll.intro') }}</template>
       </p>
 
       <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
@@ -206,7 +206,7 @@ const SELECT = 'h-9 rounded-md border bg-background px-2.5 text-sm outline-none 
           <button
             type="button"
             class="grid size-9 place-items-center rounded-md border hover:bg-secondary"
-            aria-label="Предыдущий месяц"
+            :aria-label="t('finance.payroll.previousMonth')"
             @click="shiftMonth(-1)"
           >
             <Icon name="lucide:chevron-left" class="size-4" />
@@ -215,23 +215,23 @@ const SELECT = 'h-9 rounded-md border bg-background px-2.5 text-sm outline-none 
             v-model="period"
             type="month"
             :class="SELECT"
-            aria-label="Месяц расчёта"
+            :aria-label="t('finance.payroll.month')"
           >
           <button
             type="button"
             class="grid size-9 place-items-center rounded-md border hover:bg-secondary"
-            aria-label="Следующий месяц"
+            :aria-label="t('finance.payroll.nextMonth')"
             @click="shiftMonth(1)"
           >
             <Icon name="lucide:chevron-right" class="size-4" />
           </button>
-          <span class="ml-2 text-sm capitalize text-muted-foreground">{{ monthTitle }}</span>
+          <span class="ml-2 text-sm text-muted-foreground">{{ monthTitle }}</span>
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
-          <div class="flex rounded-md border p-0.5" role="tablist" aria-label="Вид">
+          <div class="flex rounded-md border p-0.5" role="tablist" :aria-label="t('finance.payroll.view')">
             <button
-              v-for="option in [{ key: 'summary', label: 'Расчёт' }, { key: 'entries', label: 'Записи' }]"
+              v-for="option in [{ key: 'summary', label: t('finance.payroll.tabs.summary') }, { key: 'entries', label: t('finance.payroll.tabs.entries') }]"
               :key="option.key"
               type="button"
               role="tab"
@@ -252,7 +252,7 @@ const SELECT = 'h-9 rounded-md border bg-background px-2.5 text-sm outline-none 
             @click="crud.openCreate()"
           >
             <Icon name="lucide:plus" class="size-4" />
-            Новая запись
+            {{ t('finance.payroll.create') }}
           </button>
         </div>
       </div>
@@ -276,23 +276,23 @@ const SELECT = 'h-9 rounded-md border bg-background px-2.5 text-sm outline-none 
 
     <template v-else>
       <div class="mb-3 flex flex-wrap gap-2">
-        <select v-if="canViewAll" v-model="employeeId" :class="SELECT" aria-label="Сотрудник">
-          <option value="">Все сотрудники</option>
+        <select v-if="canViewAll" v-model="employeeId" :class="SELECT" :aria-label="t('finance.common.employee')">
+          <option value="">{{ t('finance.filters.allEmployees') }}</option>
           <option v-for="option in employeeOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </option>
         </select>
-        <select v-model="type" :class="SELECT" aria-label="Вид записи">
-          <option value="">Все виды</option>
+        <select v-model="type" :class="SELECT" :aria-label="t('finance.payroll.entryType')">
+          <option value="">{{ t('finance.filters.allTypes') }}</option>
           <option v-for="(label, value) in PAYROLL_TYPE_LABEL" :key="value" :value="value">{{ label }}</option>
         </select>
-        <select v-model="status" :class="SELECT" aria-label="Статус">
-          <option value="">Все статусы</option>
+        <select v-model="status" :class="SELECT" :aria-label="t('finance.common.status')">
+          <option value="">{{ t('finance.filters.allStatuses') }}</option>
           <template v-for="(label, value) in PAYROLL_STATUS_LABEL" :key="value">
             <option v-if="!(ownOnly && value === 'DRAFT')" :value="value">{{ label }}</option>
           </template>
         </select>
-        <span class="self-center text-sm text-muted-foreground">{{ meta.total }} записей</span>
+        <span class="self-center text-sm text-muted-foreground">{{ t('finance.count.records', meta.total) }}</span>
       </div>
 
       <DataTable
@@ -302,8 +302,8 @@ const SELECT = 'h-9 rounded-md border bg-background px-2.5 text-sm outline-none 
         :pending="pending"
         :error-message="errorMessage"
         empty-icon="lucide:hand-coins"
-        empty-title="За этот месяц записей нет"
-        empty-body="Аванс, премия, штраф или удержание попадают в расчёт месяца, когда их утвердят."
+        :empty-title="t('finance.payroll.empty')"
+        :empty-body="t('finance.payroll.emptyBody')"
         @update:page="page = $event"
         @retry="refresh"
       >
@@ -315,7 +315,7 @@ const SELECT = 'h-9 rounded-md border bg-background px-2.5 text-sm outline-none 
         <template #cell-type="{ row }">
           {{ enumLabel(PAYROLL_TYPE_LABEL, row.type) }}
           <p v-if="row.type === 'LATENESS' && row.lateMinutes" class="text-xs text-muted-foreground">
-            опоздание {{ row.lateMinutes }} мин
+            {{ t('finance.payroll.lateMinutes', { minutes: row.lateMinutes }) }}
           </p>
           <p v-if="row.source !== 'MANUAL'" class="text-xs text-muted-foreground">
             {{ enumLabel(PAYROLL_SOURCE_LABEL, row.source) }}
@@ -325,7 +325,7 @@ const SELECT = 'h-9 rounded-md border bg-background px-2.5 text-sm outline-none 
           <span v-if="row.reason" class="line-clamp-2">{{ row.reason }}</span>
           <span v-else class="text-muted-foreground">—</span>
           <p v-if="row.period !== row.date.slice(0, 7)" class="text-xs text-muted-foreground">
-            в расчёт за {{ row.period }}
+            {{ t('finance.payroll.settlesIn', { month: monthInline(row.period) }) }}
           </p>
         </template>
         <template #cell-amount="{ row }">
@@ -351,7 +351,7 @@ const SELECT = 'h-9 rounded-md border bg-background px-2.5 text-sm outline-none 
               <button
                 type="button"
                 class="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground disabled:opacity-50"
-                :aria-label="'Действия: ' + describe(row)"
+                :aria-label="t('finance.payroll.actionsAria', { entry: describe(row) })"
                 :disabled="busyId === row.id"
               >
                 <Icon :name="busyId === row.id ? 'lucide:loader-circle' : 'lucide:ellipsis'" class="size-4" :class="busyId === row.id ? 'animate-spin' : ''" />
@@ -364,17 +364,17 @@ const SELECT = 'h-9 rounded-md border bg-background px-2.5 text-sm outline-none 
                 @select="moveTo(row, move.to)"
               >
                 <Icon :name="move.icon" class="size-4" />
-                {{ move.label }}
+                {{ t('finance.payroll.actions.' + move.action) }}
               </DropdownMenuItem>
               <template v-if="row.status === 'DRAFT' || isDeletable(row)">
                 <DropdownMenuSeparator />
                 <DropdownMenuItem v-if="row.status === 'DRAFT'" @select="crud.openEdit(row)">
                   <Icon name="lucide:pencil" class="size-4" />
-                  Редактировать
+                  {{ t('common.actions.edit') }}
                 </DropdownMenuItem>
                 <DropdownMenuItem v-if="isDeletable(row)" variant="destructive" @select="crud.askDelete(row)">
                   <Icon name="lucide:trash-2" class="size-4" />
-                  Удалить
+                  {{ t('common.actions.delete') }}
                 </DropdownMenuItem>
               </template>
             </DropdownMenuContent>
@@ -386,7 +386,7 @@ const SELECT = 'h-9 rounded-md border bg-background px-2.5 text-sm outline-none 
     <EntityCrudHost
       :crud="crud"
       :config="PAYROLL_FORM"
-      delete-detail="Удалить можно только черновик или отменённую запись; в расчёт месяца она не входит."
+      :delete-detail="t('finance.payroll.deleteDetail')"
     />
   </div>
 </template>

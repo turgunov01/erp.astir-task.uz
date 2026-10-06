@@ -2,7 +2,9 @@
 import { useFilterOptions } from '~/composables/useFilterOptions'
 import { printReport, reportCsvHref, useReportPeriod } from '~/composables/useReport'
 
-useHead({ title: 'Отчёт по времени' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('finance.reports.time.title')) })
 
 const route = useRoute()
 const router = useRouter()
@@ -47,22 +49,21 @@ const rows = computed(() => report.value?.rows ?? [])
 
 const csvHref = computed(() => reportCsvHref('/api/reports/time', query.value))
 
-const hours = (value: number) => value.toLocaleString('ru-RU', { maximumFractionDigits: 2 })
+const hours = (value: number) => value.toLocaleString(intlTag(), { maximumFractionDigits: 2 })
 </script>
 
 <template>
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Отчёты</p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Время и люди</h1>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{{ t('finance.reports.eyebrow') }}</p>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('finance.reports.time.heading') }}</h1>
       <p class="mt-1 max-w-2xl text-sm text-muted-foreground">
-        Списанные часы по сотрудникам, оценённые по их ставке. Часы без ставки
-        считаются, но ничего не стоят — они вынесены отдельной колонкой.
+        {{ t('finance.reports.time.intro') }}
       </p>
 
       <div class="mt-4 flex flex-wrap items-center gap-2 print:hidden">
         <label class="flex items-center gap-2 text-sm text-muted-foreground">
-          С
+          {{ t('finance.reports.from') }}
           <input
             v-model="from"
             type="date"
@@ -70,7 +71,7 @@ const hours = (value: number) => value.toLocaleString('ru-RU', { maximumFraction
           >
         </label>
         <label class="flex items-center gap-2 text-sm text-muted-foreground">
-          по
+          {{ t('finance.reports.to') }}
           <input
             v-model="to"
             type="date"
@@ -81,9 +82,9 @@ const hours = (value: number) => value.toLocaleString('ru-RU', { maximumFraction
         <select
           v-model="projectId"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Проект"
+          :aria-label="t('finance.common.project')"
         >
-          <option value="">Все проекты</option>
+          <option value="">{{ t('finance.filters.allProjects') }}</option>
           <option v-for="option in projectOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </option>
@@ -95,7 +96,7 @@ const hours = (value: number) => value.toLocaleString('ru-RU', { maximumFraction
           class="h-9 rounded-md px-2.5 text-sm text-muted-foreground hover:text-foreground"
           @click="reset()"
         >
-          Сбросить даты
+          {{ t('finance.reports.resetDates') }}
         </button>
 
         <span class="flex-1" />
@@ -113,7 +114,7 @@ const hours = (value: number) => value.toLocaleString('ru-RU', { maximumFraction
           @click="printReport()"
         >
           <Icon name="lucide:printer" class="size-4" />
-          Печать
+          {{ t('finance.reports.print') }}
         </button>
       </div>
     </header>
@@ -123,13 +124,13 @@ const hours = (value: number) => value.toLocaleString('ru-RU', { maximumFraction
       class="grid place-items-center rounded-xl border bg-card px-6 py-16 text-center"
     >
       <Icon name="lucide:triangle-alert" class="size-7 text-destructive" />
-      <p class="mt-3 text-sm">Не удалось построить отчёт</p>
+      <p class="mt-3 text-sm">{{ t('finance.reports.failed') }}</p>
       <button
         type="button"
         class="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
         @click="refresh()"
       >
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
@@ -141,7 +142,7 @@ const hours = (value: number) => value.toLocaleString('ru-RU', { maximumFraction
       v-else-if="rows.length === 0"
       class="rounded-xl border bg-card px-6 py-16 text-center text-sm text-muted-foreground"
     >
-      За выбранный период часы никто не списывал.
+      {{ t('finance.reports.time.empty') }}
     </p>
 
     <template v-else-if="report">
@@ -149,21 +150,20 @@ const hours = (value: number) => value.toLocaleString('ru-RU', { maximumFraction
         v-if="report.totals.unpricedHours > 0"
         class="mb-4 rounded-lg border border-signal/40 bg-signal/10 px-4 py-2.5 text-sm"
       >
-        {{ hours(report.totals.unpricedHours) }} ч списано людьми без ставки — эти
-        часы в стоимость не вошли. Итог ниже занижен ровно на них.
+        {{ t('finance.reports.time.unpricedWarning', { hours: hours(report.totals.unpricedHours) }) }}
       </p>
 
       <div class="mb-4 grid gap-3 sm:grid-cols-3">
         <div class="rounded-xl border bg-card px-4 py-3">
-          <p class="text-xs text-muted-foreground">Человек</p>
+          <p class="text-xs text-muted-foreground">{{ t('finance.reports.time.people') }}</p>
           <p class="mt-1 text-xl font-semibold tabular-nums">{{ report.totals.people }}</p>
         </div>
         <div class="rounded-xl border bg-card px-4 py-3">
-          <p class="text-xs text-muted-foreground">Часов</p>
+          <p class="text-xs text-muted-foreground">{{ t('finance.reports.time.hours') }}</p>
           <p class="mt-1 text-xl font-semibold tabular-nums">{{ hours(report.totals.hours) }}</p>
         </div>
         <div class="rounded-xl border bg-card px-4 py-3">
-          <p class="text-xs text-muted-foreground">Стоимость</p>
+          <p class="text-xs text-muted-foreground">{{ t('finance.reports.time.cost') }}</p>
           <p class="mt-1 text-xl font-semibold tabular-nums">
             {{ formatMoney(report.totals.cost, 'USD', 0) }}
           </p>
@@ -174,14 +174,14 @@ const hours = (value: number) => value.toLocaleString('ru-RU', { maximumFraction
         <table class="w-full text-sm">
           <thead class="border-b bg-muted/30 text-left text-xs text-muted-foreground">
             <tr>
-              <th class="px-5 py-2.5 font-medium">Сотрудник</th>
-              <th class="px-5 py-2.5 font-medium">Должность</th>
-              <th class="px-5 py-2.5 font-medium">Отдел</th>
-              <th class="px-5 py-2.5 text-right font-medium">Ставка</th>
-              <th class="px-5 py-2.5 text-right font-medium">Часов</th>
-              <th class="px-5 py-2.5 text-right font-medium">Без ставки</th>
-              <th class="px-5 py-2.5 text-right font-medium">Стоимость</th>
-              <th class="px-5 py-2.5 text-right font-medium">Проектов</th>
+              <th class="px-5 py-2.5 font-medium">{{ t('finance.common.employee') }}</th>
+              <th class="px-5 py-2.5 font-medium">{{ t('finance.reports.time.position') }}</th>
+              <th class="px-5 py-2.5 font-medium">{{ t('finance.reports.time.department') }}</th>
+              <th class="px-5 py-2.5 text-right font-medium">{{ t('finance.reports.time.rate') }}</th>
+              <th class="px-5 py-2.5 text-right font-medium">{{ t('finance.reports.time.hours') }}</th>
+              <th class="px-5 py-2.5 text-right font-medium">{{ t('finance.reports.time.unpriced') }}</th>
+              <th class="px-5 py-2.5 text-right font-medium">{{ t('finance.reports.time.cost') }}</th>
+              <th class="px-5 py-2.5 text-right font-medium">{{ t('finance.reports.clients.projects') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -193,7 +193,7 @@ const hours = (value: number) => value.toLocaleString('ru-RU', { maximumFraction
                 <span v-if="row.hourlyRate !== null">
                   {{ formatMoney(row.hourlyRate, 'USD') }}
                 </span>
-                <span v-else class="text-destructive">не задана</span>
+                <span v-else class="text-destructive">{{ t('finance.reports.time.rateNotSet') }}</span>
               </td>
               <td class="px-5 py-3 text-right tabular-nums">{{ hours(row.hours) }}</td>
               <td

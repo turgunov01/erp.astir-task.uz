@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { printReport, reportCsvHref, useReportPeriod } from '~/composables/useReport'
 
-useHead({ title: 'Отчёт по клиентам' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('finance.reports.clients.title')) })
 
 const { from, to, params, reset, isFiltered } = useReportPeriod()
 
@@ -43,18 +45,15 @@ const csvHref = computed(() => reportCsvHref('/api/reports/clients', params.valu
 <template>
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Отчёты</p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Клиенты</h1>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{{ t('finance.reports.eyebrow') }}</p>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('finance.reports.clients.heading') }}</h1>
       <p class="mt-1 max-w-2xl text-sm text-muted-foreground">
-        Сколько каждому клиенту выставлено, сколько получено и что осталось.
-        Отчёт идёт от счетов: платёж, не привязанный к счёту, сюда не попадёт —
-        такие деньги видно в финансовом отчёте. Средний срок оплаты считается
-        только по закрытым счетам.
+        {{ t('finance.reports.clients.intro') }}
       </p>
 
       <div class="mt-4 flex flex-wrap items-center gap-2 print:hidden">
         <label class="flex items-center gap-2 text-sm text-muted-foreground">
-          С
+          {{ t('finance.reports.from') }}
           <input
             v-model="from"
             type="date"
@@ -62,7 +61,7 @@ const csvHref = computed(() => reportCsvHref('/api/reports/clients', params.valu
           >
         </label>
         <label class="flex items-center gap-2 text-sm text-muted-foreground">
-          по
+          {{ t('finance.reports.to') }}
           <input
             v-model="to"
             type="date"
@@ -75,7 +74,7 @@ const csvHref = computed(() => reportCsvHref('/api/reports/clients', params.valu
           class="h-9 rounded-md px-2.5 text-sm text-muted-foreground hover:text-foreground"
           @click="reset()"
         >
-          Сбросить
+          {{ t('common.actions.reset') }}
         </button>
 
         <span class="flex-1" />
@@ -93,7 +92,7 @@ const csvHref = computed(() => reportCsvHref('/api/reports/clients', params.valu
           @click="printReport()"
         >
           <Icon name="lucide:printer" class="size-4" />
-          Печать
+          {{ t('finance.reports.print') }}
         </button>
       </div>
     </header>
@@ -103,13 +102,13 @@ const csvHref = computed(() => reportCsvHref('/api/reports/clients', params.valu
       class="grid place-items-center rounded-xl border bg-card px-6 py-16 text-center"
     >
       <Icon name="lucide:triangle-alert" class="size-7 text-destructive" />
-      <p class="mt-3 text-sm">Не удалось построить отчёт</p>
+      <p class="mt-3 text-sm">{{ t('finance.reports.failed') }}</p>
       <button
         type="button"
         class="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
         @click="refresh()"
       >
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
@@ -121,7 +120,7 @@ const csvHref = computed(() => reportCsvHref('/api/reports/clients', params.valu
       v-else-if="billed.length === 0"
       class="rounded-xl border bg-card px-6 py-16 text-center text-sm text-muted-foreground"
     >
-      За выбранный период клиентам ничего не выставлялось.
+      {{ t('finance.reports.clients.empty') }}
     </p>
 
     <template v-else>
@@ -129,25 +128,24 @@ const csvHref = computed(() => reportCsvHref('/api/reports/clients', params.valu
         v-if="mixedCurrencies"
         class="mb-4 rounded-lg border border-signal/40 bg-signal/10 px-4 py-2.5 text-sm"
       >
-        Клиенты в разных валютах. Итоги ниже складывают их как одну — читайте
-        строки, а не сумму.
+        {{ t('finance.reports.clients.mixedCurrencies') }}
       </p>
 
       <div class="mb-4 grid gap-3 sm:grid-cols-3">
         <div class="rounded-xl border bg-card px-4 py-3">
-          <p class="text-xs text-muted-foreground">Выставлено</p>
+          <p class="text-xs text-muted-foreground">{{ t('finance.invoices.totals.invoiced') }}</p>
           <p class="mt-1 text-xl font-semibold tabular-nums">
             {{ formatMoney(totals.invoiced, currency, 0) }}
           </p>
         </div>
         <div class="rounded-xl border bg-card px-4 py-3">
-          <p class="text-xs text-muted-foreground">Оплачено</p>
+          <p class="text-xs text-muted-foreground">{{ t('finance.invoices.totals.paid') }}</p>
           <p class="mt-1 text-xl font-semibold tabular-nums">
             {{ formatMoney(totals.collected, currency, 0) }}
           </p>
         </div>
         <div class="rounded-xl border bg-card px-4 py-3">
-          <p class="text-xs text-muted-foreground">Остаток</p>
+          <p class="text-xs text-muted-foreground">{{ t('finance.invoices.columns.remaining') }}</p>
           <p
             class="mt-1 text-xl font-semibold tabular-nums"
             :class="totals.outstanding > 0 ? 'text-destructive' : ''"
@@ -161,14 +159,14 @@ const csvHref = computed(() => reportCsvHref('/api/reports/clients', params.valu
         <table class="w-full text-sm">
           <thead class="border-b bg-muted/30 text-left text-xs text-muted-foreground">
             <tr>
-              <th class="px-5 py-2.5 font-medium">Клиент</th>
-              <th class="px-5 py-2.5 font-medium">Статус</th>
-              <th class="px-5 py-2.5 text-right font-medium">Проектов</th>
-              <th class="px-5 py-2.5 text-right font-medium">Счетов</th>
-              <th class="px-5 py-2.5 text-right font-medium">Выставлено</th>
-              <th class="px-5 py-2.5 text-right font-medium">Оплачено</th>
-              <th class="px-5 py-2.5 text-right font-medium">Остаток</th>
-              <th class="px-5 py-2.5 text-right font-medium">Срок оплаты</th>
+              <th class="px-5 py-2.5 font-medium">{{ t('finance.common.client') }}</th>
+              <th class="px-5 py-2.5 font-medium">{{ t('finance.common.status') }}</th>
+              <th class="px-5 py-2.5 text-right font-medium">{{ t('finance.reports.clients.projects') }}</th>
+              <th class="px-5 py-2.5 text-right font-medium">{{ t('finance.reports.clients.invoices') }}</th>
+              <th class="px-5 py-2.5 text-right font-medium">{{ t('finance.invoices.totals.invoiced') }}</th>
+              <th class="px-5 py-2.5 text-right font-medium">{{ t('finance.invoices.totals.paid') }}</th>
+              <th class="px-5 py-2.5 text-right font-medium">{{ t('finance.invoices.columns.remaining') }}</th>
+              <th class="px-5 py-2.5 text-right font-medium">{{ t('finance.reports.clients.daysToPay') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -194,7 +192,7 @@ const csvHref = computed(() => reportCsvHref('/api/reports/clients', params.valu
                 {{ formatMoney(row.outstanding, row.currency, 0) }}
               </td>
               <td class="px-5 py-3 text-right tabular-nums">
-                <span v-if="row.avgDaysToPay !== null">{{ row.avgDaysToPay }} дн.</span>
+                <span v-if="row.avgDaysToPay !== null">{{ t('finance.reports.days', row.avgDaysToPay) }}</span>
                 <span v-else class="text-muted-foreground">—</span>
               </td>
             </tr>

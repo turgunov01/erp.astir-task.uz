@@ -1,3 +1,407 @@
 {
-  "finance": {}
+  "finance": {
+    "nav": {
+      "overview": "Finance",
+      "budgets": "Budgets",
+      "expenses": "Expenses",
+      "payments": "Payments",
+      "invoices": "Invoices",
+      "payroll": "Payroll: advances, penalties, bonuses",
+      "financialReport": "Financial report"
+    },
+    "period": {
+      "all": "All time",
+      "allInline": "all time",
+      "quarter": "Q{quarter} {year}",
+      "year": "{year}",
+      "since": "from {day}",
+      "until": "until {day}",
+      "kind": {
+        "all": "All time",
+        "month": "Month",
+        "quarter": "Quarter",
+        "year": "Year",
+        "custom": "Range"
+      },
+      "scale": "Period scale",
+      "previous": "Previous period",
+      "next": "Next period",
+      "from": "from",
+      "to": "to"
+    },
+    "count": {
+      "invoices": "{n} invoice | {n} invoices",
+      "drafts": "{n} draft | {n} drafts",
+      "records": "{n} record | {n} records",
+      "payments": "{n} payment | {n} payments"
+    },
+    "common": {
+      "currency": "Currency",
+      "project": "Project",
+      "category": "Category",
+      "total": "Total",
+      "employee": "Employee",
+      "amount": "Amount",
+      "date": "Date",
+      "client": "Client",
+      "status": "Status",
+      "invoice": "Invoice",
+      "paymentMethod": "Payment method",
+      "vatAmount": "VAT {amount}"
+    },
+    "payroll": {
+      "columns": {
+        "salaries": "Salaries",
+        "bonuses": "Bonuses",
+        "advances": "Advances",
+        "penalties": "Penalties",
+        "deductions": "Deductions",
+        "net": "Net pay",
+        "salary": "Salary",
+        "lateness": "Lateness",
+        "type": "Type",
+        "reason": "Reason"
+      },
+      "typeTotals": {
+        "ADVANCE": "Advances",
+        "BONUS": "Bonuses",
+        "PENALTY": "Penalties",
+        "LATENESS": "Lateness penalties",
+        "DEDUCTION": "Deductions",
+        "OTHER_ACCRUAL": "Other accruals"
+      },
+      "summary": {
+        "ownTitle": "My pay for the month",
+        "title": "Monthly payroll by employee",
+        "formula": "Net pay = salary + bonuses and accruals − penalties and deductions − advances. Only approved and paid entries count.",
+        "loadFailed": "Couldn’t load the payroll",
+        "ownEmpty": "No pay calculation yet",
+        "ownEmptyHint": "It appears once your account is linked to an employee record.",
+        "empty": "No employees",
+        "emptyHint": "Lists current employees and everyone with entries for the month.",
+        "drafts": "drafts: {n}",
+        "lateness": "{count}× · {minutes} min",
+        "total": "Total, {currency}"
+      },
+      "salary": {
+        "title": "Monthly salary",
+        "invalid": "Enter the salary as a number of zero or more",
+        "saveFailed": "Couldn’t save the salary",
+        "editAria": "Change salary: {name}",
+        "notSet": "not set",
+        "clear": "Remove salary"
+      },
+      "title": "Payroll",
+      "entity": "entry",
+      "create": "New entry",
+      "introOwn": "Your accruals and deductions by month. Drafts are hidden until they are approved.",
+      "intro": "Entries are added by hand; later the attendance system will be able to create them too.",
+      "previousMonth": "Previous month",
+      "nextMonth": "Next month",
+      "month": "Payroll month",
+      "view": "View",
+      "tabs": {
+        "summary": "Payroll",
+        "entries": "Entries"
+      },
+      "entryType": "Entry type",
+      "empty": "No entries for this month",
+      "emptyBody": "An advance, bonus, penalty or deduction enters the month’s payroll once it is approved.",
+      "lateMinutes": "{minutes} min late",
+      "settlesIn": "settles in {month}",
+      "actionsAria": "Actions: {entry}",
+      "statusFailed": "Couldn’t change the status",
+      "actions": {
+        "approve": "Approve",
+        "cancel": "Cancel entry",
+        "markPaid": "Mark as paid",
+        "backToDraft": "Back to draft",
+        "unmarkPaid": "Unmark as paid",
+        "restoreDraft": "Restore as draft"
+      },
+      "deleteDetail": "Only a draft or cancelled entry can be deleted; it is not part of the month’s payroll."
+    },
+    "overview": {
+      "heading": "Financial overview",
+      "intro": "A cash view of the period: inflow is payments received, expenses are expenses recorded. Receivables and overdue amounts are as of today. Amounts in different currencies are never added together.",
+      "chartCurrency": "Chart currency",
+      "loadFailed": "Couldn’t load finances",
+      "emptyPeriod": "No payments, expenses or open invoices for {period}.",
+      "kpiAria": "Figures in {currency}",
+      "inflow": "Inflow",
+      "invoicedAmount": "invoiced {amount}",
+      "feesAmount": "fees {amount}",
+      "outflow": "Expenses",
+      "allExpenses": "all expenses",
+      "profit": "Profit",
+      "profitFormula": "inflow − fees − expenses",
+      "receivable": "Receivables",
+      "receivableHint": "unpaid balance of invoices",
+      "overdue": "Overdue",
+      "payrollDue": "Payroll due",
+      "forMonth": "for {month}",
+      "payrollNoAccess": "no access to payroll",
+      "sectionsAria": "Finance sections",
+      "cashflowTitle": "Cash flow by month",
+      "cashflowHint": "The month’s net is shown under each pair. Hover over a bar to see the amount.",
+      "categoriesTitle": "Expenses by category",
+      "categoriesHint": "Total {total}. A category opens the list of its expenses.",
+      "categoriesEmpty": "No expenses in {currency} for the period.",
+      "projectsTitle": "Project profitability",
+      "projectsHint": "Cumulative to {date}: actual = expenses + hours paid at rate, margin = inflow − actual. Worst margin first.",
+      "projectsEmpty": "No active projects with a budget or money movement.",
+      "overdueTitle": "Overdue invoices",
+      "all": "all",
+      "overdueEmpty": "No overdue invoices.",
+      "due": "due {date}",
+      "daysLate": "{n} day late | {n} days late",
+      "markedOverdue": "marked overdue",
+      "ofAmount": "of {amount}",
+      "upcomingTitle": "Due in the next {n} day | Due in the next {n} days",
+      "shownOf": "Showing {shown} of {total}",
+      "upcomingEmpty": "Nothing falls due in the coming days.",
+      "dueToday": "today",
+      "inDays": "in {n} day | in {n} days",
+      "payrollTitle": "Payroll for {month}",
+      "payrollHint": "Approved and paid entries are counted. Payroll is not part of the expenses above until it is recorded as a “{category}” expense.",
+      "openPayroll": "Open payroll",
+      "payrollEmpty": "No salaries or entries for the month.",
+      "draftsNotCounted": "not counted: {drafts}",
+      "lateness": "late {count}× · {minutes} min",
+      "wholePeriod": "Whole period: {from} — {to}"
+    },
+    "cashflow": {
+      "empty": "No money moved in {currency} during the period.",
+      "aria": "Inflow and expenses by month, {currency}",
+      "inflowTitle": "{month} · inflow {amount}",
+      "outflowTitle": "{month} · expenses {amount}",
+      "netTitle": "Month net: {amount}"
+    },
+    "totals": {
+      "aria": "Totals for the filter",
+      "total": "Total {currency}",
+      "records": "{n} record | {n} records"
+    },
+    "projects": {
+      "budget": "Budget",
+      "actualCost": "Actual cost",
+      "margin": "Margin",
+      "burn": "Budget burn",
+      "plannedCost": "cost {amount}",
+      "noBudget": "no budget",
+      "expensesAmount": "expenses {amount}",
+      "labourAmount": "labour {amount}",
+      "noPayments": "no payments yet",
+      "burnOfPlan": "{percent} of planned cost",
+      "noCostPlan": "no cost plan",
+      "otherCurrenciesSkipped": "+ amounts in {currencies} not counted"
+    },
+    "budgetLines": {
+      "title": "Budget by category",
+      "saveFailed": "Couldn’t save the breakdown",
+      "otherCurrencies": "There are expenses in {currencies} — they are not part of the actual for this {currency} budget.",
+      "plan": "Plan",
+      "actual": "Actual",
+      "planAria": "Plan: {category}",
+      "unplanned": "unplanned",
+      "mismatch": "The category total {lines} does not match the budget’s planned cost {planned}.",
+      "actualHint": "Actual is the project’s expenses in the category; timesheet labour is not part of the breakdown.",
+      "savePlan": "Save plan"
+    },
+    "filters": {
+      "allProjects": "All projects",
+      "noProject": "No project",
+      "allClients": "All clients",
+      "allCategories": "All categories",
+      "anyMethod": "Any method",
+      "anyStatus": "Any status",
+      "allCurrencies": "All currencies",
+      "onlyOverdue": "Overdue only",
+      "nothingMatches": "Nothing matches the filter",
+      "allEmployees": "All employees",
+      "allTypes": "All types",
+      "allStatuses": "All statuses"
+    },
+    "expenses": {
+      "entity": "expense",
+      "create": "New expense",
+      "vatIncluded": "incl. VAT",
+      "columns": {
+        "description": "Vendor and description",
+        "document": "Document",
+        "author": "Entered by"
+      },
+      "studioNoProject": "Studio — no project",
+      "studio": "Studio",
+      "scan": "Scan",
+      "searchPlaceholder": "Vendor, description, document no.",
+      "empty": "No expenses yet",
+      "emptyBody": "A project expense counts towards its actual cost; an expense without a project goes to studio overheads.",
+      "deleteDetail": "The record disappears from the lists and from the project’s actual cost."
+    },
+    "payments": {
+      "entity": "payment",
+      "create": "New payment",
+      "noClient": "no client",
+      "totals": {
+        "paid": "Received",
+        "expected": "Expected",
+        "fees": "Fees"
+      },
+      "columns": {
+        "date": "Paid / due",
+        "method": "Method and transaction no."
+      },
+      "periodHint": "A paid payment belongs to its payment date, an expected one to its due date.",
+      "searchPlaceholder": "Transaction no., client, invoice",
+      "empty": "No payments yet",
+      "emptyBody": "A payment belongs to a client and can settle an invoice issued to them.",
+      "late": "overdue",
+      "feeAmount": "fee {amount}",
+      "deleteDetail": "The payment disappears from the lists and no longer counts towards paying the invoice.",
+      "cover": {
+        "title": "Invoice covered",
+        "message": "Invoice {number} for {amount} is fully covered by payments. Mark it as paid?",
+        "detail": "The invoice status changes only through this confirmation — the payment itself never touches it.",
+        "confirm": "Mark as paid",
+        "cancel": "Leave as is",
+        "failed": "Couldn’t mark the invoice as paid"
+      }
+    },
+    "invoices": {
+      "entity": "invoice",
+      "create": "New invoice",
+      "byIssueDate": "{period}, by issue date",
+      "totals": {
+        "invoiced": "Invoiced",
+        "paid": "Paid",
+        "outstanding": "Outstanding"
+      },
+      "columns": {
+        "dueDate": "Due by",
+        "remaining": "Balance"
+      },
+      "searchPlaceholder": "Number, client, purpose",
+      "empty": "No invoices yet",
+      "emptyBody": "An invoice is issued to a client and settled by the payments against it.",
+      "issuedOn": "issued {date}",
+      "lateBy": "{n} day late | {n} days late",
+      "deleteDetail": "The invoice disappears from the lists. Its payments stay but lose the link to it."
+    },
+    "budgets": {
+      "entity": "budget",
+      "create": "New budget",
+      "intro": "Each project’s plan next to its actual. The actual is never typed in: it is the project’s expenses plus hours paid at rate, in the budget currency. The category breakdown is behind the button in each row; the summary across all projects is in the {link}.",
+      "introLink": "financial overview",
+      "columns": {
+        "plan": "Plan: revenue / cost",
+        "collected": "Collected",
+        "margin": "Margin plan / actual"
+      },
+      "searchPlaceholder": "Project or client",
+      "empty": "No budgets yet",
+      "emptyBody": "A budget sets a project’s planned revenue and cost — margin and burn are measured against them.",
+      "burned": "{percent} used",
+      "otherCurrencies": "+ amounts in {currencies}",
+      "actualMargin": "actual {amount}",
+      "byCategory": "By category",
+      "deleteDetail": "The planned figures and the category breakdown will be removed, and the project will be measured against the budget on its card."
+    },
+    "reports": {
+      "eyebrow": "Reports",
+      "from": "From",
+      "to": "To",
+      "print": "Print",
+      "failed": "Couldn’t build the report",
+      "resetDates": "Clear dates",
+      "days": "{n} day | {n} days",
+      "ageing": {
+        "current": "Not overdue",
+        "d30": "1-30 days",
+        "d60": "31-60 days",
+        "d90": "61-90 days",
+        "over90": "Over 90 days"
+      },
+      "financial": {
+        "intro": "Invoiced, received and spent by month, the expense breakdown, and receivables by age of debt.",
+        "mixedCurrencies": "The selection holds several currencies ({currencies}). The totals below add them up as one — narrow the period or separate the currencies before relying on these amounts.",
+        "spent": "Spent",
+        "byMonth": "By month",
+        "monthsEmpty": "No money moved in the selected period.",
+        "categoriesEmpty": "No expenses for the period.",
+        "ageingTitle": "Receivables ageing",
+        "ageingHint": "Unpaid invoices as of today — the report period does not affect this table."
+      },
+      "clients": {
+        "title": "Clients report",
+        "heading": "Clients",
+        "intro": "How much each client was invoiced, how much came in and what is left. The report works from invoices: a payment not linked to an invoice does not appear here — that money shows in the financial report. Average time to pay counts closed invoices only.",
+        "empty": "Nothing was invoiced to clients in the selected period.",
+        "mixedCurrencies": "Clients are billed in different currencies. The totals below add them up as one — read the rows, not the sum.",
+        "projects": "Projects",
+        "invoices": "Invoices",
+        "daysToPay": "Days to pay"
+      },
+      "time": {
+        "title": "Time report",
+        "heading": "Time and people",
+        "intro": "Hours logged per employee, valued at their rate. Hours without a rate are counted but cost nothing — they have a column of their own.",
+        "empty": "Nobody logged hours in the selected period.",
+        "unpricedWarning": "{hours} h were logged by people without a rate — those hours are not in the cost. The total below is understated by exactly them.",
+        "people": "People",
+        "hours": "Hours",
+        "cost": "Cost",
+        "position": "Position",
+        "department": "Department",
+        "rate": "Rate",
+        "unpriced": "No rate",
+        "rateNotSet": "not set"
+      },
+      "production": {
+        "title": "Production report",
+        "heading": "Production",
+        "intro": "The state of live projects: progress, missed deadlines and open revisions. Cancelled and archived projects are left out.",
+        "empty": "No live projects — the report has nothing to show.",
+        "late": "Deadline missed",
+        "overdueTasks": "Overdue tasks",
+        "openRevisions": "Open revisions",
+        "risk": "Risk",
+        "progress": "Progress",
+        "deadline": "Deadline",
+        "stages": "Stages",
+        "tasks": "Tasks",
+        "revisions": "Revisions"
+      }
+    },
+    "months": {
+      "long": {
+        "1": "January",
+        "2": "February",
+        "3": "March",
+        "4": "April",
+        "5": "May",
+        "6": "June",
+        "7": "July",
+        "8": "August",
+        "9": "September",
+        "10": "October",
+        "11": "November",
+        "12": "December"
+      },
+      "short": {
+        "1": "Jan",
+        "2": "Feb",
+        "3": "Mar",
+        "4": "Apr",
+        "5": "May",
+        "6": "Jun",
+        "7": "Jul",
+        "8": "Aug",
+        "9": "Sep",
+        "10": "Oct",
+        "11": "Nov",
+        "12": "Dec"
+      }
+    }
+  }
 }

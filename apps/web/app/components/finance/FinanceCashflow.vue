@@ -12,12 +12,14 @@ const props = defineProps<{
   months: Array<{ month: string, inflow: number, outflow: number }>
 }>()
 
+const { t } = useI18n()
+
 const max = computed(() =>
   Math.max(1, ...props.months.flatMap(row => [row.inflow, row.outflow])))
 
 const height = (value: number) => (value / max.value) * 100 + '%'
 const compact = (value: number) =>
-  new Intl.NumberFormat('ru-RU', { notation: 'compact', maximumFractionDigits: 1 }).format(value)
+  new Intl.NumberFormat(intlTag(), { notation: 'compact', maximumFractionDigits: 1 }).format(value)
 
 const empty = computed(() => props.months.every(row => row.inflow === 0 && row.outflow === 0))
 </script>
@@ -26,15 +28,15 @@ const empty = computed(() => props.months.every(row => row.inflow === 0 && row.o
   <div>
     <div class="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
       <span class="inline-flex items-center gap-1.5">
-        <span class="size-2.5 rounded-sm bg-emerald-500" aria-hidden="true" /> Поступления
+        <span class="size-2.5 rounded-sm bg-emerald-500" aria-hidden="true" /> {{ t('finance.overview.inflow') }}
       </span>
       <span class="inline-flex items-center gap-1.5">
-        <span class="size-2.5 rounded-sm bg-rose-400 dark:bg-rose-500" aria-hidden="true" /> Расходы
+        <span class="size-2.5 rounded-sm bg-rose-400 dark:bg-rose-500" aria-hidden="true" /> {{ t('finance.overview.outflow') }}
       </span>
     </div>
 
     <p v-if="empty" class="py-10 text-center text-sm text-muted-foreground">
-      За период денег в {{ currency }} не двигалось.
+      {{ t('finance.cashflow.empty', { currency }) }}
     </p>
 
     <div v-else class="mt-4 overflow-x-auto pb-1">
@@ -42,7 +44,7 @@ const empty = computed(() => props.months.every(row => row.inflow === 0 && row.o
         class="flex h-56 min-w-full items-end gap-2"
         :style="{ width: months.length * 4 + 'rem' }"
         role="img"
-        :aria-label="'Поступления и расходы по месяцам, ' + currency"
+        :aria-label="t('finance.cashflow.aria', { currency })"
       >
         <div
           v-for="row in months"
@@ -53,12 +55,12 @@ const empty = computed(() => props.months.every(row => row.inflow === 0 && row.o
             <div
               class="w-[42%] rounded-t bg-emerald-500 transition-opacity hover:opacity-80"
               :style="{ height: height(row.inflow), minHeight: row.inflow > 0 ? '2px' : '0' }"
-              :title="shortMonth(row.month) + ' · поступления ' + formatMoney(row.inflow, currency, 0)"
+              :title="t('finance.cashflow.inflowTitle', { month: shortMonth(row.month), amount: formatMoney(row.inflow, currency, 0) })"
             />
             <div
               class="w-[42%] rounded-t bg-rose-400 transition-opacity hover:opacity-80 dark:bg-rose-500"
               :style="{ height: height(row.outflow), minHeight: row.outflow > 0 ? '2px' : '0' }"
-              :title="shortMonth(row.month) + ' · расходы ' + formatMoney(row.outflow, currency, 0)"
+              :title="t('finance.cashflow.outflowTitle', { month: shortMonth(row.month), amount: formatMoney(row.outflow, currency, 0) })"
             />
           </div>
           <span class="w-full truncate border-t pt-1 text-center text-[10px] text-muted-foreground">
@@ -67,7 +69,7 @@ const empty = computed(() => props.months.every(row => row.inflow === 0 && row.o
           <span
             class="text-[11px] font-medium tabular-nums"
             :class="row.inflow - row.outflow < 0 ? 'text-destructive' : 'text-emerald-700 dark:text-emerald-400'"
-            :title="'Итог месяца: ' + formatMoney(row.inflow - row.outflow, currency, 0)"
+            :title="t('finance.cashflow.netTitle', { amount: formatMoney(row.inflow - row.outflow, currency, 0) })"
           >
             {{ row.inflow - row.outflow > 0 ? '+' : '' }}{{ compact(row.inflow - row.outflow) }}
           </span>

@@ -1,3 +1,407 @@
 {
-  "finance": {}
+  "finance": {
+    "nav": {
+      "overview": "Finans",
+      "budgets": "Bütçeler",
+      "expenses": "Giderler",
+      "payments": "Ödemeler",
+      "invoices": "Faturalar",
+      "payroll": "Maaş: avanslar, cezalar, primler",
+      "financialReport": "Finansal rapor"
+    },
+    "period": {
+      "all": "Tüm zamanlar",
+      "allInline": "tüm zamanlar",
+      "quarter": "{year} {quarter}. çeyrek",
+      "year": "{year} yılı",
+      "since": "{day} itibarıyla",
+      "until": "{day} tarihine kadar",
+      "kind": {
+        "all": "Tüm zamanlar",
+        "month": "Ay",
+        "quarter": "Çeyrek",
+        "year": "Yıl",
+        "custom": "Aralık"
+      },
+      "scale": "Dönem ölçeği",
+      "previous": "Önceki dönem",
+      "next": "Sonraki dönem",
+      "from": "başlangıç",
+      "to": "bitiş"
+    },
+    "count": {
+      "invoices": "{n} fatura",
+      "drafts": "{n} taslak",
+      "records": "{n} kayıt",
+      "payments": "{n} ödeme"
+    },
+    "common": {
+      "currency": "Para birimi",
+      "project": "Proje",
+      "category": "Kategori",
+      "total": "Toplam",
+      "employee": "Çalışan",
+      "amount": "Tutar",
+      "date": "Tarih",
+      "client": "Müşteri",
+      "status": "Durum",
+      "invoice": "Fatura",
+      "paymentMethod": "Ödeme yöntemi",
+      "vatAmount": "KDV {amount}"
+    },
+    "payroll": {
+      "columns": {
+        "salaries": "Maaşlar",
+        "bonuses": "Primler",
+        "advances": "Avanslar",
+        "penalties": "Cezalar",
+        "deductions": "Kesintiler",
+        "net": "Ödenecek",
+        "salary": "Maaş",
+        "lateness": "Gecikmeler",
+        "type": "Tür",
+        "reason": "Neden"
+      },
+      "typeTotals": {
+        "ADVANCE": "Avanslar",
+        "BONUS": "Primler",
+        "PENALTY": "Cezalar",
+        "LATENESS": "Gecikme cezaları",
+        "DEDUCTION": "Kesintiler",
+        "OTHER_ACCRUAL": "Diğer tahakkuklar"
+      },
+      "summary": {
+        "ownTitle": "Bu ayki bordrom",
+        "title": "Çalışan bazında aylık bordro",
+        "formula": "Ödenecek = maaş + primler ve tahakkuklar − cezalar ve kesintiler − avanslar. Yalnızca onaylanmış ve ödenmiş kayıtlar dikkate alınır.",
+        "loadFailed": "Bordro yüklenemedi",
+        "ownEmpty": "Henüz bordro yok",
+        "ownEmptyHint": "Hesabınız bir çalışan kartına bağlandığında görünecek.",
+        "empty": "Çalışan yok",
+        "emptyHint": "Burada çalışan personel ve bu ay kaydı olan herkes listelenir.",
+        "drafts": "taslaklar: {n}",
+        "lateness": "{count} kez · {minutes} dk",
+        "total": "Toplam, {currency}"
+      },
+      "salary": {
+        "title": "Aylık maaş",
+        "invalid": "Maaşı sıfır veya daha büyük bir sayı olarak girin",
+        "saveFailed": "Maaş kaydedilemedi",
+        "editAria": "Maaşı değiştir: {name}",
+        "notSet": "belirlenmedi",
+        "clear": "Maaşı kaldır"
+      },
+      "title": "Maaş",
+      "entity": "kayıt",
+      "create": "Yeni kayıt",
+      "introOwn": "Aylara göre tahakkuklarınız ve kesintileriniz. Taslaklar onaylanana kadar gösterilmez.",
+      "intro": "Kayıtlar elle girilir; ileride devam takip sistemi de bunları oluşturabilecek.",
+      "previousMonth": "Önceki ay",
+      "nextMonth": "Sonraki ay",
+      "month": "Bordro ayı",
+      "view": "Görünüm",
+      "tabs": {
+        "summary": "Bordro",
+        "entries": "Kayıtlar"
+      },
+      "entryType": "Kayıt türü",
+      "empty": "Bu ay için kayıt yok",
+      "emptyBody": "Avans, prim, ceza veya kesinti onaylandığında ayın bordrosuna girer.",
+      "lateMinutes": "{minutes} dk gecikme",
+      "settlesIn": "{month} bordrosuna",
+      "actionsAria": "İşlemler: {entry}",
+      "statusFailed": "Durum değiştirilemedi",
+      "actions": {
+        "approve": "Onayla",
+        "cancel": "İptal et",
+        "markPaid": "Ödendi olarak işaretle",
+        "backToDraft": "Taslağa geri al",
+        "unmarkPaid": "Ödendi işaretini kaldır",
+        "restoreDraft": "Taslak olarak geri yükle"
+      },
+      "deleteDetail": "Yalnızca taslak veya iptal edilmiş bir kayıt silinebilir; bu kayıt ayın bordrosuna dahil değildir."
+    },
+    "overview": {
+      "heading": "Finansal genel bakış",
+      "intro": "Döneme nakit bazında bakış: tahsilatlar ödenmiş ödemeler, giderler girilmiş giderlerdir. Alacaklar ve gecikmeler bugün itibarıyladır. Farklı para birimlerindeki tutarlar toplanmaz.",
+      "chartCurrency": "Grafik para birimi",
+      "loadFailed": "Finans verileri yüklenemedi",
+      "emptyPeriod": "{period} için ödeme, gider veya açık fatura yok.",
+      "kpiAria": "{currency} cinsinden göstergeler",
+      "inflow": "Tahsilatlar",
+      "invoicedAmount": "faturalanan {amount}",
+      "feesAmount": "komisyonlar {amount}",
+      "outflow": "Giderler",
+      "allExpenses": "tüm giderler",
+      "profit": "Kâr",
+      "profitFormula": "tahsilatlar − komisyonlar − giderler",
+      "receivable": "Alacaklar",
+      "receivableHint": "faturaların ödenmemiş bakiyesi",
+      "overdue": "Vadesi geçmiş",
+      "payrollDue": "Ödenecek maaş",
+      "forMonth": "{month} için",
+      "payrollNoAccess": "maaşlara erişim yok",
+      "sectionsAria": "Finans bölümleri",
+      "cashflowTitle": "Aylara göre nakit akışı",
+      "cashflowHint": "Her çiftin altında ayın neti yer alır. Tutarı görmek için sütunun üzerine gelin.",
+      "categoriesTitle": "Kategoriye göre giderler",
+      "categoriesHint": "Toplam {total}. Bir kategori, kendi giderlerinin listesini açar.",
+      "categoriesEmpty": "Dönem içinde {currency} cinsinden gider yok.",
+      "projectsTitle": "Proje kârlılığı",
+      "projectsHint": "{date} itibarıyla kümülatif: gerçekleşen = giderler + ücret üzerinden ödenen saatler, marj = tahsilatlar − gerçekleşen. En kötü marj en üstte.",
+      "projectsEmpty": "Bütçesi veya para hareketi olan aktif proje yok.",
+      "overdueTitle": "Vadesi geçmiş faturalar",
+      "all": "tümü",
+      "overdueEmpty": "Vadesi geçmiş fatura yok.",
+      "due": "vade {date}",
+      "daysLate": "{n} gün gecikmiş",
+      "markedOverdue": "vadesi geçmiş olarak işaretlendi",
+      "ofAmount": "toplam {amount}",
+      "upcomingTitle": "Önümüzdeki {n} gün içinde vadesi gelenler",
+      "shownOf": "{total} kayıttan {shown} tanesi gösteriliyor",
+      "upcomingEmpty": "Önümüzdeki günlerde vadesi gelen ödeme yok.",
+      "dueToday": "bugün",
+      "inDays": "{n} gün sonra",
+      "payrollTitle": "{month} maaşları",
+      "payrollHint": "Onaylanmış ve ödenmiş kayıtlar dahildir. Maaşlar “{category}” kategorisinde gider olarak girilene kadar yukarıdaki giderlere dahil değildir.",
+      "openPayroll": "Bordroyu aç",
+      "payrollEmpty": "Bu ay için maaş veya kayıt yok.",
+      "draftsNotCounted": "dahil edilmedi: {drafts}",
+      "lateness": "gecikme {count} · {minutes} dk",
+      "wholePeriod": "Tüm dönem: {from} — {to}"
+    },
+    "cashflow": {
+      "empty": "Dönem içinde {currency} cinsinden para hareketi olmadı.",
+      "aria": "Aylara göre tahsilatlar ve giderler, {currency}",
+      "inflowTitle": "{month} · tahsilatlar {amount}",
+      "outflowTitle": "{month} · giderler {amount}",
+      "netTitle": "Ay neti: {amount}"
+    },
+    "totals": {
+      "aria": "Filtreye göre toplamlar",
+      "total": "Toplam {currency}",
+      "records": "{n} kayıt"
+    },
+    "projects": {
+      "budget": "Bütçe",
+      "actualCost": "Gerçekleşen maliyet",
+      "margin": "Marj",
+      "burn": "Bütçe kullanımı",
+      "plannedCost": "maliyet {amount}",
+      "noBudget": "bütçe yok",
+      "expensesAmount": "giderler {amount}",
+      "labourAmount": "işçilik {amount}",
+      "noPayments": "ödeme yok",
+      "burnOfPlan": "planlanan maliyetin {percent}",
+      "noCostPlan": "maliyet planı yok",
+      "otherCurrenciesSkipped": "+ {currencies} cinsinden tutarlar dahil değil"
+    },
+    "budgetLines": {
+      "title": "Kategoriye göre bütçe",
+      "saveFailed": "Döküm kaydedilemedi",
+      "otherCurrencies": "{currencies} cinsinden giderler var; bunlar {currency} bütçesinin gerçekleşenine dahil değildir.",
+      "plan": "Plan",
+      "actual": "Gerçekleşen",
+      "planAria": "Plan: {category}",
+      "unplanned": "plansız",
+      "mismatch": "Kategori toplamı {lines}, bütçenin planlanan maliyeti {planned} ile uyuşmuyor.",
+      "actualHint": "Gerçekleşen, projenin kategorideki giderleridir; puantaj işçiliği dökümde yer almaz.",
+      "savePlan": "Planı kaydet"
+    },
+    "filters": {
+      "allProjects": "Tüm projeler",
+      "noProject": "Projesiz",
+      "allClients": "Tüm müşteriler",
+      "allCategories": "Tüm kategoriler",
+      "anyMethod": "Tüm yöntemler",
+      "anyStatus": "Tüm durumlar",
+      "allCurrencies": "Tüm para birimleri",
+      "onlyOverdue": "Yalnızca vadesi geçmişler",
+      "nothingMatches": "Filtreye uyan kayıt yok",
+      "allEmployees": "Tüm çalışanlar",
+      "allTypes": "Tüm türler",
+      "allStatuses": "Tüm durumlar"
+    },
+    "expenses": {
+      "entity": "gider",
+      "create": "Yeni gider",
+      "vatIncluded": "dahil KDV",
+      "columns": {
+        "description": "Tedarikçi ve açıklama",
+        "document": "Belge",
+        "author": "Giren"
+      },
+      "studioNoProject": "Stüdyo — projesiz",
+      "studio": "Stüdyo",
+      "scan": "Tarama",
+      "searchPlaceholder": "Tedarikçi, açıklama, belge no.",
+      "empty": "Henüz gider yok",
+      "emptyBody": "Proje gideri projenin gerçekleşen maliyetine, projesiz gider ise stüdyonun genel giderlerine dahil edilir.",
+      "deleteDetail": "Kayıt listelerden ve projenin gerçekleşen maliyetinden kaldırılır."
+    },
+    "payments": {
+      "entity": "ödeme",
+      "create": "Yeni ödeme",
+      "noClient": "müşterisiz",
+      "totals": {
+        "paid": "Tahsil edilen",
+        "expected": "Beklenen",
+        "fees": "Komisyonlar"
+      },
+      "columns": {
+        "date": "Ödeme / vade",
+        "method": "Yöntem ve işlem no."
+      },
+      "periodHint": "Ödenmiş bir ödeme ödeme tarihine, beklenen bir ödeme ise vade tarihine aittir.",
+      "searchPlaceholder": "İşlem no., müşteri, fatura",
+      "empty": "Henüz ödeme yok",
+      "emptyBody": "Ödeme bir müşteriye aittir ve ona kesilen bir faturayı kapatabilir.",
+      "late": "gecikmiş",
+      "feeAmount": "komisyon {amount}",
+      "deleteDetail": "Ödeme listelerden kaldırılır ve artık faturanın ödemesine sayılmaz.",
+      "cover": {
+        "title": "Fatura karşılandı",
+        "message": "{amount} tutarındaki {number} numaralı fatura ödemelerle tamamen karşılandı. Ödendi olarak işaretlensin mi?",
+        "detail": "Faturanın durumu yalnızca bu onayla değişir; ödemenin kendisi onu değiştirmez.",
+        "confirm": "Ödendi olarak işaretle",
+        "cancel": "Olduğu gibi bırak",
+        "failed": "Fatura ödendi olarak işaretlenemedi"
+      }
+    },
+    "invoices": {
+      "entity": "fatura",
+      "create": "Yeni fatura",
+      "byIssueDate": "{period}, düzenleme tarihine göre",
+      "totals": {
+        "invoiced": "Faturalanan",
+        "paid": "Ödenen",
+        "outstanding": "Tahsil edilecek"
+      },
+      "columns": {
+        "dueDate": "Son ödeme",
+        "remaining": "Kalan"
+      },
+      "searchPlaceholder": "Numara, müşteri, açıklama",
+      "empty": "Henüz fatura yok",
+      "emptyBody": "Fatura müşteriye kesilir ve ona yapılan ödemelerle kapanır.",
+      "issuedOn": "{date} tarihli",
+      "lateBy": "{n} gün gecikmiş",
+      "deleteDetail": "Fatura listelerden kaldırılır. Ödemeleri kalır, ancak faturayla bağlantılarını kaybeder."
+    },
+    "budgets": {
+      "entity": "bütçe",
+      "create": "Yeni bütçe",
+      "intro": "Projenin planı gerçekleşenin yanında. Gerçekleşen elle girilmez: proje giderleri ile ücret üzerinden ödenen saatlerin bütçe para birimindeki toplamıdır. Kategori dökümü satırdaki düğmededir; tüm projelerin özeti {link} sayfasındadır.",
+      "introLink": "finansal genel bakış",
+      "columns": {
+        "plan": "Plan: gelir / maliyet",
+        "collected": "Tahsil edilen",
+        "margin": "Marj plan / gerçekleşen"
+      },
+      "searchPlaceholder": "Proje veya müşteri",
+      "empty": "Henüz bütçe yok",
+      "emptyBody": "Bütçe, projenin planlanan gelirini ve maliyetini belirler; marj ve kullanım bunlara göre hesaplanır.",
+      "burned": "{percent} kullanıldı",
+      "otherCurrencies": "+ {currencies} cinsinden tutarlar",
+      "actualMargin": "gerçekleşen {amount}",
+      "byCategory": "Kategoriye göre",
+      "deleteDetail": "Planlanan rakamlar ve kategori dökümü silinir; proje, kartındaki bütçeye göre hesaplanır."
+    },
+    "reports": {
+      "eyebrow": "Raporlar",
+      "from": "Başlangıç",
+      "to": "Bitiş",
+      "print": "Yazdır",
+      "failed": "Rapor oluşturulamadı",
+      "resetDates": "Tarihleri temizle",
+      "days": "{n} gün",
+      "ageing": {
+        "current": "Vadesi gelmemiş",
+        "d30": "1-30 gün",
+        "d60": "31-60 gün",
+        "d90": "61-90 gün",
+        "over90": "90 günden fazla"
+      },
+      "financial": {
+        "intro": "Aylara göre faturalanan, tahsil edilen ve harcanan tutarlar, gider yapısı ve borç yaşına göre alacaklar.",
+        "mixedCurrencies": "Seçimde birden fazla para birimi var ({currencies}). Aşağıdaki toplamlar bunları tek bir para birimi gibi toplar; bu tutarlara güvenmeden önce dönemi daraltın veya para birimlerini ayırın.",
+        "spent": "Harcanan",
+        "byMonth": "Aylara göre",
+        "monthsEmpty": "Seçilen dönemde para hareketi olmadı.",
+        "categoriesEmpty": "Dönem için gider yok.",
+        "ageingTitle": "Vadeye göre alacaklar",
+        "ageingHint": "Bugün itibarıyla ödenmemiş faturalar; rapor dönemi bu tabloyu etkilemez."
+      },
+      "clients": {
+        "title": "Müşteri raporu",
+        "heading": "Müşteriler",
+        "intro": "Her müşteriye ne kadar fatura kesildiği, ne kadar tahsil edildiği ve ne kadar kaldığı. Rapor faturalara dayanır: faturaya bağlanmamış bir ödeme burada görünmez; bu tür tutarlar finansal raporda yer alır. Ortalama ödeme süresi yalnızca kapanmış faturalardan hesaplanır.",
+        "empty": "Seçilen dönemde müşterilere fatura kesilmedi.",
+        "mixedCurrencies": "Müşteriler farklı para birimlerinde. Aşağıdaki toplamlar bunları tek bir para birimi gibi toplar; toplamı değil, satırları okuyun.",
+        "projects": "Projeler",
+        "invoices": "Faturalar",
+        "daysToPay": "Ödeme süresi"
+      },
+      "time": {
+        "title": "Zaman raporu",
+        "heading": "Zaman ve kişiler",
+        "intro": "Çalışan bazında kaydedilen saatler, kendi ücretleriyle değerlendirilir. Ücreti olmayan saatler sayılır ama maliyeti sıfırdır; ayrı bir sütunda gösterilir.",
+        "empty": "Seçilen dönemde kimse saat kaydetmedi.",
+        "unpricedWarning": "Ücreti olmayan kişiler {hours} saat kaydetti; bu saatler maliyete dahil edilmedi. Aşağıdaki toplam tam olarak bu kadar eksik.",
+        "people": "Kişi",
+        "hours": "Saat",
+        "cost": "Maliyet",
+        "position": "Pozisyon",
+        "department": "Departman",
+        "rate": "Ücret",
+        "unpriced": "Ücretsiz",
+        "rateNotSet": "belirlenmedi"
+      },
+      "production": {
+        "title": "Prodüksiyon raporu",
+        "heading": "Prodüksiyon",
+        "intro": "Aktif projelerin durumu: ilerleme, kaçırılan teslim tarihleri ve açık revizyonlar. İptal edilmiş ve arşivlenmiş projeler rapora dahil değildir.",
+        "empty": "Aktif proje yok; raporda gösterilecek bir şey yok.",
+        "late": "Teslim tarihi kaçırıldı",
+        "overdueTasks": "Geciken görevler",
+        "openRevisions": "Açık revizyonlar",
+        "risk": "Risk",
+        "progress": "İlerleme",
+        "deadline": "Teslim tarihi",
+        "stages": "Aşamalar",
+        "tasks": "Görevler",
+        "revisions": "Revizyonlar"
+      }
+    },
+    "months": {
+      "long": {
+        "1": "Ocak",
+        "2": "Şubat",
+        "3": "Mart",
+        "4": "Nisan",
+        "5": "Mayıs",
+        "6": "Haziran",
+        "7": "Temmuz",
+        "8": "Ağustos",
+        "9": "Eylül",
+        "10": "Ekim",
+        "11": "Kasım",
+        "12": "Aralık"
+      },
+      "short": {
+        "1": "Oca",
+        "2": "Şub",
+        "3": "Mar",
+        "4": "Nis",
+        "5": "May",
+        "6": "Haz",
+        "7": "Tem",
+        "8": "Ağu",
+        "9": "Eyl",
+        "10": "Eki",
+        "11": "Kas",
+        "12": "Ara"
+      }
+    }
+  }
 }

@@ -17,6 +17,8 @@ export interface ResolvedPeriod {
   from: string
   to: string
   label: string
+  /** The same period inside a sentence: «12 платежей · октябрь 2026». */
+  inline: string
 }
 
 const pad = (value: number) => String(value).padStart(2, '0')
@@ -29,10 +31,48 @@ function lastDay(year: number, month: number) {
 const isDay = (value: unknown): value is string =>
   typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value))
 
-const MONTH_NAMES = [
-  'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-  'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
-]
+/*
+ * Month names come from the catalogue, not from Intl: browsers that ship a
+ * trimmed ICU (Electron, some Chromium builds) have no Uzbek month names and
+ * print «M10» instead. The catalogue writes each name the way it stands inside
+ * a sentence — lower case in Russian and Uzbek, capitalised in English and
+ * Turkish.
+ */
+
+const monthLong = (month: number) => translate('finance.months.long.' + month)
+const monthShort = (month: number) => translate('finance.months.short.' + month)
+const capitalise = (text: string) => text.charAt(0).toLocaleUpperCase(intlTag()) + text.slice(1)
+
+const parseMonth = (key: string) => key.split('-').map(Number) as [number, number]
+
+/** «Октябрь» / «Oktabr» / «October» / «Ekim»: a month on its own, capitalised. Month 1-12. */
+export function monthName(month: number) {
+  return capitalise(monthLong(month))
+}
+
+/** «Октябрь 2026» for a YYYY-MM key. */
+export function monthTitle(key: string) {
+  const [year, month] = parseMonth(key)
+  return monthName(month) + ' ' + year
+}
+
+/** The month inside a sentence: «за октябрь 2026», «for October 2026». */
+export function monthInline(key: string) {
+  const [year, month] = parseMonth(key)
+  return monthLong(month) + ' ' + year
+}
+
+/** «окт. 2026» for a YYYY-MM key: a table row label. */
+export function monthShortTitle(key: string) {
+  const [year, month] = parseMonth(key)
+  return monthShort(month) + ' ' + year
+}
+
+/** «5 окт. 2026» for a YYYY-MM-DD day. */
+function dayLabel(value: string) {
+  const [year, month, day] = value.split('-').map(Number) as [number, number, number]
+  return day + ' ' + monthShort(month) + ' ' + year
+}
 
 export function monthKey(date = new Date()) {
   return date.getFullYear() + '-' + pad(date.getMonth() + 1)
@@ -57,14 +97,21 @@ export function resolvePeriod(
   const raw = typeof key === 'string' ? key : ''
   const kind = kindOf(raw)
 
-  if (kind === 'all') return { kind, key: 'all', from: '', to: '', label: 'За всё время' }
+  if (kind === 'all') {
+    return {
+      kind, key: 'all', from: '', to: '',
+      label: translate('finance.period.all'),
+      inline: translate('finance.period.allInline')
+    }
+  }
 
   if (kind === 'custom') {
     const start = isDay(from) ? from : ''
     const end = isDay(to) ? to : ''
     if (start || end) {
       const [a, b] = start && end && start > end ? [end, start] : [start, end]
-      return { kind, key: 'custom', from: a, to: b, label: describeRange(a, b) }
+      const label = describeRange(a, b)
+      return { kind, key: 'custom', from: a, to: b, label, inline: label }
     }
   }
 
@@ -74,7 +121,8 @@ export function resolvePeriod(
       kind, key: raw,
       from: raw + '-01',
       to: raw + '-' + pad(lastDay(year, month)),
-      label: MONTH_NAMES[month - 1] + ' ' + year
+      label: monthTitle(raw),
+      inline: monthInline(raw)
     }
   }
 
@@ -83,28 +131,28 @@ export function resolvePeriod(
     const quarter = Number(raw.slice(-1))
     const first = (quarter - 1) * 3 + 1
     const last = first + 2
+    const label = translate('finance.period.quarter', { quarter, year })
     return {
       kind, key: raw,
       from: year + '-' + pad(first) + '-01',
       to: year + '-' + pad(last) + '-' + pad(lastDay(year, last)),
-      label: quarter + ' квартал ' + year
+      label,
+      inline: label
     }
   }
 
   if (kind === 'year') {
-    return { kind, key: raw, from: raw + '-01-01', to: raw + '-12-31', label: raw + ' год' }
+    const label = translate('finance.period.year', { year: raw })
+    return { kind, key: raw, from: raw + '-01-01', to: raw + '-12-31', label, inline: label }
   }
 
   return fallback === raw ? resolvePeriod('all', '', '', 'all') : resolvePeriod(fallback, from, to, fallback)
 }
 
 function describeRange(from: string, to: string) {
-  const day = (value: string) => new Date(value + 'T00:00:00').toLocaleDateString('ru-RU', {
-    day: 'numeric', month: 'short', year: 'numeric'
-  })
-  if (from && to) return day(from) + ' — ' + day(to)
-  if (from) return 'с ' + day(from)
-  return 'по ' + day(to)
+  if (from && to) return dayLabel(from) + ' — ' + dayLabel(to)
+  if (from) return translate('finance.period.since', { day: dayLabel(from) })
+  return translate('finance.period.until', { day: dayLabel(to) })
 }
 
 /** The same kind of period one step earlier or later. */
@@ -130,8 +178,13 @@ export function currentKey(kind: 'month' | 'quarter' | 'year', now = new Date())
   return String(now.getFullYear())
 }
 
-/** "окт. 2026" for a YYYY-MM chart axis. */
+/** A whole percentage in the reader's convention: «32 %», «32%», «%32». */
+export function formatPercent(value: number) {
+  return new Intl.NumberFormat(intlTag(), { style: 'percent', maximumFractionDigits: 0 }).format(value / 100)
+}
+
+/** «окт. 26» for a YYYY-MM chart axis. */
 export function shortMonth(month: string) {
-  const [year, index] = month.split('-').map(Number) as [number, number]
-  return new Date(year, index - 1, 1).toLocaleDateString(intlTag(), { month: 'short', year: '2-digit' })
+  const [year, index] = parseMonth(month)
+  return monthShort(index) + ' ' + String(year).slice(-2)
 }

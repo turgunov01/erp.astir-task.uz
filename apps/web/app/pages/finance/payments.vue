@@ -9,7 +9,9 @@ import { financeCsvHref, useFinanceQuery } from '~/composables/useFinanceQuery'
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Платежи' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('finance.nav.payments')) })
 
 const {
   filters, period, setPeriod, page, apiQuery, isFiltered, reset, searchDraft, onSearch
@@ -61,11 +63,11 @@ const { items, meta, summary, pending, errorMessage, refresh } =
   useListResource<PaymentRow, PaymentTotals[]>('/api/finance/payments', query as never)
 
 const totals = computed(() => summary.value ?? [])
-const totalsFields: TotalsField[] = [
-  { key: 'paid', label: 'Получено', tone: 'positive' },
-  { key: 'expected', label: 'Ожидается' },
-  { key: 'fee', label: 'Комиссии', tone: 'muted', hideZero: true }
-]
+const totalsFields = computed<TotalsField[]>(() => [
+  { key: 'paid', label: t('finance.payments.totals.paid'), tone: 'positive' },
+  { key: 'expected', label: t('finance.payments.totals.expected') },
+  { key: 'fee', label: t('finance.payments.totals.fees'), tone: 'muted', hideZero: true }
+])
 const currencyOptions = computed(() =>
   [...new Set(['USD', 'UZS', 'EUR', 'RUB', ...totals.value.map(row => row.currency)])])
 const csvHref = computed(() => financeCsvHref('/api/finance/payments', apiQuery.value))
@@ -121,7 +123,7 @@ async function closeInvoice() {
     coverage.value = null
     await refresh()
   } catch (err) {
-    closeError.value = apiErrorMessage(err, 'Не удалось отметить счёт оплаченным')
+    closeError.value = apiErrorMessage(err, t('finance.payments.cover.failed'))
     coverage.value = null
   } finally {
     closing.value = false
@@ -131,9 +133,10 @@ async function closeInvoice() {
 const coverageMessage = computed(() => {
   const invoice = coverage.value
   if (!invoice) return ''
-  return 'Счёт ' + invoice.number + ' на ' +
-    formatMoney(invoice.amount, invoice.currency) +
-    ' полностью покрыт платежами. Отметить его оплаченным?'
+  return t('finance.payments.cover.message', {
+    number: invoice.number,
+    amount: formatMoney(invoice.amount, invoice.currency)
+  })
 })
 
 /* ------------------------------------------------------------------- table */
@@ -141,14 +144,14 @@ const coverageMessage = computed(() => {
 const crud = useEntityCrud({
   endpoint: '/api/finance/payments',
   refresh: () => refresh(),
-  entityLabel: 'платёж',
+  entityLabel: () => t('finance.payments.entity'),
   nameOf: row => describe(row as PaymentRow),
   onSaved: afterSave
 })
 
 function describe(row: PaymentRow) {
   return formatMoney(Number(row.amount), row.currency) +
-    ' · ' + (row.client?.name ?? 'без клиента')
+    ' · ' + (row.client?.name ?? t('finance.payments.noClient'))
 }
 
 /** An unpaid row past its due date is what this page gets scanned for. */
@@ -157,27 +160,27 @@ function isLate(row: PaymentRow) {
   return new Date(row.dueDate).getTime() < Date.now()
 }
 
-const columns: Column[] = [
-  { key: 'dueDate', label: 'Оплата / срок', width: '13%' },
-  { key: 'client', label: 'Клиент', width: '18%' },
-  { key: 'project', label: 'Проект', width: '10%' },
-  { key: 'invoice', label: 'Счёт', width: '11%' },
-  { key: 'method', label: 'Способ и № операции', width: '15%' },
-  { key: 'amount', label: 'Сумма', width: '15%', numeric: true },
-  { key: 'status', label: 'Статус', width: '12%' },
+const columns = computed<Column[]>(() => [
+  { key: 'dueDate', label: t('finance.payments.columns.date'), width: '13%' },
+  { key: 'client', label: t('finance.common.client'), width: '18%' },
+  { key: 'project', label: t('finance.common.project'), width: '10%' },
+  { key: 'invoice', label: t('finance.common.invoice'), width: '11%' },
+  { key: 'method', label: t('finance.payments.columns.method'), width: '15%' },
+  { key: 'amount', label: t('finance.common.amount'), width: '15%', numeric: true },
+  { key: 'status', label: t('finance.common.status'), width: '12%' },
   { key: 'actions', label: '', width: '56px' }
-]
+])
 </script>
 
 <template>
   <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Финансы</p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Платежи</h1>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{{ t('finance.nav.overview') }}</p>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('finance.nav.payments') }}</h1>
 
       <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
         <p class="text-sm text-muted-foreground">
-          {{ countLabel(meta.total, 'платёж', 'платежа', 'платежей') }} · {{ period.label.toLowerCase() }}
+          {{ countLabel(meta.total, 'finance.count.payments') }} · {{ period.inline }}
         </p>
         <div class="flex flex-wrap items-center gap-2">
           <a
@@ -187,43 +190,43 @@ const columns: Column[] = [
             <Icon name="lucide:download" class="size-4" />
             CSV
           </a>
-          <EntityToolbar :crud="crud" create-label="Новый платёж" :can-manage="canManage" />
+          <EntityToolbar :crud="crud" :create-label="t('finance.payments.create')" :can-manage="canManage" />
         </div>
       </div>
 
       <FinancePeriodPicker class="mt-4" :period="period" allow-all @set="setPeriod" />
       <p class="mt-1.5 text-xs text-muted-foreground">
-        Оплаченный платёж относится к дню оплаты, ожидаемый — к своему сроку.
+        {{ t('finance.payments.periodHint') }}
       </p>
 
       <div class="mt-3 flex flex-wrap gap-2">
-        <select v-model="filters.clientId" :class="SELECT" aria-label="Клиент">
-          <option value="">Все клиенты</option>
+        <select v-model="filters.clientId" :class="SELECT" :aria-label="t('finance.common.client')">
+          <option value="">{{ t('finance.filters.allClients') }}</option>
           <option v-for="option in clientOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </option>
         </select>
-        <select v-model="filters.projectId" :class="SELECT" aria-label="Проект">
-          <option value="">Все проекты</option>
-          <option value="none">Без проекта</option>
+        <select v-model="filters.projectId" :class="SELECT" :aria-label="t('finance.common.project')">
+          <option value="">{{ t('finance.filters.allProjects') }}</option>
+          <option value="none">{{ t('finance.filters.noProject') }}</option>
           <option v-for="option in projectOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </option>
         </select>
-        <select v-model="filters.status" :class="SELECT" aria-label="Статус">
-          <option value="">Любой статус</option>
+        <select v-model="filters.status" :class="SELECT" :aria-label="t('finance.common.status')">
+          <option value="">{{ t('finance.filters.anyStatus') }}</option>
           <option v-for="(label, value) in PAYMENT_STATUS_LABEL" :key="value" :value="value">
             {{ label }}
           </option>
         </select>
-        <select v-model="filters.method" :class="SELECT" aria-label="Способ">
-          <option value="">Любой способ</option>
+        <select v-model="filters.method" :class="SELECT" :aria-label="t('finance.common.paymentMethod')">
+          <option value="">{{ t('finance.filters.anyMethod') }}</option>
           <option v-for="(label, value) in PAYMENT_METHOD_LABEL" :key="value" :value="value">
             {{ label }}
           </option>
         </select>
-        <select v-model="filters.currency" :class="SELECT" aria-label="Валюта">
-          <option value="">Все валюты</option>
+        <select v-model="filters.currency" :class="SELECT" :aria-label="t('finance.common.currency')">
+          <option value="">{{ t('finance.filters.allCurrencies') }}</option>
           <option v-for="code in currencyOptions" :key="code" :value="code">{{ code }}</option>
         </select>
         <label class="inline-flex h-9 items-center gap-2 rounded-md border px-2.5 text-sm">
@@ -233,7 +236,7 @@ const columns: Column[] = [
             class="size-4 accent-current"
             @change="filters.overdue = ($event.target as HTMLInputElement).checked ? 'true' : ''"
           >
-          Только просроченные
+          {{ t('finance.filters.onlyOverdue') }}
         </label>
         <button
           v-if="isFiltered"
@@ -241,7 +244,7 @@ const columns: Column[] = [
           class="h-9 rounded-md px-2.5 text-sm text-muted-foreground hover:text-foreground"
           @click="reset()"
         >
-          Сбросить
+          {{ t('common.actions.reset') }}
         </button>
       </div>
     </header>
@@ -261,10 +264,10 @@ const columns: Column[] = [
       :pending="pending"
       :error-message="errorMessage"
       :search="searchDraft"
-      search-placeholder="№ операции, клиент, счёт"
+      :search-placeholder="t('finance.payments.searchPlaceholder')"
       empty-icon="lucide:credit-card"
-      :empty-title="isFiltered ? 'Под фильтр ничего не попало' : 'Пока нет платежей'"
-      empty-body="Платёж принадлежит клиенту и может закрывать выставленный ему счёт."
+      :empty-title="isFiltered ? t('finance.filters.nothingMatches') : t('finance.payments.empty')"
+      :empty-body="t('finance.payments.emptyBody')"
       @update:search="onSearch"
       @update:page="page = $event"
       @retry="refresh"
@@ -272,11 +275,11 @@ const columns: Column[] = [
       <template #cell-dueDate="{ row }">
         <template v-if="row.paidDate">
           <span>{{ formatDay(row.paidDate) }}</span>
-          <span v-if="row.dueDate" class="mt-0.5 block text-xs text-muted-foreground">срок {{ formatDay(row.dueDate) }}</span>
+          <span v-if="row.dueDate" class="mt-0.5 block text-xs text-muted-foreground">{{ t('finance.overview.due', { date: formatDay(row.dueDate) }) }}</span>
         </template>
         <template v-else>
           <span :class="isLate(row) ? 'text-destructive' : ''">{{ formatDay(row.dueDate) }}</span>
-          <span v-if="isLate(row)" class="mt-0.5 block text-xs text-destructive">просрочен</span>
+          <span v-if="isLate(row)" class="mt-0.5 block text-xs text-destructive">{{ t('finance.payments.late') }}</span>
         </template>
       </template>
       <template #cell-client="{ row }">{{ row.client?.name ?? '—' }}</template>
@@ -300,7 +303,7 @@ const columns: Column[] = [
       <template #cell-amount="{ row }">
         <span class="tabular-nums">{{ formatMoney(Number(row.amount), row.currency) }}</span>
         <span v-if="Number(row.fee) > 0" class="mt-0.5 block text-xs text-muted-foreground tabular-nums">
-          комиссия {{ formatMoney(Number(row.fee), row.currency) }}
+          {{ t('finance.payments.feeAmount', { amount: formatMoney(Number(row.fee), row.currency) }) }}
         </span>
         <span v-if="row.notes" class="mt-0.5 block truncate text-xs text-muted-foreground" :title="row.notes">
           {{ row.notes }}
@@ -326,16 +329,16 @@ const columns: Column[] = [
     <EntityCrudHost
       :crud="crud"
       :config="PAYMENT_FORM"
-      delete-detail="Платёж исчезнет из списков и перестанет засчитываться в оплату счёта."
+      :delete-detail="t('finance.payments.deleteDetail')"
     />
 
     <ConfirmDialog
       v-if="coverage"
-      title="Счёт покрыт"
+      :title="t('finance.payments.cover.title')"
       :message="coverageMessage"
-      detail="Статус счёта меняется только этим подтверждением — сам платёж его не трогает."
-      confirm-label="Отметить оплаченным"
-      cancel-label="Оставить как есть"
+      :detail="t('finance.payments.cover.detail')"
+      :confirm-label="t('finance.payments.cover.confirm')"
+      :cancel-label="t('finance.payments.cover.cancel')"
       tone="neutral"
       :pending="closing"
       @confirm="closeInvoice"

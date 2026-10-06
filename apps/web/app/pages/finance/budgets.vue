@@ -3,10 +3,13 @@ import type { Column } from '~/components/DataTable.vue'
 import { useListResource } from '~/composables/useApi'
 import { useEntityCrud } from '~/composables/useEntityCrud'
 import { BUDGET_FORM } from '~/utils/entity-forms'
+import { formatPercent } from '~/utils/finance-period'
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
 
-useHead({ title: 'Бюджеты' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('finance.nav.budgets')) })
 
 const auth = useAuthStore()
 const canManage = computed(() => auth.can(PERMISSION.FINANCE_MANAGE))
@@ -57,8 +60,8 @@ const visible = computed(() => {
 const crud = useEntityCrud({
   endpoint: '/api/finance/budgets',
   refresh: () => refresh(),
-  entityLabel: 'бюджет',
-  nameOf: row => (row as BudgetRow).project?.code ?? 'без проекта'
+  entityLabel: () => t('finance.budgets.entity'),
+  nameOf: row => (row as BudgetRow).project?.code ?? t('finance.filters.noProject')
 })
 
 /** Planned margin: what the project was sold on. */
@@ -89,32 +92,29 @@ async function onLinesSaved() {
   await refresh()
 }
 
-const columns: Column[] = [
-  { key: 'project', label: 'Проект', width: '24%' },
-  { key: 'plan', label: 'План: выручка / затраты', width: '17%', numeric: true },
-  { key: 'cost', label: 'Факт затрат', width: '19%', numeric: true },
-  { key: 'collected', label: 'Поступило', width: '15%', numeric: true },
-  { key: 'margin', label: 'Маржа план / факт', width: '15%', numeric: true },
+const columns = computed<Column[]>(() => [
+  { key: 'project', label: t('finance.common.project'), width: '24%' },
+  { key: 'plan', label: t('finance.budgets.columns.plan'), width: '17%', numeric: true },
+  { key: 'cost', label: t('finance.projects.actualCost'), width: '19%', numeric: true },
+  { key: 'collected', label: t('finance.budgets.columns.collected'), width: '15%', numeric: true },
+  { key: 'margin', label: t('finance.budgets.columns.margin'), width: '15%', numeric: true },
   { key: 'actions', label: '', width: '56px' }
-]
+])
 </script>
 
 <template>
   <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Финансы</p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Бюджеты</h1>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{{ t('finance.nav.overview') }}</p>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('finance.nav.budgets') }}</h1>
 
       <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
-        <p class="max-w-2xl text-sm text-muted-foreground">
-          План проекта рядом с фактом. Факт не вводится: это расходы проекта плюс
-          оплаченные по ставке часы, в валюте бюджета. Разбивка по категориям — по кнопке
-          в строке; сводка по всем проектам — в
-          <NuxtLink to="/finance" class="text-foreground underline underline-offset-4">
-            обзоре финансов
-          </NuxtLink>.
-        </p>
-        <EntityToolbar :crud="crud" create-label="Новый бюджет" :can-manage="canManage" />
+        <i18n-t keypath="finance.budgets.intro" tag="p" scope="global" class="max-w-2xl text-sm text-muted-foreground">
+          <template #link>
+            <NuxtLink to="/finance" class="text-foreground underline underline-offset-4">{{ t('finance.budgets.introLink') }}</NuxtLink>
+          </template>
+        </i18n-t>
+        <EntityToolbar :crud="crud" :create-label="t('finance.budgets.create')" :can-manage="canManage" />
       </div>
     </header>
 
@@ -122,13 +122,13 @@ const columns: Column[] = [
       :columns="columns"
       v-model:search="search"
       :rows="visible"
-      search-placeholder="Проект или клиент"
+      :search-placeholder="t('finance.budgets.searchPlaceholder')"
       :meta="meta"
       :pending="pending"
       :error-message="errorMessage"
       empty-icon="lucide:calculator"
-      empty-title="Пока нет бюджетов"
-      empty-body="Бюджет задаёт плановую выручку и себестоимость проекта — от них считается маржа и освоение."
+      :empty-title="t('finance.budgets.empty')"
+      :empty-body="t('finance.budgets.emptyBody')"
       @retry="refresh"
     >
       <template #cell-project="{ row }">
@@ -148,7 +148,7 @@ const columns: Column[] = [
       <template #cell-plan="{ row }">
         <span class="tabular-nums">{{ formatMoney(Number(row.revenue), row.currency, 0) }}</span>
         <span class="mt-0.5 block text-xs text-muted-foreground tabular-nums">
-          затраты {{ formatMoney(Number(row.plannedCost), row.currency, 0) }}
+          {{ t('finance.projects.plannedCost', { amount: formatMoney(Number(row.plannedCost), row.currency, 0) }) }}
         </span>
       </template>
       <template #cell-cost="{ row }">
@@ -163,29 +163,29 @@ const columns: Column[] = [
           />
         </div>
         <span class="mt-0.5 block text-xs text-muted-foreground">
-          <template v-if="row.actual.burn !== null">освоено {{ row.actual.burn }}%</template>
-          <template v-else>нет плана затрат</template>
-          · труд {{ formatMoney(row.actual.labour, row.currency, 0) }}
+          <template v-if="row.actual.burn !== null">{{ t('finance.budgets.burned', { percent: formatPercent(row.actual.burn) }) }}</template>
+          <template v-else>{{ t('finance.projects.noCostPlan') }}</template>
+          · {{ t('finance.projects.labourAmount', { amount: formatMoney(row.actual.labour, row.currency, 0) }) }}
         </span>
         <span v-if="row.otherCurrencies.length > 0" class="block text-xs text-signal-foreground">
-          + суммы в {{ row.otherCurrencies.join(', ') }}
+          {{ t('finance.budgets.otherCurrencies', { currencies: row.otherCurrencies.join(', ') }) }}
         </span>
       </template>
       <template #cell-collected="{ row }">
         <span class="tabular-nums">{{ formatMoney(row.actual.collected, row.currency, 0) }}</span>
         <span class="mt-0.5 block text-xs text-muted-foreground tabular-nums">
-          выставлено {{ formatMoney(row.actual.invoiced, row.currency, 0) }}
+          {{ t('finance.overview.invoicedAmount', { amount: formatMoney(row.actual.invoiced, row.currency, 0) }) }}
         </span>
       </template>
       <template #cell-margin="{ row }">
         <span class="tabular-nums" :class="(plannedMargin(row) ?? 0) < 0 ? 'text-destructive' : ''">
-          {{ plannedMargin(row) === null ? '—' : plannedMargin(row) + '%' }}
+          {{ plannedMargin(row) === null ? '—' : formatPercent(plannedMargin(row) ?? 0) }}
         </span>
         <span
           class="mt-0.5 block text-xs tabular-nums"
           :class="actualMargin(row) < 0 ? 'text-destructive' : 'text-emerald-700 dark:text-emerald-400'"
         >
-          факт {{ formatMoney(actualMargin(row), row.currency, 0) }}
+          {{ t('finance.budgets.actualMargin', { amount: formatMoney(actualMargin(row), row.currency, 0) }) }}
         </span>
         <button
           type="button"
@@ -193,12 +193,12 @@ const columns: Column[] = [
           @click="editing = row"
         >
           <Icon name="lucide:list-tree" class="size-3.5" />
-          По категориям{{ plannedCategories(row) > 0 ? ' (' + plannedCategories(row) + ')' : '' }}
+          {{ t('finance.budgets.byCategory') }}{{ plannedCategories(row) > 0 ? ' (' + plannedCategories(row) + ')' : '' }}
         </button>
       </template>
       <template #cell-actions="{ row }">
         <EntityRowActions
-          :name="row.project?.code ?? 'бюджет'"
+          :name="row.project?.code ?? t('finance.budgets.entity')"
           :archivable="false"
           :can-manage="canManage"
           :busy="crud.busyId === row.id"
@@ -211,7 +211,7 @@ const columns: Column[] = [
     <EntityCrudHost
       :crud="crud"
       :config="BUDGET_FORM"
-      delete-detail="Плановые цифры и разбивка по категориям исчезнут, и проект будет считаться по бюджету из его карточки."
+      :delete-detail="t('finance.budgets.deleteDetail')"
     />
 
     <FinanceBudgetLines

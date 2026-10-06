@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { useFilterOptions } from '~/composables/useFilterOptions'
 import { printReport, reportCsvHref } from '~/composables/useReport'
+import { formatPercent } from '~/utils/finance-period'
 
-useHead({ title: 'Производственный отчёт' })
+const { t } = useI18n()
+
+useHead({ title: computed(() => t('finance.reports.production.title')) })
 
 const route = useRoute()
 const router = useRouter()
@@ -60,20 +63,19 @@ const csvHref = computed(() =>
 <template>
   <div class="mx-auto max-w-7xl px-6 py-8">
     <header class="mb-6">
-      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">Отчёты</p>
-      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">Производство</h1>
+      <p class="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">{{ t('finance.reports.eyebrow') }}</p>
+      <h1 class="mt-1.5 text-2xl font-semibold tracking-tight">{{ t('finance.reports.production.heading') }}</h1>
       <p class="mt-1 max-w-2xl text-sm text-muted-foreground">
-        Состояние живых проектов: прогресс, сорванные сроки и открытые правки.
-        Отменённые и архивные проекты в отчёт не входят.
+        {{ t('finance.reports.production.intro') }}
       </p>
 
       <div class="mt-4 flex flex-wrap items-center gap-2 print:hidden">
         <select
           v-model="projectId"
           class="h-9 rounded-md border bg-background px-2.5 text-sm outline-none focus:border-ring"
-          aria-label="Проект"
+          :aria-label="t('finance.common.project')"
         >
-          <option value="">Все проекты</option>
+          <option value="">{{ t('finance.filters.allProjects') }}</option>
           <option v-for="option in projectOptions" :key="option.value" :value="option.value">
             {{ option.label }}
           </option>
@@ -94,7 +96,7 @@ const csvHref = computed(() =>
           @click="printReport()"
         >
           <Icon name="lucide:printer" class="size-4" />
-          Печать
+          {{ t('finance.reports.print') }}
         </button>
       </div>
     </header>
@@ -104,13 +106,13 @@ const csvHref = computed(() =>
       class="grid place-items-center rounded-xl border bg-card px-6 py-16 text-center"
     >
       <Icon name="lucide:triangle-alert" class="size-7 text-destructive" />
-      <p class="mt-3 text-sm">Не удалось построить отчёт</p>
+      <p class="mt-3 text-sm">{{ t('finance.reports.failed') }}</p>
       <button
         type="button"
         class="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary"
         @click="refresh()"
       >
-        Повторить
+        {{ t('common.actions.retry') }}
       </button>
     </div>
 
@@ -122,17 +124,17 @@ const csvHref = computed(() =>
       v-else-if="rows.length === 0"
       class="rounded-xl border bg-card px-6 py-16 text-center text-sm text-muted-foreground"
     >
-      Живых проектов нет — отчёту не о чем рассказать.
+      {{ t('finance.reports.production.empty') }}
     </p>
 
     <template v-else>
       <div class="mb-4 grid gap-3 sm:grid-cols-4">
         <div class="rounded-xl border bg-card px-4 py-3">
-          <p class="text-xs text-muted-foreground">Проектов</p>
+          <p class="text-xs text-muted-foreground">{{ t('finance.reports.clients.projects') }}</p>
           <p class="mt-1 text-xl font-semibold tabular-nums">{{ totals.projects }}</p>
         </div>
         <div class="rounded-xl border bg-card px-4 py-3">
-          <p class="text-xs text-muted-foreground">Сорван срок</p>
+          <p class="text-xs text-muted-foreground">{{ t('finance.reports.production.late') }}</p>
           <p
             class="mt-1 text-xl font-semibold tabular-nums"
             :class="totals.late > 0 ? 'text-destructive' : ''"
@@ -141,7 +143,7 @@ const csvHref = computed(() =>
           </p>
         </div>
         <div class="rounded-xl border bg-card px-4 py-3">
-          <p class="text-xs text-muted-foreground">Просроченных задач</p>
+          <p class="text-xs text-muted-foreground">{{ t('finance.reports.production.overdueTasks') }}</p>
           <p
             class="mt-1 text-xl font-semibold tabular-nums"
             :class="totals.overdue > 0 ? 'text-destructive' : ''"
@@ -150,7 +152,7 @@ const csvHref = computed(() =>
           </p>
         </div>
         <div class="rounded-xl border bg-card px-4 py-3">
-          <p class="text-xs text-muted-foreground">Открытых правок</p>
+          <p class="text-xs text-muted-foreground">{{ t('finance.reports.production.openRevisions') }}</p>
           <p class="mt-1 text-xl font-semibold tabular-nums">{{ totals.revisions }}</p>
         </div>
       </div>
@@ -159,15 +161,15 @@ const csvHref = computed(() =>
         <table class="w-full text-sm">
           <thead class="border-b bg-muted/30 text-left text-xs text-muted-foreground">
             <tr>
-              <th class="px-5 py-2.5 font-medium">Проект</th>
-              <th class="px-5 py-2.5 font-medium">Статус</th>
-              <th class="px-5 py-2.5 font-medium">Риск</th>
-              <th class="px-5 py-2.5 text-right font-medium">Прогресс</th>
-              <th class="px-5 py-2.5 font-medium">Дедлайн</th>
-              <th class="px-5 py-2.5 text-right font-medium">Этапы</th>
-              <th class="px-5 py-2.5 text-right font-medium">Задачи</th>
-              <th class="px-5 py-2.5 text-right font-medium">Просрочено</th>
-              <th class="px-5 py-2.5 text-right font-medium">Правки</th>
+              <th class="px-5 py-2.5 font-medium">{{ t('finance.common.project') }}</th>
+              <th class="px-5 py-2.5 font-medium">{{ t('finance.common.status') }}</th>
+              <th class="px-5 py-2.5 font-medium">{{ t('finance.reports.production.risk') }}</th>
+              <th class="px-5 py-2.5 text-right font-medium">{{ t('finance.reports.production.progress') }}</th>
+              <th class="px-5 py-2.5 font-medium">{{ t('finance.reports.production.deadline') }}</th>
+              <th class="px-5 py-2.5 text-right font-medium">{{ t('finance.reports.production.stages') }}</th>
+              <th class="px-5 py-2.5 text-right font-medium">{{ t('finance.reports.production.tasks') }}</th>
+              <th class="px-5 py-2.5 text-right font-medium">{{ t('finance.overview.overdue') }}</th>
+              <th class="px-5 py-2.5 text-right font-medium">{{ t('finance.reports.production.revisions') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -180,7 +182,7 @@ const csvHref = computed(() =>
               </td>
               <td class="px-5 py-3"><StatusBadge :status="row.status" /></td>
               <td class="px-5 py-3"><StatusBadge :status="row.risk" kind="risk" /></td>
-              <td class="px-5 py-3 text-right tabular-nums">{{ row.progress }}%</td>
+              <td class="px-5 py-3 text-right tabular-nums">{{ formatPercent(row.progress) }}</td>
               <td class="px-5 py-3" :class="row.late ? 'text-destructive' : ''">
                 {{ formatDay(row.deadline) }}
               </td>
