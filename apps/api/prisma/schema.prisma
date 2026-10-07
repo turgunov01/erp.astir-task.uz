@@ -307,6 +307,10 @@ model User {
   /// Set when the address was proven by entering an emailed code.
   emailVerifiedAt DateTime?
   lastLoginAt  DateTime?
+  /// Access tokens issued before this moment are refused. Set when a password
+  /// is reset, so a session stolen before the reset dies at once instead of
+  /// living out its 15 minutes.
+  sessionsRevokedAt DateTime?
   /// The language this person reads the interface, letters and exports in.
   /// Empty means the studio default (StudioSettings.defaultLocale).
   locale       Locale?
@@ -318,6 +322,7 @@ model User {
   employee Employee?
 
   emailCodes          EmailCode[]
+  passwordResetTokens PasswordResetToken[]
   refreshTokens       RefreshToken[]
   notificationPrefs   NotificationPreference[]
   notifications       Notification[]
@@ -1568,6 +1573,28 @@ model EmailCode {
   @@index([userId, purpose])
   @@index([expiresAt])
   @@map("email_codes")
+}
+
+/// A single-use "reset your password" link, mailed on request.
+///
+/// Separate from EmailCode: a link token is looked up by its hash (unique),
+/// not by user, and carries where the request came from for the audit trail.
+model PasswordResetToken {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// SHA-256 of the token: the raw value exists only in the letter.
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdIp String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
 }
 
 /// Studio-wide configuration (spec 6).

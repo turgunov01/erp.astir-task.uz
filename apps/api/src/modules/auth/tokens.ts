@@ -7,6 +7,8 @@ export interface AccessTokenPayload {
   sub: string
   email: string
   role: Role
+  /** Issued-at, seconds since the epoch; set by jsonwebtoken. */
+  iat?: number
 }
 
 export const ACCESS_COOKIE = 'astir_access'

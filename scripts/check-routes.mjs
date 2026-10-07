@@ -89,6 +89,36 @@ if (dead.length > 0) {
   console.log('source: no dead links')
 }
 
+/*
+ * Guest pages must open without a session: answered 200 on their own, not
+ * redirected to /login. Read from the middleware so a new guest page is
+ * checked the moment it is listed there.
+ */
+const middleware = readFileSync(join(APP_DIR, 'middleware/auth.global.ts'), 'utf8')
+const guestList = middleware.match(/GUEST_ROUTES = new Set\(\[([^\]]*)\]\)/)
+const guestRoutes = guestList ? [...guestList[1].matchAll(/'([^']+)'/g)].map(match => match[1]) : []
+
+if (guestRoutes.length === 0) {
+  console.error(NL + 'cannot read GUEST_ROUTES from the auth middleware')
+  process.exitCode = 1
+}
+
+const guestFailures = []
+for (const route of guestRoutes) {
+  if (!routes.has(route)) {
+    guestFailures.push(route + ' -> no page file')
+    continue
+  }
+  const res = await fetch(BASE + route, { headers: { accept: 'text/html' }, redirect: 'manual' })
+  if (res.status !== 200) guestFailures.push(route + ' -> ' + res.status)
+}
+console.log('guest : ' + (guestRoutes.length - guestFailures.length) + '/' + guestRoutes.length + ' pages open without a session')
+if (guestFailures.length > 0) {
+  console.error('FAILING GUEST PAGES:')
+  for (const failure of guestFailures) console.error('  ' + failure)
+  process.exitCode = 1
+}
+
 const email = process.env.CHECK_EMAIL || 'owner@aster.studio'
 const password = process.env.CHECK_PASSWORD || 'admin123'
 

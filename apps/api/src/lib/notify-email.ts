@@ -1,5 +1,5 @@
 import { EMAIL_NOTIFICATION_TYPES, type NotificationType } from '@astir/types'
-import { env } from '../config/env'
+import { absoluteUrl, publicLogo, renderLetterHtml } from './email-layout'
 import { logger } from './logger'
 import { mailIsConfigured, sendMail, type Mail } from './mailer'
 import { prisma } from './prisma'
@@ -52,25 +52,6 @@ async function emailEnabled(userId: string, type: string): Promise<boolean> {
   return preference?.enabled !== false
 }
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
-}
-
-/** Links in a letter must be absolute; the app stores them relative. */
-function absoluteUrl(path: string): string {
-  return new URL(path, env.APP_URL).href
-}
-
-/** A logo only if it can load from a mail client, i.e. an absolute http(s) URL. */
-function publicLogo(logoUrl: string | null): string | null {
-  return logoUrl && /^https?:\/\//i.test(logoUrl) ? logoUrl : null
-}
-
 interface Letter {
   locale: Locale
   studio: string
@@ -99,36 +80,18 @@ function renderText(letter: Letter): string {
   ].join('\n')
 }
 
-/** Table layout and inline styles: the only HTML mail clients agree on. */
+/** The shared branded frame, with the opt-out link in the footer. */
 function renderHtml(letter: Letter): string {
-  const studio = escapeHtml(letter.studio)
-  const brand = letter.logoUrl
-    ? '<img src="' + escapeHtml(letter.logoUrl) + '" alt="' + studio + '" height="28" style="display:block;height:28px;border:0">'
-    : '<span style="font-size:15px;font-weight:600;color:#111827">' + studio + '</span>'
-  const button = letter.link
-    ? '<tr><td style="padding:20px 0 4px">' +
-      '<a href="' + escapeHtml(letter.link) + '" style="display:inline-block;background:#111827;color:#ffffff;' +
-      'text-decoration:none;font-size:14px;font-weight:500;padding:10px 18px;border-radius:8px">' +
-      escapeHtml(letter.actionLabel) + '</a></td></tr>'
-    : ''
-  const body = letter.body
-    ? '<tr><td style="padding-top:6px;font-size:14px;line-height:20px;color:#4b5563">' + escapeHtml(letter.body) + '</td></tr>'
-    : ''
-
-  return '<!doctype html><html lang="' + letter.locale + '"><head><meta charset="utf-8">' +
-    '<meta name="viewport" content="width=device-width,initial-scale=1"><title>' + escapeHtml(letter.title) + '</title></head>' +
-    '<body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,Arial,sans-serif">' +
-    '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f4f5;padding:24px 12px"><tr><td align="center">' +
-    '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:520px;background:#ffffff;border:1px solid #e4e4e7;border-radius:12px">' +
-    '<tr><td style="padding:20px 24px;border-bottom:1px solid #f0f0f1">' + brand + '</td></tr>' +
-    '<tr><td style="padding:24px"><table role="presentation" width="100%" cellspacing="0" cellpadding="0">' +
-    '<tr><td style="padding-bottom:12px;font-size:14px;color:#4b5563">' + escapeHtml(letter.greeting) + '</td></tr>' +
-    '<tr><td style="font-size:17px;line-height:24px;font-weight:600;color:#111827">' + escapeHtml(letter.title) + '</td></tr>' +
-    body + button +
-    '</table></td></tr>' +
-    '<tr><td style="padding:16px 24px;border-top:1px solid #f0f0f1;font-size:12px;line-height:18px;color:#9ca3af">' +
-    studio + ' · <a href="' + escapeHtml(letter.profileLink) + '" style="color:#6b7280">' + escapeHtml(letter.unsubscribeLink) + '</a>' +
-    '</td></tr></table></td></tr></table></body></html>'
+  return renderLetterHtml({
+    locale: letter.locale,
+    studio: letter.studio,
+    logoUrl: letter.logoUrl,
+    greeting: letter.greeting,
+    title: letter.title,
+    paragraphs: letter.body ? [letter.body] : [],
+    action: letter.link ? { label: letter.actionLabel, url: letter.link } : undefined,
+    footerLink: { label: letter.unsubscribeLink, url: letter.profileLink }
+  })
 }
 
 /**

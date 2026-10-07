@@ -1,6 +1,13 @@
 import { Router } from 'express'
 import rateLimit from 'express-rate-limit'
-import { loginSchema, resendCodeSchema, verifyCodeSchema } from '@astir/validation'
+import {
+  forgotPasswordSchema,
+  loginSchema,
+  resendCodeSchema,
+  resetPasswordSchema,
+  resetTokenCheckSchema,
+  verifyCodeSchema
+} from '@astir/validation'
 import { validate } from '../../middleware/validate'
 import { authenticate } from '../../middleware/auth'
 import { t } from '../../i18n'
@@ -12,6 +19,14 @@ import {
   resendCodeHandler,
   verifyCodeHandler
 } from './auth.controller'
+import {
+  checkResetTokenHandler,
+  forgotEmailLimiter,
+  forgotIpLimiter,
+  forgotPasswordHandler,
+  resetLimiter,
+  resetPasswordHandler
+} from './password-reset.controller'
 
 /**
  * Login is rate limited per IP to blunt credential stuffing (spec 69).
@@ -39,3 +54,18 @@ authRouter.post('/resend-code', loginLimiter, validate(resendCodeSchema), resend
 authRouter.post('/refresh', refreshHandler)
 authRouter.post('/logout', logoutHandler)
 authRouter.get('/me', authenticate, meHandler)
+
+/*
+ * Password recovery. The token travels in POST bodies, never in a query
+ * string, so it stays out of access logs and Referer headers.
+ */
+authRouter.post(
+  '/forgot-password',
+  // Malformed input is refused before it is counted: it never sends anything.
+  validate(forgotPasswordSchema),
+  forgotIpLimiter,
+  forgotEmailLimiter,
+  forgotPasswordHandler
+)
+authRouter.post('/reset-password/check', resetLimiter, validate(resetTokenCheckSchema), checkResetTokenHandler)
+authRouter.post('/reset-password', resetLimiter, validate(resetPasswordSchema), resetPasswordHandler)

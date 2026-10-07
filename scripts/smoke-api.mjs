@@ -74,6 +74,43 @@ expect('login with wrong password', (await call('POST', '/api/auth/login', {
   json: { email: OWNER, password: 'nope' }, keepCookies: false
 })).status, 401)
 
+/*
+ * Password recovery, without mailing anyone or changing a password: the
+ * address is on a reserved domain nobody owns, and the tokens are made up.
+ */
+console.log(NL + 'password recovery')
+const BOGUS_TOKEN = 'smoke-' + 'x'.repeat(40)
+const unknownReset = await call('POST', '/api/auth/forgot-password', {
+  json: { email: 'nobody-' + Date.now() + '@example.invalid' }, keepCookies: false
+})
+record(
+  'forgot-password: neutral 200 for an unknown address',
+  unknownReset.status === 200 && unknownReset.payload?.data?.accepted === true,
+  'status ' + unknownReset.status
+)
+expect('forgot-password: malformed address is 400', (await call('POST', '/api/auth/forgot-password', {
+  json: { email: 'not-an-email' }, keepCookies: false
+})).status, 400)
+expect('reset-password/check: unknown token is 400', (await call('POST', '/api/auth/reset-password/check', {
+  json: { token: BOGUS_TOKEN }, keepCookies: false
+})).status, 400)
+const bogusReset = await call('POST', '/api/auth/reset-password', {
+  json: { token: BOGUS_TOKEN, password: 'long-enough-password' }, keepCookies: false
+})
+record(
+  'reset-password: unknown token is 400 with a message',
+  bogusReset.status === 400 && Boolean(bogusReset.payload?.error?.message) && !bogusReset.payload?.error?.details,
+  'status ' + bogusReset.status
+)
+const shortReset = await call('POST', '/api/auth/reset-password', {
+  json: { token: BOGUS_TOKEN, password: 'short' }, keepCookies: false
+})
+record(
+  'reset-password: password policy is checked first',
+  shortReset.status === 400 && Array.isArray(shortReset.payload?.error?.details?.password),
+  'status ' + shortReset.status
+)
+
 await login(OWNER, PASSWORD)
 
 console.log(NL + 'read endpoints')

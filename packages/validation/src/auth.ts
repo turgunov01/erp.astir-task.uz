@@ -7,10 +7,13 @@ import { z } from 'zod'
  * property that actually resists offline cracking. The seeded admin account
  * is exempt because it is forced to change on first login.
  */
+export const PASSWORD_MIN_LENGTH = 8
+export const PASSWORD_MAX_LENGTH = 200
+
 export const passwordSchema = z
   .string()
-  .min(8)
-  .max(128)
+  .min(PASSWORD_MIN_LENGTH, 'i18n:auth.account.passwordTooShort')
+  .max(PASSWORD_MAX_LENGTH)
 
 export const loginSchema = z.object({
   email: z.string().trim().toLowerCase().email('i18n:common.validation.invalidEmail'),
@@ -23,16 +26,27 @@ export const forgotPasswordSchema = z.object({
   email: z.string().trim().toLowerCase().email('i18n:common.validation.invalidEmail')
 })
 
-export const resetPasswordSchema = z
-  .object({
-    token: z.string().min(16, 'i18n:common.validation.invalidFormat'),
-    password: passwordSchema,
-    confirmPassword: z.string()
-  })
-  .refine(data => data.password === data.confirmPassword, {
-    message: 'i18n:common.validation.passwordsMismatch',
-    path: ['confirmPassword']
-  })
+/**
+ * A reset link carries 32 random bytes as base64url (43 characters). The bounds
+ * only keep junk out; whether a token is real is decided by its hash.
+ */
+const resetTokenSchema = z
+  .string()
+  .trim()
+  .min(32, 'i18n:common.validation.invalidFormat')
+  .max(128, 'i18n:common.validation.invalidFormat')
+
+/** Setting a new password from an emailed link. Repeating it is the form's job. */
+export const resetPasswordSchema = z.object({
+  token: resetTokenSchema,
+  password: passwordSchema
+})
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>
+
+/** Asking whether a link still works, before the new password is typed. */
+export const resetTokenCheckSchema = z.object({
+  token: resetTokenSchema
+})
 
 export const changePasswordSchema = z
   .object({
