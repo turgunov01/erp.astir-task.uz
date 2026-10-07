@@ -49,7 +49,7 @@ export async function issueLoginCode(user: {
   firstName: string
   /** The recipient's own language; the letter falls back to the studio default. */
   locale?: string | null
-}): Promise<IssueResult> {
+}, options: CodeLetterOptions = {}): Promise<IssueResult> {
   const recent = await prisma.emailCode.findFirst({
     where: { userId: user.id, purpose: OTP_PURPOSE, consumedAt: null },
     orderBy: { createdAt: 'desc' }
@@ -84,7 +84,7 @@ export async function issueLoginCode(user: {
    * the reader is left holding six digits and no idea what to do with them.
    */
   const { delivered } = await sendMail(
-    await renderLoginCodeEmail(user, code, await recipientLocale(user.locale))
+    await renderLoginCodeEmail(user, code, await recipientLocale(user.locale), options)
   )
 
   return { delivered, retryAfter: RESEND_COOLDOWN_SECONDS }
@@ -94,10 +94,19 @@ export async function issueLoginCode(user: {
  * The code letter, in the recipient's language (their own choice, else the
  * studio default) — never the language of whoever triggered it.
  */
+export interface CodeLetterOptions {
+  /**
+   * A manager moved the login to this address. The letter says so, and drops
+   * the "first login only" line, which would be wrong for a seasoned employee.
+   */
+  emailChanged?: boolean
+}
+
 export async function renderLoginCodeEmail(
   user: { email: string, firstName: string },
   code: string,
-  locale: Locale
+  locale: Locale,
+  options: CodeLetterOptions = {}
 ): Promise<Mail> {
   const { name: studio } = await studioSettings()
   const t = translatorFor(locale)
@@ -107,12 +116,15 @@ export async function renderLoginCodeEmail(
     text: [
       t('auth.codeEmail.greeting', { name: user.firstName }),
       '',
+      ...(options.emailChanged ? [t('auth.codeEmail.emailChanged', { studio }), ''] : []),
       t('auth.codeEmail.yourCode', { code }),
       '',
       t('auth.codeEmail.whereToEnter', { studio }),
       new URL('/login', env.APP_URL).href,
       '',
-      t('auth.codeEmail.validity', { minutes: CODE_TTL_MINUTES }),
+      options.emailChanged
+        ? t('auth.codeEmail.validityOnce', { minutes: CODE_TTL_MINUTES })
+        : t('auth.codeEmail.validity', { minutes: CODE_TTL_MINUTES }),
       t('auth.codeEmail.notYou')
     ].join('\n')
   }

@@ -334,6 +334,7 @@ export const ACTIVITY_ACTION_LABEL = enumLabels('activityAction', [
   'client.created', 'client.updated', 'client.archived',
   'department.created', 'department.updated', 'department.deleted',
   'employee.updated', 'employee.email_verified_manually',
+  'employee.login_email_changed', 'employee.password_set',
   'user.created', 'user.role_changed', 'user.deactivated',
   'attendance.checked_in', 'attendance.checked_out'
 ])

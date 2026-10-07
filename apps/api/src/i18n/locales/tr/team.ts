@@ -44,7 +44,9 @@ export default {
   },
   employees: {
     emailTaken: '{email} e-posta adresine sahip bir kullanıcı zaten var',
-    cannotDeleteSelf: 'Kendi hesabınızı silemezsiniz'
+    cannotDeleteSelf: 'Kendi hesabınızı silemezsiniz',
+    ownLoginHere: 'Kendi hesabınızın e-postası ve şifresi burada değiştirilmez — şifrenizi profilden değiştirin',
+    loginOutranked: 'E-posta ve şifreyi yalnızca sizden üst rolde olmayanlar için değiştirebilirsiniz'
   },
   departments: {
     hasEmployees: 'Departmanda hâlâ çalışanlar var: {count}. Önce onları başka bir departmana taşıyın.'

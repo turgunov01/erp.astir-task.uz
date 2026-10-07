@@ -251,7 +251,8 @@
         "vat": "Shu jumladan QQS",
         "vendor": "Kontragent",
         "version": "Versiya",
-        "weeklyHours": "Haftasiga soat"
+        "weeklyHours": "Haftasiga soat",
+        "newPassword": "Yangi parol"
       },
       "hints": {
         "budgetProject": "Loyihaning bitta byudjeti bor: mavjudining ustidan saqlash uni yangilaydi.",
@@ -261,7 +262,7 @@
         "invoiceNumber": "Raqam yagona va mijozga yuboriladi, shuning uchun uni o‘ylab o‘zgartiring.",
         "invoiceVat": "Hisob-faktura summasining bir qismi. Bo‘sh — QQSsiz.",
         "lateMinutes": "Faqat kechikish jarimasi uchun — u yerda majburiy.",
-        "loginEmail": "Kirish uchun login, keyin o‘zgartirib bo‘lmaydi",
+        "loginEmail": "Kirish logini. O‘zgartirilgandan so‘ng xodim kirishda yangi pochtani kod bilan tasdiqlaydi",
         "nextNumber": "Bo‘sh qoldirilsa — keyingi bo‘sh raqam",
         "password": "Kamida 8 ta belgi",
         "paymentInvoice": "Agar to‘lov hisob-fakturani to‘liq yopsa, tizim uni to‘langan deb belgilashni taklif qiladi.",
@@ -269,7 +270,8 @@
         "period": "Bo‘sh — sanadagi oy.",
         "reference": "Shu raqam bo‘yicha to‘lov bank ko‘chirmasidan topiladi.",
         "reviewDeadline": "Agar shu sanagacha qaror bo‘lmasa, kelishuv «Yopildi» holatini oladi",
-        "reviewVersion": "Muhokamaga chiqariladigan material"
+        "reviewVersion": "Muhokamaga chiqariladigan material",
+        "newPassword": "O‘zgartirmaslik uchun bo‘sh qoldiring. Parolni xodimga ayting — u kirishda uni o‘z paroliga almashtiradi"
       },
       "invoice": {
         "createTitle": "Yangi hisob-faktura",

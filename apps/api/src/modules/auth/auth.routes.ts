@@ -6,6 +6,7 @@ import {
   resendCodeSchema,
   resetPasswordSchema,
   resetTokenCheckSchema,
+  setOwnPasswordSchema,
   verifyCodeSchema
 } from '@astir/validation'
 import { validate } from '../../middleware/validate'
@@ -17,6 +18,7 @@ import {
   meHandler,
   refreshHandler,
   resendCodeHandler,
+  setPasswordHandler,
   verifyCodeHandler
 } from './auth.controller'
 import {
@@ -54,6 +56,8 @@ authRouter.post('/resend-code', loginLimiter, validate(resendCodeSchema), resend
 authRouter.post('/refresh', refreshHandler)
 authRouter.post('/logout', logoutHandler)
 authRouter.get('/me', authenticate, meHandler)
+// Replacing a password a manager set: the step every such login stops at.
+authRouter.post('/set-password', authenticate, validate(setOwnPasswordSchema), setPasswordHandler)
 
 /*
  * Password recovery. The token travels in POST bodies, never in a query

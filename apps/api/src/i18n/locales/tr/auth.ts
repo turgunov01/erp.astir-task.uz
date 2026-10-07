@@ -3,6 +3,7 @@ import type ru from '../ru/auth'
 
 export default {
   verifyEmailSent: 'E-postanızı doğrulayın: kod {email} adresine gönderildi',
+  verifyChangedEmailSent: 'Giriş adresiniz değiştirildi. Yeni e-postanızı doğrulayın: kod {email} adresine gönderildi',
   code: {
     notRequested: 'Kod istenmemiş veya zaten kullanılmış',
     expired: 'Kodun süresi doldu, yenisini isteyin',
@@ -15,6 +16,8 @@ export default {
     yourCode: 'E-posta doğrulama kodunuz: {code}',
     whereToEnter: 'Kodu {studio} giriş sayfasında şifrenizden hemen sonra girin:',
     validity: 'Kod yalnızca ilk girişte gereklidir, {minutes} dakika geçerlidir ve bir kez kullanılır.',
+    validityOnce: 'Kod {minutes} dakika geçerlidir ve bir kez kullanılır.',
+    emailChanged: '{studio} yöneticisi hesabınızın giriş adresini bu e-posta olarak değiştirdi. Kodla doğrulayın — bundan sonra bu adresle giriş yaparsınız.',
     notYou: 'Giriş yapan siz değilseniz stüdyo yöneticisine haber verin.'
   },
   reset: {
@@ -40,10 +43,29 @@ export default {
     action: 'Giriş yap',
     notYou: 'Bunu siz yapmadıysanız şifrenizi hemen yeniden sıfırlayın ve stüdyo yöneticisine haber verin.'
   },
+  /** A manager moved the login to another address. */
+  loginEmailChangedEmail: {
+    subject: 'Giriş adresiniz değiştirildi — {studio}',
+    title: 'Giriş adresiniz değiştirildi',
+    body: '{studio} yöneticisi hesabınızın giriş adresini {email} olarak değiştirdi. Bundan sonra yeni adresle giriş yapın: ilk girişte e-postayla gelen kodla doğrulamanızı isteyeceğiz. Tüm açık oturumlar sonlandırıldı.',
+    action: 'Giriş yap',
+    notYou: 'Bu değişikliği beklemiyorsanız hemen stüdyo yöneticisiyle iletişime geçin.'
+  },
+  /** A manager set a password the person must replace. */
+  passwordSetEmail: {
+    subject: 'Yönetici sizin için yeni bir şifre belirledi — {studio}',
+    title: 'Yöneticiden yeni şifre',
+    body: '{studio} yöneticisi hesabınız için yeni bir şifre belirledi. Şifreyi yöneticiden öğrenin: giriş yaptıktan hemen sonra sistem onu kendi şifrenizle değiştirmenizi isteyecek. Tüm açık oturumlar sonlandırıldı.',
+    action: 'Giriş yap',
+    notYou: 'Bu değişikliği beklemiyorsanız hemen stüdyo yöneticisiyle iletişime geçin.'
+  },
   account: {
     currentPasswordWrong: 'Mevcut şifre hatalı',
     passwordTooShort: 'Şifre 8 karakterden kısa',
     cannotChangeOwnRole: 'Kendi hesabınızın rolünü değiştiremezsiniz',
-    cannotDisableSelf: 'Kendi hesabınızı devre dışı bırakamazsınız'
+    cannotDisableSelf: 'Kendi hesabınızı devre dışı bırakamazsınız',
+    passwordChangeRequired: 'Önce yöneticinin verdiği şifrenin yerine kendi şifrenizi belirleyin',
+    passwordChangeNotRequired: 'Şu anda şifre değişikliği gerekmiyor — şifrenizi profilden değiştirin',
+    sameAsIssued: 'Yeni şifre yöneticinin verdiği şifreden farklı olmalıdır'
   }
 } satisfies Messages<typeof ru>

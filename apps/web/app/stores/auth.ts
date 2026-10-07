@@ -197,6 +197,16 @@ export const useAuthStore = defineStore('auth', () => {
     return establish('/api/auth/verify-code', { email, password, code })
   }
 
+  /** Replace a password a manager set; the session carries on with the new one. */
+  async function setPassword(password: string) {
+    const response = await $fetch<{ data: SessionPayload }>('/api/auth/set-password', {
+      method: 'POST',
+      body: { password },
+      credentials: 'include'
+    })
+    apply(response.data)
+  }
+
   /** Ask for another code; resolves to the seconds until the next one may be sent. */
   async function resendCode(email: string): Promise<number> {
     const response = await $fetch<{ data: { retryAfter: number } }>('/api/auth/resend-code', {
@@ -229,6 +239,7 @@ export const useAuthStore = defineStore('auth', () => {
     refresh,
     login,
     verifyCode,
+    setPassword,
     resendCode,
     logout
   }

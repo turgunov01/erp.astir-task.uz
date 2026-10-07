@@ -16,7 +16,8 @@ export interface LetterRecipient {
   firstName: string
 }
 
-function frameText(frame: LetterFrame): string {
+/** The plain-text twin of a framed letter; shared with the account-change letters. */
+export function frameText(frame: LetterFrame): string {
   return [
     frame.greeting,
     '',

@@ -3,6 +3,7 @@ import type ru from '../ru/auth'
 
 export default {
   verifyEmailSent: 'Confirm your email: a code was sent to {email}',
+  verifyChangedEmailSent: 'Your sign-in address was changed. Confirm the new email: a code was sent to {email}',
   code: {
     notRequested: 'No code was requested, or it has already been used',
     expired: 'The code has expired, request a new one',
@@ -15,6 +16,8 @@ export default {
     yourCode: 'Your email confirmation code: {code}',
     whereToEnter: 'Enter it on the {studio} sign-in page right after your password:',
     validity: 'The code is needed only on your first sign-in, is valid for {minutes} minutes and can be used once.',
+    validityOnce: 'The code is valid for {minutes} minutes and can be used once.',
+    emailChanged: 'The {studio} administrator changed your sign-in address to this email. Confirm it with the code — from now on you sign in with this address.',
     notYou: 'If this was not you, let the studio administrator know.'
   },
   reset: {
@@ -40,10 +43,29 @@ export default {
     action: 'Sign in',
     notYou: 'If this was not you, reset the password again right away and let the studio administrator know.'
   },
+  /** A manager moved the login to another address. */
+  loginEmailChangedEmail: {
+    subject: 'Your sign-in address was changed — {studio}',
+    title: 'Your sign-in address was changed',
+    body: 'The {studio} administrator changed the sign-in address of your account to {email}. Sign in with the new address from now on: at the first sign-in we will ask you to confirm it with an emailed code. All open sessions have been ended.',
+    action: 'Sign in',
+    notYou: 'If you did not expect this change, contact the studio administrator right away.'
+  },
+  /** A manager set a password the person must replace. */
+  passwordSetEmail: {
+    subject: 'The administrator set a new password for you — {studio}',
+    title: 'A new password from the administrator',
+    body: 'The {studio} administrator set a new password for your account. Ask the administrator for it: right after you sign in, you will be asked to replace it with your own. All open sessions have been ended.',
+    action: 'Sign in',
+    notYou: 'If you did not expect this change, contact the studio administrator right away.'
+  },
   account: {
     currentPasswordWrong: 'The current password is wrong',
     passwordTooShort: 'The password is shorter than 8 characters',
     cannotChangeOwnRole: 'You cannot change the role of your own account',
-    cannotDisableSelf: 'You cannot disable your own account'
+    cannotDisableSelf: 'You cannot disable your own account',
+    passwordChangeRequired: 'First set your own password in place of the one the administrator issued',
+    passwordChangeNotRequired: 'No password change is required right now — change your password in the profile',
+    sameAsIssued: 'The new password must differ from the one the administrator issued'
   }
 } satisfies Messages<typeof ru>

@@ -104,16 +104,88 @@ export async function verifyEmail(id: string) {
   const employee = await getById(id)
   await prisma.user.update({
     where: { id: employee.userId },
-    data: { emailVerifiedAt: new Date(), isActive: true }
+    // Vouched for by hand: the "address was changed" step has nothing left to ask.
+    data: { emailVerifiedAt: new Date(), emailChangedAt: null, isActive: true }
   })
   return getById(id)
 }
 
-export async function update(id: string, input: Record<string, unknown>) {
+/** What an edit did to the login itself, so the caller can audit and notify. */
+export interface LoginChanges {
+  /** The address the login moved away from, when it moved. */
+  previousEmail: string | null
+  passwordSet: boolean
+}
+
+/**
+ * The login part of an edit: a new address and a password set by the manager.
+ *
+ * A new address is unproven, so it goes back through the first-login code; a
+ * password somebody else chose must be replaced by the person at once. Either
+ * way every open session ends, so whoever held the old credentials is out.
+ * Your own login is not changed from here: a slip would lock you out, and the
+ * profile already has a password form that asks for the current one.
+ */
+/**
+ * Who may take over whose login. Setting someone's address and password is
+ * the same as holding their account, so a manager may do it only to people
+ * who do not outrank them: a project manager resets an artist, never the
+ * administrator or the owner.
+ */
+const LOGIN_RANK: Partial<Record<string, number>> = { OWNER: 3, ADMIN: 2 }
+const loginRank = (role: string | undefined) => LOGIN_RANK[role ?? ''] ?? 1
+
+/** The person making the change, as the controller knows them. */
+export interface Actor {
+  id?: string
+  role?: string
+}
+
+async function loginChanges(
+  employee: { userId: string, user: { email: string, role: string } },
+  input: Record<string, unknown>,
+  actor: Actor
+) {
+  const email = typeof input.email === 'string' ? input.email : undefined
+  const emailChanges = email !== undefined && email !== employee.user.email
+  const newPassword = typeof input.newPassword === 'string' ? input.newPassword : undefined
+
+  if ((emailChanges || newPassword) && employee.userId === actor.id) {
+    throw badRequest(t('team.employees.ownLoginHere'))
+  }
+  if ((emailChanges || newPassword) && loginRank(actor.role) < loginRank(employee.user.role)) {
+    throw badRequest(t('team.employees.loginOutranked'))
+  }
+  if (emailChanges && await repo.findByEmail(email)) {
+    throw conflict(t('team.employees.emailTaken', { email }))
+  }
+
+  const now = new Date()
+  const data: Record<string, unknown> = {}
+  if (emailChanges) {
+    Object.assign(data, { email, emailVerifiedAt: null, emailChangedAt: now })
+  }
+  if (newPassword) {
+    Object.assign(data, { passwordHash: await hashPassword(newPassword), mustChangePassword: true })
+  }
+  if (emailChanges || newPassword) data.sessionsRevokedAt = now
+
+  return {
+    data,
+    revokeSessions: Boolean(emailChanges || newPassword),
+    changes: {
+      previousEmail: emailChanges ? employee.user.email : null,
+      passwordSet: Boolean(newPassword)
+    } satisfies LoginChanges
+  }
+}
+
+export async function update(id: string, input: Record<string, unknown>, actor: Actor = {}) {
   const employee = await getById(id)
+  const login = await loginChanges(employee, input, actor)
 
   const userFields = ['firstName', 'lastName', 'role', 'isActive'] as const
-  const userData: Record<string, unknown> = {}
+  const userData: Record<string, unknown> = { ...login.data }
   for (const field of userFields) {
     if (field in input) userData[field] = input[field]
   }
@@ -127,9 +199,17 @@ export async function update(id: string, input: Record<string, unknown>) {
     if (field in input) employeeData[field] = input[field]
   }
 
-  return prisma.$transaction(async tx => {
+  const updated = await prisma.$transaction(async tx => {
     if (Object.keys(userData).length > 0) {
       await tx.user.update({ where: { id: employee.userId }, data: userData })
+    }
+    if (login.revokeSessions) {
+      await tx.refreshToken.updateMany({
+        where: { userId: employee.userId, revokedAt: null },
+        data: { revokedAt: new Date() }
+      })
+      // A code mailed to the old address must not prove the new one.
+      await tx.emailCode.deleteMany({ where: { userId: employee.userId, consumedAt: null } })
     }
     return tx.employee.update({
       where: { id },
@@ -145,6 +225,8 @@ export async function update(id: string, input: Record<string, unknown>) {
       }
     })
   })
+
+  return { employee: updated, login: login.changes }
 }
 
 /**

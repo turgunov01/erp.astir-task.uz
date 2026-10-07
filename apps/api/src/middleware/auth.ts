@@ -1,9 +1,9 @@
 import type { NextFunction, Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
-import type { Permission } from '@astir/types'
+import { ERROR_CODE, type Permission } from '@astir/types'
 import { prisma } from '../lib/prisma'
 import { hasPermission } from '../lib/rbac'
-import { forbidden, tokenExpired, unauthenticated } from '../lib/errors'
+import { AppError, forbidden, tokenExpired, unauthenticated } from '../lib/errors'
 import { ACCESS_COOKIE, verifyAccessToken } from '../modules/auth/tokens'
 import { notePresence } from '../modules/attendance/presence'
 import { rememberUserLocale } from '../lib/request-context'
@@ -24,6 +24,23 @@ function extractToken(req: Request): string | null {
 function issuedBeforeRevocation(iat: number | undefined, revokedAt: Date | null): boolean {
   if (!revokedAt) return false
   return typeof iat !== 'number' || iat < Math.floor(revokedAt.getTime() / 1000)
+}
+
+/**
+ * What a session may do while it still holds a password a manager set: say
+ * who it is, replace the password, and pick the language to read the form in.
+ * Everything else waits, so a password somebody else knows never opens the
+ * studio's data.
+ */
+const BEFORE_PASSWORD_CHANGE = new Set([
+  'GET /api/auth/me',
+  'POST /api/auth/set-password',
+  'PATCH /api/users/me'
+])
+
+function allowedBeforePasswordChange(req: Request): boolean {
+  const path = (req.originalUrl.split('?')[0] ?? '').replace(/\/+$/, '')
+  return BEFORE_PASSWORD_CHANGE.has(req.method + ' ' + path)
 }
 
 /**
@@ -58,7 +75,8 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
         clientId: true,
         locale: true,
         isActive: true,
-        sessionsRevokedAt: true
+        sessionsRevokedAt: true,
+        mustChangePassword: true
       }
     })
 
@@ -68,6 +86,14 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
     if (!user.isActive) throw forbidden(t('common.errors.accountDisabled'))
     if (issuedBeforeRevocation(payload.iat, user.sessionsRevokedAt)) {
       throw unauthenticated(t('common.errors.sessionRevoked'))
+    }
+
+    if (user.mustChangePassword && !allowedBeforePasswordChange(req)) {
+      throw new AppError(
+        403,
+        ERROR_CODE.PASSWORD_CHANGE_REQUIRED,
+        t('auth.account.passwordChangeRequired')
+      )
     }
 
     const { isActive: _isActive, sessionsRevokedAt: _revokedAt, ...authUser } = user

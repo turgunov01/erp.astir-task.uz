@@ -251,7 +251,8 @@
         "vat": "Incl. VAT",
         "vendor": "Counterparty",
         "version": "Version",
-        "weeklyHours": "Hours per week"
+        "weeklyHours": "Hours per week",
+        "newPassword": "New password"
       },
       "hints": {
         "budgetProject": "A project has one budget: saving over an existing one updates it.",
@@ -261,7 +262,7 @@
         "invoiceNumber": "The number is unique and goes to the client, so change it deliberately.",
         "invoiceVat": "Part of the invoice amount. Blank — no VAT.",
         "lateMinutes": "Only for a lateness penalty — required there.",
-        "loginEmail": "The sign-in login; it cannot be changed later",
+        "loginEmail": "The sign-in login. After a change the employee confirms the new email with a code at sign-in",
         "nextNumber": "Blank — the next free number",
         "password": "At least 8 characters",
         "paymentInvoice": "If the payment covers the invoice in full, you will be offered to mark it paid.",
@@ -269,7 +270,8 @@
         "period": "Blank — the month of the date.",
         "reference": "Finds the payment in the bank statement.",
         "reviewDeadline": "If there is no decision by this date, the review gets the status “Closed”",
-        "reviewVersion": "The material put up for discussion"
+        "reviewVersion": "The material put up for discussion",
+        "newPassword": "Leave blank to keep it. Tell the employee the password — they replace it with their own at sign-in"
       },
       "invoice": {
         "createTitle": "New invoice",

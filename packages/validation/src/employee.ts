@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { listQuerySchema, uuidSchema } from './common'
+import { passwordSchema } from './auth'
 
 const EMPLOYMENT_TYPE = ['FULL_TIME', 'PART_TIME', 'FREELANCE', 'INTERN'] as const
 const EMPLOYEE_STATUS = ['ACTIVE', 'ON_LEAVE', 'INACTIVE'] as const
@@ -26,6 +27,10 @@ export const createEmployeeSchema = z.object({
 export type CreateEmployeeInput = z.infer<typeof createEmployeeSchema>
 
 export const updateEmployeeSchema = z.object({
+  /** A new login address; the person proves it with a code at the next login. */
+  email: z.string().trim().toLowerCase().email('i18n:common.validation.invalidEmail').optional(),
+  /** A password set for the person; they must replace it at the next login. */
+  newPassword: passwordSchema.optional(),
   firstName: z.string().trim().min(1).max(80).optional(),
   lastName: z.string().trim().min(1).max(80).optional(),
   role: z.enum(ROLE).optional(),

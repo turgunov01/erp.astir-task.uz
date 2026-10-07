@@ -265,8 +265,14 @@ const EMPLOYEE_FORM = form('/api/employees', 'employee', [
   // The person's name and role live on the login, under `user` in the row.
   { key: 'firstName', path: 'user.firstName', label: 'firstName', type: 'text', required: true },
   { key: 'lastName', path: 'user.lastName', label: 'lastName', type: 'text', required: true },
-  { key: 'email', label: 'email', type: 'text', required: true, createOnly: true, hint: 'loginEmail' },
+  /*
+   * The login lives on the account too. A changed address is proven with a
+   * code at the next sign-in; a password set here must be replaced by the
+   * person right after it. Left blank when editing, the password stays.
+   */
+  { key: 'email', path: 'user.email', label: 'email', type: 'text', required: true, hint: 'loginEmail' },
   { key: 'password', label: 'password', type: 'text', required: true, createOnly: true, hint: 'password' },
+  { key: 'newPassword', label: 'newPassword', type: 'text', editOnly: true, hint: 'newPassword' },
   { key: 'position', label: 'position', type: 'text', required: true },
   { key: 'role', path: 'user.role', label: 'role', type: 'select', options: ROLE_LABEL, notNull: true },
   {

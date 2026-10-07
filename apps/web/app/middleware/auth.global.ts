@@ -12,6 +12,9 @@ const GUEST_ROUTES = new Set(['/login', '/forgot-password', '/reset-password'])
  */
 const OPEN_TO_EVERYONE = new Set(['/reset-password'])
 
+/** Where a session holding a manager-set password must stop first. */
+const SET_PASSWORD_PATH = '/set-password'
+
 /**
  * Route to permission map (spec 78).
  *
@@ -74,6 +77,19 @@ export default defineNuxtRouteMiddleware(async (to) => {
   }
 
   if (auth.isAuthenticated && isGuestRoute && !OPEN_TO_EVERYONE.has(to.path)) {
+    return navigateTo(auth.homePath)
+  }
+
+  /*
+   * A password a manager set is replaced before anything else opens; the API
+   * refuses such a session everything but that step. Once replaced, the step
+   * has nothing to offer and sends the person on to work.
+   */
+  const mustChangePassword = auth.user?.mustChangePassword === true
+  if (mustChangePassword && to.path !== SET_PASSWORD_PATH && !OPEN_TO_EVERYONE.has(to.path)) {
+    return navigateTo(SET_PASSWORD_PATH)
+  }
+  if (auth.isAuthenticated && !mustChangePassword && to.path === SET_PASSWORD_PATH) {
     return navigateTo(auth.homePath)
   }
 

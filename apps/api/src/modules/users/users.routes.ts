@@ -208,6 +208,8 @@ usersRouter.patch(
       if (req.body.isActive !== undefined) data.isActive = req.body.isActive
       if (req.body.emailVerified !== undefined) {
         data.emailVerifiedAt = req.body.emailVerified ? new Date() : null
+        // Either way this is no longer a pending address change.
+        data.emailChangedAt = null
       }
 
       const user = await prisma.user.update({ where: { id }, data, select: accountSelect })

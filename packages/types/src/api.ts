@@ -41,6 +41,8 @@ export const ERROR_CODE = {
   CONFLICT: 'CONFLICT',
   RATE_LIMITED: 'RATE_LIMITED',
   EMAIL_NOT_VERIFIED: 'EMAIL_NOT_VERIFIED',
+  /** Signed in with a password an administrator set; it must be replaced first. */
+  PASSWORD_CHANGE_REQUIRED: 'PASSWORD_CHANGE_REQUIRED',
   INTERNAL_ERROR: 'INTERNAL_ERROR',
   SERVICE_UNAVAILABLE: 'SERVICE_UNAVAILABLE'
 } as const
@@ -63,4 +65,6 @@ export interface AuthUser {
   clientId: string | null
   /** Own interface language; null means the studio default. */
   locale: import('./i18n').Locale | null
+  /** An administrator set the password; the person must choose their own first. */
+  mustChangePassword: boolean
 }

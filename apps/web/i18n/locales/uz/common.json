@@ -422,7 +422,9 @@
         },
         "employee": {
           "updated": "xodimni o‘zgartirdi",
-          "email_verified_manually": "xodim pochtasini qo‘lda tasdiqladi"
+          "email_verified_manually": "xodim pochtasini qo‘lda tasdiqladi",
+          "login_email_changed": "xodimning kirish pochtasini o‘zgartirdi",
+          "password_set": "xodimga yangi parol o‘rnatdi"
         },
         "user": {
           "created": "foydalanuvchi yaratdi",
