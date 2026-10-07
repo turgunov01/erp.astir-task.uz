@@ -6,6 +6,13 @@ import { useAuthStore } from '~/stores/auth'
 const GUEST_ROUTES = new Set(['/login', '/forgot-password', '/reset-password'])
 
 /**
+ * Guest routes that a signed-in person may still open: a reset link from the
+ * mailbox must work even in a browser that holds a session, rather than
+ * silently bouncing to the dashboard.
+ */
+const OPEN_TO_EVERYONE = new Set(['/reset-password'])
+
+/**
  * Route to permission map (spec 78).
  *
  * Hiding a sidebar entry is presentation, not access control: without this a
@@ -66,7 +73,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
     return navigateTo({ path: '/login', query: { redirect: to.fullPath } })
   }
 
-  if (auth.isAuthenticated && isGuestRoute) {
+  if (auth.isAuthenticated && isGuestRoute && !OPEN_TO_EVERYONE.has(to.path)) {
     return navigateTo(auth.homePath)
   }
 

@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import bcrypt from 'bcryptjs'
 import type { Prisma } from '@prisma/client'
-import { idParamSchema, listQuerySchema } from '@astir/validation'
+import { idParamSchema, listQuerySchema, passwordSchema as newPasswordSchema } from '@astir/validation'
 import { LOCALES, PERMISSION, ROLE_PERMISSIONS } from '@astir/types'
 import { authenticate, requirePermission } from '../../middleware/auth'
 import { validate, validatedQuery } from '../../middleware/validate'
@@ -80,7 +80,8 @@ usersRouter.patch(
 
 const passwordSchema = z.object({
   currentPassword: z.string().min(1),
-  newPassword: z.string().min(8, { error: () => t('auth.account.passwordTooShort') }).max(200)
+  // The one password policy, shared with the reset-by-link flow.
+  newPassword: newPasswordSchema
 })
 
 /**

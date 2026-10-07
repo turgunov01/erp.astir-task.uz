@@ -16,7 +16,8 @@ export const logger = pino({
       'req.headers.cookie',
       'req.body.password',
       'req.body.currentPassword',
-      'req.body.confirmPassword'
+      'req.body.confirmPassword',
+      'req.body.token'
     ],
     censor: '[redacted]'
   }

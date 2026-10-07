@@ -17,6 +17,16 @@ function extractToken(req: Request): string | null {
 }
 
 /**
+ * A password reset ends every session, including access tokens already handed
+ * out: one issued before the reset second is refused. jsonwebtoken floors
+ * `iat` to whole seconds, so the comparison is made in seconds too.
+ */
+function issuedBeforeRevocation(iat: number | undefined, revokedAt: Date | null): boolean {
+  if (!revokedAt) return false
+  return typeof iat !== 'number' || iat < Math.floor(revokedAt.getTime() / 1000)
+}
+
+/**
  * Verifies the access token and loads the current user.
  *
  * The user row is re-read on every request rather than trusted from the token,
@@ -47,7 +57,8 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
         avatarUrl: true,
         clientId: true,
         locale: true,
-        isActive: true
+        isActive: true,
+        sessionsRevokedAt: true
       }
     })
 
@@ -55,8 +66,11 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
     // From here on every message in this request is in the user's own language.
     rememberUserLocale(user.locale)
     if (!user.isActive) throw forbidden(t('common.errors.accountDisabled'))
+    if (issuedBeforeRevocation(payload.iat, user.sessionsRevokedAt)) {
+      throw unauthenticated(t('common.errors.sessionRevoked'))
+    }
 
-    const { isActive: _isActive, ...authUser } = user
+    const { isActive: _isActive, sessionsRevokedAt: _revokedAt, ...authUser } = user
     req.user = authUser
     // Attendance: throttled, detached, never fails the request.
     notePresence(user.id)
