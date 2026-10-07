@@ -251,7 +251,8 @@
         "vat": "İçerdiği KDV",
         "vendor": "Karşı taraf",
         "version": "Sürüm",
-        "weeklyHours": "Haftalık saat"
+        "weeklyHours": "Haftalık saat",
+        "newPassword": "Yeni şifre"
       },
       "hints": {
         "budgetProject": "Bir projenin tek bütçesi vardır: mevcut bütçenin üzerine kaydetmek onu günceller.",
@@ -261,7 +262,7 @@
         "invoiceNumber": "Numara benzersizdir ve müşteriye gider; bilerek değiştirin.",
         "invoiceVat": "Fatura tutarının bir parçası. Boş — KDV yok.",
         "lateMinutes": "Yalnızca gecikme cezası için — orada zorunlu.",
-        "loginEmail": "Giriş kullanıcı adı, sonradan değiştirilemez",
+        "loginEmail": "Giriş adı. Değiştirildikten sonra çalışan girişte yeni e-postayı kodla doğrular",
         "nextNumber": "Boş — sıradaki boş numara",
         "password": "En az 8 karakter",
         "paymentInvoice": "Ödeme faturayı tamamen kapatırsa sistem faturayı ödendi olarak işaretlemeyi önerir.",
@@ -269,7 +270,8 @@
         "period": "Boş — tarihteki ay.",
         "reference": "Ödeme banka ekstresinde bu numarayla bulunur.",
         "reviewDeadline": "Bu tarihe kadar karar verilmezse onay «Kapandı» durumunu alır",
-        "reviewVersion": "Görüşmeye açılan materyal"
+        "reviewVersion": "Görüşmeye açılan materyal",
+        "newPassword": "Değiştirmemek için boş bırakın. Şifreyi çalışana iletin — girişte kendi şifresiyle değiştirecek"
       },
       "invoice": {
         "createTitle": "Yeni fatura",

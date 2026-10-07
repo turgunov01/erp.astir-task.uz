@@ -44,7 +44,9 @@ export default {
   },
   employees: {
     emailTaken: '{email} pochtali foydalanuvchi allaqachon mavjud',
-    cannotDeleteSelf: 'O‘z hisobingizni o‘chirib bo‘lmaydi'
+    cannotDeleteSelf: 'O‘z hisobingizni o‘chirib bo‘lmaydi',
+    ownLoginHere: 'O‘z hisobingizning pochtasi va paroli bu yerda o‘zgartirilmaydi — parol profilda o‘zgartiriladi',
+    loginOutranked: 'Pochta va parolni faqat sizdan yuqori rolda bo‘lmaganlar uchun o‘zgartirish mumkin'
   },
   departments: {
     hasEmployees: 'Bo‘limda hali xodimlar bor: {count}. Avval ularni boshqa bo‘limga o‘tkazing.'

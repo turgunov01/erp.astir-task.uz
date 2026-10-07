@@ -422,7 +422,9 @@
         },
         "employee": {
           "updated": "changed an employee",
-          "email_verified_manually": "confirmed an employee’s email manually"
+          "email_verified_manually": "confirmed an employee’s email manually",
+          "login_email_changed": "changed an employee’s sign-in email",
+          "password_set": "set a new password for an employee"
         },
         "user": {
           "created": "created a user",

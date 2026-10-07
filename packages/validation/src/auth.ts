@@ -59,6 +59,15 @@ export const changePasswordSchema = z
     path: ['confirmPassword']
   })
 
+/**
+ * Replacing a password an administrator set. The current one is not asked
+ * for: it was typed seconds ago to open this very session, and only a
+ * session in that state may use this.
+ */
+export const setOwnPasswordSchema = z.object({
+  password: passwordSchema
+})
+
 /** Finishing a login that was stopped for email verification. */
 export const verifyCodeSchema = loginSchema.extend({
   code: z.string().trim().regex(/^[0-9]{6}$/, 'i18n:common.validation.codeSixDigits')

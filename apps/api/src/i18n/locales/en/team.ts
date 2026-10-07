@@ -44,7 +44,9 @@ export default {
   },
   employees: {
     emailTaken: 'A user with the email {email} already exists',
-    cannotDeleteSelf: 'You cannot delete your own account'
+    cannotDeleteSelf: 'You cannot delete your own account',
+    ownLoginHere: 'The email and password of your own account are not changed here — change your password in the profile',
+    loginOutranked: 'You can change the email and password only of people who do not outrank you'
   },
   departments: {
     hasEmployees: 'The department still has employees: {count}. Move them to another department first.'

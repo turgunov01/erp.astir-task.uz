@@ -422,7 +422,9 @@
         },
         "employee": {
           "updated": "çalışanı değiştirdi",
-          "email_verified_manually": "çalışanın e-postasını elle doğruladı"
+          "email_verified_manually": "çalışanın e-postasını elle doğruladı",
+          "login_email_changed": "bir çalışanın giriş e-postasını değiştirdi",
+          "password_set": "bir çalışan için yeni şifre belirledi"
         },
         "user": {
           "created": "bir kullanıcı oluşturdu",

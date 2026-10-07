@@ -3,6 +3,7 @@ import { sendItem, sendList, sendNoContent } from '../../lib/http'
 import { validatedQuery } from '../../middleware/validate'
 import { recordActivity, recordAudit } from '../../lib/activity'
 import * as service from './employees.service'
+import { notifyLoginChanges } from './login-change-email'
 
 export async function listHandler(req: Request, res: Response, next: NextFunction) {
   try {
@@ -41,7 +42,43 @@ export async function createHandler(req: Request, res: Response, next: NextFunct
 
 export async function updateHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const employee = await service.update(req.params.id as string, req.body)
+    const { employee, login } = await service.update(req.params.id as string, req.body, {
+      id: req.user?.id,
+      role: req.user?.role
+    })
+    // Login changes are security relevant: audited, shown in the feed, mailed.
+    if (login.previousEmail) {
+      await recordAudit({
+        actorId: req.user?.id,
+        action: 'user.email_changed',
+        entityType: 'Employee',
+        entityId: employee.id,
+        ipAddress: req.ip,
+        metadata: { from: login.previousEmail, to: employee.user.email }
+      })
+      await recordActivity({
+        actorId: req.user?.id,
+        entityType: 'Employee',
+        entityId: employee.id,
+        action: 'employee.login_email_changed'
+      })
+    }
+    if (login.passwordSet) {
+      await recordAudit({
+        actorId: req.user?.id,
+        action: 'user.password_set_by_manager',
+        entityType: 'Employee',
+        entityId: employee.id,
+        ipAddress: req.ip
+      })
+      await recordActivity({
+        actorId: req.user?.id,
+        entityType: 'Employee',
+        entityId: employee.id,
+        action: 'employee.password_set'
+      })
+    }
+    void notifyLoginChanges(employee.userId, login)
     // Role changes are security relevant and belong in the audit log (spec 50).
     if (req.body.role) {
       await recordAudit({

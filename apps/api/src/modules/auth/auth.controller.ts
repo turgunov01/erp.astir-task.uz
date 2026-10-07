@@ -102,6 +102,22 @@ export async function verifyCodeHandler(req: Request, res: Response, next: NextF
   }
 }
 
+/** Replace a password a manager set; the session carries on with the new one. */
+export async function setPasswordHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    if (!req.user) throw unauthenticated()
+    const user = await authService.setOwnPassword(
+      req.user.id, req.body.password, sessionContext(req)
+    )
+    return sendItem(res, {
+      user,
+      permissions: await effectivePermissions(user.role)
+    })
+  } catch (err) {
+    next(err)
+  }
+}
+
 export async function resendCodeHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await authService.resendLoginCode(req.body.email)

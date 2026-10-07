@@ -36,6 +36,8 @@ const errorMessage = ref('')
  */
 const step = ref<'credentials' | 'code'>('credentials')
 const code = ref('')
+/** A manager moved the login to this address: the step says so instead of "first login". */
+const emailChanged = ref(false)
 const notice = ref('')
 const resending = ref(false)
 /** When another code may be requested; the resend button counts down to it. */
@@ -67,6 +69,7 @@ async function onSubmit() {
       step.value = 'code'
       code.value = ''
       notice.value = ''
+      emailChanged.value = body.details?.emailChanged?.[0] === 'true'
       scheduleResend(Number(body.details?.retryAfter?.[0] ?? DEFAULT_RESEND_SECONDS))
       return
     }
@@ -122,10 +125,10 @@ function back() {
           </p>
           <template v-if="step === 'code'">
             <h1 class="mt-2 text-3xl font-semibold tracking-tight">
-              {{ t('auth.code.title') }}
+              {{ emailChanged ? t('auth.code.changedTitle') : t('auth.code.title') }}
             </h1>
             <p class="mt-2 text-sm text-muted-foreground">
-              {{ t('auth.code.subtitle') }}
+              {{ emailChanged ? t('auth.code.changedSubtitle') : t('auth.code.subtitle') }}
             </p>
           </template>
           <template v-else>
@@ -141,7 +144,7 @@ function back() {
         <form v-if="step === 'code'" class="space-y-5" @submit.prevent="onVerify">
           <!-- The address stays bold wherever the language puts it in the sentence. -->
           <i18n-t
-            keypath="auth.code.sentTo"
+            :keypath="emailChanged ? 'auth.code.changedSentTo' : 'auth.code.sentTo'"
             tag="p"
             scope="global"
             class="rounded-md border bg-secondary px-3 py-2.5 text-sm text-secondary-foreground"
@@ -188,7 +191,9 @@ function back() {
             class="w-full"
             :disabled="auth.pending || String(code).length !== 6"
           >
-            {{ auth.pending ? t('auth.code.submitting') : t('auth.code.submit') }}
+            {{ auth.pending
+              ? t('auth.code.submitting')
+              : emailChanged ? t('auth.code.changedSubmit') : t('auth.code.submit') }}
           </Button>
 
           <!--

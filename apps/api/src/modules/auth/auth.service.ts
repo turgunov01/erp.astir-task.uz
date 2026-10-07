@@ -1,7 +1,7 @@
 import bcrypt from 'bcryptjs'
 import { ERROR_CODE, type AuthUser } from '@astir/types'
 import { prisma } from '../../lib/prisma'
-import { AppError, invalidCredentials, forbidden, unauthenticated } from '../../lib/errors'
+import { AppError, badRequest, invalidCredentials, forbidden, unauthenticated } from '../../lib/errors'
 import { consumeLoginCode, issueLoginCode } from '../../lib/otp'
 import { notePresence } from '../attendance/presence'
 import { rememberUserLocale } from '../../lib/request-context'
@@ -39,7 +39,8 @@ const USER_FIELDS = {
   role: true,
   avatarUrl: true,
   clientId: true,
-  locale: true
+  locale: true,
+  mustChangePassword: true
 } as const
 
 async function issueSession(
@@ -78,7 +79,8 @@ export async function login(
       ...USER_FIELDS,
       passwordHash: true,
       isActive: true,
-      emailVerifiedAt: true
+      emailVerifiedAt: true,
+      emailChangedAt: true
     }
   })
 
@@ -100,12 +102,17 @@ export async function login(
    * session — only the fact that one was sent.
    */
   if (!record.emailVerifiedAt) {
-    const issued = await issueLoginCode(record)
+    // A manager moved the login here: the person is told so, not greeted as new.
+    const emailChanged = record.emailChangedAt !== null
+    const issued = await issueLoginCode(record, { emailChanged })
     throw new AppError(
       403,
       ERROR_CODE.EMAIL_NOT_VERIFIED,
-      t('auth.verifyEmailSent', { email: record.email }),
-      { retryAfter: [String(issued.retryAfter)] }
+      t(emailChanged ? 'auth.verifyChangedEmailSent' : 'auth.verifyEmailSent', { email: record.email }),
+      {
+        retryAfter: [String(issued.retryAfter)],
+        ...(emailChanged ? { emailChanged: ['true'] } : {})
+      }
     )
   }
 
@@ -113,6 +120,7 @@ export async function login(
     passwordHash: _hash,
     isActive: _active,
     emailVerifiedAt: _verified,
+    emailChangedAt: _changed,
     ...user
   } = record
 
@@ -200,7 +208,7 @@ export async function verifyLoginCode(
 ): Promise<SessionResult> {
   const record = await prisma.user.findFirst({
     where: { email, deletedAt: null },
-    select: { ...USER_FIELDS, passwordHash: true, isActive: true }
+    select: { ...USER_FIELDS, passwordHash: true, isActive: true, emailChangedAt: true }
   })
 
   const hash = record?.passwordHash ?? '$2a$12$invalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidin'
@@ -211,18 +219,24 @@ export async function verifyLoginCode(
 
   await consumeLoginCode(record.id, code)
 
-  const { passwordHash: _hash, isActive: _active, ...user } = record
+  const { passwordHash: _hash, isActive: _active, emailChangedAt, ...user } = record
 
   await prisma.$transaction([
     prisma.user.update({
       where: { id: user.id },
       // Verified and in use: the account is now fully active.
-      data: { emailVerifiedAt: new Date(), isActive: true, lastLoginAt: new Date() }
+      data: {
+        emailVerifiedAt: new Date(),
+        emailChangedAt: null,
+        isActive: true,
+        lastLoginAt: new Date()
+      }
     }),
     prisma.auditLog.create({
       data: {
         actorId: user.id,
-        action: 'auth.email_verified',
+        // The person confirmed the address a manager moved their login to.
+        action: emailChangedAt ? 'auth.email_change_confirmed' : 'auth.email_verified',
         entityType: 'User',
         entityId: user.id,
         ipAddress: context.ipAddress,
@@ -246,9 +260,51 @@ export async function verifyLoginCode(
 export async function resendLoginCode(email: string): Promise<{ retryAfter: number }> {
   const record = await prisma.user.findFirst({
     where: { email, deletedAt: null, emailVerifiedAt: null },
-    select: { id: true, email: true, firstName: true, locale: true }
+    select: { id: true, email: true, firstName: true, locale: true, emailChangedAt: true }
   })
   if (!record) return { retryAfter: 60 }
-  const issued = await issueLoginCode(record)
+  const issued = await issueLoginCode(record, { emailChanged: record.emailChangedAt !== null })
   return { retryAfter: issued.retryAfter }
+}
+
+/**
+ * Replace a password a manager set with one of the person's own.
+ *
+ * Only a session that is required to do this may: everyone else changes their
+ * password in the profile, where the current one is asked for. The new one
+ * must differ from the issued one, or the manager would still know it.
+ */
+export async function setOwnPassword(
+  userId: string,
+  password: string,
+  context: SessionContext
+): Promise<AuthUser> {
+  const record = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { passwordHash: true, mustChangePassword: true }
+  })
+  if (!record) throw unauthenticated(t('common.errors.accountGone'))
+  if (!record.mustChangePassword) throw badRequest(t('auth.account.passwordChangeNotRequired'))
+  if (await bcrypt.compare(password, record.passwordHash)) {
+    throw badRequest(t('auth.account.sameAsIssued'))
+  }
+
+  const [user] = await prisma.$transaction([
+    prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash: await hashPassword(password), mustChangePassword: false },
+      select: USER_FIELDS
+    }),
+    prisma.auditLog.create({
+      data: {
+        actorId: userId,
+        action: 'auth.issued_password_replaced',
+        entityType: 'User',
+        entityId: userId,
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent
+      }
+    })
+  ])
+  return user
 }

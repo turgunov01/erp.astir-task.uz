@@ -311,6 +311,12 @@ model User {
   /// is reset, so a session stolen before the reset dies at once instead of
   /// living out its 15 minutes.
   sessionsRevokedAt DateTime?
+  /// An administrator set this password, so the person must replace it with
+  /// one only they know before the session lets them do anything else.
+  mustChangePassword Boolean @default(false)
+  /// When an administrator moved the login to a new address. Set until the
+  /// person proves the new address with the emailed code at their next login.
+  emailChangedAt DateTime?
   /// The language this person reads the interface, letters and exports in.
   /// Empty means the studio default (StudioSettings.defaultLocale).
   locale       Locale?
