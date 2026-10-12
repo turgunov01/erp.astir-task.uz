@@ -76,6 +76,7 @@ export default {
     minItems: 'En az {limit} tane seçin',
     maxItems: 'En fazla {limit} tane',
     timeFormat: 'Saat SS:DD biçiminde olmalı',
+    hexColor: 'Renk #RRGGBB biçiminde olmalı',
     passwordsMismatch: 'Şifreler eşleşmiyor',
     codeSixDigits: 'Kod altı haneden oluşur',
     commentEmpty: 'Yorum boş olamaz',

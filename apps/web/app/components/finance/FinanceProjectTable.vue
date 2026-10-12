@@ -64,10 +64,10 @@ const TH = 'px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-
       <tbody class="divide-y">
         <tr v-for="row in rows" :key="row.id" class="hover:bg-secondary/40">
           <td class="px-4 py-3">
-            <NuxtLink :to="'/projects/' + row.id" class="font-medium hover:underline">{{ row.code }}</NuxtLink>
+            <NuxtLink :to="'/projects/' + row.id" class="font-medium hover:underline">{{ row.name }}</NuxtLink>
             <span class="ml-1.5 text-xs text-muted-foreground">{{ row.currency }}</span>
-            <p class="mt-0.5 max-w-64 truncate text-xs text-muted-foreground" :title="row.name">
-              {{ row.name }}<template v-if="row.client"> · {{ row.client.name }}</template>
+            <p class="mt-0.5 max-w-64 truncate text-xs text-muted-foreground" :title="row.code">
+              {{ row.code }}<template v-if="row.client"> · {{ row.client.name }}</template>
             </p>
           </td>
           <td class="px-4 py-3 text-right tabular-nums">

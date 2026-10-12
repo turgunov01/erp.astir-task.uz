@@ -41,7 +41,7 @@ export function monthsBetween(from: string, to: string): string[] {
 export interface OverviewInput {
   from: string
   to: string
-  user: { id: string, role: Role }
+  user: { id: string, role: Role, customRoleId: string | null }
 }
 
 interface CurrencyKpi {
@@ -206,7 +206,7 @@ async function invoiceWatch(now: Date) {
     id: true, number: true, amount: true, currency: true, status: true,
     issuedAt: true, dueDate: true,
     client: { select: { id: true, name: true } },
-    project: { select: { id: true, code: true } }
+    project: { select: { id: true, code: true, name: true } }
   } as const
   const [overdue, upcoming, upcomingCount] = await Promise.all([
     prisma.invoice.findMany({
@@ -249,7 +249,7 @@ async function invoiceWatch(now: Date) {
  * whole period. Read only, and only for callers allowed to see everyone's pay.
  */
 async function payrollBlock(months: string[], user: OverviewInput['user']) {
-  if (!(await hasPermission(user.role, PERMISSION.PAYROLL_VIEW))) return null
+  if (!(await hasPermission(user, PERMISSION.PAYROLL_VIEW))) return null
   const current = new Date().toISOString().slice(0, 7)
   const month = months.filter(key => key <= current).at(-1) ?? current
 

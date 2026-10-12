@@ -71,7 +71,7 @@ interface ReviewRow {
     label: string
     status: string
     uploadedBy: { firstName: string, lastName: string } | null
-    project: { id: string, code: string } | null
+    project: { id: string, code: string, name: string } | null
     shot: { id: string, code: string } | null
   }
 }
@@ -88,7 +88,7 @@ const counts = computed(() => {
   return map
 })
 
-const { data: projectData } = useFetch<{ data: Array<{ id: string, code: string }> }>(
+const { data: projectData } = useFetch<{ data: Array<{ id: string, code: string, name: string }> }>(
   '/api/projects',
   { query: { limit: 100 }, credentials: 'include', default: () => ({ data: [] }) }
 )
@@ -197,7 +197,7 @@ function daysWaiting(value: string) {
           @change="page = 1"
         >
           <option value="">{{ t('production.reviews.allProjects') }}</option>
-          <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.code }}</option>
+          <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.name }}</option>
         </select>
       </template>
 
@@ -221,7 +221,7 @@ function daysWaiting(value: string) {
           :to="'/projects/' + row.version.project.id"
           class="hover:underline"
         >
-          {{ row.version.project.code }}
+          {{ row.version.project.name }}
         </NuxtLink>
         <span v-else class="text-muted-foreground">—</span>
       </template>

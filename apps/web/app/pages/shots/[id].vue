@@ -121,7 +121,7 @@ function frameRange(target: ShotDetail) {
         <div class="min-w-0">
           <p class="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
             <NuxtLink v-if="shot.project" :to="'/projects/' + shot.project.id" class="hover:text-foreground hover:underline">
-              {{ shot.project.code }}
+              {{ shot.project.name }}
             </NuxtLink>
             <template v-if="shot.episode">
               <span>/</span><span>EP{{ String(shot.episode.number).padStart(2, '0') }}</span>

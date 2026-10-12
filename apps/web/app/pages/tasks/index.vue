@@ -94,7 +94,7 @@ interface TaskRow {
   status: string
   priority: string
   deadline: string | null
-  project: { id: string, code: string } | null
+  project: { id: string, code: string, name: string } | null
   shot: { id: string, code: string } | null
   stage: { id: string, name: string } | null
   assignee: { id: string, firstName: string, lastName: string } | null
@@ -106,7 +106,7 @@ const { items, meta, pending, errorMessage, refresh } =
 
 // Lookup lists are not awaited: they start alongside the task list and SSR
 // still waits for them, but nothing here blocks on one before the next.
-const { data: projectData } = useFetch<{ data: Array<{ id: string, code: string }> }>(
+const { data: projectData } = useFetch<{ data: Array<{ id: string, code: string, name: string }> }>(
   '/api/projects',
   { query: { limit: 100 }, credentials: 'include', default: () => ({ data: [] }) }
 )
@@ -152,7 +152,7 @@ async function onCreated(id: string) {
 
 function formatDate(value: string | null) {
   if (!value) return '—'
-  return new Date(value).toLocaleDateString(intlTag(), { day: '2-digit', month: 'short' })
+  return formatDay(value)
 }
 
 function isOverdue(row: TaskRow) {
@@ -237,7 +237,7 @@ function isOverdue(row: TaskRow) {
           @change="page = 1; updateQuery({ projectId: projectId || undefined })"
         >
           <option value="">{{ t('production.tasks.filters.allProjects') }}</option>
-          <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.code }}</option>
+          <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.name }}</option>
         </select>
 
         <select
@@ -290,7 +290,7 @@ function isOverdue(row: TaskRow) {
 
       <template #cell-project="{ row }">
         <NuxtLink v-if="row.project" :to="'/projects/' + row.project.id" class="hover:underline">
-          {{ row.project.code }}
+          {{ row.project.name }}
         </NuxtLink>
         <span v-else class="text-muted-foreground">—</span>
       </template>

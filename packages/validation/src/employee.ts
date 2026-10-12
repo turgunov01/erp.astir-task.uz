@@ -16,6 +16,8 @@ export const createEmployeeSchema = z.object({
   lastName: z.string().trim().min(1).max(80),
   password: z.string().min(8).max(128),
   role: z.enum(ROLE).default('ARTIST'),
+  /** A studio role; when set, the base role is taken from it instead. */
+  customRoleId: uuidSchema.optional().nullable(),
 
   departmentId: uuidSchema.optional().nullable(),
   position: z.string().trim().min(2).max(120),
@@ -34,6 +36,7 @@ export const updateEmployeeSchema = z.object({
   firstName: z.string().trim().min(1).max(80).optional(),
   lastName: z.string().trim().min(1).max(80).optional(),
   role: z.enum(ROLE).optional(),
+  customRoleId: uuidSchema.optional().nullable(),
   departmentId: uuidSchema.optional().nullable(),
   position: z.string().trim().min(2).max(120).optional(),
   employmentType: z.enum(EMPLOYMENT_TYPE).optional(),

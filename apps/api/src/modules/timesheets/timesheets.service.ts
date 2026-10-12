@@ -245,7 +245,7 @@ export async function workload() {
         deadline: true,
         estimatedHours: true,
         assigneeId: true,
-        project: { select: { id: true, code: true } }
+        project: { select: { id: true, code: true, name: true } }
       },
       orderBy: { deadline: 'asc' }
     }),

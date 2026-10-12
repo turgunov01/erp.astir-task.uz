@@ -314,7 +314,7 @@ function toDateInput(value: string | null) {
             :to="'/projects/' + task.project.id"
             class="truncate hover:text-foreground hover:underline"
           >
-            {{ task.project.code }}
+            {{ task.project.name }}
           </NuxtLink>
           <NuxtLink
             v-if="task?.shot"

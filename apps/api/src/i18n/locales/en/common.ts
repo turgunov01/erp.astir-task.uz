@@ -76,6 +76,7 @@ export default {
     minItems: 'Choose at least {limit}',
     maxItems: 'No more than {limit}',
     timeFormat: 'Expected time as HH:MM',
+    hexColor: 'Expected a colour as #RRGGBB',
     passwordsMismatch: 'Passwords do not match',
     codeSixDigits: 'The code is six digits',
     commentEmpty: 'A comment cannot be empty',

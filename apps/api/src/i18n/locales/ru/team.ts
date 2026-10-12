@@ -39,6 +39,12 @@ export default {
     selfLockout: 'Нельзя лишить собственную роль доступа к настройкам и управлению правами',
     beyondOwnRole: 'Нельзя выдать права, которых нет у вашей роли: {permissions}',
     beyondRoleCeiling: 'Этой роли нельзя выдать: {permissions}',
+    unknownPermissions: 'Неизвестные права: {permissions}',
+    roleNameTaken: 'Роль «{name}» уже существует',
+    customRoleOwnerBase: 'Свою роль нельзя построить на роли владельца',
+    customRoleBaseOutranks: 'Нельзя создать или назначить роль на основе роли выше вашей',
+    customRoleBeyondYours: 'Нельзя назначить роль с правами, которых нет у вас: {permissions}',
+    customRoleOwnInUse: 'Нельзя удалить роль, которая назначена вам самим',
     noEmailForType: 'Для этого типа уведомлений письма не отправляются'
   },
   employees: {

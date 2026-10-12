@@ -40,6 +40,12 @@ export default {
     selfLockout: 'You cannot take settings and permission management away from your own role',
     beyondOwnRole: 'You cannot grant permissions your own role does not have: {permissions}',
     beyondRoleCeiling: 'This role cannot be granted: {permissions}',
+    unknownPermissions: 'Unknown permissions: {permissions}',
+    roleNameTaken: 'A role named "{name}" already exists',
+    customRoleOwnerBase: 'A custom role cannot be based on the owner role',
+    customRoleBaseOutranks: 'You cannot create or assign a role based on a role above yours',
+    customRoleBeyondYours: 'You cannot assign a role with permissions you do not have: {permissions}',
+    customRoleOwnInUse: 'You cannot delete the role assigned to yourself',
     noEmailForType: 'No emails are sent for this type of notification'
   },
   employees: {

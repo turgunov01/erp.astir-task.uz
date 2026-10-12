@@ -10,6 +10,9 @@ const brand = useBrand()
 useHead({
   titleTemplate: title => (title ? title + ' — ' + brand.value.name : brand.value.name)
 })
+
+// Font, size, colours and colour mode from Settings → «Оформление».
+useAppearanceHead()
 </script>
 
 <template>

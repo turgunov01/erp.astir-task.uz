@@ -61,10 +61,26 @@ export interface AuthUser {
   firstName: string
   lastName: string
   role: import('./enums').Role
+  /** A studio-defined role; when set, its permissions replace the base role's. */
+  customRoleId: string | null
   avatarUrl: string | null
   clientId: string | null
   /** Own interface language; null means the studio default. */
   locale: import('./i18n').Locale | null
   /** An administrator set the password; the person must choose their own first. */
   mustChangePassword: boolean
+}
+
+/** A role the studio defined in Settings on top of one of the built-in ones. */
+export interface CustomRole {
+  id: string
+  name: string
+  description: string | null
+  /** The built-in role every hard-coded check keeps reading. Never OWNER. */
+  baseRole: import('./enums').Role
+  permissions: import('./rbac').Permission[]
+  createdAt: string
+  updatedAt: string
+  /** How many accounts hold it, for the list and the delete warning. */
+  userCount?: number
 }

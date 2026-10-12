@@ -230,8 +230,8 @@ function bar(task: TimelineTask) {
 
 function barTitle(task: TimelineTask) {
   const parts = [task.title, enumLabel(TASK_STATUS_LABEL, task.status)]
-  if (task.startDate) parts.push(t('projects.timeline.fromDate', { date: fullDay(task.startDate) }))
-  if (task.deadline) parts.push(t('projects.timeline.untilDate', { date: fullDay(task.deadline) }))
+  if (task.startDate) parts.push(t('projects.timeline.fromDate', { date: formatDay(task.startDate) }))
+  if (task.deadline) parts.push(t('projects.timeline.untilDate', { date: formatDay(task.deadline) }))
   parts.push(personName(task.assignee))
   if (isLate(task, today)) parts.push(t('projects.timeline.lateTask'))
   return parts.join(' · ')
@@ -387,7 +387,7 @@ watch(() => [props.scale, axis.value.start.getTime()], () => nextTick(scrollToTo
                 :key="item.id"
                 class="absolute top-1/2 z-10 flex -translate-y-1/2 items-center gap-1.5"
                 :style="{ left: x(item.due) + px / 2 - 6 + 'px' }"
-                :title="item.code + ' · ' + item.name + ' · ' + fullDay(item.dueDate)"
+                :title="item.code + ' · ' + item.name + ' · ' + formatDay(item.dueDate)"
               >
                 <span
                   class="size-3 shrink-0 rotate-45 rounded-[2px] ring-2 ring-card"

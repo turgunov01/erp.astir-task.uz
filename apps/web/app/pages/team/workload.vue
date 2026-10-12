@@ -13,7 +13,7 @@ interface WorkloadTask {
   status: string
   deadline: string | null
   estimatedHours: number | null
-  project: { id: string, code: string } | null
+  project: { id: string, code: string, name: string } | null
 }
 
 interface WorkloadRow {

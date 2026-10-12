@@ -2,8 +2,8 @@ import { Router } from 'express'
 import { z } from 'zod'
 import bcrypt from 'bcryptjs'
 import type { Prisma } from '@prisma/client'
-import { idParamSchema, listQuerySchema, passwordSchema as newPasswordSchema } from '@astir/validation'
-import { LOCALES, PERMISSION, ROLE_PERMISSIONS } from '@astir/types'
+import { idParamSchema, listQuerySchema, passwordSchema as newPasswordSchema, uuidSchema } from '@astir/validation'
+import { LOCALES, PERMISSION, ROLE_PERMISSIONS, type Role } from '@astir/types'
 import { authenticate, requirePermission } from '../../middleware/auth'
 import { validate, validatedQuery } from '../../middleware/validate'
 import { badRequest, notFound } from '../../lib/errors'
@@ -11,6 +11,7 @@ import { buildMeta, sendItem, sendList, toSkipTake } from '../../lib/http'
 import { prisma } from '../../lib/prisma'
 import { recordActivity, recordAudit } from '../../lib/activity'
 import { t } from '../../i18n'
+import { resolveRoleAssignment } from '../settings/custom-roles.service'
 
 /**
  * Accounts, as distinct from employment records.
@@ -32,6 +33,7 @@ const accountSelect = {
   firstName: true,
   lastName: true,
   role: true,
+  customRole: { select: { id: true, name: true } },
   phone: true,
   avatarUrl: true,
   locale: true,
@@ -173,6 +175,8 @@ usersRouter.get(
 
 const updateAccountSchema = z.object({
   role: z.enum(ROLES).optional(),
+  /** A studio role; its base role replaces whatever `role` says. */
+  customRoleId: uuidSchema.optional().nullable(),
   isActive: z.boolean().optional(),
   /** Confirm the address by hand, for a studio whose mail is not wired up. */
   emailVerified: z.boolean().optional()
@@ -189,13 +193,22 @@ usersRouter.patch(
       const before = await prisma.user.findUnique({ where: { id } })
       if (!before) throw notFound('User')
 
+      if (!req.user) throw badRequest(t('common.errors.sessionNotFound'))
+      const assignment = await resolveRoleAssignment(
+        { role: req.body.role as Role | undefined, customRoleId: req.body.customRoleId },
+        req.user
+      )
+      const roleChanges =
+        (assignment.role !== undefined && assignment.role !== before.role) ||
+        (assignment.customRoleId !== undefined && assignment.customRoleId !== before.customRoleId)
+
       /*
        * An administrator must not be able to demote or switch off the account
        * they are signed in with: the result is a system nobody can put back,
        * and it is always a slip rather than an intention.
        */
-      if (id === req.user?.id) {
-        if (req.body.role && req.body.role !== before.role) {
+      if (id === req.user.id) {
+        if (roleChanges) {
           throw badRequest(t('auth.account.cannotChangeOwnRole'))
         }
         if (req.body.isActive === false) {
@@ -204,7 +217,12 @@ usersRouter.patch(
       }
 
       const data: Prisma.UserUpdateInput = {}
-      if (req.body.role) data.role = req.body.role
+      if (assignment.role) data.role = assignment.role
+      if (assignment.customRoleId !== undefined) {
+        data.customRole = assignment.customRoleId
+          ? { connect: { id: assignment.customRoleId } }
+          : { disconnect: true }
+      }
       if (req.body.isActive !== undefined) data.isActive = req.body.isActive
       if (req.body.emailVerified !== undefined) {
         data.emailVerifiedAt = req.body.emailVerified ? new Date() : null
@@ -216,13 +234,17 @@ usersRouter.patch(
 
       // Reuses the action names the feed already knows, so an account change
       // reads the same whether it came from here or from the employees screen.
-      if (req.body.role && req.body.role !== before.role) {
+      if (roleChanges) {
         await recordActivity({
           actorId: req.user?.id,
           action: 'user.role_changed',
           entityType: 'User',
           entityId: id,
-          metadata: { from: before.role, to: req.body.role }
+          metadata: {
+            from: before.role,
+            to: user.role,
+            ...(user.customRole ? { customRole: user.customRole.name } : {})
+          }
         })
       }
       if (req.body.isActive === false && before.isActive) {

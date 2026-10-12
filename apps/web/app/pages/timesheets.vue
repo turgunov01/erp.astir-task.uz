@@ -407,7 +407,7 @@ function who(row: EntryRow) {
           @change="page = 1"
         >
           <option value="">{{ t('team.allProjects') }}</option>
-          <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.code }}</option>
+          <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.name }}</option>
         </select>
         <input
           v-model="from"
@@ -438,7 +438,7 @@ function who(row: EntryRow) {
 
       <template #cell-project="{ row }">
         <NuxtLink v-if="row.project" :to="'/projects/' + row.project.id" class="hover:underline">
-          {{ row.project.code }}
+          {{ row.project.name }}
         </NuxtLink>
         <span v-else class="text-muted-foreground">—</span>
       </template>

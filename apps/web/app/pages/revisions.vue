@@ -63,7 +63,7 @@ interface RevisionRow {
   status: string
   priority: string
   deadline: string | null
-  project: { id: string, code: string } | null
+  project: { id: string, code: string, name: string } | null
   shot: { id: string, code: string } | null
   task: { id: string, title: string } | null
   requestedBy: { firstName: string, lastName: string } | null
@@ -79,7 +79,7 @@ const { data: countData, refresh: refreshCounts } = useFetch<{
 
 const counts = computed(() => new Map((countData.value?.data ?? []).map(r => [r.status, r.count])))
 
-const { data: projectData } = useFetch<{ data: Array<{ id: string, code: string }> }>(
+const { data: projectData } = useFetch<{ data: Array<{ id: string, code: string, name: string }> }>(
   '/api/projects',
   { query: { limit: 100 }, credentials: 'include', default: () => ({ data: [] }) }
 )
@@ -122,7 +122,7 @@ async function changeStatus(row: RevisionRow, status: string) {
 
 function formatDate(value: string | null) {
   if (!value) return '—'
-  return new Intl.DateTimeFormat(intlTag(), { day: '2-digit', month: 'short' }).format(new Date(value))
+  return formatDay(value)
 }
 
 function isOverdue(row: RevisionRow) {
@@ -204,7 +204,7 @@ function isOverdue(row: RevisionRow) {
           @change="page = 1"
         >
           <option value="">{{ t('production.revisions.allProjects') }}</option>
-          <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.code }}</option>
+          <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.name }}</option>
         </select>
       </template>
 
@@ -230,7 +230,7 @@ function isOverdue(row: RevisionRow) {
 
       <template #cell-project="{ row }">
         <NuxtLink v-if="row.project" :to="'/projects/' + row.project.id" class="hover:underline">
-          {{ row.project.code }}
+          {{ row.project.name }}
         </NuxtLink>
         <span v-else class="text-muted-foreground">—</span>
       </template>

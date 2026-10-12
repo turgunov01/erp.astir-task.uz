@@ -134,7 +134,7 @@ const STATUSES = Object.values(PRODUCTION_STATUS)
           @change="page = 1"
         >
           <option value="">{{ t('production.shots.filters.allProjects') }}</option>
-          <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.code }}</option>
+          <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.name }}</option>
         </select>
         <select
           v-model="status"
@@ -158,7 +158,7 @@ const STATUSES = Object.values(PRODUCTION_STATUS)
 
       <template #cell-project="{ row }">
         <NuxtLink v-if="row.project" :to="'/projects/' + row.project.id" class="hover:underline">
-          {{ row.project.code }}
+          {{ row.project.name }}
         </NuxtLink>
         <span v-else class="text-muted-foreground">—</span>
       </template>

@@ -137,7 +137,7 @@ const columns = computed<Column[]>(() => [
           :to="'/projects/' + row.project.id"
           class="font-medium hover:underline"
         >
-          {{ row.project.code }} · {{ row.project.name }}
+          {{ row.project.name }}
         </NuxtLink>
         <span v-else class="text-muted-foreground">—</span>
         <span class="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">

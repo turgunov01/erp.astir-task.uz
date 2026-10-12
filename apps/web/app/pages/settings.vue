@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { apiErrorMessage, apiRequest, useListResource } from '~/composables/useApi'
-import { DEFAULT_LOCALE, LOCALE_COOKIE, PERMISSION, ROLE, type Locale, type Permission } from '@astir/types'
+import { DEFAULT_LOCALE, LOCALE_COOKIE, PERMISSION, ROLE, type CustomRole, type Locale, type Permission } from '@astir/types'
 import LocaleSelect from '~/components/locale/LocaleSelect.vue'
+import CustomRoles from '~/components/settings/CustomRoles.vue'
 import RoleMatrix from '~/components/settings/RoleMatrix.vue'
 import WorkSchedule from '~/components/settings/WorkSchedule.vue'
+import AppearanceSettings from '~/components/settings/AppearanceSettings.vue'
+import DepartmentsManager from '~/components/team/DepartmentsManager.vue'
 import { useAuthStore } from '~/stores/auth'
 
 const { t, locale, setLocale } = useI18n()
@@ -28,11 +31,13 @@ interface SettingsTab {
 /** Tabs live in the URL so a link can point at the one being discussed. */
 const TABS: SettingsTab[] = [
   { key: 'studio' },
+  { key: 'appearance' },
   { key: 'schedule' },
   { key: 'mail' },
   { key: 'templates' },
   { key: 'users', permission: PERMISSION.USER_MANAGE },
-  { key: 'roles', permission: PERMISSION.PERMISSION_MANAGE }
+  { key: 'roles', permission: PERMISSION.PERMISSION_MANAGE },
+  { key: 'departments', permission: PERMISSION.TEAM_MANAGE }
 ]
 
 const canEditRoles = computed(() => auth.can(PERMISSION.PERMISSION_MANAGE))
@@ -107,6 +112,7 @@ async function save(fields: string[]) {
       name: response.data.name,
       logoUrl: response.data.logoUrl ?? null,
       defaultLocale: response.data.defaultLocale ?? DEFAULT_LOCALE,
+      appearance: brand.value.appearance,
       loaded: true
     }
     // Someone with no language of their own (account or this browser) sees the new default at once.
@@ -254,6 +260,8 @@ interface Account {
   firstName: string
   lastName: string
   role: string
+  /** A studio role on top of the base one, shown instead of it. */
+  customRole: { id: string, name: string } | null
   isActive: boolean
   emailVerifiedAt: string | null
   lastLoginAt: string | null
@@ -286,6 +294,31 @@ async function updateAccount(row: Account, body: Record<string, unknown>) {
 
 const ROLES = Object.values(ROLE)
 const isSelf = (row: Account) => row.id === auth.user?.id
+
+/*
+ * One picker for both kinds of role. A studio role is told apart by its
+ * prefix; picking it sends customRoleId and the API takes the base role from
+ * it, picking a built-in role drops whatever studio role the person had.
+ */
+const CUSTOM_PREFIX = 'custom:'
+
+const { data: customRoleData } = useFetch<{ data: CustomRole[] }>('/api/settings/roles', {
+  credentials: 'include',
+  default: () => ({ data: [] }),
+  immediate: canManageUsers.value
+})
+const customRoles = computed(() => customRoleData.value?.data ?? [])
+
+function roleValue(row: Account) {
+  return row.customRole ? CUSTOM_PREFIX + row.customRole.id : row.role
+}
+
+function changeRole(row: Account, value: string) {
+  const body = value.startsWith(CUSTOM_PREFIX)
+    ? { customRoleId: value.slice(CUSTOM_PREFIX.length) }
+    : { role: value, customRoleId: null }
+  return updateAccount(row, body)
+}
 </script>
 
 <template>
@@ -391,6 +424,9 @@ const isSelf = (row: Account) => row.id === auth.user?.id
         {{ saving ? t('common.actions.saving') : t('common.actions.save') }}
       </button>
     </section>
+
+    <!-- ------------------------------------------------------- appearance -->
+    <AppearanceSettings v-else-if="tab === 'appearance'" :can-manage="canManage" />
 
     <!-- --------------------------------------------------------- schedule -->
     <WorkSchedule v-else-if="tab === 'schedule'" :can-manage="canManage" />
@@ -589,15 +625,28 @@ const isSelf = (row: Account) => row.id === auth.user?.id
               </td>
               <td class="px-5 py-3">
                 <select
-                  :value="row.role"
+                  :value="roleValue(row)"
                   :disabled="!canManageUsers || isSelf(row) || accountBusy === row.id"
                   :aria-label="t('team.settings.users.roleAria', { name: row.firstName + ' ' + row.lastName })"
                   class="h-8 rounded-md border bg-background px-2 text-sm outline-none focus:border-ring disabled:opacity-60"
-                  @change="updateAccount(row, { role: ($event.target as HTMLSelectElement).value })"
+                  @change="changeRole(row, ($event.target as HTMLSelectElement).value)"
                 >
-                  <option v-for="role in ROLES" :key="role" :value="role">
-                    {{ enumLabel(ROLE_LABEL, role) }}
-                  </option>
+                  <optgroup :label="t('team.settings.users.builtInRoles')">
+                    <option v-for="role in ROLES" :key="role" :value="role">
+                      {{ enumLabel(ROLE_LABEL, role) }}
+                    </option>
+                  </optgroup>
+                  <optgroup v-if="customRoles.length > 0 || row.customRole" :label="t('team.settings.users.customRoles')">
+                    <option v-for="custom in customRoles" :key="custom.id" :value="CUSTOM_PREFIX + custom.id">
+                      {{ custom.name }}
+                    </option>
+                    <option
+                      v-if="row.customRole && !customRoles.some(custom => custom.id === row.customRole?.id)"
+                      :value="CUSTOM_PREFIX + row.customRole.id"
+                    >
+                      {{ row.customRole.name }}
+                    </option>
+                  </optgroup>
                 </select>
               </td>
               <td class="px-5 py-3">
@@ -645,8 +694,17 @@ const isSelf = (row: Account) => row.id === auth.user?.id
 
     </section>
 
-    <section v-else-if="tab === 'roles'">
+    <section v-else-if="tab === 'roles'" class="space-y-8">
+      <CustomRoles :can-edit="canEditRoles" />
       <RoleMatrix :can-edit="canEditRoles" />
+    </section>
+
+    <!-- ------------------------------------------------------ departments -->
+    <section v-else-if="tab === 'departments'" class="space-y-4">
+      <p class="rounded-lg border bg-card px-4 py-3 text-sm text-muted-foreground">
+        {{ t('team.settings.departmentsIntro') }}
+      </p>
+      <DepartmentsManager />
     </section>
 
     <ConfirmDialog

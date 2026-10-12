@@ -40,6 +40,12 @@ export default {
     selfLockout: 'O‘z rolingizni sozlamalar va huquqlarni boshqarishdan mahrum qilib bo‘lmaydi',
     beyondOwnRole: 'Rolingizda yo‘q huquqlarni berib bo‘lmaydi: {permissions}',
     beyondRoleCeiling: 'Bu rolga quyidagilarni berib bo‘lmaydi: {permissions}',
+    unknownPermissions: 'Noma’lum huquqlar: {permissions}',
+    roleNameTaken: '«{name}» nomli rol allaqachon mavjud',
+    customRoleOwnerBase: 'Maxsus rolni egasi roli asosida yaratib bo‘lmaydi',
+    customRoleBaseOutranks: 'Sizdan yuqori rol asosidagi rolni yaratib yoki tayinlab bo‘lmaydi',
+    customRoleBeyondYours: 'Sizda yo‘q huquqlarga ega rolni tayinlab bo‘lmaydi: {permissions}',
+    customRoleOwnInUse: 'O‘zingizga tayinlangan rolni o‘chirib bo‘lmaydi',
     noEmailForType: 'Bu turdagi bildirishnomalar uchun xat yuborilmaydi'
   },
   employees: {

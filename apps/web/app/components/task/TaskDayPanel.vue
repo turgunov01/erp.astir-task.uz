@@ -21,7 +21,7 @@ interface Task {
   status: string
   priority: string
   deadline: string | null
-  project: { id: string, code: string } | null
+  project: { id: string, code: string, name: string } | null
   shot: { id: string, code: string } | null
   assignee: { id: string, firstName: string, lastName: string } | null
 }
@@ -135,7 +135,7 @@ const overdueCount = computed(() =>
           <span class="min-w-0 flex-1">
             <span class="block text-sm font-medium leading-snug">{{ task.title }}</span>
             <span class="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
-              <span v-if="task.project">{{ task.project.code }}</span>
+              <span v-if="task.project">{{ task.project.name }}</span>
               <span v-if="task.shot" class="font-mono">{{ task.shot.code }}</span>
               <span v-if="task.assignee">
                 {{ task.assignee.firstName }} {{ task.assignee.lastName }}

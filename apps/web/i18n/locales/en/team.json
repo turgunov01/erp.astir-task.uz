@@ -51,11 +51,13 @@
       "saveFailed": "Could not save the settings",
       "tabs": {
         "studio": "Studio",
+        "appearance": "Appearance",
         "schedule": "Work schedule",
         "mail": "Email",
         "templates": "Pipeline templates",
         "users": "Users",
-        "roles": "Roles and access"
+        "roles": "Roles and access",
+        "departments": "Departments"
       },
       "studio": {
         "name": "Studio name",
@@ -70,6 +72,56 @@
         "invoicePrefixHint": "For example, INV- gives INV-0001.",
         "defaultLanguage": "Default language",
         "defaultLanguageHint": "For everyone who has not picked a language in their profile, and for the sign-in page, emails and exports."
+      },
+      "appearance": {
+        "intro": "Font, text size, colours and corner radius for everyone, the sign-in page included. The preview changes as you edit; everyone else sees it after you save.",
+        "font": "Font",
+        "fontHint": "Every font covers Cyrillic and Latin. Web fonts load from Google Fonts only when selected.",
+        "fontSystem": "System",
+        "fontSample": "Съешь же ещё этих мягких булок — Quick brown fox",
+        "fontSize": "Text size",
+        "fontSizeHint": "Scales the whole interface: text, spacing, buttons. Default is {size} px.",
+        "px": "{size} px",
+        "radius": "Corner radius",
+        "radiusHint": "Cards, buttons and inputs. Default is {size} px.",
+        "primaryColor": "Primary colour",
+        "primaryColorHint": "Buttons, active tabs, highlights and the focus ring. Text on it is picked for contrast automatically.",
+        "signalColor": "Accent colour",
+        "signalColorHint": "Production signals: “at risk”, “awaiting review”.",
+        "builtIn": "Default",
+        "useBuiltIn": "Use default",
+        "hexAria": "{name}: hex code",
+        "hexInvalid": "A colour as #RRGGBB, e.g. #2563EB",
+        "preset": "Colour {color}",
+        "lowContrast": "This colour barely stands out from a light background: buttons and highlights will be hard to see.",
+        "colorMode": "Theme",
+        "colorModeHint": "The default theme for everyone. “Match system” follows each person’s device setting.",
+        "modes": {
+          "light": "Light",
+          "dark": "Dark",
+          "system": "Match system"
+        },
+        "preview": "Preview",
+        "previewHint": "This is how the interface will look once saved.",
+        "sample": {
+          "title": "“Dawn” series, episode 4",
+          "text": "Storyboard approved, animation in progress.",
+          "badge": "Awaiting review",
+          "input": "Search tasks",
+          "primary": "Save",
+          "secondary": "Cancel",
+          "task": "Task",
+          "status": "Status",
+          "rowOne": "Scene 12 animation",
+          "inProgress": "In progress",
+          "rowTwo": "Colour grading",
+          "atRisk": "At risk"
+        },
+        "saved": "Appearance saved and already applied.",
+        "resetDone": "Appearance reset to the defaults.",
+        "saveFailed": "Could not save the appearance",
+        "discard": "Discard changes",
+        "reset": "Reset to defaults"
       },
       "mail": {
         "testFailed": "The test failed",
@@ -127,8 +179,11 @@
         "enable": "Enable",
         "self": "this is you",
         "active": "active",
-        "disabled": "disabled"
-      }
+        "disabled": "disabled",
+        "builtInRoles": "Standard roles",
+        "customRoles": "Custom roles"
+      },
+      "departmentsIntro": "Departments group employees by speciality and are used in production stages. The same list opens in the Team section."
     },
     "eyebrow": "Team",
     "planningEyebrow": "Planning",
@@ -444,6 +499,37 @@
       "reset": "reset",
       "everything": "everything",
       "groupAria": "The whole “{group}” section for {role}"
+    },
+    "customRoles": {
+      "title": "Custom roles",
+      "intro": "A role with its own name and its own set of permissions — say, \"Editor\" or \"Senior animator\". Each one is built on a standard role, which decides restrictions such as the client portal, while the role's permissions fully replace the base role's. Assign it in Users or on the employee card.",
+      "create": "Create role",
+      "loadFailed": "Could not load the roles.",
+      "newTitle": "New role",
+      "editTitle": "Edit role",
+      "name": "Name",
+      "namePlaceholder": "For example, Editor",
+      "baseRole": "Base role",
+      "baseRoleHint": "Decides how the system treats the person: a client sees only their own projects, an administrator can reset other people's passwords.",
+      "description": "Description",
+      "permissions": "Permissions",
+      "permissionCount": "{n} permission | {n} permissions",
+      "copyBase": "Use the permissions of \"{role}\"",
+      "groupAria": "The whole \"{group}\" section",
+      "saved": "Role \"{name}\" saved. People will see the change the next time a page loads.",
+      "saveFailed": "Could not save the role",
+      "deleted": "Role \"{name}\" deleted.",
+      "deleteFailed": "Could not delete the role",
+      "columns": {
+        "name": "Role",
+        "base": "Based on",
+        "rights": "Permissions",
+        "people": "People"
+      },
+      "empty": "No custom roles yet. Create the first one — for editors or interns, say.",
+      "deleteTitle": "Delete the role?",
+      "deleteMessage": "Role \"{name}\" will be deleted.",
+      "deleteDetail": "People with this role: {n}. They keep access with the permissions of the base role \"{base}\"."
     }
   }
 }

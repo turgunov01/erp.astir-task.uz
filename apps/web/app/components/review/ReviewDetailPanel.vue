@@ -234,7 +234,7 @@ async function decide(decision: 'APPROVED' | 'CHANGES_REQUESTED' | 'REJECTED') {
           <dt class="text-muted-foreground">{{ t('production.review.fields.project') }}</dt>
           <dd>
             <NuxtLink :to="'/projects/' + review.version.project.id" class="hover:underline">
-              {{ review.version.project.code }}
+              {{ review.version.project.name }}
             </NuxtLink>
           </dd>
         </div>

@@ -63,45 +63,36 @@ export const PRODUCTION_STATUS_LABEL = enumLabels('productionStatus', [
   'NOT_STARTED', 'IN_PROGRESS', 'REVIEW', 'REVISION', 'APPROVED', 'COMPLETED', 'ON_HOLD'
 ])
 
-/*
- * Uzbek always goes through the catalogue: browsers differ in whether they
- * carry Uzbek calendar data, and the server and the browser must print the
- * same string or hydration breaks. Other languages fall back only when the
- * runtime turns out to lack their data.
- */
-function catalogueDates(): boolean {
-  return currentLocale() === 'uz' || !hasIntlData()
-}
-
 function pad2(value: number) {
   return String(value).padStart(2, '0')
 }
 
-/** «31-okt, 2026», the Uzbek short form, built from catalogue month names. */
-function catalogueDay(date: Date) {
-  return pad2(date.getDate()) + '-' + monthShortName(date.getMonth()) + ', ' + date.getFullYear()
+/**
+ * The studio writes every date one way in every language: DD.MM.YY. Built by
+ * hand rather than through Intl so the server and the browser print the same
+ * string whatever calendar data either runtime carries.
+ */
+const DATE_SEPARATOR = '.'
+
+function numericDay(date: Date) {
+  return [pad2(date.getDate()), pad2(date.getMonth() + 1), pad2(date.getFullYear() % 100)]
+    .join(DATE_SEPARATOR)
 }
 
 /** Full date and time, for detail panels where precision matters. */
-export function formatDateTime(value: string | null | undefined) {
+export function formatDateTime(value: string | Date | null | undefined) {
   if (!value) return '—'
   const date = new Date(value)
-  if (catalogueDates()) {
-    return catalogueDay(date) + ', ' + pad2(date.getHours()) + ':' + pad2(date.getMinutes())
-  }
-  return date.toLocaleString(intlTag(), {
-    day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
-  })
+  if (Number.isNaN(date.getTime())) return '—'
+  return numericDay(date) + ' ' + pad2(date.getHours()) + ':' + pad2(date.getMinutes())
 }
 
-/** Day-level date, for table cells and deadlines. */
-export function formatDay(value: string | null | undefined) {
+/** Day-level date, DD.MM.YY, for table cells and deadlines. */
+export function formatDay(value: string | Date | null | undefined) {
   if (!value) return '—'
   const date = new Date(value)
-  if (catalogueDates()) return catalogueDay(date)
-  return date.toLocaleDateString(intlTag(), {
-    day: '2-digit', month: 'short', year: 'numeric'
-  })
+  if (Number.isNaN(date.getTime())) return '—'
+  return numericDay(date)
 }
 
 /** How Uzbek writes currencies after the amount. */

@@ -32,7 +32,7 @@ export async function loginHandler(req: Request, res: Response, next: NextFuncti
     setSessionCookies(res, result)
     return sendItem(res, {
       user: result.user,
-      permissions: await effectivePermissions(result.user.role),
+      permissions: await effectivePermissions(result.user),
       accessToken: result.accessToken
     })
   } catch (err) {
@@ -49,7 +49,7 @@ export async function refreshHandler(req: Request, res: Response, next: NextFunc
     setSessionCookies(res, result)
     return sendItem(res, {
       user: result.user,
-      permissions: await effectivePermissions(result.user.role),
+      permissions: await effectivePermissions(result.user),
       accessToken: result.accessToken
     })
   } catch (err) {
@@ -72,7 +72,7 @@ export async function meHandler(req: Request, res: Response, next: NextFunction)
   try {
     return sendItem(res, {
       user: req.user,
-      permissions: req.user ? await effectivePermissions(req.user.role) : []
+      permissions: req.user ? await effectivePermissions(req.user) : []
     })
   } catch (err) {
     next(err)
@@ -94,7 +94,7 @@ export async function verifyCodeHandler(req: Request, res: Response, next: NextF
     setSessionCookies(res, result)
     return sendItem(res, {
       user: result.user,
-      permissions: await effectivePermissions(result.user.role),
+      permissions: await effectivePermissions(result.user),
       accessToken: result.accessToken
     })
   } catch (err) {
@@ -111,7 +111,7 @@ export async function setPasswordHandler(req: Request, res: Response, next: Next
     )
     return sendItem(res, {
       user,
-      permissions: await effectivePermissions(user.role)
+      permissions: await effectivePermissions(user)
     })
   } catch (err) {
     next(err)

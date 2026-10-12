@@ -84,6 +84,7 @@ export default {
     minItems: 'Выберите не меньше {limit}',
     maxItems: 'Не больше {limit}',
     timeFormat: 'Ожидается время ЧЧ:ММ',
+    hexColor: 'Ожидается цвет в формате #RRGGBB',
     passwordsMismatch: 'Пароли не совпадают',
     codeSixDigits: 'Код состоит из шести цифр',
     commentEmpty: 'Комментарий не может быть пустым',

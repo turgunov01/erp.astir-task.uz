@@ -40,6 +40,12 @@ export default {
     selfLockout: 'Kendi rolünüzün ayarlara ve yetki yönetimine erişimini kaldıramazsınız',
     beyondOwnRole: 'Kendi rolünüzde olmayan yetkileri veremezsiniz: {permissions}',
     beyondRoleCeiling: 'Bu role şunlar verilemez: {permissions}',
+    unknownPermissions: 'Bilinmeyen yetkiler: {permissions}',
+    roleNameTaken: '"{name}" adlı bir rol zaten var',
+    customRoleOwnerBase: 'Özel rol, sahip rolü temel alınarak oluşturulamaz',
+    customRoleBaseOutranks: 'Sizden üst bir rolü temel alan bir rol oluşturamaz veya atayamazsınız',
+    customRoleBeyondYours: 'Sizde olmayan yetkilere sahip bir rolü atayamazsınız: {permissions}',
+    customRoleOwnInUse: 'Size atanmış rolü silemezsiniz',
     noEmailForType: 'Bu tür bildirimler için e-posta gönderilmez'
   },
   employees: {

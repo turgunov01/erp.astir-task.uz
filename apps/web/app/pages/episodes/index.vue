@@ -45,7 +45,7 @@ interface EpisodeRow {
 const { items, meta, pending, errorMessage, refresh } =
   useListResource<EpisodeRow>('/api/episodes', filters as never)
 
-const { data: projectData } = await useFetch<{ data: Array<{ id: string, code: string }> }>(
+const { data: projectData } = await useFetch<{ data: Array<{ id: string, code: string, name: string }> }>(
   '/api/projects',
   { query: { limit: 100 }, credentials: 'include', default: () => ({ data: [] }) }
 )
@@ -116,7 +116,7 @@ function pad(value: number) {
           @change="page = 1"
         >
           <option value="">{{ t('production.episodes.filters.allProjects') }}</option>
-          <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.code }}</option>
+          <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.name }}</option>
         </select>
         <select
           v-model="status"
@@ -138,7 +138,7 @@ function pad(value: number) {
 
       <template #cell-project="{ row }">
         <NuxtLink v-if="row.project" :to="'/projects/' + row.project.id" class="hover:underline">
-          {{ row.project.code }}
+          {{ row.project.name }}
         </NuxtLink>
         <span v-else class="text-muted-foreground">—</span>
       </template>

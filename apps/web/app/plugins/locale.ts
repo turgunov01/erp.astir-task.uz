@@ -1,4 +1,5 @@
 import { DEFAULT_LOCALE, LOCALE_COOKIE, isLocale, type Locale } from '@astir/types'
+import { normalizeAppearance } from '@astir/validation'
 import { getCookie } from 'h3'
 import type { $Fetch } from 'ofetch'
 import type { Pinia } from 'pinia'
@@ -41,6 +42,8 @@ export default defineNuxtPlugin({
           name: brandAnswer.data.name,
           logoUrl: brandAnswer.data.logoUrl,
           defaultLocale: isLocale(brandAnswer.data.defaultLocale) ? brandAnswer.data.defaultLocale : DEFAULT_LOCALE,
+          // Through toAppearance() again: the answer goes into a style sheet.
+          appearance: normalizeAppearance(brandAnswer.data.appearance),
           loaded: true
         }
       }

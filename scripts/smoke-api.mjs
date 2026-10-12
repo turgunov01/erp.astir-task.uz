@@ -74,6 +74,16 @@ expect('login with wrong password', (await call('POST', '/api/auth/login', {
   json: { email: OWNER, password: 'nope' }, keepCookies: false
 })).status, 401)
 
+// Appearance values end up in a style sheet: anything off the lists is refused, nothing is saved.
+for (const [label, json] of [
+  ['a colour that is not #rrggbb', { themePrimary: 'red;}body{display:none' }],
+  ['a font off the list', { themeFont: 'Comic Sans' }],
+  ['a text size out of range', { themeFontSize: 40 }],
+  ['an unknown colour mode', { themeColorMode: 'sepia' }]
+]) {
+  expect('appearance refuses ' + label, (await call('PATCH', '/api/settings', { json })).status, 400)
+}
+
 /*
  * Password recovery, without mailing anyone or changing a password: the
  * address is on a reserved domain nobody owns, and the tokens are made up.
@@ -369,6 +379,10 @@ record(
   'status ' + firstPress.status + ' then ' + secondPress.status
 )
 
+expect('artist cannot change the appearance', (await call('PATCH', '/api/settings', {
+  json: { themePrimary: '#2563eb' }
+})).status, 403)
+
 await login(CLIENT, PASSWORD)
 const clientReviews = await call('GET', '/api/reviews?limit=50')
 const clientRows = (clientReviews.payload && clientReviews.payload.data) || []
@@ -386,6 +400,13 @@ console.log(NL + 'unauthenticated')
 cookie = ''
 expect('no session on /api/tasks', (await call('GET', '/api/tasks')).status, 401)
 expect('no session on /api/projects', (await call('GET', '/api/projects')).status, 401)
+// The sign-in page is drawn in the studio's appearance, so the brand carries it.
+const brandAnswer = await call('GET', '/api/settings/brand')
+record(
+  'brand carries the appearance without a session',
+  brandAnswer.status === 200 && typeof brandAnswer.payload?.data?.appearance?.fontSize === 'number',
+  'status ' + brandAnswer.status
+)
 
 const failed = results.filter(item => !item.ok)
 console.log(NL + '---')

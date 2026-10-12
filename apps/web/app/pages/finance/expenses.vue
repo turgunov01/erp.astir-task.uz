@@ -43,7 +43,7 @@ interface ExpenseRow {
   documentNumber: string | null
   documentUrl: string | null
   vatAmount: string | null
-  project: { id: string, code: string, client: { id: string, name: string } | null } | null
+  project: { id: string, code: string, name: string, client: { id: string, name: string } | null } | null
   createdBy: { firstName: string, lastName: string } | null
 }
 
@@ -183,7 +183,7 @@ const columns = computed<Column[]>(() => [
       <template #cell-project="{ row }">
         <template v-if="row.project">
           <NuxtLink :to="'/projects/' + row.project.id" class="hover:underline">
-            {{ row.project.code }}
+            {{ row.project.name }}
           </NuxtLink>
           <span v-if="row.project.client" class="mt-0.5 block truncate text-xs text-muted-foreground">
             {{ row.project.client.name }}

@@ -51,11 +51,13 @@
       "saveFailed": "Sozlamalarni saqlab bo‘lmadi",
       "tabs": {
         "studio": "Studiya",
+        "appearance": "Ko‘rinish",
         "schedule": "Ish jadvali",
         "mail": "Pochta",
         "templates": "Pipeline shablonlari",
         "users": "Foydalanuvchilar",
-        "roles": "Rollar va ruxsatlar"
+        "roles": "Rollar va ruxsatlar",
+        "departments": "Departamentlar"
       },
       "studio": {
         "name": "Studiya nomi",
@@ -70,6 +72,56 @@
         "invoicePrefixHint": "Masalan, INV- INV-0001 ni beradi.",
         "defaultLanguage": "Standart til",
         "defaultLanguageHint": "Profilda til tanlamaganlar uchun, shuningdek kirish sahifasi, xatlar va eksportlar uchun."
+      },
+      "appearance": {
+        "intro": "Shrift, matn o‘lchami, ranglar va burchaklar barcha xodimlar hamda kirish sahifasi uchun. Namuna darhol o‘zgaradi, boshqalarda esa saqlangandan keyin.",
+        "font": "Shrift",
+        "fontHint": "Barcha shriftlar kirill va lotin yozuvini qo‘llab-quvvatlaydi. Tashqi shriftlar faqat tanlanganda Google Fonts orqali yuklanadi.",
+        "fontSystem": "Tizim shrifti",
+        "fontSample": "Съешь же ещё этих мягких булок — Quick brown fox",
+        "fontSize": "Matn o‘lchami",
+        "fontSizeHint": "Butun interfeysni masshtablaydi: matn, oraliqlar, tugmalar. Standart — {size} px.",
+        "px": "{size} px",
+        "radius": "Burchaklar yumaloqligi",
+        "radiusHint": "Kartochkalar, tugmalar va kiritish maydonlari. Standart — {size} px.",
+        "primaryColor": "Asosiy rang",
+        "primaryColorHint": "Tugmalar, faol yorliqlar, belgilash va fokus chegarasi. Ustidagi matn rangi avtomatik tanlanadi.",
+        "signalColor": "Urg‘u rangi",
+        "signalColorHint": "Ishlab chiqarish signallari: «xavf ostida», «tekshiruvni kutmoqda».",
+        "builtIn": "Standart",
+        "useBuiltIn": "Standartga qaytarish",
+        "hexAria": "{name}: HEX-kod",
+        "hexInvalid": "Rang #RRGGBB ko‘rinishida, masalan #2563EB",
+        "preset": "{color} rangi",
+        "lowContrast": "Rang och fon bilan deyarli qo‘shilib ketadi: tugmalar va belgilash yaxshi ko‘rinmaydi.",
+        "colorMode": "Mavzu",
+        "colorModeHint": "Hamma uchun standart mavzu. «Tizimdagidek» har bir xodim qurilmasining sozlamasiga amal qiladi.",
+        "modes": {
+          "light": "Yorug‘",
+          "dark": "Qorong‘i",
+          "system": "Tizimdagidek"
+        },
+        "preview": "Namuna",
+        "previewHint": "Saqlangandan keyin interfeys shunday ko‘rinadi.",
+        "sample": {
+          "title": "«Tong» seriali, 4-epizod",
+          "text": "Raskadrovka tasdiqlandi, animatsiya ketmoqda.",
+          "badge": "Tekshiruvni kutmoqda",
+          "input": "Vazifalar bo‘yicha qidiruv",
+          "primary": "Saqlash",
+          "secondary": "Bekor qilish",
+          "task": "Vazifa",
+          "status": "Holat",
+          "rowOne": "12-sahna animatsiyasi",
+          "inProgress": "Jarayonda",
+          "rowTwo": "Rang tuzatish",
+          "atRisk": "Xavf ostida"
+        },
+        "saved": "Ko‘rinish saqlandi va allaqachon qo‘llanildi.",
+        "resetDone": "Ko‘rinish standart holatga qaytarildi.",
+        "saveFailed": "Ko‘rinishni saqlab bo‘lmadi",
+        "discard": "O‘zgarishlarni bekor qilish",
+        "reset": "Standartga qaytarish"
       },
       "mail": {
         "testFailed": "Tekshiruv muvaffaqiyatsiz tugadi",
@@ -127,8 +179,11 @@
         "enable": "Yoqish",
         "self": "bu siz",
         "active": "faol",
-        "disabled": "o‘chirilgan"
-      }
+        "disabled": "o‘chirilgan",
+        "builtInRoles": "Standart rollar",
+        "customRoles": "O‘z rollaringiz"
+      },
+      "departmentsIntro": "Departamentlar (bo‘limlar) xodimlarni mutaxassislik bo‘yicha guruhlaydi va ishlab chiqarish bosqichlarida ishlatiladi. Xuddi shu ro‘yxat «Jamoa» bo‘limida ham ochiladi."
     },
     "eyebrow": "Jamoa",
     "planningEyebrow": "Rejalashtirish",
@@ -444,6 +499,37 @@
       "reset": "tiklash",
       "everything": "hammasi",
       "groupAria": "{role} roli uchun butun «{group}» bo‘limi"
+    },
+    "customRoles": {
+      "title": "O‘z rollaringiz",
+      "intro": "O‘z nomi va o‘z huquqlari to‘plamiga ega rol — masalan, «Montajchi» yoki «Katta animator». Har biri standart rollardan biriga asoslanadi: mijoz portali kabi cheklovlar unga bog‘liq, rol huquqlari esa asosiy rol huquqlarini to‘liq almashtiradi. Foydalanuvchilar bo‘limida va xodim kartasida tayinlanadi.",
+      "create": "Rol yaratish",
+      "loadFailed": "Rollarni yuklab bo‘lmadi.",
+      "newTitle": "Yangi rol",
+      "editTitle": "Rolni tahrirlash",
+      "name": "Nomi",
+      "namePlaceholder": "Masalan, Montajchi",
+      "baseRole": "Asosiy rol",
+      "baseRoleHint": "Tizim odamga qanday munosabatda bo‘lishini belgilaydi: mijoz faqat o‘z loyihalarini ko‘radi, administrator boshqalarning parolini tiklay oladi.",
+      "description": "Tavsif",
+      "permissions": "Huquqlar",
+      "permissionCount": "{n} ta huquq",
+      "copyBase": "«{role}» roli huquqlarini olish",
+      "groupAria": "Butun «{group}» bo‘limi",
+      "saved": "«{name}» roli saqlandi. Foydalanuvchilar o‘zgarishlarni sahifa keyingi yuklanganda ko‘radi.",
+      "saveFailed": "Rolni saqlab bo‘lmadi",
+      "deleted": "«{name}» roli o‘chirildi.",
+      "deleteFailed": "Rolni o‘chirib bo‘lmadi",
+      "columns": {
+        "name": "Rol",
+        "base": "Asosi",
+        "rights": "Huquqlar",
+        "people": "Odamlar"
+      },
+      "empty": "Hozircha o‘z rollaringiz yo‘q. Birinchisini yarating — masalan, montajchilar yoki stajyorlar uchun.",
+      "deleteTitle": "Rol o‘chirilsinmi?",
+      "deleteMessage": "«{name}» roli o‘chiriladi.",
+      "deleteDetail": "Bu roldagi odamlar: {n}. Ular «{base}» asosiy roli huquqlari bilan kirishni saqlab qoladi."
     }
   }
 }

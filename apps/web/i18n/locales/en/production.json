@@ -252,7 +252,8 @@
         "vendor": "Counterparty",
         "version": "Version",
         "weeklyHours": "Hours per week",
-        "newPassword": "New password"
+        "newPassword": "New password",
+        "customRole": "Custom role"
       },
       "hints": {
         "budgetProject": "A project has one budget: saving over an existing one updates it.",
@@ -271,7 +272,8 @@
         "reference": "Finds the payment in the bank statement.",
         "reviewDeadline": "If there is no decision by this date, the review gets the status “Closed”",
         "reviewVersion": "The material put up for discussion",
-        "newPassword": "Leave blank to keep it. Tell the employee the password — they replace it with their own at sign-in"
+        "newPassword": "Leave blank to keep it. Tell the employee the password — they replace it with their own at sign-in",
+        "customRole": "When chosen, the permissions come from it and the base role from its settings."
       },
       "invoice": {
         "createTitle": "New invoice",
@@ -300,7 +302,8 @@
         "studioCurrency": "Studio currency",
         "studioNoProject": "Studio — no project",
         "transactionRef": "Payment order, transaction ID",
-        "yearMonth": "YYYY-MM"
+        "yearMonth": "YYYY-MM",
+        "noCustomRole": "No custom role"
       },
       "render": {
         "createTitle": "New render job",

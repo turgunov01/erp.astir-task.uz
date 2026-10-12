@@ -51,11 +51,13 @@
       "saveFailed": "Ayarlar kaydedilemedi",
       "tabs": {
         "studio": "Stüdyo",
+        "appearance": "Görünüm",
         "schedule": "Çalışma programı",
         "mail": "E-posta",
         "templates": "Süreç şablonları",
         "users": "Kullanıcılar",
-        "roles": "Roller ve erişim"
+        "roles": "Roller ve erişim",
+        "departments": "Departmanlar"
       },
       "studio": {
         "name": "Stüdyo adı",
@@ -70,6 +72,56 @@
         "invoicePrefixHint": "Örneğin INV-, INV-0001 verir.",
         "defaultLanguage": "Varsayılan dil",
         "defaultLanguageHint": "Profilinde dil seçmemiş herkes ile giriş sayfası, e-postalar ve dışa aktarımlar için."
+      },
+      "appearance": {
+        "intro": "Yazı tipi, metin boyutu, renkler ve köşe yuvarlaklığı herkes ve giriş sayfası için. Önizleme düzenlerken değişir; diğerleri kaydettikten sonra görür.",
+        "font": "Yazı tipi",
+        "fontHint": "Tüm yazı tipleri Kiril ve Latin alfabesini destekler. Web yazı tipleri yalnızca seçildiğinde Google Fonts üzerinden yüklenir.",
+        "fontSystem": "Sistem",
+        "fontSample": "Съешь же ещё этих мягких булок — Quick brown fox",
+        "fontSize": "Metin boyutu",
+        "fontSizeHint": "Tüm arayüzü ölçekler: metin, boşluklar, düğmeler. Varsayılan {size} px.",
+        "px": "{size} px",
+        "radius": "Köşe yuvarlaklığı",
+        "radiusHint": "Kartlar, düğmeler ve giriş alanları. Varsayılan {size} px.",
+        "primaryColor": "Ana renk",
+        "primaryColorHint": "Düğmeler, etkin sekmeler, vurgular ve odak çerçevesi. Üzerindeki metin rengi kontrasta göre otomatik seçilir.",
+        "signalColor": "Vurgu rengi",
+        "signalColorHint": "Üretim sinyalleri: “risk altında”, “inceleme bekliyor”.",
+        "builtIn": "Varsayılan",
+        "useBuiltIn": "Varsayılana dön",
+        "hexAria": "{name}: hex kodu",
+        "hexInvalid": "Renk #RRGGBB biçiminde olmalı, ör. #2563EB",
+        "preset": "{color} rengi",
+        "lowContrast": "Bu renk açık arka plandan zor ayırt ediliyor: düğmeler ve vurgular zor görünecek.",
+        "colorMode": "Tema",
+        "colorModeHint": "Herkes için varsayılan tema. “Sisteme göre” her çalışanın cihaz ayarını izler.",
+        "modes": {
+          "light": "Açık",
+          "dark": "Koyu",
+          "system": "Sisteme göre"
+        },
+        "preview": "Önizleme",
+        "previewHint": "Kaydedildikten sonra arayüz böyle görünecek.",
+        "sample": {
+          "title": "“Şafak” dizisi, 4. bölüm",
+          "text": "Storyboard onaylandı, animasyon sürüyor.",
+          "badge": "İnceleme bekliyor",
+          "input": "Görevlerde ara",
+          "primary": "Kaydet",
+          "secondary": "İptal",
+          "task": "Görev",
+          "status": "Durum",
+          "rowOne": "Sahne 12 animasyonu",
+          "inProgress": "Devam ediyor",
+          "rowTwo": "Renk düzenleme",
+          "atRisk": "Risk altında"
+        },
+        "saved": "Görünüm kaydedildi ve uygulandı.",
+        "resetDone": "Görünüm varsayılana sıfırlandı.",
+        "saveFailed": "Görünüm kaydedilemedi",
+        "discard": "Değişiklikleri geri al",
+        "reset": "Varsayılana sıfırla"
       },
       "mail": {
         "testFailed": "Test başarısız oldu",
@@ -127,8 +179,11 @@
         "enable": "Etkinleştir",
         "self": "bu sizsiniz",
         "active": "etkin",
-        "disabled": "devre dışı"
-      }
+        "disabled": "devre dışı",
+        "builtInRoles": "Standart roller",
+        "customRoles": "Özel roller"
+      },
+      "departmentsIntro": "Departmanlar çalışanları uzmanlık alanına göre gruplar ve üretim aşamalarında kullanılır. Aynı liste Ekip bölümünde de açılır."
     },
     "eyebrow": "Ekip",
     "planningEyebrow": "Planlama",
@@ -444,6 +499,37 @@
       "reset": "sıfırla",
       "everything": "tümü",
       "groupAria": "{role} rolü için «{group}» bölümünün tamamı"
+    },
+    "customRoles": {
+      "title": "Özel roller",
+      "intro": "Kendi adı ve kendi yetki seti olan bir rol — örneğin \"Kurgucu\" veya \"Kıdemli animatör\". Her biri standart bir rolü temel alır: müşteri portalı gibi kısıtlamalar ona bağlıdır, rolün yetkileri ise temel rolün yetkilerinin yerini tamamen alır. Kullanıcılar sekmesinde veya çalışan kartında atanır.",
+      "create": "Rol oluştur",
+      "loadFailed": "Roller yüklenemedi.",
+      "newTitle": "Yeni rol",
+      "editTitle": "Rolü düzenle",
+      "name": "Ad",
+      "namePlaceholder": "Örneğin, Kurgucu",
+      "baseRole": "Temel rol",
+      "baseRoleHint": "Sistemin kişiye nasıl davranacağını belirler: müşteri yalnızca kendi projelerini görür, yönetici başkalarının şifresini sıfırlayabilir.",
+      "description": "Açıklama",
+      "permissions": "Yetkiler",
+      "permissionCount": "{n} yetki",
+      "copyBase": "\"{role}\" rolünün yetkilerini al",
+      "groupAria": "\"{group}\" bölümünün tamamı",
+      "saved": "\"{name}\" rolü kaydedildi. Kullanıcılar değişikliği sayfa bir sonraki yüklendiğinde görecek.",
+      "saveFailed": "Rol kaydedilemedi",
+      "deleted": "\"{name}\" rolü silindi.",
+      "deleteFailed": "Rol silinemedi",
+      "columns": {
+        "name": "Rol",
+        "base": "Temeli",
+        "rights": "Yetkiler",
+        "people": "Kişi"
+      },
+      "empty": "Henüz özel rol yok. İlkini oluşturun — örneğin kurgucular veya stajyerler için.",
+      "deleteTitle": "Rol silinsin mi?",
+      "deleteMessage": "\"{name}\" rolü silinecek.",
+      "deleteDetail": "Bu roldeki kişiler: {n}. Erişimlerini \"{base}\" temel rolünün yetkileriyle korurlar."
     }
   }
 }

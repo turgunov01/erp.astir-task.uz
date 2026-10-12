@@ -194,7 +194,7 @@ dashboardRouter.get(
             name: true,
             dueDate: true,
             completedAt: true,
-            project: { select: { id: true, code: true } }
+            project: { select: { id: true, code: true, name: true } }
           },
           orderBy: { dueDate: 'asc' }
         }),
@@ -206,7 +206,7 @@ dashboardRouter.get(
             deadline: true,
             status: true,
             priority: true,
-            project: { select: { id: true, code: true } },
+            project: { select: { id: true, code: true, name: true } },
             assignee: { select: { id: true, firstName: true, lastName: true } }
           },
           orderBy: { deadline: 'asc' },

@@ -66,7 +66,7 @@ const dueSoon = computed(() => !late.value && daysLeft.value !== null && daysLef
   !FINISHED.includes(props.task.status))
 
 function formatDate(value: string) {
-  return new Date(value).toLocaleDateString(intlTag(), { day: '2-digit', month: 'short' })
+  return formatDay(value)
 }
 
 function onChanged() {
@@ -95,7 +95,7 @@ function onChanged() {
         </button>
         <p class="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
           <NuxtLink v-if="task.project" :to="'/projects/' + task.project.id" class="hover:text-foreground hover:underline">
-            {{ task.project.code }} · {{ task.project.name }}
+            {{ task.project.name }} · {{ task.project.name }}
           </NuxtLink>
           <NuxtLink v-if="task.shot" :to="'/shots/' + task.shot.id" class="font-mono hover:text-foreground hover:underline">
             {{ task.shot.code }}
