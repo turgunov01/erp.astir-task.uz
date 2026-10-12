@@ -187,6 +187,14 @@ export async function updateCustomRole(id: string, input: UpdateCustomRoleInput,
     if (baseRole !== before.baseRole) {
       await tx.user.updateMany({ where: { customRoleId: id }, data: { role: baseRole } })
     }
+    // The role's name is its holders' position; a renamed role renames it
+    // too, except where somebody has since typed a position of their own.
+    if (updated.name !== before.name) {
+      await tx.employee.updateMany({
+        where: { position: before.name, user: { customRoleId: id } },
+        data: { position: updated.name }
+      })
+    }
     await recordAudit({
       actorId: actor.user.id,
       action: 'settings.custom_role_updated',

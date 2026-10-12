@@ -1,3 +1,4 @@
+import type { Prisma } from '@prisma/client'
 import type { CreateEmployeeInput } from '@astir/validation'
 import type { AuthUser, Role } from '@astir/types'
 import { prisma } from '../../lib/prisma'
@@ -25,6 +26,20 @@ export async function getById(id: string) {
   const employee = await repo.findById(id)
   if (!employee) throw notFound('Employee')
   return employee
+}
+
+/**
+ * The position a studio role gives its holder: the role's own name.
+ *
+ * Read inside the transaction that assigns the role, so the position written
+ * is the name the role has when the assignment lands. `undefined` when no
+ * studio role is being assigned, and the position is left as it is.
+ */
+async function rolePosition(tx: Prisma.TransactionClient, customRoleId: string | null | undefined) {
+  if (!customRoleId) return undefined
+  const role = await tx.customRole.findUnique({ where: { id: customRoleId }, select: { name: true } })
+  if (!role) throw notFound('Role')
+  return role.name
 }
 
 /**
@@ -58,6 +73,8 @@ export async function create(input: CreateEmployeeInput, actor: AuthUser) {
    * what is missing is proof of the address, which the first login asks for.
    */
   const created = await prisma.$transaction(async tx => {
+    // The schema lets a create through only with a studio role or a position.
+    const position = await rolePosition(tx, assignment.customRoleId) ?? input.position ?? ''
     const user = await tx.user.create({
       data: {
         email: input.email,
@@ -73,7 +90,7 @@ export async function create(input: CreateEmployeeInput, actor: AuthUser) {
       data: {
         userId: user.id,
         departmentId: input.departmentId ?? null,
-        position: input.position,
+        position,
         employmentType: input.employmentType,
         hourlyRate: input.hourlyRate ?? null,
         weeklyCapacityHours: input.weeklyCapacityHours,
@@ -200,6 +217,9 @@ export async function update(id: string, input: Record<string, unknown>, actor: 
   }
 
   const updated = await prisma.$transaction(async tx => {
+    // A studio role picked here names the position too, over any typed one.
+    const position = await rolePosition(tx, assignment.customRoleId)
+    if (position !== undefined) employeeData.position = position
     if (Object.keys(userData).length > 0) {
       await tx.user.update({ where: { id: employee.userId }, data: userData })
     }

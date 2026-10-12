@@ -53,6 +53,17 @@ export interface FormField {
    * files are held back and uploaded against this key once it does.
    */
   attachTo?: string
+  /**
+   * Must be filled in to create the row; editing, a blank field is left out
+   * of the body, so whatever the row holds stays as it is.
+   */
+  requiredOnCreate?: boolean
+  /**
+   * For a remote select whose list came back empty: what to do about it,
+   * with a link to the page where the options are made.
+   */
+  emptyHint?: string
+  emptyLink?: { to: string, label: string }
   /** Field is only offered when creating, never when editing. */
   createOnly?: boolean
   /** Field only exists once the row does, e.g. a render job status. */
@@ -116,7 +127,7 @@ export function isBlank(value: unknown): boolean {
 
 /** Whether the field must be filled in, given whether a row is being edited. */
 export function isFieldRequired(field: FormField, isEdit: boolean): boolean {
-  return Boolean(field.required || (isEdit && field.notNull))
+  return Boolean(field.required || (isEdit ? field.notNull : field.requiredOnCreate))
 }
 
 export interface CleanPayloadOptions {
@@ -139,10 +150,10 @@ export interface CleanPayloadOptions {
  * would silently keep the old value. A field that had a value and is now
  * blank is therefore sent as null, which clears the column; a field that was
  * blank all along stays out of the body, as does one whose column cannot be
- * empty (see `notNull`).
+ * empty (see `notNull`) or that only a create insists on (`requiredOnCreate`).
  */
 function blankValue(field: FormField, original: Record<string, unknown> | null): null | undefined {
-  if (!original || field.notNull) return undefined
+  if (!original || field.notNull || field.requiredOnCreate) return undefined
   return isBlank(readPath(original, field.path ?? field.key)) ? undefined : null
 }
 

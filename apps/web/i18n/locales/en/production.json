@@ -225,7 +225,6 @@
         "personName": "Name",
         "phone": "Phone",
         "plannedCost": "Planned cost",
-        "position": "Position",
         "priority": "Priority",
         "progress": "Progress, %",
         "project": "Project",
@@ -252,8 +251,7 @@
         "vendor": "Counterparty",
         "version": "Version",
         "weeklyHours": "Hours per week",
-        "newPassword": "New password",
-        "customRole": "Custom role"
+        "newPassword": "New password"
       },
       "hints": {
         "budgetProject": "A project has one budget: saving over an existing one updates it.",
@@ -273,7 +271,8 @@
         "reviewDeadline": "If there is no decision by this date, the review gets the status “Closed”",
         "reviewVersion": "The material put up for discussion",
         "newPassword": "Leave blank to keep it. Tell the employee the password — they replace it with their own at sign-in",
-        "customRole": "When chosen, the permissions come from it and the base role from its settings."
+        "employeeRole": "The role name becomes the employee’s position; the permissions come from the role’s settings. When editing, leaving it empty keeps the current role",
+        "noRolesYet": "No roles yet — create them first:"
       },
       "invoice": {
         "createTitle": "New invoice",
@@ -303,7 +302,7 @@
         "studioNoProject": "Studio — no project",
         "transactionRef": "Payment order, transaction ID",
         "yearMonth": "YYYY-MM",
-        "noCustomRole": "No custom role"
+        "chooseRole": "Choose a role"
       },
       "render": {
         "createTitle": "New render job",
@@ -324,6 +323,9 @@
       "shot": {
         "createTitle": "New shot",
         "editTitle": "Edit shot"
+      },
+      "links": {
+        "rolesSettings": "Settings → Roles and access"
       }
     },
     "myTasks": {

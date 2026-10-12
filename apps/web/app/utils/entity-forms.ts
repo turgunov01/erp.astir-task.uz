@@ -13,7 +13,6 @@ import {
   RENDER_STATUS_LABEL,
   REVIEW_TYPE_LABEL,
   REVISION_STATUS_LABEL,
-  ROLE_LABEL,
   enumOptions
 } from './labels'
 import { translate } from './i18n'
@@ -39,13 +38,18 @@ import type { EntityFormConfig, FormField } from './entity-form'
 const FIELD = 'production.forms.fields.'
 const HINT = 'production.forms.hints.'
 const PLACEHOLDER = 'production.forms.placeholders.'
+const LINK = 'production.forms.links.'
 
 /** A field as written below: message keys instead of words. */
-interface FieldSpec extends Omit<FormField, 'label' | 'hint' | 'placeholder' | 'options'> {
+interface FieldSpec extends Omit<FormField, 'label' | 'hint' | 'placeholder' | 'options' | 'emptyHint' | 'emptyLink'> {
   /** Key under production.forms.fields. */
   label: string
   /** Key under production.forms.hints. */
   hint?: string
+  /** Key under production.forms.hints, shown when a remote list is empty. */
+  emptyHint?: string
+  /** Where the options are made; `label` is a key under production.forms.links. */
+  emptyLink?: { to: string, label: string }
   /** Key under production.forms.placeholders. */
   placeholder?: string
   /** A placeholder that is the same in every language: `USD`, `https://…`. */
@@ -60,10 +64,14 @@ function lazy<T extends object>(target: T, name: string, read: () => unknown): T
 }
 
 function field(spec: FieldSpec): FormField {
-  const { label, hint, placeholder, example, options, ...rest } = spec
+  const { label, hint, placeholder, example, options, emptyHint, emptyLink, ...rest } = spec
   const out = { ...rest } as FormField
   lazy(out, 'label', () => translate(FIELD + label))
   if (hint) lazy(out, 'hint', () => translate(HINT + hint))
+  if (emptyHint) lazy(out, 'emptyHint', () => translate(HINT + emptyHint))
+  if (emptyLink) {
+    lazy(out, 'emptyLink', () => ({ to: emptyLink.to, label: translate(LINK + emptyLink.label) }))
+  }
   if (placeholder) lazy(out, 'placeholder', () => translate(PLACEHOLDER + placeholder))
   else if (example) out.placeholder = example
   if (options) lazy(out, 'options', () => enumOptions(options))
@@ -273,20 +281,23 @@ const EMPLOYEE_FORM = form('/api/employees', 'employee', [
   { key: 'email', path: 'user.email', label: 'email', type: 'text', required: true, hint: 'loginEmail' },
   { key: 'password', label: 'password', type: 'text', required: true, createOnly: true, hint: 'password' },
   { key: 'newPassword', label: 'newPassword', type: 'text', editOnly: true, hint: 'newPassword' },
-  { key: 'position', label: 'position', type: 'text', required: true },
-  { key: 'role', path: 'user.role', label: 'role', type: 'select', options: ROLE_LABEL, notNull: true },
   /*
-   * A studio role from Settings. When one is picked the API takes the base
-   * role from it, so the select above only matters while this one is empty.
+   * One of the roles the studio made in Settings. Its name becomes the
+   * position and its base role the access level, both set by the API.
+   * Editing someone who has no studio role (the owner, an administrator on a
+   * built-in role), a blank field is left out and their role stays.
    */
   {
     key: 'customRoleId',
     path: 'user.customRole',
-    label: 'customRole',
+    label: 'role',
     type: 'select',
     source: { url: '/api/settings/roles', labelKeys: ['name'] },
-    hint: 'customRole',
-    placeholder: 'noCustomRole'
+    requiredOnCreate: true,
+    placeholder: 'chooseRole',
+    hint: 'employeeRole',
+    emptyHint: 'noRolesYet',
+    emptyLink: { to: '/settings?tab=roles', label: 'rolesSettings' }
   },
   {
     key: 'departmentId',

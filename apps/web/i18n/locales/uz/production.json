@@ -225,7 +225,6 @@
         "personName": "Ism",
         "phone": "Telefon",
         "plannedCost": "Rejadagi tannarx",
-        "position": "Lavozim",
         "priority": "Ustuvorlik",
         "progress": "Bajarilishi, %",
         "project": "Loyiha",
@@ -252,8 +251,7 @@
         "vendor": "Kontragent",
         "version": "Versiya",
         "weeklyHours": "Haftasiga soat",
-        "newPassword": "Yangi parol",
-        "customRole": "O‘z roli"
+        "newPassword": "Yangi parol"
       },
       "hints": {
         "budgetProject": "Loyihaning bitta byudjeti bor: mavjudining ustidan saqlash uni yangilaydi.",
@@ -273,7 +271,8 @@
         "reviewDeadline": "Agar shu sanagacha qaror bo‘lmasa, kelishuv «Yopildi» holatini oladi",
         "reviewVersion": "Muhokamaga chiqariladigan material",
         "newPassword": "O‘zgartirmaslik uchun bo‘sh qoldiring. Parolni xodimga ayting — u kirishda uni o‘z paroliga almashtiradi",
-        "customRole": "Tanlansa, huquqlar undan olinadi, asosiy rol esa uning sozlamalaridan."
+        "employeeRole": "Rol nomi xodimning lavozimi bo‘ladi, huquqlar esa rol sozlamalaridan olinadi. Tahrirlashda bo‘sh qoldirilsa, joriy rol o‘zgarmaydi",
+        "noRolesYet": "Hozircha rollar yo‘q — avval ularni yarating:"
       },
       "invoice": {
         "createTitle": "Yangi hisob-faktura",
@@ -303,7 +302,7 @@
         "studioNoProject": "Studiya — loyihasiz",
         "transactionRef": "To‘lov topshiriqnomasi, operatsiya ID",
         "yearMonth": "YYYY-OO",
-        "noCustomRole": "O‘z rolisiz"
+        "chooseRole": "Rolni tanlang"
       },
       "render": {
         "createTitle": "Yangi render vazifasi",
@@ -324,6 +323,9 @@
       "shot": {
         "createTitle": "Yangi shot",
         "editTitle": "Shotni tahrirlash"
+      },
+      "links": {
+        "rolesSettings": "Sozlamalar → Rollar va ruxsatlar"
       }
     },
     "myTasks": {

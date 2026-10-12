@@ -9,22 +9,37 @@ const ROLE = [
   'ART_DIRECTOR', 'ARTIST', 'CLIENT', 'FINANCE'
 ] as const
 
-/** Creating an employee also provisions the login it belongs to. */
+/**
+ * Creating an employee also provisions the login it belongs to.
+ *
+ * The form picks a studio role, and its name becomes the position. Scripts
+ * may still send a built-in role with a free-text position instead; one of
+ * the two roles must be there, and without a studio role the position has
+ * nothing to be taken from, so it must be sent.
+ */
 export const createEmployeeSchema = z.object({
   email: z.string().trim().toLowerCase().email('i18n:common.validation.invalidEmail'),
   firstName: z.string().trim().min(1).max(80),
   lastName: z.string().trim().min(1).max(80),
   password: z.string().min(8).max(128),
-  role: z.enum(ROLE).default('ARTIST'),
-  /** A studio role; when set, the base role is taken from it instead. */
+  role: z.enum(ROLE).optional(),
+  /** A studio role; when set, the base role and the position come from it. */
   customRoleId: uuidSchema.optional().nullable(),
 
   departmentId: uuidSchema.optional().nullable(),
-  position: z.string().trim().min(2).max(120),
+  position: z.string().trim().min(2).max(120).optional(),
   employmentType: z.enum(EMPLOYMENT_TYPE).default('FULL_TIME'),
   hourlyRate: z.coerce.number().min(0).max(100000).optional().nullable(),
   weeklyCapacityHours: z.coerce.number().int().min(1).max(80).default(40),
   status: z.enum(EMPLOYEE_STATUS).default('ACTIVE')
+}).superRefine((data, ctx) => {
+  if (data.customRoleId) return
+  if (!data.role) {
+    ctx.addIssue({ code: 'custom', path: ['customRoleId'], message: 'i18n:common.validation.required' })
+  }
+  if (!data.position) {
+    ctx.addIssue({ code: 'custom', path: ['position'], message: 'i18n:common.validation.required' })
+  }
 })
 export type CreateEmployeeInput = z.infer<typeof createEmployeeSchema>
 
@@ -36,6 +51,7 @@ export const updateEmployeeSchema = z.object({
   firstName: z.string().trim().min(1).max(80).optional(),
   lastName: z.string().trim().min(1).max(80).optional(),
   role: z.enum(ROLE).optional(),
+  /** A studio role; picking one also makes its name the position. */
   customRoleId: uuidSchema.optional().nullable(),
   departmentId: uuidSchema.optional().nullable(),
   position: z.string().trim().min(2).max(120).optional(),

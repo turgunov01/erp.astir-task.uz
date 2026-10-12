@@ -87,6 +87,12 @@ function optionsFor(field: FormField) {
   return field.source ? (remoteOptions.value[field.key] ?? []) : (field.options ?? [])
 }
 
+/** A remote list that has loaded and turned out empty: say where to fill it. */
+function isEmptySource(field: FormField) {
+  const loaded = remoteOptions.value[field.key]
+  return Boolean(field.source && field.emptyHint && loaded && loaded.length === 0)
+}
+
 /** Files chosen but not yet uploaded, keyed by field. */
 const pendingFiles = reactive<Record<string, File[]>>({})
 
@@ -348,7 +354,20 @@ onMounted(() => {
                 class="h-9 w-full rounded-md border bg-background px-3 text-sm outline-none focus:border-ring"
               >
 
-              <p v-if="field.hint" class="mt-1.5 text-xs leading-snug text-muted-foreground">{{ field.hint }}</p>
+              <p
+                v-if="isEmptySource(field)"
+                class="mt-1.5 rounded-md border border-dashed px-2.5 py-2 text-xs leading-snug text-muted-foreground"
+              >
+                {{ field.emptyHint }}
+                <NuxtLink
+                  v-if="field.emptyLink"
+                  :to="field.emptyLink.to"
+                  class="font-medium text-foreground underline underline-offset-2 hover:text-primary"
+                >
+                  {{ field.emptyLink.label }}
+                </NuxtLink>
+              </p>
+              <p v-else-if="field.hint" class="mt-1.5 text-xs leading-snug text-muted-foreground">{{ field.hint }}</p>
             </div>
           </div>
 

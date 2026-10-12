@@ -78,6 +78,15 @@ const columns = computed<Column[]>(() => [
   { key: 'actions', label: '', width: '56px' }
 ])
 
+/*
+ * A studio role's name is already the position, so the role column then
+ * shows the access level behind it rather than the same words twice.
+ */
+function roleLabel(row: EmployeeRow) {
+  const custom = row.user.customRole?.name
+  return custom && custom !== row.position ? custom : enumLabel(ROLE_LABEL, row.user.role)
+}
+
 function initials(row: EmployeeRow) {
   return (row.user.firstName.charAt(0) + row.user.lastName.charAt(0)).toUpperCase()
 }
@@ -144,7 +153,7 @@ function initials(row: EmployeeRow) {
         {{ row.department?.name ?? '—' }}
       </template>
       <template #cell-role="{ row }">
-        <span class="text-xs text-muted-foreground">{{ row.user.customRole?.name ?? enumLabel(ROLE_LABEL, row.user.role) }}</span>
+        <span class="text-xs text-muted-foreground">{{ roleLabel(row) }}</span>
       </template>
       <template #cell-capacity="{ row }">{{ t('team.hours', { n: row.weeklyCapacityHours }) }}</template>
       <template #cell-status="{ row }">
