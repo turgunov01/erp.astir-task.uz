@@ -275,6 +275,19 @@ const EMPLOYEE_FORM = form('/api/employees', 'employee', [
   { key: 'newPassword', label: 'newPassword', type: 'text', editOnly: true, hint: 'newPassword' },
   { key: 'position', label: 'position', type: 'text', required: true },
   { key: 'role', path: 'user.role', label: 'role', type: 'select', options: ROLE_LABEL, notNull: true },
+  /*
+   * A studio role from Settings. When one is picked the API takes the base
+   * role from it, so the select above only matters while this one is empty.
+   */
+  {
+    key: 'customRoleId',
+    path: 'user.customRole',
+    label: 'customRole',
+    type: 'select',
+    source: { url: '/api/settings/roles', labelKeys: ['name'] },
+    hint: 'customRole',
+    placeholder: 'noCustomRole'
+  },
   {
     key: 'departmentId',
     label: 'department',

@@ -40,6 +40,7 @@ export type TimelineQuery = z.infer<typeof timelineQuerySchema>
 interface Viewer {
   id: string
   role: Role
+  customRoleId: string | null
   clientId: string | null
 }
 
@@ -58,7 +59,7 @@ async function viewerScope(viewer: Viewer): Promise<{
 }> {
   const project: Prisma.ProjectWhereInput = { deletedAt: null }
   if (viewer.role === 'CLIENT') project.clientId = viewer.clientId ?? NO_CLIENT
-  const seesAll = await hasPermission(viewer.role, PERMISSION.TASK_VIEW)
+  const seesAll = await hasPermission(viewer, PERMISSION.TASK_VIEW)
   return { project, assigneeId: seesAll ? null : viewer.id }
 }
 

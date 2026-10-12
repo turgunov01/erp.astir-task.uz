@@ -37,6 +37,7 @@ const USER_FIELDS = {
   firstName: true,
   lastName: true,
   role: true,
+  customRoleId: true,
   avatarUrl: true,
   clientId: true,
   locale: true,

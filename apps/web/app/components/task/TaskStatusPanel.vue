@@ -25,7 +25,7 @@ interface Task {
   status: string
   priority: string
   deadline: string | null
-  project: { id: string, code: string } | null
+  project: { id: string, code: string, name: string } | null
   shot: { id: string, code: string } | null
   assignee: { id: string, firstName: string, lastName: string } | null
   dependencies: Array<{ dependsOnTask: { id: string, title: string, status: string } }>
@@ -85,7 +85,7 @@ async function moveTo(task: Task, status: string) {
 
 function formatDate(value: string | null) {
   if (!value) return '—'
-  return new Date(value).toLocaleDateString(intlTag(), { day: '2-digit', month: 'short' })
+  return formatDay(value)
 }
 
 function isOverdue(task: Task) {
@@ -193,7 +193,7 @@ function priorityDot(value: string) {
               {{ task.title }}
             </button>
             <p class="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
-              <span v-if="task.project">{{ task.project.code }}</span>
+              <span v-if="task.project">{{ task.project.name }}</span>
               <span v-if="task.shot" class="font-mono">{{ task.shot.code }}</span>
               <span v-if="task.assignee">
                 {{ task.assignee.firstName }} {{ task.assignee.lastName }}

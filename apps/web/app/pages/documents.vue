@@ -40,14 +40,14 @@ interface DocRow extends DocumentLike {
   fileSize: string | null
   createdAt: string
   task: { id: string, title: string, status: string } | null
-  project: { id: string, code: string } | null
+  project: { id: string, code: string, name: string } | null
   uploadedBy: { firstName: string, lastName: string } | null
 }
 
 const { items, meta, pending, errorMessage, refresh } =
   useListResource<DocRow>('/api/files', filters as never)
 
-const { data: projectData } = await useFetch<{ data: Array<{ id: string, code: string }> }>(
+const { data: projectData } = await useFetch<{ data: Array<{ id: string, code: string, name: string }> }>(
   '/api/projects',
   { query: { limit: 100 }, credentials: 'include', default: () => ({ data: [] }) }
 )
@@ -147,7 +147,7 @@ function formatSize(bytes: string | null) {
           @change="page = 1"
         >
           <option value="">{{ t('projects.documents.allProjects') }}</option>
-          <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.code }}</option>
+          <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.name }}</option>
         </select>
         <label class="inline-flex items-center gap-2 text-sm text-muted-foreground">
           <input v-model="mediaOnly" type="checkbox" class="size-4 accent-primary" @change="page = 1">
@@ -183,7 +183,7 @@ function formatSize(bytes: string | null) {
 
       <template #cell-project="{ row }">
         <NuxtLink v-if="row.project" :to="'/projects/' + row.project.id" class="hover:underline">
-          {{ row.project.code }}
+          {{ row.project.name }}
         </NuxtLink>
         <span v-else class="text-muted-foreground">—</span>
       </template>

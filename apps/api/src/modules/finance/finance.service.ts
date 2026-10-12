@@ -91,7 +91,7 @@ export interface ExpenseSummary {
 }
 
 export const expenseInclude = {
-  project: { select: { id: true, code: true, client: { select: { id: true, name: true } } } },
+  project: { select: { id: true, code: true, name: true, client: { select: { id: true, name: true } } } },
   createdBy: { select: { firstName: true, lastName: true } }
 } satisfies Prisma.ExpenseInclude
 
@@ -140,7 +140,7 @@ export interface PaymentSummary {
 
 export const paymentInclude = {
   client: { select: { id: true, name: true } },
-  project: { select: { id: true, code: true } },
+  project: { select: { id: true, code: true, name: true } },
   invoice: { select: { id: true, number: true } }
 } satisfies Prisma.PaymentInclude
 
@@ -228,7 +228,7 @@ export function withCollection<T extends { id: string, amount: unknown, status: 
 
 export const invoiceInclude = {
   client: { select: { id: true, name: true } },
-  project: { select: { id: true, code: true } },
+  project: { select: { id: true, code: true, name: true } },
   _count: { select: { payments: true } }
 } satisfies Prisma.InvoiceInclude
 

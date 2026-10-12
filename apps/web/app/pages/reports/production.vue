@@ -176,9 +176,9 @@ const csvHref = computed(() =>
             <tr v-for="row in rows" :key="row.id" class="border-b last:border-0">
               <td class="px-5 py-3">
                 <NuxtLink :to="'/projects/' + row.id" class="font-medium hover:underline">
-                  {{ row.code }}
+                  {{ row.name }}
                 </NuxtLink>
-                <span class="ml-2 text-muted-foreground">{{ row.name }}</span>
+                <span class="ml-2 text-muted-foreground">{{ row.code }}</span>
               </td>
               <td class="px-5 py-3"><StatusBadge :status="row.status" /></td>
               <td class="px-5 py-3"><StatusBadge :status="row.risk" kind="risk" /></td>

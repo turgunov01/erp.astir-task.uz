@@ -68,9 +68,9 @@ export interface PayrollScope {
  * the caller's own employment record, and hides drafts — a draft is somebody
  * still deciding, not a fine yet.
  */
-export async function scopeFor(user: { id: string, role: Role } | undefined): Promise<PayrollScope> {
+export async function scopeFor(user: { id: string, role: Role, customRoleId: string | null } | undefined): Promise<PayrollScope> {
   if (!user) throw unauthenticated()
-  if (await hasPermission(user.role, PERMISSION.PAYROLL_VIEW)) return { ownEmployeeId: null }
+  if (await hasPermission(user, PERMISSION.PAYROLL_VIEW)) return { ownEmployeeId: null }
   const own = await prisma.employee.findFirst({
     where: { userId: user.id, deletedAt: null },
     select: { id: true }

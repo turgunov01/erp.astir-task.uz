@@ -301,6 +301,11 @@ model User {
   firstName    String
   lastName     String
   role         Role      @default(ARTIST)
+  /// A studio-defined role on top of the base one. Set, its permission list
+  /// replaces the base role's; `role` then always equals its base role, so
+  /// every check written against the enum (owner, client portal) still holds.
+  customRoleId String?     @db.Uuid
+  customRole   CustomRole? @relation(fields: [customRoleId], references: [id], onDelete: SetNull)
   avatarUrl    String?
   phone        String?
   isActive     Boolean   @default(true)
@@ -362,6 +367,7 @@ model User {
   deletedAt DateTime?
 
   @@index([role])
+  @@index([customRoleId])
   @@index([clientId])
   @@index([createdAt])
   @@map("users")
@@ -1652,6 +1658,21 @@ model StudioSettings {
   smtpPassword String?
   smtpFrom     String?
 
+  /// Appearance for everyone, the sign-in page included (Settings →
+  /// «Оформление»). Font ids, ranges and modes are listed in
+  /// packages/validation/src/appearance.ts; a null colour keeps the built-in one.
+  themeFont      String  @default("system")
+  /// Root font size in px: every rem in the interface scales with it.
+  themeFontSize  Int     @default(16)
+  /// Corner radius in px at the default font size.
+  themeRadius    Int     @default(10)
+  /// #rrggbb, or null for the built-in neutral.
+  themePrimary   String?
+  /// #rrggbb for the production signal (at risk, awaiting review), or null.
+  themeSignal    String?
+  /// light | dark | system
+  themeColorMode String  @default("light")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1693,4 +1714,25 @@ model RolePermission {
   updatedAt DateTime @updatedAt
 
   @@map("role_permissions")
+}
+
+/// A role the studio defines itself in Settings ("Роли" → "Создать роль").
+///
+/// It names a base role from the enum, which every hard-coded check keeps
+/// reading (the client portal scoping, the owner's rank), and carries its own
+/// permission list in full. The owner is never a base: the owner's rights are
+/// not something a role can be built from.
+model CustomRole {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique
+  description String?
+  baseRole    Role
+  permissions String[]
+
+  users User[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("custom_roles")
 }

@@ -252,7 +252,8 @@
         "vendor": "Kontragent",
         "version": "Versiya",
         "weeklyHours": "Haftasiga soat",
-        "newPassword": "Yangi parol"
+        "newPassword": "Yangi parol",
+        "customRole": "O‘z roli"
       },
       "hints": {
         "budgetProject": "Loyihaning bitta byudjeti bor: mavjudining ustidan saqlash uni yangilaydi.",
@@ -271,7 +272,8 @@
         "reference": "Shu raqam bo‘yicha to‘lov bank ko‘chirmasidan topiladi.",
         "reviewDeadline": "Agar shu sanagacha qaror bo‘lmasa, kelishuv «Yopildi» holatini oladi",
         "reviewVersion": "Muhokamaga chiqariladigan material",
-        "newPassword": "O‘zgartirmaslik uchun bo‘sh qoldiring. Parolni xodimga ayting — u kirishda uni o‘z paroliga almashtiradi"
+        "newPassword": "O‘zgartirmaslik uchun bo‘sh qoldiring. Parolni xodimga ayting — u kirishda uni o‘z paroliga almashtiradi",
+        "customRole": "Tanlansa, huquqlar undan olinadi, asosiy rol esa uning sozlamalaridan."
       },
       "invoice": {
         "createTitle": "Yangi hisob-faktura",
@@ -300,7 +302,8 @@
         "studioCurrency": "Studiya valyutasi",
         "studioNoProject": "Studiya — loyihasiz",
         "transactionRef": "To‘lov topshiriqnomasi, operatsiya ID",
-        "yearMonth": "YYYY-OO"
+        "yearMonth": "YYYY-OO",
+        "noCustomRole": "O‘z rolisiz"
       },
       "render": {
         "createTitle": "Yangi render vazifasi",

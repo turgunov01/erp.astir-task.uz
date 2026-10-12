@@ -40,7 +40,7 @@ interface AssetRow {
   type: string
   status: string
   thumbnailUrl: string | null
-  project: { id: string, code: string } | null
+  project: { id: string, code: string, name: string } | null
   owner: { firstName: string, lastName: string } | null
   _count: { versions: number }
 }
@@ -48,7 +48,7 @@ interface AssetRow {
 const { items, meta, pending, errorMessage, refresh } =
   useListResource<AssetRow>('/api/assets', filters as never)
 
-const { data: projectData } = await useFetch<{ data: Array<{ id: string, code: string }> }>(
+const { data: projectData } = await useFetch<{ data: Array<{ id: string, code: string, name: string }> }>(
   '/api/projects',
   { query: { limit: 100 }, credentials: 'include', default: () => ({ data: [] }) }
 )
@@ -129,7 +129,7 @@ const columns = computed<Column[]>(() => [
           @change="page = 1"
         >
           <option value="">{{ t('production.assets.filters.allProjects') }}</option>
-          <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.code }}</option>
+          <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.name }}</option>
         </select>
       </template>
 
@@ -154,7 +154,7 @@ const columns = computed<Column[]>(() => [
 
       <template #cell-project="{ row }">
         <NuxtLink v-if="row.project" :to="'/projects/' + row.project.id" class="hover:underline">
-          {{ row.project.code }}
+          {{ row.project.name }}
         </NuxtLink>
         <span v-else class="text-muted-foreground">{{ t('production.detail.shared') }}</span>
       </template>

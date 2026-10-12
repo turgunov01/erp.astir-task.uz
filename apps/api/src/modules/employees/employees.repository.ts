@@ -30,7 +30,7 @@ export function buildWhere(params: Partial<EmployeeListParams>): Prisma.Employee
   return where
 }
 
-const INCLUDE = {
+export const INCLUDE = {
   user: {
     select: {
       id: true,
@@ -38,6 +38,7 @@ const INCLUDE = {
       firstName: true,
       lastName: true,
       role: true,
+      customRole: { select: { id: true, name: true } },
       avatarUrl: true,
       isActive: true,
       lastLoginAt: true

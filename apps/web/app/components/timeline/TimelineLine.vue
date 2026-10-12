@@ -85,9 +85,9 @@ const weeks = computed(() => {
 })
 
 function range(task: TimelineTask) {
-  if (task.startDate && task.deadline) return shortDay(task.startDate) + ' — ' + shortDay(task.deadline)
-  if (task.deadline) return t('projects.timeline.untilDate', { date: shortDay(task.deadline) })
-  return t('projects.timeline.fromDate', { date: shortDay(task.startDate as string) })
+  if (task.startDate && task.deadline) return formatDay(task.startDate) + ' — ' + formatDay(task.deadline)
+  if (task.deadline) return t('projects.timeline.untilDate', { date: formatDay(task.deadline) })
+  return t('projects.timeline.fromDate', { date: formatDay(task.startDate as string) })
 }
 </script>
 
@@ -118,7 +118,7 @@ function range(task: TimelineTask) {
             />
             <span class="min-w-0 flex-1 truncate text-sm font-medium">{{ entry.name }}</span>
             <span class="shrink-0 text-xs text-muted-foreground">
-              {{ entry.code }} · {{ t('projects.timeline.milestone') }} · {{ shortDay(entry.date) }}
+              {{ entry.code }} · {{ t('projects.timeline.milestone') }} · {{ formatDay(entry.date) }}
             </span>
           </div>
 

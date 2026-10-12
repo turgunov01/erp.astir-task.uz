@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
 import { sendItem, sendList, sendNoContent } from '../../lib/http'
+import { unauthenticated } from '../../lib/errors'
 import { validatedQuery } from '../../middleware/validate'
 import { recordActivity, recordAudit } from '../../lib/activity'
 import * as service from './employees.service'
@@ -24,7 +25,8 @@ export async function getHandler(req: Request, res: Response, next: NextFunction
 
 export async function createHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const employee = await service.create(req.body)
+    if (!req.user) throw unauthenticated()
+    const employee = await service.create(req.body, req.user)
     await recordAudit({
       actorId: req.user?.id,
       action: 'user.created',
@@ -42,10 +44,8 @@ export async function createHandler(req: Request, res: Response, next: NextFunct
 
 export async function updateHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const { employee, login } = await service.update(req.params.id as string, req.body, {
-      id: req.user?.id,
-      role: req.user?.role
-    })
+    if (!req.user) throw unauthenticated()
+    const { employee, login } = await service.update(req.params.id as string, req.body, req.user)
     // Login changes are security relevant: audited, shown in the feed, mailed.
     if (login.previousEmail) {
       await recordAudit({
@@ -80,14 +80,17 @@ export async function updateHandler(req: Request, res: Response, next: NextFunct
     }
     void notifyLoginChanges(employee.userId, login)
     // Role changes are security relevant and belong in the audit log (spec 50).
-    if (req.body.role) {
+    if (req.body.role || req.body.customRoleId !== undefined) {
       await recordAudit({
         actorId: req.user?.id,
         action: 'user.role_changed',
         entityType: 'Employee',
         entityId: employee.id,
         ipAddress: req.ip,
-        metadata: { to: req.body.role }
+        metadata: {
+          to: employee.user.role,
+          ...(employee.user.customRole ? { customRole: employee.user.customRole.name } : {})
+        }
       })
     }
     await recordActivity({

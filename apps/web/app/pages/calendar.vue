@@ -13,7 +13,7 @@ interface CalendarTask {
   deadline: string
   status: string
   priority: string
-  project: { id: string, code: string } | null
+  project: { id: string, code: string, name: string } | null
   assignee: { id: string, firstName: string, lastName: string } | null
 }
 
@@ -22,7 +22,7 @@ interface CalendarMilestone {
   name: string
   dueDate: string
   completedAt: string | null
-  project: { id: string, code: string } | null
+  project: { id: string, code: string, name: string } | null
 }
 
 interface CalendarProject {
@@ -102,7 +102,7 @@ const eventsByDay = computed(() => {
       kind: 'milestone',
       id: milestone.id,
       label: milestone.name,
-      meta: milestone.project?.code ?? '',
+      meta: milestone.project?.name ?? '',
       done: Boolean(milestone.completedAt)
     })
   }
@@ -111,7 +111,7 @@ const eventsByDay = computed(() => {
       kind: 'task',
       id: task.id,
       label: task.title,
-      meta: task.project?.code ?? '',
+      meta: task.project?.name ?? '',
       done: ['DONE', 'APPROVED'].includes(task.status)
     })
   }

@@ -104,7 +104,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         <div>
           <h2 id="budget-lines-title" class="text-base font-semibold">{{ t('finance.budgetLines.title') }}</h2>
           <p class="mt-0.5 text-sm text-muted-foreground">
-            {{ budget.project?.code }} · {{ budget.project?.name }} · {{ budget.currency }}
+            {{ budget.project?.name }} · {{ budget.currency }}
           </p>
         </div>
         <button

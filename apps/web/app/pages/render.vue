@@ -58,7 +58,7 @@ interface JobRow {
   startFrame: number | null
   endFrame: number | null
   errorMessage: string | null
-  project: { id: string, code: string } | null
+  project: { id: string, code: string, name: string } | null
   shot: { id: string, code: string } | null
   node: { id: string, name: string, isOnline: boolean } | null
   submittedBy: { firstName: string, lastName: string } | null
@@ -210,7 +210,7 @@ function frames(row: JobRow) {
 
       <template #cell-project="{ row }">
         <NuxtLink v-if="row.project" :to="'/projects/' + row.project.id" class="hover:underline">
-          {{ row.project.code }}
+          {{ row.project.name }}
         </NuxtLink>
         <span v-else class="text-muted-foreground">—</span>
       </template>

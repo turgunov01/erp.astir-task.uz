@@ -1,4 +1,5 @@
 import type { CreateEmployeeInput } from '@astir/validation'
+import type { AuthUser, Role } from '@astir/types'
 import { prisma } from '../../lib/prisma'
 import { badRequest, conflict, notFound } from '../../lib/errors'
 import { buildMeta, toSkipTake } from '../../lib/http'
@@ -6,6 +7,7 @@ import { hashPassword } from '../auth/auth.service'
 import * as repo from './employees.repository'
 import { issueLoginCode } from '../../lib/otp'
 import { t } from '../../i18n'
+import { resolveRoleAssignment } from '../settings/custom-roles.service'
 
 export async function list(query: Parameters<typeof repo.findMany>[0] & {
   page: number
@@ -32,7 +34,7 @@ export async function getById(id: string) {
  * be a login that cannot be scheduled, and an Employee without a User cannot
  * sign in at all.
  */
-export async function create(input: CreateEmployeeInput) {
+export async function create(input: CreateEmployeeInput, actor: AuthUser) {
   if (await repo.findByEmail(input.email)) {
     throw conflict(t('team.employees.emailTaken', { email: input.email }))
   }
@@ -45,6 +47,10 @@ export async function create(input: CreateEmployeeInput) {
     if (!department) throw notFound('Department')
   }
 
+  const assignment = await resolveRoleAssignment(
+    { role: input.role, customRoleId: input.customRoleId },
+    actor
+  )
   const passwordHash = await hashPassword(input.password)
 
   /*
@@ -58,7 +64,8 @@ export async function create(input: CreateEmployeeInput) {
         passwordHash,
         firstName: input.firstName,
         lastName: input.lastName,
-        role: input.role
+        role: assignment.role ?? input.role,
+        customRoleId: assignment.customRoleId ?? null
       }
     })
 
@@ -72,15 +79,7 @@ export async function create(input: CreateEmployeeInput) {
         weeklyCapacityHours: input.weeklyCapacityHours,
         status: input.status
       },
-      include: {
-        user: {
-          select: {
-            id: true, email: true, firstName: true, lastName: true,
-            role: true, avatarUrl: true, isActive: true, lastLoginAt: true
-          }
-        },
-        department: { select: { id: true, name: true } }
-      }
+      include: repo.INCLUDE
     })
   })
 
@@ -135,11 +134,8 @@ export interface LoginChanges {
 const LOGIN_RANK: Partial<Record<string, number>> = { OWNER: 3, ADMIN: 2 }
 const loginRank = (role: string | undefined) => LOGIN_RANK[role ?? ''] ?? 1
 
-/** The person making the change, as the controller knows them. */
-export interface Actor {
-  id?: string
-  role?: string
-}
+/** The person making the change: the signed-in account. */
+export type Actor = AuthUser
 
 async function loginChanges(
   employee: { userId: string, user: { email: string, role: string } },
@@ -180,12 +176,16 @@ async function loginChanges(
   }
 }
 
-export async function update(id: string, input: Record<string, unknown>, actor: Actor = {}) {
+export async function update(id: string, input: Record<string, unknown>, actor: Actor) {
   const employee = await getById(id)
   const login = await loginChanges(employee, input, actor)
+  const assignment = await resolveRoleAssignment({
+    role: typeof input.role === 'string' ? input.role as Role : undefined,
+    customRoleId: input.customRoleId as string | null | undefined
+  }, actor)
 
-  const userFields = ['firstName', 'lastName', 'role', 'isActive'] as const
-  const userData: Record<string, unknown> = { ...login.data }
+  const userFields = ['firstName', 'lastName', 'isActive'] as const
+  const userData: Record<string, unknown> = { ...login.data, ...assignment }
   for (const field of userFields) {
     if (field in input) userData[field] = input[field]
   }
@@ -214,15 +214,7 @@ export async function update(id: string, input: Record<string, unknown>, actor: 
     return tx.employee.update({
       where: { id },
       data: employeeData,
-      include: {
-        user: {
-          select: {
-            id: true, email: true, firstName: true, lastName: true,
-            role: true, avatarUrl: true, isActive: true, lastLoginAt: true
-          }
-        },
-        department: { select: { id: true, name: true } }
-      }
+      include: repo.INCLUDE
     })
   })
 

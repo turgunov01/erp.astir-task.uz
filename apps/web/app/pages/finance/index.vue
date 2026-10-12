@@ -32,7 +32,7 @@ interface WatchedInvoice {
   daysLate: number
   daysLeft: number
   client: { id: string, name: string } | null
-  project: { id: string, code: string } | null
+  project: { id: string, code: string, name: string } | null
 }
 
 interface PayrollTotals {

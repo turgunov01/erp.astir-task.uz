@@ -78,7 +78,7 @@ filesRouter.get(
             uploadedBy: { select: { id: true, firstName: true, lastName: true } },
             // The library links straight back to the work the file belongs to.
             task: { select: { id: true, title: true, status: true } },
-            project: { select: { id: true, code: true } }
+            project: { select: { id: true, code: true, name: true } }
           }
         }),
         prisma.document.count({ where })
@@ -144,7 +144,7 @@ filesRouter.patch(
         where: { id },
         data: req.body,
         include: {
-          project: { select: { id: true, code: true } },
+          project: { select: { id: true, code: true, name: true } },
           task: { select: { id: true, title: true } },
           uploadedBy: { select: { id: true, firstName: true, lastName: true } }
         }

@@ -46,7 +46,7 @@ interface PaymentRow {
   fee: string
   notes: string | null
   client: { id: string, name: string } | null
-  project: { id: string, code: string } | null
+  project: { id: string, code: string, name: string } | null
   invoice: { id: string, number: string } | null
 }
 
@@ -285,7 +285,7 @@ const columns = computed<Column[]>(() => [
       <template #cell-client="{ row }">{{ row.client?.name ?? '—' }}</template>
       <template #cell-project="{ row }">
         <NuxtLink v-if="row.project" :to="'/projects/' + row.project.id" class="hover:underline">
-          {{ row.project.code }}
+          {{ row.project.name }}
         </NuxtLink>
         <span v-else class="text-muted-foreground">—</span>
       </template>

@@ -138,7 +138,7 @@ export async function overdueSummary() {
       deadline: true,
       status: true,
       priority: true,
-      project: { select: { id: true, code: true } },
+      project: { select: { id: true, code: true, name: true } },
       assignee: { select: { id: true, firstName: true, lastName: true } }
     }
   })

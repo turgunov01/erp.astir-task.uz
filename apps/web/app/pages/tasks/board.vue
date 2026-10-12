@@ -47,7 +47,7 @@ interface Task {
   status: string
   priority: string
   deadline: string | null
-  project: { id: string, code: string } | null
+  project: { id: string, code: string, name: string } | null
   shot: { id: string, code: string } | null
   assignee: { id: string, firstName: string, lastName: string } | null
   dependencies: Array<{ dependsOnTask: { id: string, title: string, status: string } }>
@@ -122,7 +122,7 @@ async function onDrop(status: string) {
 
 function formatDate(value: string | null) {
   if (!value) return ''
-  return new Date(value).toLocaleDateString(intlTag(), { day: '2-digit', month: 'short' })
+  return formatDay(value)
 }
 
 function isOverdue(task: Task) {
@@ -154,7 +154,7 @@ function isOverdue(task: Task) {
           :aria-label="t('production.board.projectAria')"
         >
           <option value="">{{ t('production.board.allProjects') }}</option>
-          <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.code }}</option>
+          <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.name }}</option>
         </select>
         <NuxtLink
           to="/tasks"
@@ -243,7 +243,7 @@ function isOverdue(task: Task) {
 
             <p class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
               <NuxtLink v-if="task.project" :to="'/projects/' + task.project.id" class="hover:underline">
-                {{ task.project.code }}
+                {{ task.project.name }}
               </NuxtLink>
               <NuxtLink v-if="task.shot" :to="'/shots/' + task.shot.id" class="font-mono hover:underline">
                 {{ task.shot.code }}

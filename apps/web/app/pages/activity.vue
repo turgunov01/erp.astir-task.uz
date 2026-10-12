@@ -326,7 +326,7 @@ const grouped = computed(() => {
                 <template v-if="row.project">
                   ·
                   <NuxtLink :to="'/projects/' + row.project.id" class="hover:underline">
-                    {{ row.project.code }}
+                    {{ row.project.name }}
                   </NuxtLink>
                 </template>
                 <template v-if="entityLink(row)">

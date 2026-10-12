@@ -76,6 +76,7 @@ export default {
     minItems: 'Kamida {limit} ta tanlang',
     maxItems: 'Ko‘pi bilan {limit} ta',
     timeFormat: 'Vaqt SS:DD ko‘rinishida bo‘lishi kerak',
+    hexColor: 'Rang #RRGGBB ko‘rinishida bo‘lishi kerak',
     passwordsMismatch: 'Parollar mos kelmadi',
     codeSixDigits: 'Kod olti raqamdan iborat',
     commentEmpty: 'Izoh bo‘sh bo‘lishi mumkin emas',

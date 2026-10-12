@@ -18,6 +18,9 @@ const title = computed(() => {
   return t('shell.errorPage.somethingWrong')
 })
 
+// This page replaces app.vue, so it brings the studio appearance itself.
+useAppearanceHead()
+
 useHead({
   title: computed(() => (isNotFound.value ? t('shell.errorPage.notFoundTitle') : t('shell.errorPage.errorTitle')))
 })

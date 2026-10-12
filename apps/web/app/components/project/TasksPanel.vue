@@ -128,7 +128,7 @@ async function changeStatus(task: Task, status: string) {
 }
 
 function formatDate(value: string | null) {
-  return value ? shortDay(value) : '—'
+  return formatDay(value)
 }
 
 function isOverdue(task: Task) {

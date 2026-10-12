@@ -41,6 +41,8 @@ interface EmployeeRow {
     firstName: string
     lastName: string
     role: string
+    /** A studio role, shown instead of the base role when set. */
+    customRole: { id: string, name: string } | null
     isActive: boolean
   }
   department: { id: string, name: string } | null
@@ -142,7 +144,7 @@ function initials(row: EmployeeRow) {
         {{ row.department?.name ?? '—' }}
       </template>
       <template #cell-role="{ row }">
-        <span class="text-xs text-muted-foreground">{{ enumLabel(ROLE_LABEL, row.user.role) }}</span>
+        <span class="text-xs text-muted-foreground">{{ row.user.customRole?.name ?? enumLabel(ROLE_LABEL, row.user.role) }}</span>
       </template>
       <template #cell-capacity="{ row }">{{ t('team.hours', { n: row.weeklyCapacityHours }) }}</template>
       <template #cell-status="{ row }">

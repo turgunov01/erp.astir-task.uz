@@ -53,7 +53,7 @@ interface InvoiceRow {
   description: string | null
   vatAmount: string | null
   client: { id: string, name: string } | null
-  project: { id: string, code: string } | null
+  project: { id: string, code: string, name: string } | null
   _count: { payments: number }
 }
 
@@ -205,7 +205,7 @@ const columns = computed<Column[]>(() => [
           :to="'/projects/' + row.project.id"
           class="mt-0.5 block text-xs text-muted-foreground hover:underline"
         >
-          {{ row.project.code }}
+          {{ row.project.name }}
         </NuxtLink>
       </template>
       <template #cell-dueDate="{ row }">

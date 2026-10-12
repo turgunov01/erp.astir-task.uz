@@ -41,7 +41,7 @@ interface Task {
   status: string
   priority: string
   deadline: string | null
-  project: { id: string, code: string } | null
+  project: { id: string, code: string, name: string } | null
   assignee: { id: string, firstName: string, lastName: string } | null
 }
 
@@ -70,7 +70,7 @@ function showDay(date: string) {
   })
 }
 
-const { data: projectData } = useFetch<{ data: Array<{ id: string, code: string }> }>(
+const { data: projectData } = useFetch<{ data: Array<{ id: string, code: string, name: string }> }>(
   '/api/projects',
   { query: { limit: 100 }, credentials: 'include', default: () => ({ data: [] }) }
 )
@@ -225,7 +225,7 @@ function isOverdue(task: Task) {
           :aria-label="t('production.taskCalendar.filters.projectAria')"
         >
           <option value="">{{ t('production.taskCalendar.filters.allProjects') }}</option>
-          <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.code }}</option>
+          <option v-for="p in projects" :key="p.id" :value="p.id">{{ p.name }}</option>
         </select>
         <select
           v-model="assigneeId"

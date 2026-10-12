@@ -252,7 +252,8 @@
         "vendor": "Karşı taraf",
         "version": "Sürüm",
         "weeklyHours": "Haftalık saat",
-        "newPassword": "Yeni şifre"
+        "newPassword": "Yeni şifre",
+        "customRole": "Özel rol"
       },
       "hints": {
         "budgetProject": "Bir projenin tek bütçesi vardır: mevcut bütçenin üzerine kaydetmek onu günceller.",
@@ -271,7 +272,8 @@
         "reference": "Ödeme banka ekstresinde bu numarayla bulunur.",
         "reviewDeadline": "Bu tarihe kadar karar verilmezse onay «Kapandı» durumunu alır",
         "reviewVersion": "Görüşmeye açılan materyal",
-        "newPassword": "Değiştirmemek için boş bırakın. Şifreyi çalışana iletin — girişte kendi şifresiyle değiştirecek"
+        "newPassword": "Değiştirmemek için boş bırakın. Şifreyi çalışana iletin — girişte kendi şifresiyle değiştirecek",
+        "customRole": "Seçilirse yetkiler ondan, temel rol ise onun ayarlarından alınır."
       },
       "invoice": {
         "createTitle": "Yeni fatura",
@@ -300,7 +302,8 @@
         "studioCurrency": "Stüdyo para birimi",
         "studioNoProject": "Stüdyo — projesiz",
         "transactionRef": "Ödeme emri, işlem kimliği",
-        "yearMonth": "YYYY-AA"
+        "yearMonth": "YYYY-AA",
+        "noCustomRole": "Özel rol yok"
       },
       "render": {
         "createTitle": "Yeni render işi",

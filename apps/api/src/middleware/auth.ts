@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
 import { ERROR_CODE, type Permission } from '@astir/types'
 import { prisma } from '../lib/prisma'
-import { hasPermission } from '../lib/rbac'
+import { effectivePermissions, hasPermission } from '../lib/rbac'
 import { AppError, forbidden, tokenExpired, unauthenticated } from '../lib/errors'
 import { ACCESS_COOKIE, verifyAccessToken } from '../modules/auth/tokens'
 import { notePresence } from '../modules/attendance/presence'
@@ -71,6 +71,7 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
         firstName: true,
         lastName: true,
         role: true,
+        customRoleId: true,
         avatarUrl: true,
         clientId: true,
         locale: true,
@@ -117,9 +118,27 @@ export function requirePermission(permission: Permission) {
   return async (req: Request, _res: Response, next: NextFunction) => {
     try {
       if (!req.user) return next(unauthenticated())
-      if (!(await hasPermission(req.user.role, permission))) {
+      if (!(await hasPermission(req.user, permission))) {
         return next(forbidden())
       }
+      next()
+    } catch (err) {
+      next(err)
+    }
+  }
+}
+
+/**
+ * Guard a route that several kinds of manager need, any one of the listed
+ * permissions being enough — the list of studio roles, say, is read by the
+ * settings page, the accounts tab and the employee form alike.
+ */
+export function requireAnyPermission(...permissions: Permission[]) {
+  return async (req: Request, _res: Response, next: NextFunction) => {
+    try {
+      if (!req.user) return next(unauthenticated())
+      const own = await effectivePermissions(req.user)
+      if (!permissions.some(p => own.includes(p))) return next(forbidden())
       next()
     } catch (err) {
       next(err)

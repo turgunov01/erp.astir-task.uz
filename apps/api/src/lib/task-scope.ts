@@ -18,7 +18,7 @@ type Caller = NonNullable<Request['user']>
  * Returns the assignee the caller is limited to, or null for no limit.
  */
 export async function ownTaskAssignee(user: Caller): Promise<string | null> {
-  return (await hasPermission(user.role, PERMISSION.TASK_VIEW)) ? null : user.id
+  return (await hasPermission(user, PERMISSION.TASK_VIEW)) ? null : user.id
 }
 
 /** The same scope as a filter to merge into a task query. */

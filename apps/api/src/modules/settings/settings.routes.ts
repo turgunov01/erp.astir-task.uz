@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { z } from 'zod'
-import { idParamSchema } from '@astir/validation'
+import { appearanceSchema, createCustomRoleSchema, idParamSchema, toAppearance, updateCustomRoleSchema } from '@astir/validation'
 import {
   ALL_PERMISSIONS,
   LOCALES,
@@ -11,7 +11,7 @@ import {
   type Permission,
   type Role
 } from '@astir/types'
-import { authenticate, requirePermission } from '../../middleware/auth'
+import { authenticate, requireAnyPermission, requirePermission } from '../../middleware/auth'
 import { validate } from '../../middleware/validate'
 import { badRequest, notFound } from '../../lib/errors'
 import { sendItem, sendList, sendNoContent } from '../../lib/http'
@@ -21,8 +21,15 @@ import { t } from '../../i18n'
 import { sendMail } from '../../lib/mailer'
 import { publicStudioSettings, saveStudioSettings, studioSettings } from '../../lib/settings'
 import {
+  createCustomRole,
+  deleteCustomRole,
+  listCustomRoles,
+  updateCustomRole
+} from './custom-roles.service'
+import {
   customisedRoles,
   effectivePermissions,
+  rolePermissions,
   forgetPermissionMatrix,
   permissionMatrix,
   resetRolePermissions,
@@ -33,8 +40,9 @@ export const settingsRouter = Router()
 
 /**
  * What the sign-in page may know before anyone is signed in: the name, the
- * logo and the language to greet a stranger in. Nothing else from the
- * settings row leaves without a session.
+ * logo, the language to greet a stranger in and the appearance (font, size,
+ * colours), so the sign-in page already looks like the rest of the studio.
+ * Nothing else from the settings row leaves without a session.
  */
 settingsRouter.get('/brand', async (_req, res, next) => {
   try {
@@ -42,7 +50,8 @@ settingsRouter.get('/brand', async (_req, res, next) => {
     return sendItem(res, {
       name: settings.name,
       logoUrl: settings.logoUrl,
-      defaultLocale: settings.defaultLocale
+      defaultLocale: settings.defaultLocale,
+      appearance: toAppearance(settings)
     })
   } catch (err) {
     next(err)
@@ -92,6 +101,8 @@ const updateSettingsSchema = z.object({
   smtpPassword: z.string().max(200).optional(),
   smtpFrom: optionalText(200)
 })
+  // Font, size, radius, colours and colour mode (Settings → «Оформление»).
+  .extend(appearanceSchema.shape)
 
 settingsRouter.get(
   '/',
@@ -357,7 +368,9 @@ settingsRouter.put(
       const permissions = req.body.permissions as Permission[]
       if (!req.user) throw badRequest(t('common.errors.sessionNotFound'))
 
-      if (req.user.role === role) {
+      // Only when the editor's own rights come from this role: a studio role
+      // on top replaces it, and its own editor has its own guard.
+      if (req.user.role === role && !req.user.customRoleId) {
         const missing = SELF_LOCKOUT_GUARD.filter(p => !permissions.includes(p))
         if (missing.length > 0) {
           throw badRequest(t('team.settings.selfLockout'))
@@ -369,7 +382,7 @@ settingsRouter.put(
        * can delegate anything; an administrator can only pass on rights the
        * administrator role already has, so the editor is never a way up.
        */
-      const own = await effectivePermissions(req.user.role)
+      const own = await effectivePermissions(req.user)
       const beyond = permissions.filter(p => !own.includes(p))
       if (beyond.length > 0) {
         throw badRequest(t('team.settings.beyondOwnRole', { permissions: beyond.join(', ') }))
@@ -383,7 +396,7 @@ settingsRouter.put(
         }
       }
 
-      const before = await effectivePermissions(role)
+      const before = await rolePermissions(role)
       await prisma.$transaction(async tx => {
         await saveRolePermissions(role, permissions, tx)
         await recordAudit({
@@ -411,7 +424,7 @@ settingsRouter.delete(
   async (req, res, next) => {
     try {
       const role = req.params.role as Role
-      const before = await effectivePermissions(role)
+      const before = await rolePermissions(role)
       await prisma.$transaction(async tx => {
         await resetRolePermissions(role, tx)
         await recordAudit({
@@ -424,6 +437,74 @@ settingsRouter.delete(
       })
       forgetPermissionMatrix()
       return sendItem(res, { role, permissions: ROLE_PERMISSIONS[role] })
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+/* ----------------------------------------------------------- studio roles */
+
+/*
+ * Read by everyone who assigns roles, not only by the settings page: the
+ * accounts tab and the employee form offer these next to the built-in ones.
+ */
+settingsRouter.get(
+  '/roles',
+  requireAnyPermission(PERMISSION.SETTINGS_VIEW, PERMISSION.USER_MANAGE, PERMISSION.TEAM_MANAGE),
+  async (_req, res, next) => {
+    try {
+      const roles = await listCustomRoles()
+      return sendList(res, roles, { page: 1, limit: roles.length, total: roles.length, pages: 1 })
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+settingsRouter.post(
+  '/roles',
+  requirePermission(PERMISSION.PERMISSION_MANAGE),
+  validate(createCustomRoleSchema),
+  async (req, res, next) => {
+    try {
+      if (!req.user) throw badRequest(t('common.errors.sessionNotFound'))
+      const role = await createCustomRole(req.body, { user: req.user, ipAddress: req.ip })
+      return sendItem(res, role, 201)
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+settingsRouter.patch(
+  '/roles/:id',
+  requirePermission(PERMISSION.PERMISSION_MANAGE),
+  validate(idParamSchema, 'params'),
+  validate(updateCustomRoleSchema),
+  async (req, res, next) => {
+    try {
+      if (!req.user) throw badRequest(t('common.errors.sessionNotFound'))
+      const role = await updateCustomRole(req.params.id as string, req.body, {
+        user: req.user,
+        ipAddress: req.ip
+      })
+      return sendItem(res, role)
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+settingsRouter.delete(
+  '/roles/:id',
+  requirePermission(PERMISSION.PERMISSION_MANAGE),
+  validate(idParamSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      if (!req.user) throw badRequest(t('common.errors.sessionNotFound'))
+      await deleteCustomRole(req.params.id as string, { user: req.user, ipAddress: req.ip })
+      return sendNoContent(res)
     } catch (err) {
       next(err)
     }

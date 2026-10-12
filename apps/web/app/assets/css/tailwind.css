@@ -17,7 +17,9 @@
    Neutral base + a single amber accent reserved for production signal
    (at-risk, pending review). Status colours are semantic, never decorative.
 --------------------------------------------------------------------------- */
-:root {
+/* .light: a box that must stay light inside a dark page (the appearance preview). */
+:root,
+.light {
   --radius: 0.625rem;
 
   --background: oklch(99% 0 0);

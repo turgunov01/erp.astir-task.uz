@@ -3,7 +3,7 @@
  * date arithmetic and grouping. The three views (list, charts, Gantt) read
  * the same payload, so they also agree on what "late" and "this group" mean.
  */
-import { TASK_STATUS_LABEL, enumLabel } from './labels'
+import { TASK_STATUS_LABEL, enumLabel, formatDay } from './labels'
 
 export interface TimelineTask {
   id: string
@@ -189,9 +189,9 @@ export function localDate(value: Date | string, options: { day?: boolean, month:
   return options.year ? translate('projects.months.monthYear', { month, year }) : month
 }
 
-/** Day, month and year — «10 Eyl 2026»; a dash when there is no date. */
+/** Day, month and year as DD.MM.YY; a dash when there is no date. */
 export function fullDay(value: Date | string | null | undefined) {
-  return value ? localDate(value, { day: true, month: 'short', year: 'numeric' }) : '—'
+  return formatDay(value ?? null)
 }
 
 export function shortDay(value: Date | string) {
