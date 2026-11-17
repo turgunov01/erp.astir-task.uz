@@ -66,7 +66,8 @@ function netTone(value: number) {
 /* ---- salary editor ---- */
 
 const salaryTarget = ref<SummaryRow | null>(null)
-const salaryAmount = ref('')
+/* A type="number" input hands v-model a number, not a string. */
+const salaryAmount = ref<string | number>('')
 const salaryCurrency = ref('')
 const salarySaving = ref(false)
 const salaryError = ref('')
@@ -81,8 +82,9 @@ function editSalary(row: SummaryRow) {
 async function saveSalary(clear = false) {
   const row = salaryTarget.value
   if (!row) return
-  const amount = clear ? null : Number(salaryAmount.value)
-  if (!clear && (salaryAmount.value.trim() === '' || Number.isNaN(amount) || (amount ?? 0) < 0)) {
+  const raw = String(salaryAmount.value ?? '').trim()
+  const amount = clear ? null : Number(raw)
+  if (!clear && (raw === '' || Number.isNaN(amount) || (amount ?? 0) < 0)) {
     salaryError.value = t('finance.payroll.salary.invalid')
     return
   }
