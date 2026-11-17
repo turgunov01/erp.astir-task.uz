@@ -70,7 +70,7 @@ const startLine = computed(() =>
     >
       <div class="flex items-start gap-3">
         <span class="grid size-9 shrink-0 place-items-center rounded-lg bg-signal/20 text-amber-800 dark:text-signal">
-          <Icon name="lucide:map-pin-check" class="size-5" />
+          <Icon name="lucide:play" class="size-5" />
         </span>
         <div class="min-w-0 flex-1">
           <p id="check-in-prompt-title" class="text-sm font-semibold">{{ t('shell.checkInPrompt.title') }}</p>
@@ -93,7 +93,7 @@ const startLine = computed(() =>
           :disabled="busy"
           @click="checkIn()"
         >
-          <Icon name="lucide:map-pin-check" class="size-4" />
+          <Icon name="lucide:play" class="size-4" />
           {{ t('shell.checkIn.button') }}
         </button>
       </div>

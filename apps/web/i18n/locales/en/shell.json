@@ -108,7 +108,8 @@
       "worked": "Worked",
       "pauseDeducted": "Paused time is taken off the worked hours.",
       "pauseFailed": "Could not pause the shift",
-      "resumeFailed": "Could not resume the shift"
+      "resumeFailed": "Could not resume the shift",
+      "checkOutTitle": "End your work shift — the time is taken from the server clock"
     },
     "checkInPrompt": {
       "title": "Start your shift",

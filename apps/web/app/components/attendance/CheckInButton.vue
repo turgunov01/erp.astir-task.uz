@@ -4,9 +4,7 @@ import { useMyAttendance } from '~/composables/useMyAttendance'
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '~/components/ui/dropdown-menu'
 
@@ -15,9 +13,10 @@ import {
  *
  * «Начать смену» is the one coloured control in the header until it is
  * pressed. Then the shift shows as a quiet status («На смене с 09:05») with
- * «Пауза» beside it; on pause the status turns amber, counts the pause and
- * offers «Продолжить смену». The status menu shows the arrival, lateness,
- * time on pause (taken off the worked time) and «Закончить смену».
+ * «Пауза» and «Закончить смену» beside it as buttons; on pause the status
+ * turns amber, counts the pause and «Пауза» becomes «Продолжить смену». The
+ * status menu shows the arrival, lateness, time on pause (taken off the
+ * worked time) and the net worked time.
  */
 
 const { t } = useI18n()
@@ -154,6 +153,18 @@ watch(error, (message) => {
         <Icon :name="busy ? 'lucide:loader-circle' : 'lucide:play'" class="size-4" :class="busy ? 'motion-safe:animate-spin' : ''" />
         <span class="whitespace-nowrap">{{ t('shell.checkIn.resume') }}</span>
       </button>
+      <button
+        v-if="onShift"
+        type="button"
+        class="flex h-9 items-center gap-1.5 rounded-md border px-2 text-sm hover:bg-secondary disabled:opacity-70 sm:px-2.5"
+        :disabled="busy"
+        :aria-label="t('shell.checkIn.checkOut')"
+        :title="t('shell.checkIn.checkOutTitle')"
+        @click="checkOut()"
+      >
+        <Icon name="lucide:square" class="size-4" />
+        <span class="hidden whitespace-nowrap sm:inline">{{ t('shell.checkIn.checkOut') }}</span>
+      </button>
 
       <DropdownMenu>
         <DropdownMenuTrigger as-child>
@@ -215,21 +226,6 @@ watch(error, (message) => {
           <p v-if="day.corrected" class="px-2 pb-2 text-xs text-muted-foreground">
             {{ t('shell.checkIn.correctedNote') }}
           </p>
-          <template v-if="onShift">
-            <DropdownMenuSeparator />
-            <DropdownMenuItem v-if="paused" :disabled="busy" @select="resume()">
-              <Icon name="lucide:play" class="size-4" />
-              {{ t('shell.checkIn.resume') }}
-            </DropdownMenuItem>
-            <DropdownMenuItem v-else :disabled="busy" @select="pause()">
-              <Icon name="lucide:pause" class="size-4" />
-              {{ t('shell.checkIn.pause') }}
-            </DropdownMenuItem>
-            <DropdownMenuItem :disabled="busy" @select="checkOut()">
-              <Icon name="lucide:square" class="size-4" />
-              {{ t('shell.checkIn.checkOut') }}
-            </DropdownMenuItem>
-          </template>
         </DropdownMenuContent>
       </DropdownMenu>
     </template>

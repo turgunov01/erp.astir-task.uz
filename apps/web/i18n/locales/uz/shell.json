@@ -108,7 +108,8 @@
       "worked": "Ishlangan",
       "pauseDeducted": "Pauza vaqti ishlangan soatlardan ayirildi.",
       "pauseFailed": "Pauzaga qo‘yib bo‘lmadi",
-      "resumeFailed": "Smenani davom ettirib bo‘lmadi"
+      "resumeFailed": "Smenani davom ettirib bo‘lmadi",
+      "checkOutTitle": "Ish smenasini tugatish — vaqt server soati bo‘yicha yoziladi"
     },
     "checkInPrompt": {
       "title": "Smenani boshlang",

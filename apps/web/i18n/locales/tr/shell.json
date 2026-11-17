@@ -108,7 +108,8 @@
       "worked": "Çalışılan",
       "pauseDeducted": "Mola süresi çalışılan saatlerden düşüldü.",
       "pauseFailed": "Mola verilemedi",
-      "resumeFailed": "Vardiyaya devam edilemedi"
+      "resumeFailed": "Vardiyaya devam edilemedi",
+      "checkOutTitle": "Çalışma vardiyasını bitir — saat sunucu saatinden alınır"
     },
     "checkInPrompt": {
       "title": "Vardiyanızı başlatın",
