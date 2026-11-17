@@ -432,8 +432,10 @@
           "deactivated": "kullanıcıyı devre dışı bıraktı"
         },
         "attendance": {
-          "checked_in": "geldiğini bildirdi",
-          "checked_out": "çıkışını bildirdi"
+          "checked_in": "vardiyayı başlattı",
+          "checked_out": "vardiyayı bitirdi",
+          "paused": "vardiyayı duraklattı",
+          "resumed": "vardiyaya devam etti"
         }
       },
       "activityFamily": {
@@ -546,7 +548,7 @@
         "team_manage": "Çalışanları yönetme",
         "workload_view": "İş yükünü görme",
         "attendance_view": "Kimin geldiğini ve kimin geç kaldığını görme (bölümü açar)",
-        "attendance_self": "“Geldim” / “Çıkıyorum” düğmesiyle giriş-çıkış bildirme",
+        "attendance_self": "“Vardiyayı başlat” / “Vardiyayı bitir” düğmesiyle giriş-çıkış bildirme",
         "attendance_manage": "Günleri düzeltme ve geç kalma cezası uygulama",
         "timesheet_view_own": "Kendi puantajını görme (bölümü açar)",
         "timesheet_view_all": "Herkesin puantajını görme",

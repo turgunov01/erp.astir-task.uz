@@ -3,17 +3,22 @@ import { prisma } from '../../lib/prisma'
 import { badRequest } from '../../lib/errors'
 import { t } from '../../i18n'
 import { dayValue } from '../../lib/studio-time'
-import { figuresFor, isWorkingDay, workSchedule, type WorkSchedule } from './attendance.schedule'
+import { figuresFor, isWorkingDay, pauseMinutes, workSchedule, type WorkSchedule } from './attendance.schedule'
 import { isMarked, today } from './attendance.service'
 
 /**
- * The employee's own «Я приехал» / «Я ушёл» in the header.
+ * The employee's own shift in the header: «Начать смену», «Пауза»,
+ * «Продолжить смену» and «Закончить смену».
  *
  * Times are always the server's clock at the moment of the request — the
  * client never sends one. Both actions are idempotent: pressing again answers
  * with what is already recorded instead of moving it. A day an administrator
  * corrected (or an access-control system imported) belongs to them, and the
  * buttons do not overwrite it.
+ *
+ * A pause stops the shift's clock until «Продолжить смену»: every minute on
+ * pause comes off the day's worked time. Ending the shift while paused
+ * closes the pause at that moment.
  */
 
 export interface MyDay {
@@ -36,6 +41,15 @@ export interface MyDay {
   corrected: boolean
   /** First activity of the day, shown while the arrival is not marked. */
   firstSeenAt: Date | null
+  /** The shift is on «Пауза» right now. */
+  paused: boolean
+  /** When the running pause began. */
+  pausedAt: Date | null
+  /** Minutes on pause so far today, the running pause included. */
+  pausedMinutes: number
+  /** Of pausedMinutes: the finished pauses only, for a live timer. */
+  finishedPauseMinutes: number
+  pauseCount: number
 }
 
 export interface MarkResult {
@@ -66,7 +80,8 @@ async function requireEmployee(userId: string): Promise<string> {
   return employeeId
 }
 
-function view(date: string, schedule: WorkSchedule, day: AttendanceDay | null): MyDay {
+function view(date: string, schedule: WorkSchedule, day: AttendanceDay | null, now = new Date()): MyDay {
+  const paused = Boolean(day?.pausedAt)
   return {
     tracked: true,
     date,
@@ -81,7 +96,12 @@ function view(date: string, schedule: WorkSchedule, day: AttendanceDay | null): 
     checkedIn: Boolean(day && isCheckedIn(day)),
     checkedOut: Boolean(day && isCheckedOut(day)),
     corrected: Boolean(day && day.source !== 'WEB'),
-    firstSeenAt: day?.firstSeenAt ?? null
+    firstSeenAt: day?.firstSeenAt ?? null,
+    paused,
+    pausedAt: day?.pausedAt ?? null,
+    pausedMinutes: day ? pauseMinutes(day, paused ? now : day.checkOutAt) : 0,
+    finishedPauseMinutes: day?.pausedMinutes ?? 0,
+    pauseCount: day?.pauseCount ?? 0
   }
 }
 
@@ -102,7 +122,7 @@ export async function myToday(userId: string, now = new Date()): Promise<MyDay |
   const day = await prisma.attendanceDay.findUnique({
     where: { employeeId_date: { employeeId, date: dayValue(date) } }
   })
-  return view(date, schedule, day)
+  return view(date, schedule, day, now)
 }
 
 /** Open the day with the press as its arrival. False when someone else opened it first. */
@@ -145,7 +165,7 @@ async function markExisting(day: AttendanceDay, date: string, schedule: WorkSche
       checkOutMethod: 'AUTO',
       firstSeenAt: day.firstSeenAt ?? now,
       lastSeenAt: checkOutAt,
-      ...figuresFor(date, now, checkOutAt, schedule)
+      ...figuresFor(date, now, checkOutAt, schedule, day)
     }
   })
   return count > 0
@@ -157,7 +177,7 @@ export async function checkIn(userId: string, now = new Date()): Promise<MarkRes
   const existing = await prisma.attendanceDay.findUnique({ where: key })
 
   if (existing && isCheckedIn(existing)) {
-    return { day: view(date, schedule, existing), recorded: false, employeeId }
+    return { day: view(date, schedule, existing, now), recorded: false, employeeId }
   }
   if (existing && existing.source !== 'WEB') {
     throw badRequest(t('team.attendance.correctedByAdmin'))
@@ -172,7 +192,7 @@ export async function checkIn(userId: string, now = new Date()): Promise<MarkRes
   }
 
   const day = await prisma.attendanceDay.findUnique({ where: key })
-  return { day: view(date, schedule, day), recorded, employeeId }
+  return { day: view(date, schedule, day, now), recorded, employeeId }
 }
 
 /** «Я ушёл»: fix the departure now. Needs today's arrival first. */
@@ -184,22 +204,92 @@ export async function checkOut(userId: string, now = new Date()): Promise<MarkRe
     throw badRequest(t('team.attendance.checkInFirst'))
   }
   if (isCheckedOut(existing)) {
-    return { day: view(date, schedule, existing), recorded: false, employeeId }
+    return { day: view(date, schedule, existing, now), recorded: false, employeeId }
   }
   if (existing.source !== 'WEB') {
     throw badRequest(t('team.attendance.checkOutByAdmin'))
   }
 
+  // Ending the shift on pause closes the pause now: it is still deducted.
+  const pausedMinutes = pauseMinutes(existing, now)
   const { count } = await prisma.attendanceDay.updateMany({
-    where: { id: existing.id, source: 'WEB', checkInMethod: 'BUTTON', OR: [{ checkOutMethod: null }, { checkOutMethod: 'AUTO' }] },
+    where: {
+      id: existing.id,
+      source: 'WEB',
+      checkInMethod: 'BUTTON',
+      pausedAt: existing.pausedAt,
+      OR: [{ checkOutMethod: null }, { checkOutMethod: 'AUTO' }]
+    },
     data: {
       checkOutAt: now,
       checkOutMethod: 'BUTTON',
       lastSeenAt: later(existing.lastSeenAt, now),
-      ...figuresFor(date, existing.checkInAt, now, schedule)
+      pausedAt: null,
+      pausedMinutes,
+      ...figuresFor(date, existing.checkInAt, now, schedule, { pausedMinutes, pausedAt: null })
     }
   })
 
   const day = await prisma.attendanceDay.findUnique({ where: key })
-  return { day: view(date, schedule, day), recorded: count > 0, employeeId }
+  return { day: view(date, schedule, day, now), recorded: count > 0, employeeId }
+}
+
+/** The shift is running: marked arrival, no departure, not corrected. */
+async function runningShift(userId: string, now: Date) {
+  const ctx = await context(userId, now)
+  const existing = await prisma.attendanceDay.findUnique({ where: ctx.key })
+  if (!existing || !isCheckedIn(existing) || !existing.checkInAt) {
+    throw badRequest(t('team.attendance.checkInFirst'))
+  }
+  if (existing.source !== 'WEB') throw badRequest(t('team.attendance.correctedByAdmin'))
+  if (isCheckedOut(existing)) throw badRequest(t('team.attendance.shiftEnded'))
+  return { ...ctx, existing, checkInAt: existing.checkInAt }
+}
+
+/** «Пауза»: stop the shift's clock now, or answer with the pause already running. */
+export async function pause(userId: string, now = new Date()): Promise<MarkResult> {
+  const { employeeId, schedule, date, key, existing, checkInAt } = await runningShift(userId, now)
+  if (existing.pausedAt) {
+    return { day: view(date, schedule, existing, now), recorded: false, employeeId }
+  }
+
+  const { count } = await prisma.attendanceDay.updateMany({
+    where: { id: existing.id, source: 'WEB', pausedAt: null, checkOutMethod: existing.checkOutMethod },
+    data: {
+      pausedAt: now,
+      pauseCount: { increment: 1 },
+      // The shift so far runs up to the press.
+      checkOutAt: later(existing.checkOutAt, now),
+      lastSeenAt: later(existing.lastSeenAt, now),
+      ...figuresFor(date, checkInAt, later(existing.checkOutAt, now), schedule, { pausedMinutes: existing.pausedMinutes, pausedAt: now })
+    }
+  })
+
+  const day = await prisma.attendanceDay.findUnique({ where: key })
+  return { day: view(date, schedule, day, now), recorded: count > 0, employeeId }
+}
+
+/** «Продолжить смену»: close the running pause; its minutes come off the day. */
+export async function resume(userId: string, now = new Date()): Promise<MarkResult> {
+  const { employeeId, schedule, date, key, existing, checkInAt } = await runningShift(userId, now)
+  if (!existing.pausedAt) {
+    return { day: view(date, schedule, existing, now), recorded: false, employeeId }
+  }
+
+  const pausedMinutes = pauseMinutes(existing, now)
+  const checkOutAt = later(existing.checkOutAt, now)
+  const { count } = await prisma.attendanceDay.updateMany({
+    // Only the pause that was read: two presses close it once.
+    where: { id: existing.id, source: 'WEB', pausedAt: existing.pausedAt },
+    data: {
+      pausedAt: null,
+      pausedMinutes,
+      checkOutAt,
+      lastSeenAt: later(existing.lastSeenAt, now),
+      ...figuresFor(date, checkInAt, checkOutAt, schedule, { pausedMinutes, pausedAt: null })
+    }
+  })
+
+  const day = await prisma.attendanceDay.findUnique({ where: key })
+  return { day: view(date, schedule, day, now), recorded: count > 0, employeeId }
 }

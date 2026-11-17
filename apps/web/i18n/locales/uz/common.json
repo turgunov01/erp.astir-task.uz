@@ -432,8 +432,10 @@
           "deactivated": "foydalanuvchini o‘chirib qo‘ydi"
         },
         "attendance": {
-          "checked_in": "kelganini belgiladi",
-          "checked_out": "ketganini belgiladi"
+          "checked_in": "smenani boshladi",
+          "checked_out": "smenani tugatdi",
+          "paused": "smenani pauzaga qo‘ydi",
+          "resumed": "smenani davom ettirdi"
         }
       },
       "activityFamily": {
@@ -546,7 +548,7 @@
         "team_manage": "Xodimlarni boshqarish",
         "workload_view": "Yuklamani ko‘rish",
         "attendance_view": "Kim kelgani va kim kechikkanini ko‘rish (bo‘limni ochadi)",
-        "attendance_self": "«Keldim» / «Ketdim» tugmasi bilan belgilanish",
+        "attendance_self": "«Smenani boshlash» / «Smenani tugatish» tugmasi bilan belgilanish",
         "attendance_manage": "Kunlarni tuzatish va kechikish uchun jarima hisoblash",
         "timesheet_view_own": "O‘z tabelini ko‘rish (bo‘limni ochadi)",
         "timesheet_view_all": "Barcha tabellarni ko‘rish",

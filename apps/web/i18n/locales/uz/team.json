@@ -226,7 +226,7 @@
     "attendance": {
       "eyebrow": "Nazorat",
       "title": "Xodimlar davomati",
-      "intro": "Kim ishga keldi, kim kelmadi. Kelish — sayt sarlavhasidagi «Keldim» tugmasini bosish, ketish — «Ketdim» yoki oxirgi faollik.",
+      "intro": "Kim ishga keldi, kim kelmadi. Kelish — sayt sarlavhasidagi «Smenani boshlash» tugmasini bosish, ketish — «Smenani tugatish» yoki oxirgi faollik. «Pauza» vaqti ishlangan vaqtdan ayiriladi.",
       "scheduleLine": "Ish jadvali {start}–{end}, {days}; {start} + {grace} daqiqadan keyin kelish — kechikish.",
       "editSchedule": "Jadvalni o‘zgartirish",
       "viewsAria": "Ko‘rinish rejimi",
@@ -319,13 +319,16 @@
       },
       "online": "onlayn",
       "correctedTitle": "Qo‘lda tuzatilgan: {comment}",
-      "unmarkedTitle": "«Keldim» tugmasi bosilmagan — birinchi faollik vaqti",
+      "unmarkedTitle": "«Smenani boshlash» tugmasi bosilmagan — birinchi faollik vaqti",
       "unmarkedNote": "belgisiz",
-      "byButton": "«Keldim» tugmasi orqali",
+      "byButton": "«Smenani boshlash» tugmasi orqali",
       "feedOf": "Voqealar lentasi: {name}",
       "feedAria": "{name} xodimining voqealar lentasi",
       "feed": "Voqealar lentasi",
-      "correctAria": "Kunni tuzatish: {name}"
+      "correctAria": "Kunni tuzatish: {name}",
+      "paused": "pauzada",
+      "pauseTitle": "Pauza: {duration} ({n}) — ishlangan vaqtdan ayirildi",
+      "pauseNote": "pauza {duration}"
     },
     "days": {
       "loading": "Kunlar yuklanmoqda...",
@@ -380,7 +383,7 @@
         "worked": "Ishlangan"
       },
       "days": "{n} kun",
-      "unmarkedTitle": "Tizimda bo‘lgan, lekin «Keldim» tugmasini bosmagan: {days}",
+      "unmarkedTitle": "Tizimda bo‘lgan, lekin «Smenani boshlash» tugmasini bosmagan: {days}",
       "unmarked": "belgisiz: {n}",
       "daysAria": "{name} xodimining kunlari",
       "total": "Jami · {n} kishi",
@@ -470,7 +473,7 @@
     },
     "schedule": {
       "saveFailed": "Jadvalni saqlab bo‘lmadi",
-      "intro": "«Davomat» bo‘limi kechikishlar va ishlangan vaqtni shu jadval bo‘yicha hisoblaydi. Kelish — «Keldim» tugmasini bosish (bosilmasa — kundagi birinchi faollik), ketish — «Ketdim» yoki oxirgi faollik. Vaqt studiyaning vaqt mintaqasida («Studiya» yorlig‘i).",
+      "intro": "«Davomat» bo‘limi kechikishlar va ishlangan vaqtni shu jadval bo‘yicha hisoblaydi. Kelish — «Smenani boshlash» tugmasini bosish (bosilmasa — kundagi birinchi faollik), ketish — «Smenani tugatish» yoki oxirgi faollik. Vaqt studiyaning vaqt mintaqasida («Studiya» yorlig‘i).",
       "saved": "Jadval saqlandi.",
       "start": "Ish kuni boshlanishi",
       "end": "Ish kuni tugashi",

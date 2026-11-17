@@ -70,11 +70,12 @@ export default {
     correctionReason: 'Describe the reason for the correction',
     staffOnly: 'Marking arrival is only available to studio employees',
     correctedByAdmin: 'An administrator has already corrected this day — no need to mark it',
-    checkInFirst: 'Mark your arrival first — press “I’m in”',
+    checkInFirst: 'Mark your arrival first — press “Start shift”',
     checkOutByAdmin: 'An administrator corrected this day — they will enter the departure time',
+    shiftEnded: 'Your shift has already ended — no pause needed',
     penaltyRateMissing: 'The lateness penalty rate is not set. Set it in Settings → Work schedule.',
     penaltyReason: 'Late by {minutes} min: arrived {arrival}, work starts at {start}',
     penaltyMarked: '(attendance)',
-    penaltyUnmarked: '(no “I’m in” mark — by first activity)'
+    penaltyUnmarked: '(no “Start shift” mark — by first activity)'
   }
 } satisfies Messages<typeof ru>

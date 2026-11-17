@@ -58,15 +58,38 @@ export interface DayFigures {
 /**
  * Lateness and worked time for one day.
  *
+ * Worked time is the shift's length less every pause taken in it.
+ *
  * Arriving within the grace period is on time; past it, the whole delay since
  * the scheduled start counts — 09:25 against 09:00 with ten minutes' grace is
  * 25 minutes late, not 15. Days off are never late.
  */
+/** The day's pauses: the finished ones and the one running, if any. */
+export interface DayPauses {
+  pausedMinutes: number
+  pausedAt: Date | null
+}
+
+const NO_PAUSES: DayPauses = { pausedMinutes: 0, pausedAt: null }
+
+/**
+ * Minutes on pause up to `until`: the finished pauses plus the running one,
+ * which counts up to `until` (never before it began).
+ */
+export function pauseMinutes(pauses: DayPauses, until: Date | null): number {
+  let total = Math.max(0, pauses.pausedMinutes)
+  if (pauses.pausedAt && until && until > pauses.pausedAt) {
+    total += Math.floor((until.getTime() - pauses.pausedAt.getTime()) / 60_000)
+  }
+  return total
+}
+
 export function figuresFor(
   date: string,
   checkInAt: Date | null,
   checkOutAt: Date | null,
-  schedule: WorkSchedule
+  schedule: WorkSchedule,
+  pauses: DayPauses = NO_PAUSES
 ): DayFigures {
   let lateMinutes = 0
   if (checkInAt && isWorkingDay(date, schedule)) {
@@ -77,8 +100,9 @@ export function figuresFor(
     if (minutes > schedule.start + schedule.graceMinutes) lateMinutes = minutes - schedule.start
   }
 
+  // Time on «Пауза» is not work: it comes off the shift's length.
   const workedMinutes = checkInAt && checkOutAt && checkOutAt > checkInAt
-    ? Math.floor((checkOutAt.getTime() - checkInAt.getTime()) / 60_000)
+    ? Math.max(0, Math.floor((checkOutAt.getTime() - checkInAt.getTime()) / 60_000) - pauseMinutes(pauses, checkOutAt))
     : 0
 
   return { lateMinutes, workedMinutes }

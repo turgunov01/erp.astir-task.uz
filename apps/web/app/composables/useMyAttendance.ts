@@ -3,7 +3,8 @@ import { useAuthStore } from '~/stores/auth'
 import { apiErrorMessage, apiRequest } from '~/composables/useApi'
 
 /**
- * The signed-in employee's own day: «Я приехал» / «Я ушёл».
+ * The signed-in employee's own shift: «Начать смену», «Пауза»,
+ * «Продолжить смену», «Закончить смену».
  *
  * Shared through useState so the header button and the morning prompt show
  * one state and a press in either updates both. Times come from the server;
@@ -25,6 +26,14 @@ export interface MyAttendanceDay {
   checkedOut: boolean
   corrected: boolean
   firstSeenAt: string | null
+  /** The shift is on «Пауза» right now. */
+  paused: boolean
+  pausedAt: string | null
+  /** Minutes on pause today, the running pause included (as of the answer). */
+  pausedMinutes: number
+  /** Of pausedMinutes: the finished pauses only. */
+  finishedPauseMinutes: number
+  pauseCount: number
 }
 
 type MyAttendanceAnswer = MyAttendanceDay | { tracked: false }
@@ -53,7 +62,7 @@ export function useMyAttendance() {
     }
   }
 
-  async function mark(path: 'check-in' | 'check-out', fallback: string) {
+  async function mark(path: 'check-in' | 'check-out' | 'pause' | 'resume', fallback: string) {
     if (busy.value) return
     busy.value = true
     error.value = ''
@@ -75,6 +84,8 @@ export function useMyAttendance() {
     error,
     load,
     checkIn: () => mark('check-in', translate('shell.checkIn.checkInFailed')),
-    checkOut: () => mark('check-out', translate('shell.checkIn.checkOutFailed'))
+    checkOut: () => mark('check-out', translate('shell.checkIn.checkOutFailed')),
+    pause: () => mark('pause', translate('shell.checkIn.pauseFailed')),
+    resume: () => mark('resume', translate('shell.checkIn.resumeFailed'))
   }
 }

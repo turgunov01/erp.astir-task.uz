@@ -1318,8 +1318,16 @@ model AttendanceDay {
 
   /// Minutes past the scheduled start; 0 when on time or on a day off.
   lateMinutes   Int @default(0)
-  /// checkOutAt minus checkInAt, in minutes.
+  /// checkOutAt minus checkInAt, less every pause, in minutes.
   workedMinutes Int @default(0)
+
+  /// «Пауза»: when the running pause began; null while the shift runs.
+  pausedAt      DateTime?
+  /// Minutes of finished pauses («Пауза» … «Продолжить смену»), taken off
+  /// workedMinutes.
+  pausedMinutes Int       @default(0)
+  /// How many times the shift was paused today.
+  pauseCount    Int       @default(0)
 
   source     AttendanceSource @default(WEB)
   /// Record id in the external system, for idempotent imports.
