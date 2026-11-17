@@ -226,7 +226,7 @@
     "attendance": {
       "eyebrow": "Control",
       "title": "Employee attendance",
-      "intro": "Who came to work and who did not. Arrival is a press of “I’m in” in the site header; leaving is “I’m leaving” or the last activity.",
+      "intro": "Who came to work and who did not. Arrival is a press of “Start shift” in the site header; leaving is “End shift” or the last activity. Time on “Pause” is taken off the worked time.",
       "scheduleLine": "Schedule {start}–{end}, {days}; late means after {start} + {grace} min.",
       "editSchedule": "Change schedule",
       "viewsAria": "View mode",
@@ -319,13 +319,16 @@
       },
       "online": "online",
       "correctedTitle": "Corrected by hand: {comment}",
-      "unmarkedTitle": "Did not press “I’m in” — time of first activity",
+      "unmarkedTitle": "Did not press “Start shift” — time of first activity",
       "unmarkedNote": "no check-in",
-      "byButton": "with the “I’m in” button",
+      "byButton": "with the “Start shift” button",
       "feedOf": "Activity feed: {name}",
       "feedAria": "Activity feed of {name}",
       "feed": "Activity feed",
-      "correctAria": "Correct the day: {name}"
+      "correctAria": "Correct the day: {name}",
+      "paused": "paused",
+      "pauseTitle": "Paused: {duration} ({n}) — taken off the worked time",
+      "pauseNote": "pause {duration}"
     },
     "days": {
       "loading": "Loading days...",
@@ -380,7 +383,7 @@
         "worked": "Worked"
       },
       "days": "{n} day | {n} days",
-      "unmarkedTitle": "Was online but did not press “I’m in”: {days}",
+      "unmarkedTitle": "Was online but did not press “Start shift”: {days}",
       "unmarked": "no check-in: {n}",
       "daysAria": "Days of {name}",
       "total": "Total · {n} people",
@@ -470,7 +473,7 @@
     },
     "schedule": {
       "saveFailed": "Could not save the schedule",
-      "intro": "The Attendance section measures lateness and worked time against this schedule. Arrival is a press of “I’m in” (without it, the first activity of the day); leaving is “I’m leaving” or the last activity. Times are in the studio’s time zone (the Studio tab).",
+      "intro": "The Attendance section measures lateness and worked time against this schedule. Arrival is a press of “Start shift” (without it, the first activity of the day); leaving is “End shift” or the last activity. Times are in the studio’s time zone (the Studio tab).",
       "saved": "Schedule saved.",
       "start": "Workday start",
       "end": "Workday end",

@@ -70,11 +70,12 @@ export default {
     correctionReason: 'Tuzatish sababini yozing',
     staffOnly: 'Kelishni belgilash faqat studiya xodimlari uchun',
     correctedByAdmin: 'Bu kunni administrator allaqachon tuzatgan — belgilash shart emas',
-    checkInFirst: 'Avval kelishingizni belgilang — «Keldim» tugmasini bosing',
+    checkInFirst: 'Avval kelishingizni belgilang — «Smenani boshlash» tugmasini bosing',
     checkOutByAdmin: 'Bu kunni administrator tuzatgan — ketish vaqtini u kiritadi',
+    shiftEnded: 'Smena allaqachon tugagan — pauza kerak emas',
     penaltyRateMissing: 'Kechikish jarimasi stavkasi belgilanmagan. Uni Sozlamalar → Ish jadvali bo‘limida ko‘rsating.',
     penaltyReason: '{minutes} daqiqa kechikish: ish {start} da boshlanganda {arrival} da kelgan',
     penaltyMarked: '(davomat)',
-    penaltyUnmarked: '(«Keldim» belgisiz — birinchi faollik bo‘yicha)'
+    penaltyUnmarked: '(«Smenani boshlash» belgisiz — birinchi faollik bo‘yicha)'
   }
 } satisfies Messages<typeof ru>

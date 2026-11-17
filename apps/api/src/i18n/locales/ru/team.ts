@@ -69,12 +69,13 @@ export default {
     correctionReason: 'Опишите причину исправления',
     staffOnly: 'Отметка прихода доступна только сотрудникам студии',
     correctedByAdmin: 'Этот день уже исправил администратор — отмечаться не нужно',
-    checkInFirst: 'Сначала отметьте приход — нажмите «Я приехал»',
+    checkInFirst: 'Сначала отметьте приход — нажмите «Начать смену»',
     checkOutByAdmin: 'Этот день исправил администратор — время ухода внесёт он',
+    shiftEnded: 'Смена уже закончена — пауза больше не нужна',
     penaltyRateMissing: 'Ставка штрафа за опоздание не задана. Укажите её в Настройках → Рабочий график.',
     /** Reason written into the payroll entry a lateness run creates. */
     penaltyReason: 'Опоздание на {minutes} мин: приход {arrival} при начале в {start}',
     penaltyMarked: '(посещаемость)',
-    penaltyUnmarked: '(без отметки «Я приехал» — по первой активности)'
+    penaltyUnmarked: '(без отметки «Начать смену» — по первой активности)'
   }
 }

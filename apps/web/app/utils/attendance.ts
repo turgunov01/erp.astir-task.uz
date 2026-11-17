@@ -38,7 +38,13 @@ export interface AttendanceDayFields {
   firstSeenAt: string | null
   lastSeenAt: string | null
   lateMinutes: number
+  /** Worked time with every pause already taken off. */
   workedMinutes: number
+  /** When the running «Пауза» began; null while the shift runs. */
+  pausedAt: string | null
+  /** Minutes on pause that day (already taken off workedMinutes). */
+  pausedMinutes: number
+  pauseCount: number
   source: 'WEB' | 'MANUAL' | 'EXTERNAL' | null
   comment: string | null
   correctedAt: string | null

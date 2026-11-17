@@ -18,7 +18,7 @@ import * as self from './attendance.self'
  * fines. Corrections and fines go to the audit log, not the activity feed:
  * one person's lateness is not the studio's business.
  *
- * /me/* is every employee's own «Я приехал» / «Я ушёл»: always the caller,
+ * /me/* is every employee's own shift — start, pause, resume, end: always the caller,
  * always the server's clock. The press goes to the feed as «отметился о
  * приходе» without the time or the lateness — the event's own timestamp is
  * the arrival, and lateness stays on the attendance page.
@@ -89,6 +89,18 @@ attendanceRouter.post(
   '/me/check-out',
   requirePermission(PERMISSION.ATTENDANCE_SELF),
   markRoute(self.checkOut, 'attendance.checked_out')
+)
+
+attendanceRouter.post(
+  '/me/pause',
+  requirePermission(PERMISSION.ATTENDANCE_SELF),
+  markRoute(self.pause, 'attendance.paused')
+)
+
+attendanceRouter.post(
+  '/me/resume',
+  requirePermission(PERMISSION.ATTENDANCE_SELF),
+  markRoute(self.resume, 'attendance.resumed')
 )
 
 attendanceRouter.get(

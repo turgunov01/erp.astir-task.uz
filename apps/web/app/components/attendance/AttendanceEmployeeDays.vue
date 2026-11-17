@@ -97,7 +97,16 @@ const isPast = (row: DayRow) => row.status !== 'UPCOMING'
           >
             {{ row.lateMinutes > 0 ? '+' + formatMinutes(row.lateMinutes) : '—' }}
           </td>
-          <td class="px-2 py-1.5 text-right tabular-nums">{{ formatMinutes(row.workedMinutes) }}</td>
+          <td class="px-2 py-1.5 text-right tabular-nums">
+            {{ formatMinutes(row.workedMinutes) }}
+            <span
+              v-if="row.pausedMinutes > 0"
+              class="block text-[11px] leading-tight text-amber-700 dark:text-amber-300"
+              :title="t('team.board.pauseTitle', { duration: formatMinutes(row.pausedMinutes), n: row.pauseCount })"
+            >
+              −{{ t('team.board.pauseNote', { duration: formatMinutes(row.pausedMinutes) }) }}
+            </span>
+          </td>
           <td class="max-w-[14rem] px-2 py-1.5 text-xs text-muted-foreground">
             <span v-if="row.source && row.source !== 'WEB'" class="block truncate" :title="row.comment ?? ''">
               {{ attendanceSourceLabel(row.source) }}<template v-if="row.correctedBy"> ({{ row.correctedBy.firstName }})</template><template v-if="row.comment">: {{ row.comment }}</template>

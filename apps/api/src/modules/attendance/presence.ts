@@ -108,13 +108,16 @@ async function touchDay(existing: AttendanceDay, date: string, at: Date, schedul
   const effective = existing.source === 'WEB' ? inferredTimes(existing, at, lastSeenAt) : {}
   const checkInAt = effective.checkInAt ?? existing.checkInAt
   const checkOutAt = effective.checkOutAt ?? existing.checkOutAt
-  const figures = existing.source === 'WEB' ? figuresFor(date, checkInAt, checkOutAt, schedule) : {}
+  const figures = existing.source === 'WEB' ? figuresFor(date, checkInAt, checkOutAt, schedule, existing) : {}
   const { count } = await prisma.attendanceDay.updateMany({
     where: {
       id: existing.id,
       source: existing.source,
       checkInMethod: existing.checkInMethod,
-      checkOutMethod: existing.checkOutMethod
+      checkOutMethod: existing.checkOutMethod,
+      // A pause started or ended in between changes the worked time.
+      pausedAt: existing.pausedAt,
+      pausedMinutes: existing.pausedMinutes
     },
     data: { firstSeenAt: existing.firstSeenAt ?? at, lastSeenAt, ...effective, ...figures }
   })

@@ -70,11 +70,12 @@ export default {
     correctionReason: 'Düzeltmenin nedenini yazın',
     staffOnly: 'Geliş bildirimi yalnızca stüdyo çalışanlarına açıktır',
     correctedByAdmin: 'Bu günü bir yönetici zaten düzeltti — bildirmenize gerek yok',
-    checkInFirst: 'Önce gelişinizi bildirin — “Geldim” düğmesine basın',
+    checkInFirst: 'Önce gelişinizi bildirin — “Vardiyayı başlat” düğmesine basın',
     checkOutByAdmin: 'Bu günü bir yönetici düzeltti — çıkış saatini o girecek',
+    shiftEnded: 'Vardiyanız zaten bitti — mola gerekmiyor',
     penaltyRateMissing: 'Gecikme cezası oranı belirlenmemiş. Ayarlar → Çalışma takvimi bölümünden belirleyin.',
     penaltyReason: '{minutes} dk gecikme: iş {start} saatinde başlarken geliş {arrival}',
     penaltyMarked: '(devam kaydı)',
-    penaltyUnmarked: '(“Geldim” bildirimi yok — ilk etkinliğe göre)'
+    penaltyUnmarked: '(“Vardiyayı başlat” bildirimi yok — ilk etkinliğe göre)'
   }
 } satisfies Messages<typeof ru>

@@ -3,7 +3,7 @@ import { prisma } from '../../lib/prisma'
 import { badRequest, notFound } from '../../lib/errors'
 import { t } from '../../i18n'
 import { dayKey, dayValue, daysInRange, instantAt, localParts } from '../../lib/studio-time'
-import { figuresFor, isWorkingDay, workSchedule, type WorkSchedule } from './attendance.schedule'
+import { figuresFor, isWorkingDay, pauseMinutes, workSchedule, type WorkSchedule } from './attendance.schedule'
 
 /**
  * Attendance board, period totals and manual corrections (Verifix-style
@@ -103,6 +103,9 @@ function dayView(day: AttendanceDay | null) {
     lastSeenAt: day?.lastSeenAt ?? null,
     lateMinutes: day?.lateMinutes ?? 0,
     workedMinutes: day?.workedMinutes ?? 0,
+    pausedAt: day?.pausedAt ?? null,
+    pausedMinutes: day ? pauseMinutes(day, day.checkOutAt) : 0,
+    pauseCount: day?.pauseCount ?? 0,
     source: day?.source ?? null,
     comment: day?.comment ?? null,
     correctedAt: day?.correctedAt ?? null
@@ -310,6 +313,19 @@ export async function employeeDays(employeeId: string, from: string, to: string,
   }
 }
 
+/**
+ * The day's pauses with a running one closed at `until` (or dropped when
+ * there is no departure to close it at).
+ */
+function closedPauses(day: AttendanceDay | null, until: Date | null) {
+  if (!day) return { pausedAt: null, pausedMinutes: 0, pauseCount: 0 }
+  return {
+    pausedAt: null,
+    pausedMinutes: until ? pauseMinutes(day, until) : day.pausedMinutes,
+    pauseCount: day.pauseCount
+  }
+}
+
 export interface CorrectionInput {
   /** HH:MM local, or null to clear. */
   checkIn: number | null
@@ -345,10 +361,14 @@ export async function correctDay(
   const key = { employeeId_date: { employeeId, date: dayValue(date) } }
   const before = await prisma.attendanceDay.findUnique({ where: key })
 
+  // Pauses the employee took stay off the corrected day too; a pause still
+  // running is closed at the corrected departure.
+  const pauses = closedPauses(before, checkOutAt)
   const data = {
     checkInAt,
     checkOutAt,
-    ...figuresFor(date, checkInAt, checkOutAt, schedule),
+    ...pauses,
+    ...figuresFor(date, checkInAt, checkOutAt, schedule, pauses),
     source: 'MANUAL' as const,
     correctedById: actorId ?? null,
     correctedAt: now,
@@ -383,7 +403,7 @@ export async function resetDay(employeeId: string, date: string) {
       // goes back to what activity alone shows.
       checkInMethod: 'AUTO',
       checkOutMethod: 'AUTO',
-      ...figuresFor(date, before.firstSeenAt, before.lastSeenAt, schedule),
+      ...figuresFor(date, before.firstSeenAt, before.lastSeenAt, schedule, before),
       source: 'WEB',
       correctedById: null,
       correctedAt: null,

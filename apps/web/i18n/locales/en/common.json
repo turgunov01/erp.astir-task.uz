@@ -432,8 +432,10 @@
           "deactivated": "deactivated a user"
         },
         "attendance": {
-          "checked_in": "checked in",
-          "checked_out": "checked out"
+          "checked_in": "started the shift",
+          "checked_out": "ended the shift",
+          "paused": "paused the shift",
+          "resumed": "resumed the shift"
         }
       },
       "activityFamily": {
@@ -546,7 +548,7 @@
         "team_manage": "Manage employees",
         "workload_view": "See workload",
         "attendance_view": "See who came in and who was late (opens the section)",
-        "attendance_self": "Check in and out with “I’m in” / “I’m leaving”",
+        "attendance_self": "Check in and out with “Start shift” / “End shift”",
         "attendance_manage": "Correct days and charge lateness fines",
         "timesheet_view_own": "See own timesheet (opens the section)",
         "timesheet_view_all": "See everyone’s timesheets",

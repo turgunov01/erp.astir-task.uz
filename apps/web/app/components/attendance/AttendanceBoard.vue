@@ -318,7 +318,11 @@ function feedLink(row: BoardRow) {
             >
               {{ attendanceStatusLabel(row.status, isToday) }}
             </span>
-            <span v-if="row.online" class="ml-1.5 hidden items-center gap-1 text-xs text-emerald-700 lg:inline-flex dark:text-emerald-300">
+            <span v-if="isToday && row.pausedAt" class="ml-1.5 inline-flex items-center gap-1 text-xs text-amber-700 dark:text-amber-300">
+              <Icon name="lucide:pause" class="size-3" aria-hidden="true" />
+              {{ t('team.board.paused') }}
+            </span>
+            <span v-else-if="row.online" class="ml-1.5 hidden items-center gap-1 text-xs text-emerald-700 lg:inline-flex dark:text-emerald-300">
               <span class="size-1.5 rounded-full bg-emerald-500 motion-safe:animate-pulse" aria-hidden="true" />
               {{ t('team.board.online') }}
             </span>
@@ -361,7 +365,16 @@ function feedLink(row: BoardRow) {
             </div>
             <div>
               <dt class="text-[11px] text-muted-foreground lg:hidden">{{ t('team.board.columns.worked') }}</dt>
-              <dd class="tabular-nums">{{ formatMinutes(row.workedMinutes) }}</dd>
+              <dd class="tabular-nums">
+                {{ formatMinutes(row.workedMinutes) }}
+                <span
+                  v-if="row.pausedMinutes > 0"
+                  class="block text-[11px] leading-tight text-amber-700 dark:text-amber-300"
+                  :title="t('team.board.pauseTitle', { duration: formatMinutes(row.pausedMinutes), n: row.pauseCount })"
+                >
+                  −{{ t('team.board.pauseNote', { duration: formatMinutes(row.pausedMinutes) }) }}
+                </span>
+              </dd>
             </div>
             <div>
               <dt class="text-[11px] text-muted-foreground lg:hidden">{{ t('team.board.columns.actions') }}</dt>

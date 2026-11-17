@@ -226,7 +226,7 @@
     "attendance": {
       "eyebrow": "Kontrol",
       "title": "Çalışan devam takibi",
-      "intro": "Kim işe geldi, kim gelmedi. Geliş — site başlığındaki «Geldim» düğmesine basmak, çıkış — «Çıkıyorum» ya da son etkinlik.",
+      "intro": "Kim işe geldi, kim gelmedi. Geliş — site başlığındaki «Vardiyayı başlat» düğmesine basmak, çıkış — «Vardiyayı bitir» ya da son etkinlik. «Mola» süresi çalışılan süreden düşülür.",
       "scheduleLine": "Çalışma saatleri {start}–{end}, {days}; {start} + {grace} dk sonrası geç kalma sayılır.",
       "editSchedule": "Programı değiştir",
       "viewsAria": "Görünüm",
@@ -319,13 +319,16 @@
       },
       "online": "çevrimiçi",
       "correctedTitle": "Elle düzeltildi: {comment}",
-      "unmarkedTitle": "«Geldim» düğmesine basmadı — ilk etkinlik zamanı",
+      "unmarkedTitle": "«Vardiyayı başlat» düğmesine basmadı — ilk etkinlik zamanı",
       "unmarkedNote": "girişsiz",
-      "byButton": "«Geldim» düğmesiyle",
+      "byButton": "«Vardiyayı başlat» düğmesiyle",
       "feedOf": "Etkinlik akışı: {name}",
       "feedAria": "{name} adlı çalışanın etkinlik akışı",
       "feed": "Etkinlik akışı",
-      "correctAria": "Günü düzelt: {name}"
+      "correctAria": "Günü düzelt: {name}",
+      "paused": "molada",
+      "pauseTitle": "Mola: {duration} ({n}) — çalışılan süreden düşüldü",
+      "pauseNote": "mola {duration}"
     },
     "days": {
       "loading": "Günler yükleniyor...",
@@ -380,7 +383,7 @@
         "worked": "Çalışılan"
       },
       "days": "{n} gün",
-      "unmarkedTitle": "Sistemdeydi ama «Geldim» düğmesine basmadı: {days}",
+      "unmarkedTitle": "Sistemdeydi ama «Vardiyayı başlat» düğmesine basmadı: {days}",
       "unmarked": "girişsiz: {n}",
       "daysAria": "{name} adlı çalışanın günleri",
       "total": "Toplam · {n} kişi",
@@ -470,7 +473,7 @@
     },
     "schedule": {
       "saveFailed": "Program kaydedilemedi",
-      "intro": "«Devam» bölümü geç kalmaları ve çalışılan süreyi bu programa göre hesaplar. Geliş — «Geldim» düğmesine basmak (basılmazsa günün ilk etkinliği), çıkış — «Çıkıyorum» ya da son etkinlik. Saatler stüdyonun saat dilimindedir («Stüdyo» sekmesi).",
+      "intro": "«Devam» bölümü geç kalmaları ve çalışılan süreyi bu programa göre hesaplar. Geliş — «Vardiyayı başlat» düğmesine basmak (basılmazsa günün ilk etkinliği), çıkış — «Vardiyayı bitir» ya da son etkinlik. Saatler stüdyonun saat dilimindedir («Stüdyo» sekmesi).",
       "saved": "Program kaydedildi.",
       "start": "İş günü başlangıcı",
       "end": "İş günü bitişi",
