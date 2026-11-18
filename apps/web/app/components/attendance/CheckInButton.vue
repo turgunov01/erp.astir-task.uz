@@ -113,15 +113,15 @@ watch(error, (message) => {
     <button
       v-if="needsPress"
       type="button"
-      class="group relative flex h-9 items-center gap-1.5 rounded-md bg-signal px-2.5 text-sm font-semibold text-signal-foreground shadow-sm transition-[transform,filter] hover:brightness-105 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-70 sm:px-3"
+      class="group relative flex h-9 items-center gap-1.5 rounded-md px-2.5 text-sm sm:px-3 bg-emerald-600 font-semibold text-white hover:bg-emerald-700 shadow-sm transition-[transform,background-color] active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-70"
       :disabled="busy"
       :aria-label="t('shell.checkIn.buttonAria')"
       :title="t('shell.checkIn.buttonTitle')"
       @click="checkIn()"
     >
       <span class="absolute -right-1 -top-1 flex size-2.5" aria-hidden="true">
-        <span class="absolute inline-flex size-full rounded-full bg-signal opacity-75 motion-safe:animate-ping" />
-        <span class="relative inline-flex size-2.5 rounded-full border-2 border-card bg-signal" />
+        <span class="absolute inline-flex size-full rounded-full bg-emerald-500 opacity-75 motion-safe:animate-ping" />
+        <span class="relative inline-flex size-2.5 rounded-full border-2 border-card bg-emerald-500" />
       </span>
       <Icon :name="busy ? 'lucide:loader-circle' : 'lucide:play'" class="size-4" :class="busy ? 'motion-safe:animate-spin' : ''" />
       <span class="whitespace-nowrap">{{ t('shell.checkIn.button') }}</span>
@@ -132,7 +132,7 @@ watch(error, (message) => {
       <button
         v-if="onShift && !paused"
         type="button"
-        class="flex h-9 items-center gap-1.5 rounded-md border px-2 text-sm hover:bg-secondary disabled:opacity-70 sm:px-2.5"
+        class="flex h-9 items-center gap-1.5 rounded-md px-2 text-sm sm:px-2.5 bg-amber-400 font-semibold text-amber-950 hover:bg-amber-500 shadow-sm transition-[transform,background-color] active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-70"
         :disabled="busy"
         :aria-label="t('shell.checkIn.pause')"
         :title="t('shell.checkIn.pauseTitle')"
@@ -144,7 +144,7 @@ watch(error, (message) => {
       <button
         v-else-if="paused"
         type="button"
-        class="flex h-9 items-center gap-1.5 rounded-md bg-signal px-2.5 text-sm font-semibold text-signal-foreground shadow-sm transition-[transform,filter] hover:brightness-105 active:scale-[0.97] disabled:opacity-70 sm:px-3"
+        class="flex h-9 items-center gap-1.5 rounded-md px-2.5 text-sm sm:px-3 bg-emerald-600 font-semibold text-white hover:bg-emerald-700 shadow-sm transition-[transform,background-color] active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-70"
         :disabled="busy"
         :aria-label="t('shell.checkIn.resume')"
         :title="t('shell.checkIn.resumeTitle')"
@@ -156,7 +156,7 @@ watch(error, (message) => {
       <button
         v-if="onShift"
         type="button"
-        class="flex h-9 items-center gap-1.5 rounded-md border px-2 text-sm hover:bg-secondary disabled:opacity-70 sm:px-2.5"
+        class="flex h-9 items-center gap-1.5 rounded-md px-2 text-sm sm:px-2.5 bg-red-600 font-semibold text-white hover:bg-red-700 shadow-sm transition-[transform,background-color] active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-70"
         :disabled="busy"
         :aria-label="t('shell.checkIn.checkOut')"
         :title="t('shell.checkIn.checkOutTitle')"

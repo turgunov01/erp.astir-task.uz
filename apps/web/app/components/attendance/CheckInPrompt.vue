@@ -89,7 +89,7 @@ const startLine = computed(() =>
         </button>
         <button
           type="button"
-          class="flex h-8 items-center gap-1.5 rounded-md bg-signal px-3 text-sm font-semibold text-signal-foreground hover:brightness-105 disabled:opacity-70"
+          class="flex h-8 items-center gap-1.5 rounded-md bg-emerald-600 px-3 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-70"
           :disabled="busy"
           @click="checkIn()"
         >
