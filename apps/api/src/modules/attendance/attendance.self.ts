@@ -74,10 +74,38 @@ async function employeeIdOf(userId: string): Promise<string | null> {
   return employee?.id ?? null
 }
 
+/**
+ * Studio accounts without an employee card (the system administrator) may
+ * still run a shift. A client account may not, and neither may someone whose
+ * card was deleted from the team on purpose.
+ */
+async function canStartCard(userId: string): Promise<boolean> {
+  const [user, card] = await Promise.all([
+    prisma.user.findUnique({ where: { id: userId }, select: { clientId: true, deletedAt: true } }),
+    prisma.employee.findUnique({ where: { userId }, select: { id: true } })
+  ])
+  return Boolean(user && !user.clientId && !user.deletedAt && !card)
+}
+
+/** The first shift press of such an account opens its employee card. */
 async function requireEmployee(userId: string): Promise<string> {
   const employeeId = await employeeIdOf(userId)
-  if (!employeeId) throw badRequest(t('team.attendance.staffOnly'))
-  return employeeId
+  if (employeeId) return employeeId
+  if (!(await canStartCard(userId))) throw badRequest(t('team.attendance.staffOnly'))
+  try {
+    const card = await prisma.employee.create({
+      data: { userId, position: t('team.attendance.ownPosition') },
+      select: { id: true }
+    })
+    return card.id
+  } catch (err) {
+    // A second press in the same instant already opened it.
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+      const raced = await employeeIdOf(userId)
+      if (raced) return raced
+    }
+    throw err
+  }
 }
 
 function view(date: string, schedule: WorkSchedule, day: AttendanceDay | null, now = new Date()): MyDay {
@@ -116,7 +144,12 @@ async function context(userId: string, now: Date) {
 /** Today's marks for the header button. */
 export async function myToday(userId: string, now = new Date()): Promise<MyDay | { tracked: false }> {
   const employeeId = await employeeIdOf(userId)
-  if (!employeeId) return { tracked: false }
+  if (!employeeId) {
+    if (!(await canStartCard(userId))) return { tracked: false }
+    // No card yet: an empty day, so «Начать смену» shows and opens one.
+    const schedule = await workSchedule()
+    return view(today(schedule, now), schedule, null, now)
+  }
   const schedule = await workSchedule()
   const date = today(schedule, now)
   const day = await prisma.attendanceDay.findUnique({

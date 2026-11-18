@@ -69,6 +69,7 @@ export default {
     notCorrected: 'This day has not been corrected manually',
     correctionReason: 'Describe the reason for the correction',
     staffOnly: 'Marking arrival is only available to studio employees',
+    ownPosition: 'Administration',
     correctedByAdmin: 'An administrator has already corrected this day — no need to mark it',
     checkInFirst: 'Mark your arrival first — press “Start shift”',
     checkOutByAdmin: 'An administrator corrected this day — they will enter the departure time',

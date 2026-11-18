@@ -69,6 +69,7 @@ export default {
     notCorrected: 'Bu kun qo‘lda tuzatilmagan',
     correctionReason: 'Tuzatish sababini yozing',
     staffOnly: 'Kelishni belgilash faqat studiya xodimlari uchun',
+    ownPosition: 'Ma’muriyat',
     correctedByAdmin: 'Bu kunni administrator allaqachon tuzatgan — belgilash shart emas',
     checkInFirst: 'Avval kelishingizni belgilang — «Smenani boshlash» tugmasini bosing',
     checkOutByAdmin: 'Bu kunni administrator tuzatgan — ketish vaqtini u kiritadi',

@@ -69,6 +69,7 @@ export default {
     notCorrected: 'Bu gün elle düzeltilmedi',
     correctionReason: 'Düzeltmenin nedenini yazın',
     staffOnly: 'Geliş bildirimi yalnızca stüdyo çalışanlarına açıktır',
+    ownPosition: 'Yönetim',
     correctedByAdmin: 'Bu günü bir yönetici zaten düzeltti — bildirmenize gerek yok',
     checkInFirst: 'Önce gelişinizi bildirin — “Vardiyayı başlat” düğmesine basın',
     checkOutByAdmin: 'Bu günü bir yönetici düzeltti — çıkış saatini o girecek',
