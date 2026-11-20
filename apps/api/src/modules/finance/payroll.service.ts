@@ -10,6 +10,7 @@ import { hasPermission } from '../../lib/rbac'
 import { studioSettings } from '../../lib/settings'
 import { badRequest, conflict, notFound, unauthenticated } from '../../lib/errors'
 import { t, type MessageKey } from '../../i18n'
+import { attendanceMonth, earnedPay } from './payroll.attendance'
 
 /**
  * Employee pay adjustments (client item 7): advances, penalties incl.
@@ -294,19 +295,27 @@ export interface SummaryRow {
   lateMinutes: number
   latenessCount: number
   deductions: number
+  /** Minutes worked this month by attendance (pauses already off). */
+  workedMinutes: number
+  /** Salary × worked ÷ month norm, capped at the salary; null without one. */
+  earned: number | null
   accrued: number
   withheld: number
   net: number
   drafts: number
 }
 
-type Totals = Omit<SummaryRow, 'employee' | 'salary' | 'drafts'> & { salary: number, drafts: number }
+type Totals = Omit<SummaryRow, 'employee' | 'salary' | 'earned' | 'drafts'> & {
+  salary: number
+  earned: number
+  drafts: number
+}
 
 function emptyRow(employee: SummaryRow['employee'], currency: string): SummaryRow {
   return {
     employee, currency, salary: null,
     bonuses: 0, otherAccruals: 0, advances: 0, penalties: 0, lateness: 0,
-    lateMinutes: 0, latenessCount: 0, deductions: 0,
+    lateMinutes: 0, latenessCount: 0, deductions: 0, workedMinutes: 0, earned: null,
     accrued: 0, withheld: 0, net: 0, drafts: 0
   }
 }
@@ -339,7 +348,7 @@ export async function summary(period: string, scope: PayrollScope, employeeId?: 
     ...(employeeFilter ? { employeeId: employeeFilter } : {})
   }
 
-  const [entries, salaries] = await Promise.all([
+  const [entries, salaries, attendance] = await Promise.all([
     prisma.payrollEntry.findMany({
       where: entryWhere,
       select: {
@@ -353,12 +362,15 @@ export async function summary(period: string, scope: PayrollScope, employeeId?: 
         ...(employeeFilter ? { employeeId: employeeFilter } : {})
       },
       select: { employeeId: true, amount: true, currency: true }
-    })
+    }),
+    attendanceMonth(period, employeeFilter)
   ])
 
   const employeeIds = [...new Set([
     ...entries.map(entry => entry.employeeId),
-    ...salaries.map(salary => salary.employeeId)
+    ...salaries.map(salary => salary.employeeId),
+    // Someone who has since left still has a name on the days they worked.
+    ...attendance.byEmployee.keys()
   ])]
   /*
    * Everyone still working is listed even with nothing on file, so a salary
@@ -422,11 +434,32 @@ export async function summary(period: string, scope: PayrollScope, employeeId?: 
     if (!listed.has(person.id)) rowFor(person.id, settings.currency)
   }
 
+  /*
+   * Attendance: worked time goes on the salary's row (the studio currency's
+   * when there is no salary), fines not yet approved as entries on the
+   * studio currency's row — the rates are set in that currency.
+   */
+  for (const [id, month] of attendance.byEmployee) {
+    const salaryRow = [...rows.values()].find(row => row.employee.id === id && row.salary !== null)
+    const hoursRow = salaryRow ?? rowFor(id, settings.currency)
+    hoursRow.workedMinutes += month.workedMinutes
+    if (month.latenessCount > 0) {
+      const fineRow = rowFor(id, attendance.norm.currency)
+      fineRow.lateness += month.lateness
+      fineRow.latenessCount += month.latenessCount
+      fineRow.lateMinutes += month.lateMinutes
+      fineRow.drafts = Math.max(0, fineRow.drafts - month.coveredDrafts)
+    }
+  }
+
   const result = [...rows.values()].map(row => {
-    const accrued = (row.salary ?? 0) + row.bonuses + row.otherAccruals
+    // Pay follows the hours: the salary share earned by the time worked.
+    const earned = earnedPay(row.salary, row.workedMinutes, attendance.norm.normMinutes)
+    const accrued = (earned ?? 0) + row.bonuses + row.otherAccruals
     const withheld = row.penalties + row.lateness + row.deductions
     return {
       ...row,
+      earned,
       accrued: cents(accrued),
       withheld: cents(withheld),
       net: cents(accrued - withheld - row.advances)
@@ -438,12 +471,13 @@ export async function summary(period: string, scope: PayrollScope, employeeId?: 
     const total = totals.get(row.currency) ?? {
       currency: row.currency, salary: 0, bonuses: 0, otherAccruals: 0, advances: 0,
       penalties: 0, lateness: 0, lateMinutes: 0, latenessCount: 0, deductions: 0,
-      accrued: 0, withheld: 0, net: 0, drafts: 0
+      workedMinutes: 0, earned: 0, accrued: 0, withheld: 0, net: 0, drafts: 0
     }
     total.salary += row.salary ?? 0
+    total.earned += row.earned ?? 0
     for (const key of [
       'bonuses', 'otherAccruals', 'advances', 'penalties', 'lateness', 'lateMinutes',
-      'latenessCount', 'deductions', 'accrued', 'withheld', 'net', 'drafts'
+      'latenessCount', 'deductions', 'workedMinutes', 'accrued', 'withheld', 'net', 'drafts'
     ] as const) {
       total[key] += row[key]
     }
@@ -452,10 +486,13 @@ export async function summary(period: string, scope: PayrollScope, employeeId?: 
 
   return {
     period,
+    /** The month by schedule: norm hours, shift, fine rates. */
+    month: attendance.norm,
     rows: result,
     totals: [...totals.values()].map(total => ({
       ...total,
       salary: cents(total.salary),
+      earned: cents(total.earned),
       accrued: cents(total.accrued),
       withheld: cents(total.withheld),
       net: cents(total.net)

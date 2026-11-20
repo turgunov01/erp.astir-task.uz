@@ -4,6 +4,8 @@ import { useVisibleNavigation, type NavItem } from '~/composables/useNavigation'
 import { Separator } from '~/components/ui/separator'
 import CheckInButton from '~/components/attendance/CheckInButton.vue'
 import CheckInPrompt from '~/components/attendance/CheckInPrompt.vue'
+import PinSetupDialog from '~/components/attendance/PinSetupDialog.vue'
+import ScreenLock from '~/components/attendance/ScreenLock.vue'
 import LocaleMenuSub from '~/components/locale/LocaleMenuSub.vue'
 import {
   DropdownMenu,
@@ -354,6 +356,8 @@ watch(() => route.path, () => { moreOpen.value = false })
     </div>
 
     <CheckInPrompt />
+    <PinSetupDialog />
+    <ScreenLock />
     <TaskPanelHost />
     <MediaViewer />
   </div>

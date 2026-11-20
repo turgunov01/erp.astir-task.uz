@@ -60,7 +60,9 @@
         "salary": "Maaş",
         "lateness": "Gecikmeler",
         "type": "Tür",
-        "reason": "Neden"
+        "reason": "Neden",
+        "hours": "Saat: fiili / norm",
+        "earned": "Kazanılan"
       },
       "typeTotals": {
         "ADVANCE": "Avanslar",
@@ -73,7 +75,7 @@
       "summary": {
         "ownTitle": "Bu ayki bordrom",
         "title": "Çalışan bazında aylık bordro",
-        "formula": "Ödenecek = maaş + primler ve tahakkuklar − cezalar ve kesintiler − avanslar. Yalnızca onaylanmış ve ödenmiş kayıtlar dikkate alınır.",
+        "formula": "Ödenecek = saate göre kazanılan + primler ve tahakkuklar − cezalar (devam kaydına göre gecikmeler dahil) ve kesintiler − avanslar.",
         "loadFailed": "Bordro yüklenemedi",
         "ownEmpty": "Henüz bordro yok",
         "ownEmptyHint": "Hesabınız bir çalışan kartına bağlandığında görünecek.",
@@ -81,7 +83,8 @@
         "emptyHint": "Burada çalışan personel ve bu ay kaydı olan herkes listelenir.",
         "drafts": "taslaklar: {n}",
         "lateness": "{count} kez · {minutes} dk",
-        "total": "Toplam, {currency}"
+        "total": "Toplam, {currency}",
+        "noSalary": "maaş yok"
       },
       "salary": {
         "title": "Aylık maaş",
@@ -94,8 +97,8 @@
       "title": "Maaş",
       "entity": "kayıt",
       "create": "Yeni kayıt",
-      "introOwn": "Aylara göre tahakkuklarınız ve kesintileriniz. Taslaklar onaylanana kadar gösterilmez.",
-      "intro": "Kayıtlar elle girilir; ileride devam takip sistemi de bunları oluşturabilecek.",
+      "introOwn": "Aylara göre saatleriniz, kazancınız ve düzeltmeleriniz. Taslaklar onaylanana kadar gizlidir.",
+      "intro": "Maaş devam kaydına göre hesaplanır: çalışılan saatler, aylık norm ve gecikmeler kendiliğinden gelir. Prim, avans, ceza ve kesintiler kayıt olarak girilir.",
       "previousMonth": "Önceki ay",
       "nextMonth": "Sonraki ay",
       "month": "Bordro ayı",
@@ -119,7 +122,43 @@
         "unmarkPaid": "Ödendi işaretini kaldır",
         "restoreDraft": "Taslak olarak geri yükle"
       },
-      "deleteDetail": "Yalnızca taslak veya iptal edilmiş bir kayıt silinebilir; bu kayıt ayın bordrosuna dahil değildir."
+      "deleteDetail": "Yalnızca taslak veya iptal edilmiş bir kayıt silinebilir; bu kayıt ayın bordrosuna dahil değildir.",
+      "explain": {
+        "title": "Maaş nasıl hesaplanır",
+        "normTitle": "Aylık norm",
+        "normBody": "{days} iş günü × {shift} saat ({start}–{end}) = {norm} saat. Takvime göre bu ay çalışılması gereken süre.",
+        "workedTitle": "Çalışılan",
+        "workedBody": "Devam kaydına göre vardiya süresi: “Vardiyayı başlat”tan “Vardiyayı bitir”e, yalnızca çalışma saatlerinde. Molalar ve kilitli ekran sayılmaz.",
+        "earnedTitle": "Kazanılan",
+        "earnedBody": "Maaş × çalışılan ÷ norm, maaşı aşmadan. Normun yarısını çalıştınız — maaşın yarısını kazandınız.",
+        "bonusTitle": "Primler ve tahakkuklar",
+        "bonusBody": "“Kayıtlar” sekmesinde eklenir ve onaylandıktan sonra sayılır.",
+        "latenessTitle": "Gecikme cezaları",
+        "latenessBody": "Devam kaydından kendiliğinden hesaplanır: geç kalınan gün başına {perDay} + dakika başına {perMinute}. İptal edilmiş ceza kaydı — gecikme affedildi.",
+        "latenessOff": "Ceza oranları belirlenmemiş; gecikmeler görünür ama ücrete yansımaz. Oranlar Ayarlar → Çalışma takvimi bölümünde.",
+        "withheldTitle": "Cezalar, kesintiler, avanslar",
+        "withheldBody": "Kayıt olarak girilir ve onaylandıktan sonra düşülür. Taslak henüz hiçbir şeyi değiştirmez.",
+        "netFormula": "kazanılan + primler − cezalar ve gecikmeler − kesintiler − avanslar",
+        "entriesNote": "Rakamlar ay boyunca büyür: çalışılan her vardiya saat ve kazanç ekler."
+      },
+      "myMonth": {
+        "title": "Benim ayım",
+        "schedule": "{days} iş günü · {start}–{end}",
+        "hours": "Normdan çalışılan saat",
+        "hoursUnit": "sa",
+        "dueMarker": "Bugüne kadar çalışılmış olması gereken",
+        "behind": "Takvimin {hours} gerisindesiniz",
+        "onTrack": "Takvime göre bugüne kadar — {hours} sa",
+        "earned": "Kazanılan",
+        "ofSalary": "{salary} maaştan",
+        "noSalary": "Maaş girilmemiş — girildiğinde kazanç görünür.",
+        "bonuses": "prim",
+        "lateness": "Gecikme: {count} kez, {minutes} dk — −{amount}",
+        "otherWithheld": "cezalar, kesintiler ve avanslar",
+        "otherCurrency": "Ayrıca ödenecek: {amount}",
+        "loadFailed": "“Benim ayım” yüklenemedi.",
+        "latenessNoFine": "Gecikme: {count} kez, {minutes} dk — ceza yok (oran belirlenmemiş)"
+      }
     },
     "overview": {
       "heading": "Finansal genel bakış",

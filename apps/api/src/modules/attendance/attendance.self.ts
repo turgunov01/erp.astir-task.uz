@@ -3,7 +3,17 @@ import { prisma } from '../../lib/prisma'
 import { badRequest } from '../../lib/errors'
 import { t } from '../../i18n'
 import { dayValue } from '../../lib/studio-time'
-import { figuresFor, isWorkingDay, pauseMinutes, workSchedule, type WorkSchedule } from './attendance.schedule'
+import {
+  hasShiftWindow,
+  isWorkingDay,
+  pauseMinutes,
+  shiftFiguresFor,
+  shiftNow,
+  shiftWindow,
+  workSchedule,
+  type ShiftState,
+  type WorkSchedule
+} from './attendance.schedule'
 import { isMarked, today } from './attendance.service'
 
 /**
@@ -171,7 +181,7 @@ async function createMarked(employeeId: string, date: string, schedule: WorkSche
         checkOutAt: now,
         checkInMethod: 'BUTTON',
         checkOutMethod: 'AUTO',
-        ...figuresFor(date, now, now, schedule)
+        ...shiftFiguresFor(date, now, now, schedule)
       }
     })
     return true
@@ -198,10 +208,29 @@ async function markExisting(day: AttendanceDay, date: string, schedule: WorkSche
       checkOutMethod: 'AUTO',
       firstSeenAt: day.firstSeenAt ?? now,
       lastSeenAt: checkOutAt,
-      ...figuresFor(date, now, checkOutAt, schedule, day)
+      ...shiftFiguresFor(date, now, checkOutAt, schedule, day)
     }
   })
   return count > 0
+}
+
+/**
+ * Where a pause stops counting: now, or the shift's end if that came first.
+ * Worked time is clamped to the shift, so a pause running past the end must
+ * not take minutes off the hours inside it.
+ */
+function pauseEnd(date: string, schedule: WorkSchedule, now: Date): Date {
+  if (!hasShiftWindow(schedule) || !isWorkingDay(date, schedule)) return now
+  const { endAt } = shiftWindow(date, schedule)
+  return now > endAt ? endAt : now
+}
+
+/** A shift can only begin inside the schedule's hours on a working day. */
+function assertShiftOpen(schedule: WorkSchedule, state: ShiftState) {
+  if (state === 'OPEN') return
+  if (state === 'BEFORE') throw badRequest(t('team.attendance.shiftNotStarted', { start: schedule.startLabel }))
+  if (state === 'AFTER') throw badRequest(t('team.attendance.shiftOver', { end: schedule.endLabel }))
+  throw badRequest(t('team.attendance.shiftDayOff'))
 }
 
 /** «Я приехал»: record the arrival now, or answer with the one already recorded. */
@@ -215,6 +244,7 @@ export async function checkIn(userId: string, now = new Date()): Promise<MarkRes
   if (existing && existing.source !== 'WEB') {
     throw badRequest(t('team.attendance.correctedByAdmin'))
   }
+  assertShiftOpen(schedule, shiftNow(schedule, now).state)
 
   let recorded = existing
     ? await markExisting(existing, date, schedule, now)
@@ -244,7 +274,7 @@ export async function checkOut(userId: string, now = new Date()): Promise<MarkRe
   }
 
   // Ending the shift on pause closes the pause now: it is still deducted.
-  const pausedMinutes = pauseMinutes(existing, now)
+  const pausedMinutes = pauseMinutes(existing, pauseEnd(date, schedule, now))
   const { count } = await prisma.attendanceDay.updateMany({
     where: {
       id: existing.id,
@@ -259,7 +289,7 @@ export async function checkOut(userId: string, now = new Date()): Promise<MarkRe
       lastSeenAt: later(existing.lastSeenAt, now),
       pausedAt: null,
       pausedMinutes,
-      ...figuresFor(date, existing.checkInAt, now, schedule, { pausedMinutes, pausedAt: null })
+      ...shiftFiguresFor(date, existing.checkInAt, now, schedule, { pausedMinutes, pausedAt: null })
     }
   })
 
@@ -294,7 +324,7 @@ export async function pause(userId: string, now = new Date()): Promise<MarkResul
       // The shift so far runs up to the press.
       checkOutAt: later(existing.checkOutAt, now),
       lastSeenAt: later(existing.lastSeenAt, now),
-      ...figuresFor(date, checkInAt, later(existing.checkOutAt, now), schedule, { pausedMinutes: existing.pausedMinutes, pausedAt: now })
+      ...shiftFiguresFor(date, checkInAt, later(existing.checkOutAt, now), schedule, { pausedMinutes: existing.pausedMinutes, pausedAt: now })
     }
   })
 
@@ -309,7 +339,7 @@ export async function resume(userId: string, now = new Date()): Promise<MarkResu
     return { day: view(date, schedule, existing, now), recorded: false, employeeId }
   }
 
-  const pausedMinutes = pauseMinutes(existing, now)
+  const pausedMinutes = pauseMinutes(existing, pauseEnd(date, schedule, now))
   const checkOutAt = later(existing.checkOutAt, now)
   const { count } = await prisma.attendanceDay.updateMany({
     // Only the pause that was read: two presses close it once.
@@ -319,7 +349,7 @@ export async function resume(userId: string, now = new Date()): Promise<MarkResu
       pausedMinutes,
       checkOutAt,
       lastSeenAt: later(existing.lastSeenAt, now),
-      ...figuresFor(date, checkInAt, checkOutAt, schedule, { pausedMinutes, pausedAt: null })
+      ...shiftFiguresFor(date, checkInAt, checkOutAt, schedule, { pausedMinutes, pausedAt: null })
     }
   })
 

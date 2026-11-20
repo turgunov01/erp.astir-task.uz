@@ -60,7 +60,9 @@
         "salary": "Salary",
         "lateness": "Lateness",
         "type": "Type",
-        "reason": "Reason"
+        "reason": "Reason",
+        "hours": "Hours: worked / norm",
+        "earned": "Earned"
       },
       "typeTotals": {
         "ADVANCE": "Advances",
@@ -73,7 +75,7 @@
       "summary": {
         "ownTitle": "My pay for the month",
         "title": "Monthly payroll by employee",
-        "formula": "Net pay = salary + bonuses and accruals − penalties and deductions − advances. Only approved and paid entries count.",
+        "formula": "To pay = earned by hours + bonuses and accruals − penalties (lateness by attendance included) and deductions − advances.",
         "loadFailed": "Couldn’t load the payroll",
         "ownEmpty": "No pay calculation yet",
         "ownEmptyHint": "It appears once your account is linked to an employee record.",
@@ -81,7 +83,8 @@
         "emptyHint": "Lists current employees and everyone with entries for the month.",
         "drafts": "drafts: {n}",
         "lateness": "{count}× · {minutes} min",
-        "total": "Total, {currency}"
+        "total": "Total, {currency}",
+        "noSalary": "no salary"
       },
       "salary": {
         "title": "Monthly salary",
@@ -94,8 +97,8 @@
       "title": "Payroll",
       "entity": "entry",
       "create": "New entry",
-      "introOwn": "Your accruals and deductions by month. Drafts are hidden until they are approved.",
-      "intro": "Entries are added by hand; later the attendance system will be able to create them too.",
+      "introOwn": "Your hours, earnings and adjustments by month. Drafts stay hidden until approved.",
+      "intro": "Pay follows attendance: hours worked, the month’s norm and lateness come in by themselves. Bonuses, advances, penalties and deductions are added as entries.",
       "previousMonth": "Previous month",
       "nextMonth": "Next month",
       "month": "Payroll month",
@@ -119,7 +122,43 @@
         "unmarkPaid": "Unmark as paid",
         "restoreDraft": "Restore as draft"
       },
-      "deleteDetail": "Only a draft or cancelled entry can be deleted; it is not part of the month’s payroll."
+      "deleteDetail": "Only a draft or cancelled entry can be deleted; it is not part of the month’s payroll.",
+      "explain": {
+        "title": "How pay is calculated",
+        "normTitle": "Month norm",
+        "normBody": "{days} working days × {shift} h ({start}–{end}) = {norm} h. That is what the schedule asks for this month.",
+        "workedTitle": "Worked",
+        "workedBody": "Shift time by attendance: from “Start shift” to “End shift”, inside working hours only. Pauses and a locked screen do not count.",
+        "earnedTitle": "Earned",
+        "earnedBody": "Salary × worked ÷ norm, never above the salary. Worked half the norm — earned half the salary.",
+        "bonusTitle": "Bonuses and accruals",
+        "bonusBody": "Added as entries on the Entries tab and counted once approved.",
+        "latenessTitle": "Lateness fines",
+        "latenessBody": "Counted from attendance automatically: {perDay} per late day + {perMinute} per minute. A cancelled fine entry means the lateness was forgiven.",
+        "latenessOff": "No fine rates are set, so lateness shows but costs nothing. Rates are set in Settings → Work schedule.",
+        "withheldTitle": "Penalties, deductions, advances",
+        "withheldBody": "Added as entries and taken off once approved. A draft changes nothing yet.",
+        "netFormula": "earned + bonuses − penalties and lateness − deductions − advances",
+        "entriesNote": "The figures grow through the month: every shift worked adds hours and pay."
+      },
+      "myMonth": {
+        "title": "My month",
+        "schedule": "{days} working days · {start}–{end}",
+        "hours": "Hours worked of the norm",
+        "hoursUnit": "h",
+        "dueMarker": "What should be worked by today",
+        "behind": "Behind schedule by {hours}",
+        "onTrack": "On schedule — {hours} h due by today",
+        "earned": "Earned",
+        "ofSalary": "of a {salary} salary",
+        "noSalary": "No salary on file — earnings appear once it is set.",
+        "bonuses": "bonuses",
+        "lateness": "Late {count} times, {minutes} min — −{amount}",
+        "otherWithheld": "penalties, deductions and advances",
+        "otherCurrency": "Also to be paid: {amount}",
+        "loadFailed": "Could not load “My month”.",
+        "latenessNoFine": "Late {count} times, {minutes} min — no fine (no rate set)"
+      }
     },
     "overview": {
       "heading": "Financial overview",

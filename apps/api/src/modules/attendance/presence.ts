@@ -2,7 +2,7 @@ import { Prisma, type AttendanceDay } from '@prisma/client'
 import { prisma } from '../../lib/prisma'
 import { logger } from '../../lib/logger'
 import { dayValue, localParts } from '../../lib/studio-time'
-import { figuresFor, workSchedule, type WorkSchedule } from './attendance.schedule'
+import { shiftFiguresFor, workSchedule, type WorkSchedule } from './attendance.schedule'
 
 /**
  * Automatic attendance capture: the observed trail (firstSeenAt/lastSeenAt)
@@ -78,7 +78,7 @@ export async function recordPresence(userId: string, at: Date): Promise<void> {
           checkOutAt: at,
           checkInMethod: 'AUTO',
           checkOutMethod: 'AUTO',
-          ...figuresFor(date, at, at, schedule)
+          ...shiftFiguresFor(date, at, at, schedule)
         }
       })
       return
@@ -108,7 +108,7 @@ async function touchDay(existing: AttendanceDay, date: string, at: Date, schedul
   const effective = existing.source === 'WEB' ? inferredTimes(existing, at, lastSeenAt) : {}
   const checkInAt = effective.checkInAt ?? existing.checkInAt
   const checkOutAt = effective.checkOutAt ?? existing.checkOutAt
-  const figures = existing.source === 'WEB' ? figuresFor(date, checkInAt, checkOutAt, schedule, existing) : {}
+  const figures = existing.source === 'WEB' ? shiftFiguresFor(date, checkInAt, checkOutAt, schedule, existing) : {}
   const { count } = await prisma.attendanceDay.updateMany({
     where: {
       id: existing.id,

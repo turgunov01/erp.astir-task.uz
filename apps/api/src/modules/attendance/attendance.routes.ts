@@ -11,6 +11,7 @@ import { t } from '../../i18n'
 import * as service from './attendance.service'
 import { createLatenessPenalties } from './attendance.penalties'
 import * as self from './attendance.self'
+import * as screen from './attendance.lock'
 
 /**
  * /api/attendance — employee activity control (Verifix-style): who came in,
@@ -56,12 +57,17 @@ attendanceRouter.get(
   requirePermission(PERMISSION.ATTENDANCE_SELF),
   async (req, res, next) => {
     try {
-      return sendItem(res, await self.myToday(req.user!.id))
+      return sendMyDay(req, res)
     } catch (err) {
       next(err)
     }
   }
 )
+
+/** Answer with today's day plus the lock and the shift window. */
+async function sendMyDay(req: Request, res: Response) {
+  return sendItem(res, await screen.decorate(req.user!, await self.myToday(req.user!.id)))
+}
 
 /** One route per button: mark, then note it in the feed if it was new. */
 function markRoute(mark: typeof self.checkIn, action: string) {
@@ -72,12 +78,64 @@ function markRoute(mark: typeof self.checkIn, action: string) {
       if (result.recorded) {
         await recordActivity({ actorId, entityType: 'Employee', entityId: result.employeeId, action })
       }
-      return sendItem(res, result.day, result.recorded ? 201 : 200)
+      return sendItem(res, await screen.decorate(req.user!, result.day), result.recorded ? 201 : 200)
     } catch (err) {
       next(err)
     }
   }
 }
+
+const pinSchema = z.string().trim().regex(/^\d{4,6}$/, { error: () => t('team.attendance.pinFormat') })
+const setPinSchema = z.object({ pin: pinSchema, password: z.string().min(1).max(200).optional() })
+const unlockSchema = z.object({ pin: pinSchema.optional(), password: z.string().min(1).max(200).optional() })
+  .refine(body => Boolean(body.pin || body.password), { error: () => t('team.attendance.pinFormat') })
+
+/** Set or replace the screen-lock PIN; replacing one needs the password. */
+attendanceRouter.put(
+  '/me/pin',
+  requirePermission(PERMISSION.ATTENDANCE_SELF),
+  validate(setPinSchema),
+  async (req, res, next) => {
+    try {
+      const body = req.body as z.infer<typeof setPinSchema>
+      await screen.setPin(req.user!.id, body.pin, body.password)
+      await recordAudit({
+        actorId: req.user!.id,
+        action: 'attendance.pin_set',
+        entityType: 'User',
+        entityId: req.user!.id,
+        ipAddress: req.ip
+      })
+      return sendMyDay(req, res)
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+/** Lock icon and «Пауза»: lock the screen, pausing a running shift. */
+async function lockRoute(req: Request, res: Response, next: NextFunction) {
+  try {
+    await screen.lock(req.user!.id)
+    return sendMyDay(req, res)
+  } catch (err) {
+    next(err)
+  }
+}
+
+/** The PIN (or the password) opens the screen and resumes the shift. */
+async function unlockRoute(req: Request, res: Response, next: NextFunction) {
+  try {
+    const body = req.body as z.infer<typeof unlockSchema>
+    await screen.unlock(req.user!.id, body)
+    return sendMyDay(req, res)
+  } catch (err) {
+    next(err)
+  }
+}
+
+attendanceRouter.post('/me/lock', requirePermission(PERMISSION.ATTENDANCE_SELF), lockRoute)
+attendanceRouter.post('/me/unlock', requirePermission(PERMISSION.ATTENDANCE_SELF), validate(unlockSchema), unlockRoute)
 
 attendanceRouter.post(
   '/me/check-in',
@@ -91,17 +149,13 @@ attendanceRouter.post(
   markRoute(self.checkOut, 'attendance.checked_out')
 )
 
-attendanceRouter.post(
-  '/me/pause',
-  requirePermission(PERMISSION.ATTENDANCE_SELF),
-  markRoute(self.pause, 'attendance.paused')
-)
-
-attendanceRouter.post(
-  '/me/resume',
-  requirePermission(PERMISSION.ATTENDANCE_SELF),
-  markRoute(self.resume, 'attendance.resumed')
-)
+/*
+ * «Пауза» is the screen lock and «Продолжить смену» is its PIN: resuming
+ * without one would open a locked screen, so the old paths now go through
+ * the lock as well.
+ */
+attendanceRouter.post('/me/pause', requirePermission(PERMISSION.ATTENDANCE_SELF), lockRoute)
+attendanceRouter.post('/me/resume', requirePermission(PERMISSION.ATTENDANCE_SELF), validate(unlockSchema), unlockRoute)
 
 attendanceRouter.get(
   '/board',

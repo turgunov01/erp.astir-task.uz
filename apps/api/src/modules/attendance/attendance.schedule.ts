@@ -1,5 +1,5 @@
 import { studioSettings } from '../../lib/settings'
-import { localParts, parseClock, safeTimeZone, weekdayOf } from '../../lib/studio-time'
+import { instantAt, localParts, parseClock, safeTimeZone, weekdayOf } from '../../lib/studio-time'
 
 /**
  * The studio's working schedule and the rules that turn an arrival and a
@@ -82,6 +82,85 @@ export function pauseMinutes(pauses: DayPauses, until: Date | null): number {
     total += Math.floor((until.getTime() - pauses.pausedAt.getTime()) / 60_000)
   }
   return total
+}
+
+/** The shift's start and end as instants on one local date. */
+export function shiftWindow(date: string, schedule: WorkSchedule): { startAt: Date, endAt: Date } {
+  return {
+    startAt: instantAt(date, schedule.start, schedule.timezone),
+    endAt: instantAt(date, schedule.end, schedule.timezone)
+  }
+}
+
+/** A schedule that cannot open or close anything never locks anyone out. */
+export const hasShiftWindow = (schedule: WorkSchedule) =>
+  schedule.weekdays.length > 0 && schedule.end > schedule.start
+
+export type ShiftState = 'OPEN' | 'BEFORE' | 'AFTER' | 'DAY_OFF'
+
+export interface ShiftNow {
+  state: ShiftState
+  /** Today's end, when today is a working day. */
+  endsAt: Date | null
+  /** The next moment a shift may begin; null while one is open. */
+  opensAt: Date | null
+}
+
+const plusDays = (date: string, days: number) =>
+  new Date(Date.parse(date + 'T00:00:00Z') + days * 86_400_000).toISOString().slice(0, 10)
+
+/**
+ * Where `now` falls against the working schedule: inside today's shift,
+ * before it, after it, or on a day off — and when the next shift opens.
+ * Work (and a shift) can only happen while the state is OPEN.
+ */
+export function shiftNow(schedule: WorkSchedule, now = new Date()): ShiftNow {
+  if (!hasShiftWindow(schedule)) return { state: 'OPEN', endsAt: null, opensAt: null }
+  const date = localParts(now, schedule.timezone).date
+  const working = isWorkingDay(date, schedule)
+  const today = shiftWindow(date, schedule)
+
+  if (working && now >= today.startAt && now < today.endAt) {
+    return { state: 'OPEN', endsAt: today.endAt, opensAt: null }
+  }
+  if (working && now < today.startAt) {
+    return { state: 'BEFORE', endsAt: today.endAt, opensAt: today.startAt }
+  }
+  let opensAt: Date | null = null
+  for (let offset = 1; offset <= 7 && !opensAt; offset += 1) {
+    const next = plusDays(date, offset)
+    if (isWorkingDay(next, schedule)) opensAt = shiftWindow(next, schedule).startAt
+  }
+  return { state: working ? 'AFTER' : 'DAY_OFF', endsAt: working ? today.endAt : null, opensAt }
+}
+
+/**
+ * Worked time as the shift buttons and the activity trail see it: only the
+ * part inside the scheduled shift counts, and nothing on a day off — the
+ * app is locked outside those hours. A manual correction does not go
+ * through here, so an administrator can still record overtime by hand.
+ */
+export function shiftFiguresFor(
+  date: string,
+  checkInAt: Date | null,
+  checkOutAt: Date | null,
+  schedule: WorkSchedule,
+  pauses: DayPauses = NO_PAUSES
+): DayFigures {
+  const { lateMinutes, workedMinutes } = figuresFor(date, checkInAt, checkOutAt, schedule, pauses)
+  if (!hasShiftWindow(schedule) || !checkInAt || !checkOutAt) return { lateMinutes, workedMinutes }
+  if (!isWorkingDay(date, schedule)) return { lateMinutes, workedMinutes: 0 }
+
+  const { startAt, endAt } = shiftWindow(date, schedule)
+  const from = checkInAt > startAt ? checkInAt : startAt
+  const to = checkOutAt < endAt ? checkOutAt : endAt
+  if (to <= from) return { lateMinutes, workedMinutes: 0 }
+  // A pause still running at the shift's end stops counting there too.
+  const paused = pauseMinutes(pauses, to)
+  return {
+    lateMinutes,
+    workedMinutes: Math.max(0, Math.floor((to.getTime() - from.getTime()) / 60_000) - paused)
+  }
 }
 
 export function figuresFor(

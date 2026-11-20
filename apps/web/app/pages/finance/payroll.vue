@@ -14,6 +14,7 @@ import { PAYROLL_FORM } from '~/utils/entity-forms'
 import { monthInline, monthTitle as formatMonthTitle } from '~/utils/finance-period'
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
+import MyMonthCard from '~/components/finance/MyMonthCard.vue'
 
 /**
  * Employee pay adjustments (client item 7): advances, penalties incl.
@@ -265,6 +266,8 @@ const SELECT = 'h-9 rounded-md border bg-background px-2.5 text-sm outline-none 
     >
       {{ actionError }}
     </p>
+
+    <MyMonthCard v-if="tab === 'summary'" :period="period" class="mb-4" />
 
     <FinancePayrollSummary
       v-if="tab === 'summary'"

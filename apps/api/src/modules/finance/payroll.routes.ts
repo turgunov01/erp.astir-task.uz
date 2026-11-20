@@ -91,6 +91,31 @@ payrollRouter.get(
   }
 )
 
+/**
+ * The caller's own month whatever their rights: norm hours, hours worked,
+ * pay earned so far. Someone who sees everyone's payroll still gets only
+ * their own row here — it feeds the «Мой месяц» card.
+ */
+payrollRouter.get(
+  '/me',
+  requirePermission(PERMISSION.PAYROLL_VIEW_OWN),
+  validate(summarySchema.pick({ period: true }), 'query'),
+  async (req, res, next) => {
+    try {
+      const query = validatedQuery<{ period?: string }>(req)
+      const own = await prisma.employee.findFirst({
+        where: { userId: req.user!.id, deletedAt: null },
+        select: { id: true }
+      })
+      if (!own) return sendItem(res, { tracked: false })
+      const month = await service.summary(query.period ?? currentPeriod(), { ownEmployeeId: own.id })
+      return sendItem(res, { tracked: true, period: month.period, month: month.month, rows: month.rows })
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
 payrollRouter.get(
   '/summary',
   requirePermission(PERMISSION.PAYROLL_VIEW_OWN),

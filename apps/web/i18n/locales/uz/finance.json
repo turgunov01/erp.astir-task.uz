@@ -60,7 +60,9 @@
         "salary": "Maosh",
         "lateness": "Kechikishlar",
         "type": "Turi",
-        "reason": "Sabab"
+        "reason": "Sabab",
+        "hours": "Soatlar: fakt / norma",
+        "earned": "Ishlab topildi"
       },
       "typeTotals": {
         "ADVANCE": "Bo‘naklar",
@@ -73,7 +75,7 @@
       "summary": {
         "ownTitle": "Mening oylik hisob-kitobim",
         "title": "Xodimlar bo‘yicha oylik hisob-kitob",
-        "formula": "To‘lanadi = maosh + mukofotlar va hisoblashmalar − jarimalar va ushlanmalar − bo‘naklar. Faqat tasdiqlangan va to‘langan yozuvlar hisobga olinadi.",
+        "formula": "To‘lanadi = soatlar bo‘yicha ishlab topilgan + mukofotlar va hisoblashmalar − jarimalar (davomat bo‘yicha kechikishlar bilan) va ushlanmalar − avanslar.",
         "loadFailed": "Hisob-kitobni yuklab bo‘lmadi",
         "ownEmpty": "Hisob-kitob hali yo‘q",
         "ownEmptyHint": "U hisobingiz xodim kartochkasiga bog‘langanda paydo bo‘ladi.",
@@ -81,7 +83,8 @@
         "emptyHint": "Bu yerda ishlayotgan xodimlar va oy uchun yozuvlari bor barcha kishilar ko‘rsatiladi.",
         "drafts": "qoralamalar: {n}",
         "lateness": "{count} marta · {minutes} daq",
-        "total": "Jami, {currency}"
+        "total": "Jami, {currency}",
+        "noSalary": "maosh yo‘q"
       },
       "salary": {
         "title": "Oylik maosh",
@@ -94,8 +97,8 @@
       "title": "Ish haqi",
       "entity": "yozuv",
       "create": "Yangi yozuv",
-      "introOwn": "Oylar bo‘yicha hisoblashmalaringiz va ushlanmalaringiz. Qoralamalar tasdiqlanmaguncha ko‘rsatilmaydi.",
-      "intro": "Yozuvlar qo‘lda kiritiladi; keyinchalik ularni davomat tizimi ham yarata oladi.",
+      "introOwn": "Oylar bo‘yicha soatlaringiz, daromadingiz va hisoblashmalar. Qoralamalar tasdiqlanmaguncha ko‘rinmaydi.",
+      "intro": "Ish haqi davomat bo‘yicha hisoblanadi: ishlangan soatlar, oylik norma va kechikishlar o‘zi qo‘shiladi. Mukofot, avans, jarima va ushlanmalar yozuv sifatida kiritiladi.",
       "previousMonth": "Oldingi oy",
       "nextMonth": "Keyingi oy",
       "month": "Hisob-kitob oyi",
@@ -119,7 +122,43 @@
         "unmarkPaid": "To‘lov belgisini olib tashlash",
         "restoreDraft": "Qoralama sifatida tiklash"
       },
-      "deleteDetail": "Faqat qoralama yoki bekor qilingan yozuvni o‘chirish mumkin; u oy hisob-kitobiga kirmaydi."
+      "deleteDetail": "Faqat qoralama yoki bekor qilingan yozuvni o‘chirish mumkin; u oy hisob-kitobiga kirmaydi.",
+      "explain": {
+        "title": "Ish haqi qanday hisoblanadi",
+        "normTitle": "Oylik norma",
+        "normBody": "{days} ish kuni × {shift} soat ({start}–{end}) = {norm} soat. Jadval bo‘yicha oy davomida shuncha ishlash kerak.",
+        "workedTitle": "Ishlangan",
+        "workedBody": "Davomat bo‘yicha smena vaqti: «Smenani boshlash» dan «Smenani tugatish» gacha, faqat ish soatlarida. Pauza va qulflangan ekran hisoblanmaydi.",
+        "earnedTitle": "Ishlab topildi",
+        "earnedBody": "Maosh × ishlangan ÷ norma, lekin maoshdan oshmaydi. Normaning yarmini ishlasangiz — maoshning yarmi.",
+        "bonusTitle": "Mukofotlar va hisoblashmalar",
+        "bonusBody": "«Yozuvlar» bo‘limida qo‘shiladi va tasdiqlangandan keyin hisobga olinadi.",
+        "latenessTitle": "Kechikish jarimalari",
+        "latenessBody": "Davomat bo‘yicha o‘zi hisoblanadi: kechikkan kun uchun {perDay} + har bir daqiqa uchun {perMinute}. Bekor qilingan jarima yozuvi — kechikish kechirilgan.",
+        "latenessOff": "Jarima stavkalari belgilanmagan, shuning uchun kechikishlar ko‘rinadi, lekin pulga aylanmaydi. Stavkalar Sozlamalar → Ish jadvali bo‘limida.",
+        "withheldTitle": "Jarimalar, ushlanmalar, avanslar",
+        "withheldBody": "Yozuv sifatida kiritiladi va tasdiqlangandan keyin ayiriladi. Qoralama hali hech narsaga ta’sir qilmaydi.",
+        "netFormula": "ishlab topilgan + mukofotlar − jarimalar va kechikishlar − ushlanmalar − avanslar",
+        "entriesNote": "Raqamlar oy davomida o‘sib boradi: har bir ishlangan smena soat va daromad qo‘shadi."
+      },
+      "myMonth": {
+        "title": "Mening oyim",
+        "schedule": "{days} ish kuni · {start}–{end}",
+        "hours": "Normadan ishlangan soatlar",
+        "hoursUnit": "soat",
+        "dueMarker": "Bugungacha qancha ishlangan bo‘lishi kerak",
+        "behind": "Jadvaldan {hours} ortda qolyapsiz",
+        "onTrack": "Jadval bo‘yicha bugungacha — {hours} soat",
+        "earned": "Ishlab topildi",
+        "ofSalary": "{salary} maoshdan",
+        "noSalary": "Maosh belgilanmagan — u kiritilganda daromad ko‘rinadi.",
+        "bonuses": "mukofotlar",
+        "lateness": "Kechikishlar: {count} marta, {minutes} daq — −{amount}",
+        "otherWithheld": "jarimalar, ushlanmalar va avanslar",
+        "otherCurrency": "Yana to‘lanadi: {amount}",
+        "loadFailed": "«Mening oyim»ni yuklab bo‘lmadi.",
+        "latenessNoFine": "Kechikishlar: {count} marta, {minutes} daq — jarimasiz (stavka belgilanmagan)"
+      }
     },
     "overview": {
       "heading": "Moliyaviy sharh",

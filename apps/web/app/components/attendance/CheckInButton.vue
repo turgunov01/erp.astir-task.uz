@@ -4,7 +4,9 @@ import { useMyAttendance } from '~/composables/useMyAttendance'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '~/components/ui/dropdown-menu'
 
@@ -13,15 +15,28 @@ import {
  *
  * «Начать смену» is the one coloured control in the header until it is
  * pressed. Then the shift shows as a quiet status («На смене с 09:05») with
- * «Пауза» and «Закончить смену» beside it as buttons; on pause the status
- * turns amber, counts the pause and «Пауза» becomes «Продолжить смену». The
+ * «Пауза» and «Закончить смену» beside it. «Пауза» and the lock icon lock the
+ * screen (ScreenLock): the PIN resumes the shift. The
  * status menu shows the arrival, lateness, time on pause (taken off the
  * worked time) and the net worked time.
  */
 
 const { t } = useI18n()
 const auth = useAuthStore()
-const { day, enabled, busy, error, load, checkIn, checkOut, pause, resume } = useMyAttendance()
+const { day, lockState, pinSetup, enabled, busy, error, load, checkIn, checkOut, pause, lock } = useMyAttendance()
+
+/** A shift can only start inside the schedule hours; outside them the button explains why. */
+const closedReason = computed(() => {
+  const shift = lockState.value?.shift
+  if (!shift || shift.state === 'OPEN') return ''
+  if (shift.state === 'BEFORE') return t('shell.lock.startsAt', { time: shift.start })
+  if (shift.state === 'AFTER') return t('shell.lock.endedAt', { time: shift.end })
+  return t('shell.lock.dayOff')
+})
+
+function changePin() {
+  pinSetup.value = { open: true, lockAfter: false }
+}
 
 const tz = computed(() => day.value?.timezone ?? 'Asia/Tashkent')
 const arrival = computed(() => studioClock(day.value?.checkInAt, tz.value))
@@ -114,9 +129,9 @@ watch(error, (message) => {
       v-if="needsPress"
       type="button"
       class="group relative flex h-9 items-center gap-1.5 rounded-md px-2.5 text-sm sm:px-3 bg-emerald-600 font-semibold text-white hover:bg-emerald-700 shadow-sm transition-[transform,background-color] active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-70"
-      :disabled="busy"
+      :disabled="busy || Boolean(closedReason)"
       :aria-label="t('shell.checkIn.buttonAria')"
-      :title="t('shell.checkIn.buttonTitle')"
+      :title="closedReason || t('shell.checkIn.buttonTitle')"
       @click="checkIn()"
     >
       <span class="absolute -right-1 -top-1 flex size-2.5" aria-hidden="true">
@@ -140,18 +155,6 @@ watch(error, (message) => {
       >
         <Icon :name="busy ? 'lucide:loader-circle' : 'lucide:pause'" class="size-4" :class="busy ? 'motion-safe:animate-spin' : ''" />
         <span class="hidden whitespace-nowrap sm:inline">{{ t('shell.checkIn.pause') }}</span>
-      </button>
-      <button
-        v-else-if="paused"
-        type="button"
-        class="flex h-9 items-center gap-1.5 rounded-md px-2.5 text-sm sm:px-3 bg-emerald-600 font-semibold text-white hover:bg-emerald-700 shadow-sm transition-[transform,background-color] active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-70"
-        :disabled="busy"
-        :aria-label="t('shell.checkIn.resume')"
-        :title="t('shell.checkIn.resumeTitle')"
-        @click="resume()"
-      >
-        <Icon :name="busy ? 'lucide:loader-circle' : 'lucide:play'" class="size-4" :class="busy ? 'motion-safe:animate-spin' : ''" />
-        <span class="whitespace-nowrap">{{ t('shell.checkIn.resume') }}</span>
       </button>
       <button
         v-if="onShift"
@@ -226,9 +229,26 @@ watch(error, (message) => {
           <p v-if="day.corrected" class="px-2 pb-2 text-xs text-muted-foreground">
             {{ t('shell.checkIn.correctedNote') }}
           </p>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem @select="changePin()">
+            <Icon name="lucide:key-round" class="size-4" />
+            {{ lockState?.hasPin ? t('shell.lock.changePin') : t('shell.lock.setPin') }}
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </template>
+
+    <!-- Lock the screen: pauses a running shift; the PIN opens it again. -->
+    <button
+      type="button"
+      class="grid size-9 place-items-center rounded-md border text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:opacity-60"
+      :disabled="busy"
+      :aria-label="t('shell.lock.lockAria')"
+      :title="onShift ? t('shell.lock.lockTitleOnShift') : t('shell.lock.lockTitle')"
+      @click="lock()"
+    >
+      <Icon name="lucide:lock" class="size-4" />
+    </button>
 
     <p
       v-if="error"

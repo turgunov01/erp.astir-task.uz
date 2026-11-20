@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { apiErrorMessage, apiRequest } from '~/composables/useApi'
+import { shareOf, wholeHours, type PayrollMonth } from '~/utils/payroll-month'
+import PayrollExplainer from '~/components/finance/PayrollExplainer.vue'
 
 /**
  * One payroll month per employee: base salary, what was added, what was
@@ -29,6 +31,10 @@ interface SummaryRow {
   lateMinutes: number
   latenessCount: number
   deductions: number
+  /** Minutes worked this month by attendance, pauses already off. */
+  workedMinutes: number
+  /** Salary × worked ÷ month norm, capped at the salary; null without one. */
+  earned: number | null
   accrued: number
   withheld: number
   net: number
@@ -37,8 +43,9 @@ interface SummaryRow {
 
 interface Summary {
   period: string
+  month: PayrollMonth
   rows: SummaryRow[]
-  totals: Array<Omit<SummaryRow, 'employee' | 'salary'> & { salary: number }>
+  totals: Array<Omit<SummaryRow, 'employee' | 'salary' | 'earned'> & { salary: number, earned: number }>
 }
 
 const { t } = useI18n()
@@ -51,6 +58,14 @@ const { data, pending, error, refresh } = useFetch<{ data: Summary }>(
 
 const rows = computed(() => data.value?.data.rows ?? [])
 const totals = computed(() => data.value?.data.totals ?? [])
+const month = computed(() => data.value?.data.month ?? null)
+
+const hours = wholeHours
+
+/** Share of the month norm worked, for the thin bar under the hours. */
+function normShare(row: SummaryRow) {
+  return shareOf(row.workedMinutes, month.value?.normMinutes ?? 0)
+}
 
 defineExpose({ refresh })
 
@@ -120,6 +135,8 @@ const TH = 'px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-
       </div>
     </header>
 
+    <PayrollExplainer v-if="month" :month="month" />
+
     <div v-if="error" class="px-5 py-12 text-center">
       <p class="text-sm font-medium">{{ t('finance.payroll.summary.loadFailed') }}</p>
       <button type="button" class="mt-3 rounded-md border px-3 py-1.5 text-sm hover:bg-secondary" @click="refresh()">
@@ -151,11 +168,13 @@ const TH = 'px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-
     </div>
 
     <div v-else class="overflow-x-auto">
-      <table class="w-full min-w-[960px] text-sm">
+      <table class="w-full min-w-[1120px] text-sm">
         <thead>
           <tr class="border-b text-left">
             <th :class="TH">{{ t('finance.common.employee') }}</th>
             <th :class="TH" class="text-right">{{ t('finance.payroll.columns.salary') }}</th>
+            <th :class="TH" class="text-right">{{ t('finance.payroll.columns.hours') }}</th>
+            <th :class="TH" class="text-right">{{ t('finance.payroll.columns.earned') }}</th>
             <th :class="TH" class="text-right">{{ t('finance.payroll.columns.bonuses') }}</th>
             <th :class="TH" class="text-right">{{ t('finance.payroll.typeTotals.OTHER_ACCRUAL') }}</th>
             <th :class="TH" class="text-right">{{ t('finance.payroll.columns.penalties') }}</th>
@@ -197,6 +216,17 @@ const TH = 'px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-
                 <span v-else class="text-muted-foreground">—</span>
               </template>
             </td>
+            <td class="px-4 py-3 text-right tabular-nums">
+              <span :class="row.workedMinutes === 0 ? 'text-muted-foreground' : ''">{{ hours(row.workedMinutes) }}</span>
+              <span class="text-muted-foreground"> / {{ month ? hours(month.normMinutes) : '—' }}</span>
+              <span class="mt-1 ml-auto block h-1 w-16 overflow-hidden rounded-full bg-secondary" aria-hidden="true">
+                <span class="block h-full rounded-full bg-primary/70" :style="{ width: normShare(row) + '%' }" />
+              </span>
+            </td>
+            <td class="px-4 py-3 text-right tabular-nums">
+              <span v-if="row.earned !== null">{{ formatMoney(row.earned, row.currency, 0) }}</span>
+              <span v-else class="text-xs text-muted-foreground">{{ t('finance.payroll.summary.noSalary') }}</span>
+            </td>
             <td class="px-4 py-3 text-right tabular-nums text-emerald-700 dark:text-emerald-400">{{ money(row.bonuses, row.currency) }}</td>
             <td class="px-4 py-3 text-right tabular-nums">{{ money(row.otherAccruals, row.currency) }}</td>
             <td class="px-4 py-3 text-right tabular-nums text-destructive">{{ money(row.penalties, row.currency) }}</td>
@@ -217,6 +247,8 @@ const TH = 'px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-
           <tr v-for="total in totals" :key="total.currency" class="bg-secondary/30 font-medium">
             <td class="px-4 py-3">{{ t('finance.payroll.summary.total', { currency: total.currency }) }}</td>
             <td class="px-4 py-3 text-right tabular-nums">{{ money(total.salary, total.currency) }}</td>
+            <td class="px-4 py-3 text-right tabular-nums">{{ hours(total.workedMinutes) }}</td>
+            <td class="px-4 py-3 text-right tabular-nums">{{ money(total.earned, total.currency) }}</td>
             <td class="px-4 py-3 text-right tabular-nums">{{ money(total.bonuses, total.currency) }}</td>
             <td class="px-4 py-3 text-right tabular-nums">{{ money(total.otherAccruals, total.currency) }}</td>
             <td class="px-4 py-3 text-right tabular-nums">{{ money(total.penalties, total.currency) }}</td>

@@ -11,7 +11,7 @@ import { useMyAttendance } from '~/composables/useMyAttendance'
 
 const { t } = useI18n()
 const auth = useAuthStore()
-const { day, busy, checkIn } = useMyAttendance()
+const { day, lockState, busy, checkIn } = useMyAttendance()
 
 const open = ref(false)
 
@@ -34,8 +34,9 @@ function rememberDismissed(date: string) {
   }
 }
 
-watch(day, (current) => {
-  if (!current || current.checkedIn || current.corrected) {
+/* Only while the shift can actually start: before 09:00 the button would just refuse. */
+watch([day, () => lockState.value?.shift.state], ([current, state]) => {
+  if (!current || current.checkedIn || current.corrected || state !== 'OPEN') {
     open.value = false
     return
   }

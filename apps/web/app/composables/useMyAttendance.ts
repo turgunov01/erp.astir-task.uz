@@ -36,7 +36,25 @@ export interface MyAttendanceDay {
   pauseCount: number
 }
 
-type MyAttendanceAnswer = MyAttendanceDay | { tracked: false }
+export type ShiftState = 'OPEN' | 'BEFORE' | 'AFTER' | 'DAY_OFF'
+
+/** The screen lock and the working window, sent with every answer. */
+export interface MyLockState {
+  hasPin: boolean
+  /** Locked by the lock icon or «Пауза»: only the PIN opens it. */
+  locked: boolean
+  /** Not closed outside the shift hours (owner, administrators). */
+  windowExempt: boolean
+  shift: {
+    state: ShiftState
+    start: string
+    end: string
+    endsAt: string | null
+    opensAt: string | null
+  }
+}
+
+type MyAttendanceAnswer = (MyAttendanceDay | { tracked: false }) & MyLockState
 
 export function useMyAttendance() {
   const auth = useAuthStore()
@@ -47,6 +65,9 @@ export function useMyAttendance() {
   /** Staff accounts only; a client account never sees the button. */
   const enabled = computed(() => auth.can(PERMISSION.ATTENDANCE_SELF))
   const day = computed(() => (answer.value?.tracked ? answer.value : null))
+  const lockState = computed<MyLockState | null>(() => answer.value ?? null)
+  /** Asks for a new PIN; when set from the lock icon, locks right after. */
+  const pinSetup = useState<{ open: boolean, lockAfter: boolean }>('my-pin-setup', () => ({ open: false, lockAfter: false }))
 
   async function load() {
     if (!enabled.value) {
@@ -62,12 +83,12 @@ export function useMyAttendance() {
     }
   }
 
-  async function mark(path: 'check-in' | 'check-out' | 'pause' | 'resume', fallback: string) {
+  async function mark(path: 'check-in' | 'check-out' | 'lock', fallback: string) {
     if (busy.value) return
     busy.value = true
     error.value = ''
     try {
-      const response = await apiRequest<{ data: MyAttendanceDay }>('/api/attendance/me/' + path, { method: 'POST' })
+      const response = await apiRequest<{ data: MyAttendanceAnswer }>('/api/attendance/me/' + path, { method: 'POST' })
       answer.value = response.data
     } catch (err) {
       error.value = apiErrorMessage(err, fallback)
@@ -77,15 +98,54 @@ export function useMyAttendance() {
     }
   }
 
+  /**
+   * Lock icon and «Пауза»: lock the screen (a running shift pauses with it).
+   * Without a PIN yet, ask for one first and lock once it is set.
+   */
+  function lock() {
+    if (!lockState.value?.hasPin) {
+      pinSetup.value = { open: true, lockAfter: true }
+      return
+    }
+    return mark('lock', translate('shell.lock.lockFailed'))
+  }
+
+  /** Open the screen with the PIN or, if forgotten, the password. Returns the error, if any. */
+  async function unlock(secret: { pin?: string, password?: string }): Promise<string> {
+    try {
+      const response = await apiRequest<{ data: MyAttendanceAnswer }>('/api/attendance/me/unlock', { method: 'POST', body: secret })
+      answer.value = response.data
+      return ''
+    } catch (err) {
+      return apiErrorMessage(err, translate('shell.lock.unlockFailed'))
+    }
+  }
+
+  /** Set or replace the PIN. Returns the error, if any. */
+  async function setPin(pin: string, password?: string): Promise<string> {
+    try {
+      const response = await apiRequest<{ data: MyAttendanceAnswer }>('/api/attendance/me/pin', { method: 'PUT', body: { pin, password } })
+      answer.value = response.data
+      return ''
+    } catch (err) {
+      return apiErrorMessage(err, translate('shell.lock.pinSaveFailed'))
+    }
+  }
+
   return {
     day,
+    lockState,
+    pinSetup,
     enabled,
     busy,
     error,
     load,
+    lock,
+    unlock,
+    setPin,
     checkIn: () => mark('check-in', translate('shell.checkIn.checkInFailed')),
     checkOut: () => mark('check-out', translate('shell.checkIn.checkOutFailed')),
-    pause: () => mark('pause', translate('shell.checkIn.pauseFailed')),
-    resume: () => mark('resume', translate('shell.checkIn.resumeFailed'))
+    /** «Пауза» is the screen lock: the PIN resumes the shift. */
+    pause: lock
   }
 }

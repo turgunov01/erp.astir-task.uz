@@ -1,11 +1,15 @@
 <script setup lang="ts">
+import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
+import MyMonthCard from '~/components/finance/MyMonthCard.vue'
 
 const { t } = useI18n()
 
 useHead({ title: computed(() => t('projects.dashboard.title')) })
 
 const auth = useAuthStore()
+/** «Мой месяц»: hours and pay, for anyone with a payroll of their own. */
+const showMyMonth = computed(() => auth.can(PERMISSION.PAYROLL_VIEW_OWN))
 
 interface ProjectRow {
   id: string
@@ -100,6 +104,7 @@ function formatDate(value: string | null) {
     </div>
 
     <template v-else>
+      <MyMonthCard v-if="showMyMonth" class="mb-6" />
       <section
         :aria-label="t('projects.dashboard.kpiLabel')"
         class="grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border lg:grid-cols-3"
