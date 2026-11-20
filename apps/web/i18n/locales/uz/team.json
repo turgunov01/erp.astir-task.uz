@@ -501,7 +501,12 @@
       "permission": "Ruxsat",
       "reset": "tiklash",
       "everything": "hammasi",
-      "groupAria": "{role} roli uchun butun «{group}» bo‘limi"
+      "groupAria": "{role} roli uchun butun «{group}» bo‘limi",
+      "createBase": "Asosiy rol yaratish",
+      "renameBase": "Asosiy rol nomini o‘zgartirish",
+      "deleteBase": "Asosiy rol o‘chirilsinmi?",
+      "deleteBaseDetail": "Uning asosida yaratilgan rollarning huquqlari va tayinlovlari saqlanadi.",
+      "deleteBuiltinDetail": "Rol asosiy rollar ro‘yxatidan olib tashlanadi. Mavjud foydalanuvchilar va yaratilgan rollarning huquqlari saqlanadi. Shu nom bilan asosiy rolni qayta yaratish mumkin."
     },
     "customRoles": {
       "title": "O‘z rollaringiz",
@@ -512,8 +517,8 @@
       "editTitle": "Rolni tahrirlash",
       "name": "Nomi",
       "namePlaceholder": "Masalan, Montajchi",
-      "baseRole": "Asosiy rol",
-      "baseRoleHint": "Tizim odamga qanday munosabatda bo‘lishini belgilaydi: mijoz faqat o‘z loyihalarini ko‘radi, administrator boshqalarning parolini tiklay oladi.",
+      "baseRole": "Asosiy rollar",
+      "baseRoleHint": "Bir nechta rolni tanlang: ularning huquqlari birlashtiriladi. Quyida alohida huquqlarni qo‘shish yoki olib tashlash mumkin.",
       "description": "Tavsif",
       "permissions": "Huquqlar",
       "permissionCount": "{n} ta huquq",
@@ -532,7 +537,8 @@
       "empty": "Hozircha o‘z rollaringiz yo‘q. Birinchisini yarating — masalan, montajchilar yoki stajyorlar uchun.",
       "deleteTitle": "Rol o‘chirilsinmi?",
       "deleteMessage": "«{name}» roli o‘chiriladi.",
-      "deleteDetail": "Bu roldagi odamlar: {n}. Ular «{base}» asosiy roli huquqlari bilan kirishni saqlab qoladi."
+      "deleteDetail": "Bu roldagi odamlar: {n}. Ular «{base}» asosiy roli huquqlari bilan kirishni saqlab qoladi.",
+      "copyBases": "Tanlangan rollar huquqlarini olish"
     }
   }
 }

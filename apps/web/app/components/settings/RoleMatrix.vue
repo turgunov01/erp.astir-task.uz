@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ROLE, type Role } from '@astir/types'
+import { ROLE, type Role, type CustomRole } from '@astir/types'
+import RoleDialog from './RoleDialog.vue'
 import { Button } from '~/components/ui/button'
 import { apiErrorMessage, apiRequest } from '~/composables/useApi'
 import { useAuthStore } from '~/stores/auth'
@@ -23,17 +24,86 @@ interface MatrixPayload {
   /** Roles that may never be given more than this list, e.g. client accounts. */
   ceiling: Partial<Record<Role, string[]>>
   customised: Role[]
+  deletedRoles: Role[]
+  roleNames: Partial<Record<Role, string>>
 }
 
 const auth = useAuthStore()
 const { t } = useI18n()
 
-const ROLES = Object.values(ROLE)
-const EDITABLE = ROLES.filter(role => role !== ROLE.OWNER)
+const { data: templates, error: templateError, refresh: refreshTemplates } = await useFetch<{ data: CustomRole[] }>(
+  '/api/settings/roles?templates=true',
+  { key: 'settings-role-templates', credentials: 'include', default: () => ({ data: [] }) }
+)
+const ROLES = computed(() => [...Object.values(ROLE).filter(role => !data.value?.data.deletedRoles.includes(role)), ...(templates.value?.data ?? []).map(r => r.id)])
+const EDITABLE = computed(() => ROLES.value.filter(role => role !== ROLE.OWNER))
+const roleLabel = (role: string) => templates.value?.data.find(r => r.id === role)?.name ?? data.value?.data.roleNames[role as Role] ?? enumLabel(ROLE_LABEL, role)
+const templateName = ref('')
+const creating = ref(false)
+const renaming = ref<{ id: string, name: string, builtin?: boolean } | null>(null)
+const removeTarget = ref<{ id: string, name: string, builtin?: boolean } | null>(null)
+function openRemove(role: string) {
+  removeTarget.value = templates.value?.data.find(r => r.id === role) ?? { id: role, name: roleLabel(role), builtin: true }
+}
+const dialogError = ref('')
+function openCreate() {
+  templateName.value = ''
+  dialogError.value = ''
+  creating.value = true
+}
+function openRename(role: string) {
+  const target = templates.value?.data.find(r => r.id === role) ?? { id: role, name: roleLabel(role), builtin: true }
+  templateName.value = target.name
+  dialogError.value = ''
+  renaming.value = target
+}
+async function renameTemplate() {
+  const target = renaming.value
+  if (!target || saving.value) return
+  saving.value = true
+  dialogError.value = ''
+  try {
+    await apiRequest((target.builtin ? '/api/settings/base-roles/' : '/api/settings/roles/') + target.id, { method: 'PATCH', body: { name: templateName.value.trim() } })
+    await refresh()
+    await refreshTemplates()
+    renaming.value = null
+    notify(t('team.roles.saved'))
+  } catch (err) {
+    dialogError.value = apiErrorMessage(err, t('team.roles.saveFailed'))
+  } finally { saving.value = false }
+}
+async function removeTemplate() {
+  const target = removeTarget.value
+  if (!target || saving.value) return
+  saving.value = true
+  try {
+    await apiRequest((target.builtin ? '/api/settings/base-roles/' : '/api/settings/roles/') + target.id, { method: 'DELETE' })
+    await refresh()
+    await refreshTemplates()
+    await refreshNuxtData('settings-custom-roles')
+    notify(t('team.customRoles.deleted', { name: target.name }))
+  } catch (err) {
+    notify(apiErrorMessage(err, t('team.customRoles.deleteFailed')), true)
+  } finally { saving.value = false; removeTarget.value = null }
+}
+async function createTemplate() {
+  if (saving.value) return
+  saving.value = true
+  dialogError.value = ''
+  try {
+    await apiRequest('/api/settings/role-templates', { method: 'POST', body: { name: templateName.value.trim() } })
+    await refreshTemplates()
+    templateName.value = ''
+    creating.value = false
+    notify(t('team.roles.saved'))
+  } catch (err) {
+    dialogError.value = apiErrorMessage(err, t('team.roles.saveFailed'))
+  } finally { saving.value = false }
+}
 
 const { data, pending, error, refresh } = await useFetch<{ data: MatrixPayload }>(
   '/api/settings/permissions',
-  { credentials: 'include' }
+  { key: 'settings-role-permissions', credentials: 'include' }
 )
 
 /** Working copy: a Set per role, so a toggle is one operation. */
@@ -44,17 +114,17 @@ function resetDraft() {
   const payload = data.value?.data
   if (!payload) return
   const next: Record<string, Set<string>> = {}
-  for (const role of ROLES) next[role] = new Set(payload.roles[role] ?? [])
+  for (const role of ROLES.value) next[role] = new Set(templates.value?.data.find(r => r.id === role)?.permissions ?? payload.roles[role as Role] ?? [])
   draft.value = next
   customised.value = new Set(payload.customised)
 }
-watch(data, resetDraft, { immediate: true })
+watch([data, templates], resetDraft, { immediate: true })
 
 const dirtyRoles = computed(() => {
   const payload = data.value?.data
   if (!payload) return []
-  return EDITABLE.filter(role => {
-    const saved = payload.roles[role] ?? []
+  return EDITABLE.value.filter(role => {
+    const saved = templates.value?.data.find(r => r.id === role)?.permissions ?? payload.roles[role as Role] ?? []
     const current = draft.value[role]
     if (!current) return false
     return saved.length !== current.size || saved.some(p => !current.has(p))
@@ -74,7 +144,7 @@ function has(role: string, permission: string) {
  */
 function blocked(role: string, permission: string): string {
   if (role === ROLE.OWNER) return t('team.roles.ownerAll')
-  const ceiling = data.value?.data.ceiling[role as Role]
+  const ceiling = data.value?.data.ceiling[templates.value?.data.find(r => r.id === role)?.baseRole ?? role as Role]
   if (ceiling && !ceiling.includes(permission)) return t('team.roles.ceiling')
   if (!auth.can(permission as never) && !has(role, permission)) {
     return t('team.roles.notYours')
@@ -128,12 +198,13 @@ async function save() {
   notify('')
   try {
     for (const role of dirtyRoles.value) {
-      await apiRequest('/api/settings/permissions/' + role, {
-        method: 'PUT',
+      await apiRequest((templates.value?.data.some(r => r.id === role) ? '/api/settings/roles/' : '/api/settings/permissions/') + role, {
+        method: templates.value?.data.some(r => r.id === role) ? 'PATCH' : 'PUT',
         body: { permissions: [...(draft.value[role] ?? [])] }
       })
     }
     await refresh()
+    await refreshTemplates()
     // The editor's own session may have changed rights too.
     await auth.refresh()
     notify(t('team.roles.saved'))
@@ -151,7 +222,7 @@ async function resetRole(role: string) {
     await apiRequest('/api/settings/permissions/' + role, { method: 'DELETE' })
     await refresh()
     await auth.refresh()
-    notify(t('team.roles.resetDone', { role: enumLabel(ROLE_LABEL, role) }))
+    notify(t('team.roles.resetDone', { role: roleLabel(role) }))
   } catch (err: unknown) {
     notify(apiErrorMessage(err, t('team.roles.resetFailed')), true)
   } finally {
@@ -169,7 +240,8 @@ async function resetRole(role: string) {
           {{ t('team.roles.intro') }}
         </p>
       </div>
-      <div v-if="props.canEdit" class="flex items-center gap-2">
+      <div v-if="props.canEdit" class="flex flex-wrap items-center gap-2">
+        <Button variant="outline" :disabled="saving || dirtyRoles.length > 0" @click="openCreate">+ {{ t('team.roles.createBase') }}</Button>
         <Button variant="outline" :disabled="saving || dirtyRoles.length === 0" @click="resetDraft">
           {{ t('team.roles.discard') }}
         </Button>
@@ -178,6 +250,34 @@ async function resetRole(role: string) {
         </Button>
       </div>
     </div>
+
+    <RoleDialog
+      :open="creating || Boolean(renaming)"
+      :title="renaming ? t('team.roles.renameBase') : t('team.roles.createBase')"
+      :pending="saving"
+      @update:open="value => { if (!value) { creating = false; renaming = null } }"
+    >
+      <form id="base-role-form" class="space-y-4" @submit.prevent="renaming ? renameTemplate() : createTemplate()">
+        <p v-if="dialogError" role="alert" class="text-sm text-destructive">{{ dialogError }}</p>
+        <label class="block text-sm font-medium">{{ t('team.customRoles.name') }}
+          <input v-model="templateName" required minlength="2" maxlength="60" :disabled="saving" class="mt-1.5 h-9 w-full rounded-md border bg-background px-3 outline-none focus:border-ring" />
+        </label>
+      </form>
+      <template #footer>
+        <Button type="button" variant="outline" :disabled="saving" @click="creating = false; renaming = null">{{ t('common.actions.cancel') }}</Button>
+        <Button type="submit" form="base-role-form" :disabled="saving || templateName.trim().length < 2">{{ saving ? t('common.actions.saving') : (renaming ? t('common.actions.save') : t('common.actions.create')) }}</Button>
+      </template>
+    </RoleDialog>
+    <ConfirmDialog
+      v-if="removeTarget"
+      :title="t('team.roles.deleteBase')"
+      :message="t('team.customRoles.deleteMessage', { name: removeTarget.name })"
+      :detail="t(removeTarget.builtin ? 'team.roles.deleteBuiltinDetail' : 'team.roles.deleteBaseDetail')"
+      :confirm-label="t('common.actions.delete')"
+      :pending="saving"
+      @confirm="removeTemplate"
+      @cancel="!saving && (removeTarget = null)"
+    />
 
     <p
       v-if="message"
@@ -190,7 +290,7 @@ async function resetRole(role: string) {
       {{ message }}
     </p>
 
-    <p v-if="error" role="alert" class="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+    <p v-if="error || templateError" role="alert" class="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
       {{ t('team.roles.loadFailed') }}
     </p>
 
@@ -200,7 +300,11 @@ async function resetRole(role: string) {
           <tr class="border-b">
             <th class="sticky left-0 z-20 bg-card px-4 py-2.5 font-medium">{{ t('team.roles.permission') }}</th>
             <th v-for="role in ROLES" :key="role" class="px-2 py-2.5 text-center font-medium">
-              <div>{{ enumLabel(ROLE_LABEL, role) }}</div>
+              <div>{{ roleLabel(role) }}</div>
+              <div v-if="props.canEdit && role !== ROLE.OWNER" class="mt-1 flex justify-center gap-2">
+                <button type="button" class="rounded p-1 hover:bg-muted disabled:opacity-40" :aria-label="t('team.roles.renameBase') + ': ' + roleLabel(role)" :title="t('team.roles.renameBase')" :disabled="saving || dirtyRoles.length > 0" @click="openRename(role)"><Icon name="lucide:pencil" class="size-3.5" /></button>
+                <button type="button" class="rounded p-1 text-destructive hover:bg-destructive/10 disabled:opacity-40" :aria-label="t('team.roles.deleteBase') + ': ' + roleLabel(role)" :title="t('team.roles.deleteBase')" :disabled="saving || dirtyRoles.length > 0" @click="openRemove(role)"><Icon name="lucide:trash-2" class="size-3.5" /></button>
+              </div>
               <button
                 v-if="props.canEdit && role !== ROLE.OWNER && customised.has(role)"
                 type="button"
@@ -233,8 +337,8 @@ async function resetRole(role: string) {
                   :class="groupState(role, group.permissions.map(p => p.key)) === 'none'
                     ? 'border-input text-transparent hover:border-ring'
                     : 'border-primary bg-primary text-primary-foreground'"
-                  :disabled="!props.canEdit"
-                  :aria-label="t('team.roles.groupAria', { group: group.label, role: enumLabel(ROLE_LABEL, role) })"
+                  :disabled="!props.canEdit || saving"
+                  :aria-label="t('team.roles.groupAria', { group: group.label, role: roleLabel(role) })"
                   @click="toggleGroup(role, group.permissions.map(p => p.key))"
                 >
                   {{ groupState(role, group.permissions.map(p => p.key)) === 'some' ? '–' : '✓' }}
@@ -253,10 +357,10 @@ async function resetRole(role: string) {
                   :class="has(role, permission.key)
                     ? (role === ROLE.OWNER ? 'border-muted-foreground/40 bg-muted text-muted-foreground' : 'border-primary bg-primary text-primary-foreground')
                     : (blocked(role, permission.key) ? 'border-dashed border-input/60 text-transparent' : 'border-input text-transparent hover:border-ring')"
-                  :disabled="!props.canEdit || Boolean(blocked(role, permission.key))"
+                  :disabled="!props.canEdit || saving || Boolean(blocked(role, permission.key))"
                   :title="blocked(role, permission.key) || undefined"
                   :aria-pressed="has(role, permission.key)"
-                  :aria-label="permission.label + ' — ' + enumLabel(ROLE_LABEL, role)"
+                  :aria-label="permission.label + ' — ' + roleLabel(role)"
                   @click="toggle(role, permission.key)"
                 >
                   ✓

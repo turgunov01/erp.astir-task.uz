@@ -1716,6 +1716,8 @@ model PipelineTemplate {
 /// the defaults compiled into @astir/types. The whole list is stored rather
 /// than a diff, so reading a role's rights is one lookup with no merging.
 model RolePermission {
+  templateDeleted Boolean @default(false)
+  templateName String?
   role        Role     @id
   permissions String[]
 
@@ -1736,6 +1738,13 @@ model CustomRole {
   description String?
   baseRole    Role
   permissions String[]
+  isTemplate  Boolean  @default(false)
+  baseTemplateId String? @db.Uuid
+  baseTemplate CustomRole? @relation("RoleTemplate", fields: [baseTemplateId], references: [id], onDelete: SetNull)
+  derivedRoles CustomRole[] @relation("RoleTemplate")
+  baseRoles Role[] @default([])
+  sources CustomRoleSource[] @relation("SourceRole")
+  usedBy CustomRoleSource[] @relation("SourceTemplate")
 
   users User[]
 
@@ -1743,4 +1752,14 @@ model CustomRole {
   updatedAt DateTime @updatedAt
 
   @@map("custom_roles")
+}
+
+model CustomRoleSource {
+  roleId String @db.Uuid
+  templateId String @db.Uuid
+  role CustomRole @relation("SourceRole", fields: [roleId], references: [id], onDelete: Cascade)
+  template CustomRole @relation("SourceTemplate", fields: [templateId], references: [id], onDelete: Cascade)
+  @@id([roleId, templateId])
+  @@index([templateId])
+  @@map("custom_role_sources")
 }

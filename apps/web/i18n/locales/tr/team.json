@@ -501,7 +501,12 @@
       "permission": "Yetki",
       "reset": "sıfırla",
       "everything": "tümü",
-      "groupAria": "{role} rolü için «{group}» bölümünün tamamı"
+      "groupAria": "{role} rolü için «{group}» bölümünün tamamı",
+      "createBase": "Temel rol oluştur",
+      "renameBase": "Temel rolü yeniden adlandır",
+      "deleteBase": "Temel rol silinsin mi?",
+      "deleteBaseDetail": "Bu rolden oluşturulan roller izinlerini ve atamalarını korur.",
+      "deleteBuiltinDetail": "Rol temel rollerden kaldırılır. Mevcut kullanıcılar ve oluşturulan roller izinlerini korur. Aynı adla yeni bir temel rol oluşturabilirsiniz."
     },
     "customRoles": {
       "title": "Özel roller",
@@ -512,8 +517,8 @@
       "editTitle": "Rolü düzenle",
       "name": "Ad",
       "namePlaceholder": "Örneğin, Kurgucu",
-      "baseRole": "Temel rol",
-      "baseRoleHint": "Sistemin kişiye nasıl davranacağını belirler: müşteri yalnızca kendi projelerini görür, yönetici başkalarının şifresini sıfırlayabilir.",
+      "baseRole": "Temel roller",
+      "baseRoleHint": "İzinleri birleştirmek için birden fazla rol seçin. Aşağıdan izin ekleyebilir veya kaldırabilirsiniz.",
       "description": "Açıklama",
       "permissions": "Yetkiler",
       "permissionCount": "{n} yetki",
@@ -532,7 +537,8 @@
       "empty": "Henüz özel rol yok. İlkini oluşturun — örneğin kurgucular veya stajyerler için.",
       "deleteTitle": "Rol silinsin mi?",
       "deleteMessage": "\"{name}\" rolü silinecek.",
-      "deleteDetail": "Bu roldeki kişiler: {n}. Erişimlerini \"{base}\" temel rolünün yetkileriyle korurlar."
+      "deleteDetail": "Bu roldeki kişiler: {n}. Erişimlerini \"{base}\" temel rolünün yetkileriyle korurlar.",
+      "copyBases": "Seçilen rollerin izinlerini al"
     }
   }
 }

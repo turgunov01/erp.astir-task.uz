@@ -18,6 +18,10 @@ const CUSTOM_ROLE_BASE = [
  * catalogue; the API checks every entry against it before saving.
  */
 export const createCustomRoleSchema = z.object({
+  isTemplate: z.boolean().optional(),
+  baseRoles: z.array(z.enum(CUSTOM_ROLE_BASE)).max(7).optional(),
+  baseTemplateIds: z.array(z.string().uuid()).max(100).optional(),
+  baseTemplateId: z.string().uuid().nullable().optional(),
   name: z.string().trim().min(2).max(60),
   description: z.string().trim().max(400).optional().nullable(),
   baseRole: z.enum(CUSTOM_ROLE_BASE),
@@ -25,5 +29,5 @@ export const createCustomRoleSchema = z.object({
 })
 export type CreateCustomRoleInput = z.infer<typeof createCustomRoleSchema>
 
-export const updateCustomRoleSchema = partialUpdate(createCustomRoleSchema)
+export const updateCustomRoleSchema = partialUpdate(createCustomRoleSchema.omit({ isTemplate: true }))
 export type UpdateCustomRoleInput = z.infer<typeof updateCustomRoleSchema>

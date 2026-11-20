@@ -73,6 +73,12 @@ export interface AuthUser {
 
 /** A role the studio defined in Settings on top of one of the built-in ones. */
 export interface CustomRole {
+  /** Permission templates appear in the matrix and cannot be assigned to accounts. */
+  isTemplate: boolean
+  /** Source template; permissions are copied, not inherited dynamically. */
+  baseTemplateId: string | null
+  baseRoles: import('./enums').Role[]
+  baseTemplateIds: string[]
   id: string
   name: string
   description: string | null

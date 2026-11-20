@@ -127,7 +127,11 @@ export async function permissionMatrix(): Promise<Record<Role, readonly Permissi
 /** Roles whose list differs from the defaults, so the editor can offer a reset. */
 export async function customisedRoles(): Promise<Role[]> {
   const stored = await load()
-  return [...stored.keys()]
+  return [...stored.keys()].filter(role => {
+    const permissions = stored.get(role) ?? []
+    const defaults = ROLE_PERMISSIONS[role]
+    return permissions.length !== defaults.length || permissions.some(p => !defaults.includes(p))
+  })
 }
 
 type Writer = Prisma.TransactionClient | typeof prisma
@@ -150,7 +154,8 @@ export function saveRolePermissions(
 }
 
 export function resetRolePermissions(role: Role, tx: Writer = prisma) {
-  return tx.rolePermission.deleteMany({ where: { role } })
+  // Keep a template's name and deletion state when restoring its default rights.
+  return tx.rolePermission.updateMany({ where: { role }, data: { permissions: [...ROLE_PERMISSIONS[role]] } })
 }
 
 export function forgetPermissionMatrix() {

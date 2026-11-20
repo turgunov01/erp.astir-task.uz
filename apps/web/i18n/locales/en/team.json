@@ -501,7 +501,12 @@
       "permission": "Permission",
       "reset": "reset",
       "everything": "everything",
-      "groupAria": "The whole “{group}” section for {role}"
+      "groupAria": "The whole “{group}” section for {role}",
+      "createBase": "Create base role",
+      "renameBase": "Rename base role",
+      "deleteBase": "Delete base role?",
+      "deleteBaseDetail": "Roles created from it will keep their permissions and assignments.",
+      "deleteBuiltinDetail": "The role will be removed from base roles. Existing users and derived roles keep their permissions. You can create a new base role with the same name."
     },
     "customRoles": {
       "title": "Custom roles",
@@ -512,8 +517,8 @@
       "editTitle": "Edit role",
       "name": "Name",
       "namePlaceholder": "For example, Editor",
-      "baseRole": "Base role",
-      "baseRoleHint": "Decides how the system treats the person: a client sees only their own projects, an administrator can reset other people's passwords.",
+      "baseRole": "Base roles",
+      "baseRoleHint": "Select several roles to combine their permissions. You can then add or remove individual permissions below.",
       "description": "Description",
       "permissions": "Permissions",
       "permissionCount": "{n} permission | {n} permissions",
@@ -532,7 +537,8 @@
       "empty": "No custom roles yet. Create the first one — for editors or interns, say.",
       "deleteTitle": "Delete the role?",
       "deleteMessage": "Role \"{name}\" will be deleted.",
-      "deleteDetail": "People with this role: {n}. They keep access with the permissions of the base role \"{base}\"."
+      "deleteDetail": "People with this role: {n}. They keep access with the permissions of the base role \"{base}\".",
+      "copyBases": "Copy permissions from selected roles"
     }
   }
 }

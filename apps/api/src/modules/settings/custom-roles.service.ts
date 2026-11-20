@@ -1,5 +1,6 @@
 import type { Prisma } from '@prisma/client'
 import {
+  combinedRoleBase,
   ALL_PERMISSIONS,
   PERMISSION,
   ROLE,
@@ -11,7 +12,7 @@ import {
 import type { CreateCustomRoleInput, UpdateCustomRoleInput } from '@astir/validation'
 import { prisma } from '../../lib/prisma'
 import { badRequest, conflict, notFound } from '../../lib/errors'
-import { effectivePermissions, forgetCustomRoles } from '../../lib/rbac'
+import { effectivePermissions, forgetCustomRoles, forgetPermissionMatrix, rolePermissions } from '../../lib/rbac'
 import { recordAudit } from '../../lib/activity'
 import { t } from '../../i18n'
 
@@ -46,6 +47,10 @@ const SELF_LOCKOUT_GUARD: readonly Permission[] = [
 ]
 
 const ROLE_SELECT = {
+  baseRoles: true,
+  sources: { select: { templateId: true } },
+  isTemplate: true,
+  baseTemplateId: true,
   id: true,
   name: true,
   description: true,
@@ -59,16 +64,16 @@ const ROLE_SELECT = {
 type RoleRow = Prisma.CustomRoleGetPayload<{ select: typeof ROLE_SELECT }>
 
 function present(row: RoleRow) {
-  const { _count, ...role } = row
-  return { ...role, userCount: _count.users }
+  const { _count, sources, ...role } = row
+  return { ...role, baseTemplateIds: sources.map(s => s.templateId), userCount: _count.users }
 }
 
 function isPermission(value: string): value is Permission {
   return (ALL_PERMISSIONS as readonly string[]).includes(value)
 }
 
-export async function listCustomRoles() {
-  const rows = await prisma.customRole.findMany({ orderBy: { name: 'asc' }, select: ROLE_SELECT })
+export async function listCustomRoles(isTemplate = false) {
+  const rows = await prisma.customRole.findMany({ where: { isTemplate }, orderBy: { name: 'asc' }, select: ROLE_SELECT })
   return rows.map(present)
 }
 
@@ -118,25 +123,73 @@ async function assertGrantable(
  * «МОНТАЖЁР» is the duplicate this check exists for. A studio has a handful
  * of roles, so reading the names is cheap.
  */
-async function assertNameFree(name: string, exceptId?: string) {
+async function assertNameFree(name: string, exceptId?: string, exceptBuiltin?: Role) {
   const wanted = name.toLocaleLowerCase()
   const rows = await prisma.customRole.findMany({ select: { id: true, name: true } })
   const taken = rows.some(row => row.id !== exceptId && row.name.toLocaleLowerCase() === wanted)
-  if (taken) throw conflict(t('team.settings.roleNameTaken', { name }))
+  const builtins = await prisma.rolePermission.findMany({ where: { templateDeleted: false, templateName: { not: null } }, select: { role: true, templateName: true } })
+  const builtinTaken = builtins.some(row => row.role !== exceptBuiltin && row.templateName?.toLocaleLowerCase() === wanted)
+  if (taken || builtinTaken) throw conflict(t('team.settings.roleNameTaken', { name }))
+}
+
+async function resolveSources(input: { baseRole: Role, baseRoles?: Role[], baseTemplateIds?: string[], baseTemplateId?: string | null }, selfId?: string) {
+  const multi = input.baseRoles !== undefined || input.baseTemplateIds !== undefined
+  const baseRoles = [...new Set(input.baseRoles ?? (multi || input.baseTemplateId ? [] : [input.baseRole]))]
+  const baseTemplateIds = [...new Set(input.baseTemplateIds ?? (input.baseTemplateId ? [input.baseTemplateId] : []))]
+  if (baseTemplateIds.includes(selfId ?? '')) throw notFound('Role template')
+  const templates = await prisma.customRole.findMany({ where: { id: { in: baseTemplateIds }, isTemplate: true } })
+  if (templates.length !== baseTemplateIds.length || (!multi && templates.some(r => r.baseRole !== input.baseRole))) throw notFound('Role template')
+  const deleted = await prisma.rolePermission.findMany({ where: { role: { in: baseRoles }, templateDeleted: true } })
+  if (deleted.length) throw notFound('Role template')
+  return { baseRoles, baseTemplateIds, baseRole: multi ? combinedRoleBase([...baseRoles, ...templates.map(r => r.baseRole)]) : input.baseRole }
+}
+
+/** Names are presentation only; a rename never modifies permissions or identities. */
+export async function renameBuiltinTemplate(role: Role, name: string, actor: RoleActor) {
+  if (role === ROLE.OWNER) throw badRequest(t('team.settings.customRoleOwnerBase'))
+  const before = await prisma.rolePermission.findUnique({ where: { role } })
+  if (before?.templateDeleted) throw notFound('Role template')
+  await assertNameFree(name, undefined, role)
+  const permissions = [...await rolePermissions(role)]
+  await prisma.$transaction(async tx => {
+    await tx.rolePermission.upsert({ where: { role }, create: { role, permissions, templateName: name }, update: { templateName: name } })
+    await recordAudit({ actorId: actor.user.id, action: 'settings.base_role_renamed', entityType: 'Role', ipAddress: actor.ipAddress, metadata: { role, before: before?.templateName ?? null, after: name } }, tx)
+  })
+  return { role, name }
+}
+
+/** Remove a standard permission template, keeping current account permissions. */
+export async function deleteBuiltinTemplate(role: Role, actor: RoleActor) {
+  if (role === ROLE.OWNER) throw badRequest(t('team.settings.customRoleOwnerBase'))
+  const permissions = [...await rolePermissions(role)]
+  await prisma.$transaction(async tx => {
+    await tx.rolePermission.upsert({ where: { role }, create: { role, permissions, templateDeleted: true }, update: { templateDeleted: true } })
+    const derived = await tx.customRole.findMany({ where: { baseRoles: { has: role } }, select: { id: true, baseRoles: true } })
+    for (const row of derived) await tx.customRole.update({ where: { id: row.id }, data: { baseRoles: row.baseRoles.filter(r => r !== role) } })
+    await recordAudit({ actorId: actor.user.id, action: 'settings.base_role_deleted', entityType: 'Role', ipAddress: actor.ipAddress, metadata: { role } }, tx)
+  })
+  forgetPermissionMatrix()
 }
 
 export async function createCustomRole(input: CreateCustomRoleInput, actor: RoleActor) {
+  const sources = input.isTemplate
+    ? { baseRole: input.baseRole, baseRoles: [] as Role[], baseTemplateIds: [] as string[] }
+    : await resolveSources(input)
   await assertNameFree(input.name)
   const permissions = await assertGrantable(
-    actor.user, input.baseRole, input.permissions, input.permissions.filter(isPermission)
+    actor.user, sources.baseRole, input.permissions, input.permissions.filter(isPermission)
   )
 
   const role = await prisma.$transaction(async tx => {
     const created = await tx.customRole.create({
       data: {
+        isTemplate: input.isTemplate ?? false,
+        baseTemplateId: sources.baseTemplateIds[0] ?? null,
+        baseRoles: input.isTemplate ? [] : sources.baseRoles,
+        sources: { create: sources.baseTemplateIds.map(templateId => ({ templateId })) },
         name: input.name,
         description: input.description ?? null,
-        baseRole: input.baseRole,
+        baseRole: sources.baseRole,
         permissions
       },
       select: ROLE_SELECT
@@ -161,7 +214,9 @@ export async function updateCustomRole(id: string, input: UpdateCustomRoleInput,
 
   if (input.name !== undefined) await assertNameFree(input.name, id)
 
-  const baseRole = input.baseRole ?? before.baseRole
+  const changedSources = input.baseRoles !== undefined || input.baseTemplateIds !== undefined || input.baseTemplateId !== undefined
+  const sources = changedSources ? await resolveSources({ ...input, baseRole: input.baseRole ?? before.baseRole }, id) : null
+  const baseRole = sources?.baseRole ?? input.baseRole ?? before.baseRole
   const requested = input.permissions ?? before.permissions
   const added = requested.filter(isPermission).filter(p => !before.permissions.includes(p))
   const permissions = await assertGrantable(actor.user, baseRole, requested, added)
@@ -178,6 +233,11 @@ export async function updateCustomRole(id: string, input: UpdateCustomRoleInput,
         ...(input.name !== undefined ? { name: input.name } : {}),
         ...(input.description !== undefined ? { description: input.description } : {}),
         baseRole,
+        ...(sources ? {
+          baseTemplateId: sources.baseTemplateIds[0] ?? null,
+          baseRoles: sources.baseRoles,
+          sources: { deleteMany: {}, create: sources.baseTemplateIds.map(templateId => ({ templateId })) }
+        } : {}),
         permissions
       },
       select: ROLE_SELECT
@@ -258,7 +318,7 @@ export async function resolveRoleAssignment(
 ): Promise<{ role?: Role, customRoleId?: string | null }> {
   if (input.customRoleId) {
     const custom = await prisma.customRole.findUnique({ where: { id: input.customRoleId } })
-    if (!custom) throw notFound('Role')
+    if (!custom || custom.isTemplate) throw notFound('Role')
 
     const own = await effectivePermissions(actor)
     const beyond = custom.permissions.filter(isPermission).filter(p => !own.includes(p))

@@ -22,6 +22,8 @@ import { sendMail } from '../../lib/mailer'
 import { publicStudioSettings, saveStudioSettings, studioSettings } from '../../lib/settings'
 import {
   createCustomRole,
+  deleteBuiltinTemplate,
+  renameBuiltinTemplate,
   deleteCustomRole,
   listCustomRoles,
   updateCustomRole
@@ -344,16 +346,45 @@ settingsRouter.get(
   requirePermission(PERMISSION.SETTINGS_VIEW),
   async (_req, res, next) => {
     try {
+      const storedRoles = await prisma.rolePermission.findMany({ select: { role: true, templateDeleted: true, templateName: true } })
       return sendItem(res, {
+        roleNames: Object.fromEntries(storedRoles.filter(r => !r.templateDeleted && r.templateName).map(r => [r.role, r.templateName])),
         roles: await permissionMatrix(),
         defaults: ROLE_PERMISSIONS,
         ceiling: ROLE_CEILING,
         customised: await customisedRoles(),
+        deletedRoles: storedRoles.filter(r => r.templateDeleted).map(r => r.role),
         catalogue: ALL_PERMISSIONS
       })
     } catch (err) {
       next(err)
     }
+  }
+)
+
+settingsRouter.patch(
+  '/base-roles/:role',
+  requirePermission(PERMISSION.PERMISSION_MANAGE),
+  validate(roleParamSchema, 'params'),
+  validate(createCustomRoleSchema.pick({ name: true })),
+  async (req, res, next) => {
+    try {
+      if (!req.user) throw badRequest(t('common.errors.sessionNotFound'))
+      return sendItem(res, await renameBuiltinTemplate(req.params.role as Role, req.body.name, { user: req.user, ipAddress: req.ip }))
+    } catch (err) { next(err) }
+  }
+)
+
+settingsRouter.delete(
+  '/base-roles/:role',
+  requirePermission(PERMISSION.PERMISSION_MANAGE),
+  validate(roleParamSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      if (!req.user) throw badRequest(t('common.errors.sessionNotFound'))
+      await deleteBuiltinTemplate(req.params.role as Role, { user: req.user, ipAddress: req.ip })
+      return sendNoContent(res)
+    } catch (err) { next(err) }
   }
 )
 
@@ -365,6 +396,7 @@ settingsRouter.put(
   async (req, res, next) => {
     try {
       const role = req.params.role as Role
+      if ((await prisma.rolePermission.findUnique({ where: { role } }))?.templateDeleted) throw notFound('Role template')
       const permissions = req.body.permissions as Permission[]
       if (!req.user) throw badRequest(t('common.errors.sessionNotFound'))
 
@@ -424,6 +456,7 @@ settingsRouter.delete(
   async (req, res, next) => {
     try {
       const role = req.params.role as Role
+      if ((await prisma.rolePermission.findUnique({ where: { role } }))?.templateDeleted) throw notFound('Role template')
       const before = await rolePermissions(role)
       await prisma.$transaction(async tx => {
         await resetRolePermissions(role, tx)
@@ -452,13 +485,30 @@ settingsRouter.delete(
 settingsRouter.get(
   '/roles',
   requireAnyPermission(PERMISSION.SETTINGS_VIEW, PERMISSION.USER_MANAGE, PERMISSION.TEAM_MANAGE),
-  async (_req, res, next) => {
+  async (req, res, next) => {
     try {
-      const roles = await listCustomRoles()
+      const roles = await listCustomRoles(req.query.templates === 'true')
       return sendList(res, roles, { page: 1, limit: roles.length, total: roles.length, pages: 1 })
     } catch (err) {
       next(err)
     }
+  }
+)
+
+// A base template starts with a name and no permissions. Its rights are edited
+// separately in the matrix; system behavior is not part of the creation form.
+settingsRouter.post(
+  '/role-templates',
+  requirePermission(PERMISSION.PERMISSION_MANAGE),
+  validate(createCustomRoleSchema.pick({ name: true })),
+  async (req, res, next) => {
+    try {
+      if (!req.user) throw badRequest(t('common.errors.sessionNotFound'))
+      const role = await createCustomRole({
+        name: req.body.name, isTemplate: true, baseRole: ROLE.ARTIST, permissions: []
+      }, { user: req.user, ipAddress: req.ip })
+      return sendItem(res, role, 201)
+    } catch (err) { next(err) }
   }
 )
 
