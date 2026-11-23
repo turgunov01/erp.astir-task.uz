@@ -12,7 +12,8 @@ import { useMyAttendance } from '~/composables/useMyAttendance'
  *
  * Closed: outside the working hours (before the shift, after it, a day off,
  * or once «Закончить смену» was pressed) the app is closed until the next
- * shift opens. The owner and administrators are exempt from this one.
+ * shift opens. After «Закончить смену» it closes for everyone; the owner
+ * and administrators are exempt only from the working hours.
  *
  * Both come from the server, so a reload or another tab does not get around
  * them; the clock here only notices the shift opening or closing on time.
@@ -51,10 +52,15 @@ watch(now, value => {
   if (boundary && value >= new Date(boundary).getTime()) load()
 })
 
-/** Closed for work: outside the shift, or the shift was ended today. */
+/**
+ * Closed for work: the shift was ended today (everyone, the owner and
+ * administrators included), or it is outside the shift hours (employees only:
+ * the window does not hold back whoever is exempt from it).
+ */
 const closed = computed(() => {
-  if (!enabled.value || !day.value || !lockState.value || lockState.value.windowExempt) return false
-  return lockState.value.shift.state !== 'OPEN' || day.value.checkedOut
+  if (!enabled.value || !day.value || !lockState.value) return false
+  if (day.value.checkedOut) return true
+  return !lockState.value.windowExempt && lockState.value.shift.state !== 'OPEN'
 })
 const pinLocked = computed(() => Boolean(enabled.value && lockState.value?.locked))
 const visible = computed(() => closed.value || pinLocked.value)
