@@ -13,8 +13,8 @@ import { useMyAttendance } from '~/composables/useMyAttendance'
 const { t } = useI18n()
 const { lockState, pinSetup, setPin, lock } = useMyAttendance()
 
-const PIN_PATTERN = /^\d{4,6}$/
-const PIN_LENGTH_MAX = 6
+const PIN_PATTERN = /^\d{4}$/
+const PIN_LENGTH_MAX = 4
 
 const pin = ref('')
 const confirm = ref('')

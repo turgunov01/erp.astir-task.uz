@@ -77,7 +77,7 @@ export default {
     shiftNotStarted: 'Smena hali boshlanmagan — ishni {start} dan boshlash mumkin',
     shiftOver: 'Bugungi smena {end} da tugadi — keyingisi jadval bo‘yicha ochiladi',
     shiftDayOff: 'Bugun jadval bo‘yicha dam olish kuni — smenani boshlab bo‘lmaydi',
-    pinFormat: 'PIN-kod 4 dan 6 tagacha raqam',
+    pinFormat: 'PIN-kod 4 ta raqamdan iborat',
     pinRequired: 'Avval PIN-kod o‘rnating — usiz ekranni qulflab bo‘lmaydi',
     pinChangeNeedsPassword: 'PIN-kodni almashtirish uchun hisob parolini kiriting',
     pinWrong: 'PIN-kod noto‘g‘ri',

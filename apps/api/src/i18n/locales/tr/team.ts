@@ -77,7 +77,7 @@ export default {
     shiftNotStarted: 'Vardiyanız henüz başlamadı — çalışma {start} itibarıyla açılır',
     shiftOver: 'Bugünkü vardiya {end} itibarıyla bitti — sonraki takvime göre açılır',
     shiftDayOff: 'Bugün takvime göre izin günü — vardiya başlatılamaz',
-    pinFormat: 'PIN 4 ile 6 haneden oluşur',
+    pinFormat: 'PIN 4 haneden oluşur',
     pinRequired: 'Önce bir PIN belirleyin — PIN olmadan ekran kilitlenemez',
     pinChangeNeedsPassword: 'PIN’i değiştirmek için hesap parolanızı girin',
     pinWrong: 'PIN yanlış',

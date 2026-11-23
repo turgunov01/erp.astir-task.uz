@@ -109,13 +109,17 @@
       "pauseDeducted": "Pauza vaqti ishlangan soatlardan ayirildi.",
       "pauseFailed": "Pauzaga qo‘yib bo‘lmadi",
       "resumeFailed": "Smenani davom ettirib bo‘lmadi",
-      "checkOutTitle": "Ish smenasini tugatish — vaqt server soati bo‘yicha yoziladi"
+      "checkOutTitle": "Ish smenasini tugatish — vaqt server soati bo‘yicha yoziladi",
+      "checkOutConfirmTitle": "Smenani tugatasizmi?",
+      "checkOutConfirmMessage": "Shundan so‘ng tizim keyingi smenagacha yopiladi. Tanaffus kerak bo‘lsa — «Pauza»ni bosing.",
+      "checkOutConfirmAction": "Smenani tugatish"
     },
     "checkInPrompt": {
       "title": "Smenani boshlang",
       "body": "Ishni boshlaganingizda «Smenani boshlash» tugmasini bosing — vaqt server soati bo‘yicha yoziladi.",
       "workdayStarts": "Ish kuni {start} da boshlanadi.",
-      "dayOff": "Bugun jadval bo‘yicha dam olish kuni."
+      "dayOff": "Bugun jadval bo‘yicha dam olish kuni.",
+      "gateNote": "Smena boshlanmaguncha tizim yopiq. Ish vaqti tugma bosilgan paytdan hisoblanadi."
     },
     "errorPage": {
       "notFoundTitle": "Sahifa topilmadi",
@@ -151,18 +155,18 @@
       "lockedTitle": "Ekran qulflangan",
       "pausedNote": "Smena pauzada — bu vaqt ishga hisoblanmaydi",
       "pinLabel": "PIN-kod",
-      "pinHint": "4–6 raqamli PIN-kodni kiriting",
+      "pinHint": "4 raqamli PIN-kodni kiriting",
       "passwordLabel": "Hisob paroli",
       "unlock": "Qulfni ochish",
       "unlockResume": "Qulfni ochish va smenani davom ettirish",
       "forgotPin": "PIN-kodni unutdingizmi?",
       "usePin": "PIN-kod kiritish",
       "passwordEmpty": "Parolni kiriting",
-      "pinShort": "PIN-kod 4 dan 6 tagacha raqam",
+      "pinShort": "PIN-kod 4 ta raqamdan iborat",
       "pinMismatch": "PIN-kodlar mos kelmadi",
       "setPinFirst": "Ekranni qulflash uchun avval PIN-kod o‘rnating. U ekraningizni sizdan boshqa hech kim ochmasligi uchun kerak.",
       "setPinBody": "PIN-kod qulflangan ekranni ochadi. Uni sizdan boshqa hech kim bilmaydi.",
-      "newPin": "Yangi PIN-kod (4–6 raqam)",
+      "newPin": "Yangi PIN-kod (4 raqam)",
       "confirmPin": "PIN-kodni takrorlang",
       "saveAndLock": "Saqlash va qulflash"
     }

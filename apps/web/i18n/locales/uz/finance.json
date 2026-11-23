@@ -105,7 +105,8 @@
       "view": "Ko‘rinish",
       "tabs": {
         "summary": "Hisob-kitob",
-        "entries": "Yozuvlar"
+        "entries": "Yozuvlar",
+        "days": "Kunlik"
       },
       "entryType": "Yozuv turi",
       "empty": "Bu oy uchun yozuvlar yo‘q",
@@ -158,6 +159,34 @@
         "otherCurrency": "Yana to‘lanadi: {amount}",
         "loadFailed": "«Mening oyim»ni yuklab bo‘lmadi.",
         "latenessNoFine": "Kechikishlar: {count} marta, {minutes} daq — jarimasiz (stavka belgilanmagan)"
+      },
+      "days": {
+        "title": "Kunlik maosh",
+        "intro": "Oyning har bir kuni uchun smena boshlanishi va tugashi, ish haqi, pauzalar va jarimalar.",
+        "me": "Mening oyim",
+        "salary": "oylik {amount}",
+        "noSalary": "oylik belgilanmagan",
+        "loadFailed": "Kunlik hisobni yuklab bo‘lmadi.",
+        "notLinked": "Hisob hali yo‘q. Hisobingiz xodim kartasiga bog‘langach paydo bo‘ladi.",
+        "daysCount": "{n} kun",
+        "ofNorm": "{norm} dan",
+        "dayOff": "dam olish",
+        "late": "kechikish {time}",
+        "openFor": "Kunlik maosh: {name}",
+        "footnote": "Kunlik maosh — oylik ÷ oydagi ish kunlari. Ishlab topilgan — oylik × ishlangan vaqt ÷ oylik norma. Jami = ishlab topilgan + bonuslar − jarimalar, ushlanmalar va avanslar. Faqat oylik valyutasidagi tasdiqlangan yozuvlar hisobga olinadi.",
+        "columns": {
+          "date": "Sana",
+          "started": "Boshlangan",
+          "ended": "Tugagan",
+          "dayRate": "Kunlik maosh",
+          "worked": "Ish vaqti",
+          "earned": "Ishlab topilgan",
+          "pause": "Pauza",
+          "bonuses": "Bonus",
+          "fines": "Jarimalar",
+          "total": "Jami"
+        },
+        "monthSalary": "oylik maosh"
       }
     },
     "overview": {

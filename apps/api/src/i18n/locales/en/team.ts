@@ -77,7 +77,7 @@ export default {
     shiftNotStarted: 'Your shift has not started yet — work opens at {start}',
     shiftOver: 'Today’s shift ended at {end} — the next one opens on schedule',
     shiftDayOff: 'Today is a day off by schedule — a shift cannot start',
-    pinFormat: 'The PIN is 4 to 6 digits',
+    pinFormat: 'The PIN is 4 digits',
     pinRequired: 'Set a PIN first — the screen cannot be locked without one',
     pinChangeNeedsPassword: 'Enter your account password to change the PIN',
     pinWrong: 'Wrong PIN',

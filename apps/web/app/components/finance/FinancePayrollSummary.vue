@@ -18,6 +18,8 @@ const props = defineProps<{
   /** Caller only sees their own row; the copy speaks to them. */
   ownOnly: boolean
 }>()
+/** A name opens that person's month day by day («По дням»). */
+const emit = defineEmits<{ openDays: [employeeId: string] }>()
 
 interface SummaryRow {
   employee: { id: string, name: string, position: string }
@@ -191,7 +193,14 @@ const TH = 'px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-
             class="hover:bg-secondary/40"
           >
             <td class="px-4 py-3">
-              <p class="font-medium">{{ row.employee.name }}</p>
+              <button
+                type="button"
+                class="text-left font-medium underline-offset-2 hover:underline"
+                :title="t('finance.payroll.days.openFor', { name: row.employee.name })"
+                @click="emit('openDays', props.ownOnly ? '' : row.employee.id)"
+              >
+                {{ row.employee.name }}
+              </button>
               <p class="mt-0.5 text-xs text-muted-foreground">
                 {{ row.employee.position }}
                 <span v-if="row.drafts > 0" class="ml-1 rounded bg-secondary px-1.5 py-0.5 text-[11px]">

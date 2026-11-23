@@ -105,7 +105,8 @@
       "view": "View",
       "tabs": {
         "summary": "Payroll",
-        "entries": "Entries"
+        "entries": "Entries",
+        "days": "By day"
       },
       "entryType": "Entry type",
       "empty": "No entries for this month",
@@ -158,6 +159,34 @@
         "otherCurrency": "Also to be paid: {amount}",
         "loadFailed": "Could not load “My month”.",
         "latenessNoFine": "Late {count} times, {minutes} min — no fine (no rate set)"
+      },
+      "days": {
+        "title": "Pay by day",
+        "intro": "Shift start and end, earnings, pauses and fines for every day of the month.",
+        "me": "My month",
+        "salary": "salary {amount}",
+        "noSalary": "no salary set",
+        "loadFailed": "Could not load the daily breakdown.",
+        "notLinked": "No calculation yet. It appears once your account is linked to an employee card.",
+        "daysCount": "{n} d",
+        "ofNorm": "of {norm}",
+        "dayOff": "day off",
+        "late": "late {time}",
+        "openFor": "Pay by day: {name}",
+        "footnote": "Day rate = salary ÷ working days of the month. Earned = salary × worked ÷ month norm. Day total = earned + bonuses − fines, deductions and advances. Only approved entries in the salary currency count.",
+        "columns": {
+          "date": "Date",
+          "started": "Started",
+          "ended": "Ended",
+          "dayRate": "Day rate",
+          "worked": "Worked",
+          "earned": "Earned",
+          "pause": "Pause",
+          "bonuses": "Bonuses",
+          "fines": "Fines & deductions",
+          "total": "Total"
+        },
+        "monthSalary": "monthly salary"
       }
     },
     "overview": {

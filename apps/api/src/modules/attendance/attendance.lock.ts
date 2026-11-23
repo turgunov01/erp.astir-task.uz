@@ -25,7 +25,7 @@ import * as self from './attendance.self'
 const PIN_ROUNDS = 10
 const MAX_FAILURES = 5
 const FAILURE_WINDOW_MS = 15 * 60_000
-const PIN_PATTERN = /^\d{4,6}$/
+const PIN_PATTERN = /^\d{4}$/
 
 interface Caller { id: string, role: Role, customRoleId: string | null }
 

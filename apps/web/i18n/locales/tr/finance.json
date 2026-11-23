@@ -105,7 +105,8 @@
       "view": "Görünüm",
       "tabs": {
         "summary": "Bordro",
-        "entries": "Kayıtlar"
+        "entries": "Kayıtlar",
+        "days": "Günlük"
       },
       "entryType": "Kayıt türü",
       "empty": "Bu ay için kayıt yok",
@@ -158,6 +159,34 @@
         "otherCurrency": "Ayrıca ödenecek: {amount}",
         "loadFailed": "“Benim ayım” yüklenemedi.",
         "latenessNoFine": "Gecikme: {count} kez, {minutes} dk — ceza yok (oran belirlenmemiş)"
+      },
+      "days": {
+        "title": "Günlük maaş",
+        "intro": "Ayın her günü için vardiya başlangıcı ve bitişi, kazanç, molalar ve cezalar.",
+        "me": "Benim ayım",
+        "salary": "maaş {amount}",
+        "noSalary": "maaş girilmemiş",
+        "loadFailed": "Günlük döküm yüklenemedi.",
+        "notLinked": "Henüz hesaplama yok. Hesabınız bir çalışan kartına bağlandığında görünür.",
+        "daysCount": "{n} gün",
+        "ofNorm": "{norm} içinden",
+        "dayOff": "tatil",
+        "late": "gecikme {time}",
+        "openFor": "Günlük maaş: {name}",
+        "footnote": "Günlük ücret = maaş ÷ ayın iş günleri. Kazanılan = maaş × çalışılan ÷ aylık norm. Gün toplamı = kazanılan + primler − cezalar, kesintiler ve avanslar. Yalnızca maaş para birimindeki onaylı kayıtlar sayılır.",
+        "columns": {
+          "date": "Tarih",
+          "started": "Başladı",
+          "ended": "Bitirdi",
+          "dayRate": "Günlük ücret",
+          "worked": "Çalışılan",
+          "earned": "Kazanılan",
+          "pause": "Mola",
+          "bonuses": "Primler",
+          "fines": "Cezalar ve kesintiler",
+          "total": "Toplam"
+        },
+        "monthSalary": "aylık maaş"
       }
     },
     "overview": {

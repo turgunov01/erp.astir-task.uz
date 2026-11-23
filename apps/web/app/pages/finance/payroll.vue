@@ -40,19 +40,29 @@ const thisMonth = new Date().toISOString().slice(0, 7)
 const isPeriod = (value: unknown) => typeof value === 'string' && /^\d{4}-(0[1-9]|1[0-2])$/.test(value)
 
 const period = ref(isPeriod(route.query.period) ? String(route.query.period) : thisMonth)
-const tab = ref(route.query.tab === 'entries' ? 'entries' : 'summary')
+const TABS = ['summary', 'days', 'entries'] as const
+const tab = ref<string>(TABS.includes(route.query.tab as never) ? String(route.query.tab) : 'summary')
 const page = ref(Number(route.query.page ?? 1))
 const employeeId = ref(String(route.query.employeeId ?? ''))
+/** Whose month «По дням» shows; empty is the viewer themselves. */
+const person = ref(String(route.query.person ?? ''))
 const type = ref(String(route.query.type ?? ''))
 const status = ref(String(route.query.status ?? ''))
 
+/** «Расчёт» → a name opens that person's month day by day. */
+function openDays(id: string) {
+  person.value = id
+  tab.value = 'days'
+}
+
 /* Filters live in the URL so a filtered month can be sent as a link. */
-watch([period, tab, employeeId, type, status, page], () => {
+watch([period, tab, employeeId, person, type, status, page], () => {
   router.replace({
     query: {
       period: period.value,
-      tab: tab.value === 'entries' ? 'entries' : undefined,
+      tab: tab.value === 'summary' ? undefined : tab.value,
       employeeId: employeeId.value || undefined,
+      person: tab.value === 'days' && person.value ? person.value : undefined,
       type: type.value || undefined,
       status: status.value || undefined,
       page: page.value > 1 ? String(page.value) : undefined
@@ -232,7 +242,7 @@ const SELECT = 'h-9 rounded-md border bg-background px-2.5 text-sm outline-none 
         <div class="flex flex-wrap items-center gap-2">
           <div class="flex rounded-md border p-0.5" role="tablist" :aria-label="t('finance.payroll.view')">
             <button
-              v-for="option in [{ key: 'summary', label: t('finance.payroll.tabs.summary') }, { key: 'entries', label: t('finance.payroll.tabs.entries') }]"
+              v-for="option in TABS.map(key => ({ key, label: t('finance.payroll.tabs.' + key) }))"
               :key="option.key"
               type="button"
               role="tab"
@@ -275,6 +285,15 @@ const SELECT = 'h-9 rounded-md border bg-background px-2.5 text-sm outline-none 
       :period="period"
       :can-manage="canManage"
       :own-only="ownOnly"
+      @open-days="openDays"
+    />
+
+    <FinancePayrollDays
+      v-else-if="tab === 'days'"
+      v-model:employee-id="person"
+      :period="period"
+      :can-view-all="canViewAll"
+      :employee-options="employeeOptions"
     />
 
     <template v-else>

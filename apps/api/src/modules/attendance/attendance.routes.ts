@@ -85,8 +85,10 @@ function markRoute(mark: typeof self.checkIn, action: string) {
   }
 }
 
+/* A new PIN is exactly 4 digits; one set earlier (4–6) still opens the screen. */
 const pinSchema = z.string().trim().regex(/^\d{4,6}$/, { error: () => t('team.attendance.pinFormat') })
-const setPinSchema = z.object({ pin: pinSchema, password: z.string().min(1).max(200).optional() })
+const newPinSchema = z.string().trim().regex(/^\d{4}$/, { error: () => t('team.attendance.pinFormat') })
+const setPinSchema = z.object({ pin: newPinSchema, password: z.string().min(1).max(200).optional() })
 const unlockSchema = z.object({ pin: pinSchema.optional(), password: z.string().min(1).max(200).optional() })
   .refine(body => Boolean(body.pin || body.password), { error: () => t('team.attendance.pinFormat') })
 

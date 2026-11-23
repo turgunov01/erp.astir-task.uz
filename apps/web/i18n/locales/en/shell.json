@@ -109,13 +109,17 @@
       "pauseDeducted": "Paused time is taken off the worked hours.",
       "pauseFailed": "Could not pause the shift",
       "resumeFailed": "Could not resume the shift",
-      "checkOutTitle": "End your work shift — the time is taken from the server clock"
+      "checkOutTitle": "End your work shift — the time is taken from the server clock",
+      "checkOutConfirmTitle": "End the shift?",
+      "checkOutConfirmMessage": "The system will close until your next shift. For a break, press «Pause» instead.",
+      "checkOutConfirmAction": "End shift"
     },
     "checkInPrompt": {
       "title": "Start your shift",
       "body": "Press “Start shift” when you begin work — the time is taken from the server clock.",
       "workdayStarts": "The working day starts at {start}.",
-      "dayOff": "Today is a day off on the schedule."
+      "dayOff": "Today is a day off on the schedule.",
+      "gateNote": "The system stays closed until your shift starts. Work time counts from the press of the button."
     },
     "errorPage": {
       "notFoundTitle": "Page not found",
@@ -151,18 +155,18 @@
       "lockedTitle": "Screen locked",
       "pausedNote": "Shift on pause — this time is not counted as work",
       "pinLabel": "PIN",
-      "pinHint": "Enter your 4–6 digit PIN",
+      "pinHint": "Enter your 4-digit PIN",
       "passwordLabel": "Account password",
       "unlock": "Unlock",
       "unlockResume": "Unlock and resume the shift",
       "forgotPin": "Forgot your PIN?",
       "usePin": "Enter the PIN",
       "passwordEmpty": "Enter your password",
-      "pinShort": "The PIN is 4 to 6 digits",
+      "pinShort": "The PIN is 4 digits",
       "pinMismatch": "The PINs do not match",
       "setPinFirst": "Set a PIN first to lock the screen. It keeps anyone but you from opening it.",
       "setPinBody": "The PIN opens a locked screen. Nobody but you knows it.",
-      "newPin": "New PIN (4–6 digits)",
+      "newPin": "New PIN (4 digits)",
       "confirmPin": "Repeat the PIN",
       "saveAndLock": "Save and lock"
     }

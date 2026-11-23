@@ -25,6 +25,13 @@ const { t } = useI18n()
 const auth = useAuthStore()
 const { day, lockState, pinSetup, enabled, busy, error, load, checkIn, checkOut, pause, lock } = useMyAttendance()
 
+/* «Закончить смену» closes the system for the day: ask once before doing it. */
+const confirmingCheckOut = ref(false)
+async function confirmCheckOut() {
+  await checkOut()
+  confirmingCheckOut.value = false
+}
+
 /** A shift can only start inside the schedule hours; outside them the button explains why. */
 const closedReason = computed(() => {
   const shift = lockState.value?.shift
@@ -163,7 +170,7 @@ watch(error, (message) => {
         :disabled="busy"
         :aria-label="t('shell.checkIn.checkOut')"
         :title="t('shell.checkIn.checkOutTitle')"
-        @click="checkOut()"
+        @click="confirmingCheckOut = true"
       >
         <Icon name="lucide:square" class="size-4" />
         <span class="hidden whitespace-nowrap sm:inline">{{ t('shell.checkIn.checkOut') }}</span>
@@ -257,5 +264,15 @@ watch(error, (message) => {
     >
       {{ error }}
     </p>
+
+    <ConfirmDialog
+      v-if="confirmingCheckOut"
+      :title="t('shell.checkIn.checkOutConfirmTitle')"
+      :message="t('shell.checkIn.checkOutConfirmMessage')"
+      :confirm-label="t('shell.checkIn.checkOutConfirmAction')"
+      :pending="busy"
+      @confirm="confirmCheckOut()"
+      @cancel="confirmingCheckOut = false"
+    />
   </div>
 </template>

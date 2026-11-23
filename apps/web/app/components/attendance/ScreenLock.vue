@@ -25,7 +25,7 @@ const { day, lockState, enabled, load, unlock } = useMyAttendance()
 const REFRESH_MS = 60_000
 const TICK_MS = 15_000
 const PIN_LENGTH_MIN = 4
-const PIN_LENGTH_MAX = 6
+const PIN_LENGTH_MAX = 4
 
 const now = ref(Date.now())
 let refresher: ReturnType<typeof setInterval> | null = null
@@ -104,6 +104,8 @@ watch(pinLocked, value => {
 function onPinInput(event: Event) {
   pin.value = (event.target as HTMLInputElement).value.replace(/\D/g, '').slice(0, PIN_LENGTH_MAX)
   formError.value = ''
+  // The fourth digit opens the screen, no extra press needed.
+  if (pin.value.length === PIN_LENGTH_MAX) submit()
 }
 
 async function submit() {
@@ -152,7 +154,7 @@ function switchToPassword(on: boolean) {
         aria-hidden="true"
       />
 
-      <section v-if="closed" class="relative w-full max-w-sm text-center">
+      <section v-if="closed" class="relative w-full max-w-sm rounded-2xl border bg-card p-6 text-center shadow-2xl">
         <div class="mx-auto grid size-14 place-items-center rounded-2xl border bg-card shadow-sm">
           <Icon name="lucide:moon-star" class="size-6 text-muted-foreground" />
         </div>
@@ -173,7 +175,7 @@ function switchToPassword(on: boolean) {
         </button>
       </section>
 
-      <form v-else class="relative w-full max-w-xs text-center" @submit.prevent="submit()">
+      <form v-else class="relative w-full max-w-sm rounded-2xl border bg-card p-6 text-center shadow-2xl" @submit.prevent="submit()">
         <div class="mx-auto grid size-14 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-md">
           <Icon name="lucide:lock" class="size-6" />
         </div>

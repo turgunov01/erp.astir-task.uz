@@ -43,7 +43,7 @@ const statusLabel = (status: PayrollEntryStatus) =>
   t(('finance.payroll.status.' + status) as MessageKey)
 
 /** Matches nothing, for a caller who has no employment record. */
-const NO_EMPLOYEE = '00000000-0000-4000-8000-000000000000'
+export const NO_EMPLOYEE = '00000000-0000-4000-8000-000000000000'
 
 export const entryInclude = {
   employee: {

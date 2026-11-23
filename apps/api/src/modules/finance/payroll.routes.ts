@@ -9,6 +9,7 @@ import { prisma } from '../../lib/prisma'
 import { recordAudit } from '../../lib/activity'
 import { t } from '../../i18n'
 import * as service from './payroll.service'
+import { payrollDays } from './payroll.days'
 
 /**
  * /api/finance/payroll — advances, penalties, bonuses and deductions on
@@ -125,6 +126,36 @@ payrollRouter.get(
       const query = validatedQuery<z.infer<typeof summarySchema>>(req)
       const scope = await service.scopeFor(req.user)
       return sendItem(res, await service.summary(query.period ?? currentPeriod(), scope, query.employeeId))
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+/**
+ * One employee's month day by day («По дням»). Someone with only the
+ * own-payroll right always gets their own month, whatever employeeId says;
+ * payroll:view picks anyone, and by default themselves.
+ */
+payrollRouter.get(
+  '/days',
+  requirePermission(PERMISSION.PAYROLL_VIEW_OWN),
+  validate(summarySchema, 'query'),
+  async (req, res, next) => {
+    try {
+      const query = validatedQuery<z.infer<typeof summarySchema>>(req)
+      const scope = await service.scopeFor(req.user)
+      let employeeId = scope.ownEmployeeId ?? query.employeeId
+      if (!employeeId) {
+        const own = await prisma.employee.findFirst({
+          where: { userId: req.user!.id, deletedAt: null },
+          select: { id: true }
+        })
+        employeeId = own?.id
+      }
+      if (!employeeId || employeeId === service.NO_EMPLOYEE) return sendItem(res, { tracked: false })
+      const month = await payrollDays(query.period ?? currentPeriod(), employeeId)
+      return sendItem(res, { tracked: true, ...month })
     } catch (err) {
       next(err)
     }
