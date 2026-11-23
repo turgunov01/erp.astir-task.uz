@@ -23,6 +23,8 @@
     "check:routes": "node scripts/check-routes.mjs",
     "check:encoding": "node scripts/check-encoding.mjs",
     "check:i18n": "node scripts/check-i18n.mjs",
-    "test:api": "node scripts/smoke-api.mjs"
+    "test:api": "node scripts/smoke-api.mjs",
+    "dev:docs": "pnpm --filter @astir/docs dev",
+    "build:docs": "pnpm --filter @astir/docs build"
   }
 }
