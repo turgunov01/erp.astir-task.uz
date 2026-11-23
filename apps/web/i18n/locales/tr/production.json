@@ -122,7 +122,9 @@
       "uploadError": "hata",
       "uploadFailed": "Kayıt kaydedildi ancak şu dosyalar yüklenemedi: {files}",
       "uploading": "Yükleniyor: {name}",
-      "yes": "Evet"
+      "yes": "Evet",
+      "fileRequired": "Bir dosya seçin",
+      "pickFile": "Dosya seç"
     },
     "episodes": {
       "columns": {
@@ -251,7 +253,8 @@
         "vendor": "Karşı taraf",
         "version": "Sürüm",
         "weeklyHours": "Haftalık saat",
-        "newPassword": "Yeni şifre"
+        "newPassword": "Yeni şifre",
+        "file": "Dosya"
       },
       "hints": {
         "budgetProject": "Bir projenin tek bütçesi vardır: mevcut bütçenin üzerine kaydetmek onu günceller.",
@@ -272,7 +275,8 @@
         "reviewVersion": "Görüşmeye açılan materyal",
         "newPassword": "Değiştirmemek için boş bırakın. Şifreyi çalışana iletin — girişte kendi şifresiyle değiştirecek",
         "employeeRole": "Rolün adı çalışanın pozisyonu olur, yetkiler rolün ayarlarından gelir. Düzenlerken boş bırakılırsa mevcut rol korunur",
-        "noRolesYet": "Henüz rol yok — önce rolleri oluşturun:"
+        "noRolesYet": "Henüz rol yok — önce rolleri oluşturun:",
+        "documentFile": "Belgeye dönüşecek dosya. Ad verilmezse belge dosya adını alır."
       },
       "invoice": {
         "createTitle": "Yeni fatura",

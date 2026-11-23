@@ -26,12 +26,18 @@ const errorMessage = ref('')
 const confirmOpen = ref(false)
 const confirmCode = ref('')
 
-/** Archiving hides the project from active lists but keeps every row intact. */
+/**
+ * Archiving hides the project from active lists but keeps every row intact.
+ *
+ * POST /archive sets archivedAt, so the project shows up under «Архив» and can
+ * be restored from there. DELETE /:id used to be called here; it soft-deletes,
+ * and the project vanished from both lists despite the hint promising a way back.
+ */
 async function archive() {
   errorMessage.value = ''
   busy.value = 'archive'
   try {
-    await apiRequest('/api/projects/' + props.projectId, { method: 'DELETE' })
+    await apiRequest('/api/projects/' + props.projectId + '/archive', { method: 'POST' })
     await navigateTo('/projects')
   } catch (err) {
     errorMessage.value = apiErrorMessage(err, t('projects.danger.archiveFailed'))

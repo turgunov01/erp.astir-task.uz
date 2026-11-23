@@ -40,11 +40,6 @@ const projectOptions = useFilterOptions<{ id: string, code: string, name: string
   '/api/projects',
   row => row.code + ' · ' + row.name
 )
-const actorOptions = useFilterOptions<{
-  id: string
-  userId: string
-  user: { firstName: string, lastName: string }
-}>('/api/employees', row => row.user.firstName + ' ' + row.user.lastName)
 
 const filters = computed(() => ({
   page: page.value,
@@ -79,14 +74,18 @@ const { items, meta, pending, errorMessage, refresh } =
  * new kind of event until somebody remembered to add it here.
  */
 interface Facets {
+  /** Authors of logged events, keyed by user id as the feed filters by. */
+  actors: Array<{ value: string, label: string, count: number }>
   actions: Array<{ value: string, count: number }>
   entityTypes: Array<{ value: string, count: number }>
 }
 
 const { data: facetData } = await useFetch<{ data: Facets }>('/api/activity/facets', {
   credentials: 'include',
-  default: () => ({ data: { actions: [], entityTypes: [] } })
+  default: () => ({ data: { actors: [], actions: [], entityTypes: [] } })
 })
+
+const actorOptions = computed(() => facetData.value?.data.actors ?? [])
 
 /*
  * Actions are offered as families — "task." rather than six separate task

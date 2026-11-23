@@ -104,7 +104,10 @@ function addFiles(field: FormField, list: FileList | null) {
     ? t('production.entity.tooBig', { files: tooBig.map(file => file.name).join(', ') })
     : ''
   const accepted = chosen.filter(file => !tooBig.includes(file))
-  pendingFiles[field.key] = [...(pendingFiles[field.key] ?? []), ...accepted]
+  // A record-file field holds exactly one file: a new choice replaces it.
+  pendingFiles[field.key] = field.isRecord
+    ? accepted.slice(0, 1)
+    : [...(pendingFiles[field.key] ?? []), ...accepted]
 }
 
 function dropFile(field: FormField, index: number) {
@@ -184,9 +187,26 @@ async function submit() {
     })
     return
   }
+  const recordFile = isEdit.value ? undefined : fields.value.find(field => field.type === 'files' && field.isRecord)
+  const chosenFile = recordFile ? pendingFiles[recordFile.key]?.[0] : undefined
+  if (recordFile && !chosenFile) {
+    errorMessage.value = t('production.entity.fileRequired')
+    return
+  }
   saving.value = true
   errorMessage.value = ''
   try {
+    // The file is the record: send it with the fields as its metadata.
+    if (recordFile && chosenFile) {
+      const row = await upload(chosenFile, {
+        kind: UPLOAD_KIND.DOCUMENT,
+        fields: cleanPayload(values, fields.value, { original: null })
+      })
+      pendingFiles[recordFile.key] = []
+      emit('saved', { data: row })
+      emit('close')
+      return
+    }
     // Editing, the original row lets an emptied field be sent as null.
     const payload = cleanPayload(values, fields.value, {
       original: isEdit.value ? props.record : null
@@ -298,12 +318,12 @@ onMounted(() => {
                   class="flex cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed px-3 py-4 text-sm text-muted-foreground hover:border-ring hover:text-foreground"
                 >
                   <Icon name="lucide:paperclip" class="size-4" />
-                  {{ t('production.entity.pickFiles') }}
+                  {{ field.isRecord ? t('production.entity.pickFile') : t('production.entity.pickFiles') }}
                   <input
                     :id="'field-' + field.key"
                     type="file"
-                    multiple
-                    accept="image/*,video/*,audio/*,application/pdf"
+                    :multiple="!field.isRecord"
+                    :accept="field.isRecord ? undefined : 'image/*,video/*,audio/*,application/pdf'"
                     class="sr-only"
                     @change="addFiles(field, ($event.target as HTMLInputElement).files)"
                   >

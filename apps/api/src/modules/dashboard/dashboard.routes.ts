@@ -168,9 +168,11 @@ dashboardRouter.get(
  * the calendar draws them on the same grid; splitting them into three requests
  * would only make the page wait three times.
  */
+// Guarded like the page that reads it (/calendar, production:view): a role
+// with the menu entry but no dashboard:view must not open an empty grid.
 dashboardRouter.get(
   '/calendar',
-  requirePermission(PERMISSION.DASHBOARD_VIEW),
+  requirePermission(PERMISSION.PRODUCTION_VIEW),
   async (req, res, next) => {
     try {
       const from = req.query.from ? new Date(String(req.query.from)) : new Date()

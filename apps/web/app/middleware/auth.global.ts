@@ -1,6 +1,6 @@
-import { PERMISSION, type Permission } from '@astir/types'
 import type { Pinia } from 'pinia'
 import { useAuthStore } from '~/stores/auth'
+import { requiredPermission } from '~/utils/route-access'
 
 /** Routes reachable without a session (spec 5). */
 const GUEST_ROUTES = new Set(['/login', '/forgot-password', '/reset-password'])
@@ -14,49 +14,6 @@ const OPEN_TO_EVERYONE = new Set(['/reset-password'])
 
 /** Where a session holding a manager-set password must stop first. */
 const SET_PASSWORD_PATH = '/set-password'
-
-/**
- * Route to permission map (spec 78).
- *
- * Hiding a sidebar entry is presentation, not access control: without this a
- * user could still reach the URL directly. Longest matching prefix wins.
- */
-const ROUTE_PERMISSIONS: ReadonlyArray<[string, Permission]> = [
-  ['/dashboard', PERMISSION.DASHBOARD_VIEW],
-  ['/projects', PERMISSION.PROJECT_VIEW],
-  ['/episodes', PERMISSION.PRODUCTION_VIEW],
-  ['/scenes', PERMISSION.PRODUCTION_VIEW],
-  ['/shots', PERMISSION.PRODUCTION_VIEW],
-  ['/tasks', PERMISSION.TASK_VIEW_OWN],
-  ['/reviews', PERMISSION.REVIEW_VIEW],
-  ['/revisions', PERMISSION.REVISION_VIEW],
-  ['/render', PERMISSION.RENDER_VIEW],
-  ['/assets', PERMISSION.ASSET_VIEW],
-  ['/calendar', PERMISSION.PRODUCTION_VIEW],
-  ['/team', PERMISSION.TEAM_VIEW],
-  ['/team/workload', PERMISSION.WORKLOAD_VIEW],
-  ['/team/attendance', PERMISSION.ATTENDANCE_VIEW],
-  ['/timeline', PERMISSION.PRODUCTION_VIEW],
-  ['/timesheets', PERMISSION.TIMESHEET_VIEW_OWN],
-  ['/clients', PERMISSION.CLIENT_VIEW],
-  ['/finance', PERMISSION.FINANCE_VIEW],
-  ['/finance/budgets', PERMISSION.BUDGET_VIEW],
-  ['/finance/payroll', PERMISSION.PAYROLL_VIEW_OWN],
-  ['/reports', PERMISSION.REPORT_VIEW],
-  ['/documents', PERMISSION.DOCUMENT_VIEW],
-  ['/activity', PERMISSION.ACTIVITY_VIEW],
-  ['/settings', PERMISSION.SETTINGS_VIEW]
-]
-
-function requiredPermission(pathname: string): Permission | null {
-  let match: [string, Permission] | null = null
-  for (const entry of ROUTE_PERMISSIONS) {
-    const prefix = entry[0]
-    const matches = pathname === prefix || pathname.startsWith(prefix + '/')
-    if (matches && (!match || prefix.length > match[0].length)) match = entry
-  }
-  return match ? match[1] : null
-}
 
 /**
  * Runs on server and client, so a direct SSR hit to a protected URL redirects

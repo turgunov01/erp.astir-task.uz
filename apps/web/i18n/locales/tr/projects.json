@@ -29,7 +29,7 @@
       "lead": "Aşağıdaki işlemler projenin tamamını ve verilerini etkiler.",
       "archived": "Proje arşivde",
       "archiveTitle": "Projeyi arşivle",
-      "archiveHint": "Proje etkin listelerden gizlenir; tüm veriler, dosyalar ve geçmiş korunur. İşlem geri alınabilir — durumu yukarıdaki formdan geri değiştirebilirsiniz.",
+      "archiveHint": "Proje etkin listelerden çıkar ve proje listesindeki Arşiv görünümüne taşınır; tüm veriler, dosyalar ve geçmiş korunur. Oradan “Arşivden çıkar” ile geri getirilebilir.",
       "archiving": "Arşivleniyor...",
       "archive": "Arşivle",
       "archiveFailed": "Proje arşivlenemedi",

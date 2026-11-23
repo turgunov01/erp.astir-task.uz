@@ -8,7 +8,7 @@ import {
   uuidSchema
 } from '@astir/validation'
 import { PERMISSION } from '@astir/types'
-import { authenticate, requirePermission } from '../../middleware/auth'
+import { authenticate, requireAnyPermission, requirePermission } from '../../middleware/auth'
 import { validate, validatedQuery } from '../../middleware/validate'
 import { sendItem, sendList, sendNoContent } from '../../lib/http'
 import * as service from './revisions.service'
@@ -87,10 +87,11 @@ revisionsRouter.post(
   }
 )
 
-// Artists move their own revision forward, so this uses the lighter permission.
+// Artists move their own revision forward with the lighter task permission;
+// whoever manages revisions (an art director) edits them without it.
 revisionsRouter.patch(
   '/:id',
-  requirePermission(PERMISSION.TASK_UPDATE),
+  requireAnyPermission(PERMISSION.TASK_UPDATE, PERMISSION.REVISION_MANAGE),
   validate(idParamSchema, 'params'),
   validate(updateRevisionSchema),
   async (req, res, next) => {

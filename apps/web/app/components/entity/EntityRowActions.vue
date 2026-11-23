@@ -20,6 +20,13 @@ const props = withDefaults(defineProps<{
   archived?: boolean
   /** Actions that change data are hidden without the right permission. */
   canManage?: boolean
+  /**
+   * Archiving and deleting, when the API guards them with a different
+   * permission than editing (a project, a task). Unset, they follow
+   * `canManage`, so a menu never offers an action the server refuses.
+   */
+  canArchive?: boolean
+  canDelete?: boolean
   /** Row is mid-request. */
   busy?: boolean
   /** Label used in the trigger's accessible name. */
@@ -32,7 +39,7 @@ const props = withDefaults(defineProps<{
    * API has no column for.
    */
   archivable?: boolean
-}>(), { canManage: true, archivable: true })
+}>(), { canManage: true, canArchive: undefined, canDelete: undefined, archivable: true })
 
 const emit = defineEmits<{
   (e: 'edit'): void
@@ -42,6 +49,11 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+
+const mayArchive = computed(() => props.archivable && (props.canArchive ?? props.canManage))
+const mayDelete = computed(() => props.canDelete ?? props.canManage)
+const mayEdit = computed(() => props.canManage && !props.archived)
+const anything = computed(() => mayEdit.value || mayArchive.value || mayDelete.value)
 </script>
 
 <template>
@@ -59,35 +71,29 @@ const { t } = useI18n()
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" class="w-48">
-        <DropdownMenuItem v-if="props.canManage && !props.archived" @select="emit('edit')">
+        <DropdownMenuItem v-if="mayEdit" @select="emit('edit')">
           <Icon name="lucide:pencil" />
           {{ t('production.crud.edit') }}
         </DropdownMenuItem>
 
-        <DropdownMenuItem
-          v-if="props.canManage && props.archivable && !props.archived"
-          @select="emit('archive')"
-        >
+        <DropdownMenuItem v-if="mayArchive && !props.archived" @select="emit('archive')">
           <Icon name="lucide:archive" />
           {{ t('production.crud.archive') }}
         </DropdownMenuItem>
 
-        <DropdownMenuItem
-          v-if="props.canManage && props.archivable && props.archived"
-          @select="emit('unarchive')"
-        >
+        <DropdownMenuItem v-if="mayArchive && props.archived" @select="emit('unarchive')">
           <Icon name="lucide:archive-restore" />
           {{ t('production.crud.unarchive') }}
         </DropdownMenuItem>
 
-        <DropdownMenuSeparator v-if="props.canManage" />
+        <DropdownMenuSeparator v-if="mayDelete && (mayEdit || mayArchive)" />
 
-        <DropdownMenuItem v-if="props.canManage" variant="destructive" @select="emit('delete')">
+        <DropdownMenuItem v-if="mayDelete" variant="destructive" @select="emit('delete')">
           <Icon name="lucide:trash-2" />
           {{ t('common.actions.delete') }}
         </DropdownMenuItem>
 
-        <p v-if="!props.canManage" class="px-2 py-1.5 text-xs text-muted-foreground">
+        <p v-if="!anything" class="px-2 py-1.5 text-xs text-muted-foreground">
           {{ t('production.crud.noRights') }}
         </p>
       </DropdownMenuContent>

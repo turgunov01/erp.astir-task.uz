@@ -316,6 +316,7 @@ function isOverdue(row: TaskRow) {
           :name="row.title"
           :archived="view === 'archived'"
           :can-manage="canManage"
+          :can-delete="canCreate"
           :busy="crud.busyId === row.id"
           @edit="openTask(row.id)"
           @archive="crud.archive(row)"

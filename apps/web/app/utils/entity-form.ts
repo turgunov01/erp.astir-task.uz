@@ -54,6 +54,12 @@ export interface FormField {
    */
   attachTo?: string
   /**
+   * For a `files` field: the chosen file is the record itself (a document in
+   * the library). Creating then uploads that one file with the other fields as
+   * its metadata instead of posting JSON, which the endpoint would refuse.
+   */
+  isRecord?: boolean
+  /**
    * Must be filled in to create the row; editing, a blank field is left out
    * of the body, so whatever the row holds stays as it is.
    */

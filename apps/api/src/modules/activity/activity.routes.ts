@@ -113,14 +113,44 @@ activityRouter.get(
 activityRouter.get(
   '/facets',
   requirePermission(PERMISSION.ACTIVITY_VIEW),
-  async (_req, res, next) => {
+  async (req, res, next) => {
     try {
-      const [actions, entityTypes] = await Promise.all([
-        prisma.activityLog.groupBy({ by: ['action'], _count: { _all: true } }),
-        prisma.activityLog.groupBy({ by: ['entityType'], _count: { _all: true } })
+      if (!req.user) throw unauthenticated()
+      // Same visibility as the feed: counts must not reveal events about
+      // tasks the caller cannot open.
+      const where: Prisma.ActivityLogWhereInput = { AND: [await activityTaskScope(req.user)] }
+      const [actions, entityTypes, actorRows] = await Promise.all([
+        prisma.activityLog.groupBy({ by: ['action'], where, _count: { _all: true } }),
+        prisma.activityLog.groupBy({ by: ['entityType'], where, _count: { _all: true } }),
+        prisma.activityLog.groupBy({
+          by: ['actorId'],
+          where: { AND: [where, { actorId: { not: null } }] },
+          _count: { _all: true }
+        })
       ])
 
+      /*
+       * Authors come from the log itself, keyed by user id like `actorId`.
+       * The page used to list employees, whose ids never match a log row,
+       * and needed team:view on top of activity:view to do even that.
+       */
+      const actorIds = actorRows.map(row => row.actorId).filter((id): id is string => Boolean(id))
+      const users = actorIds.length > 0
+        ? await prisma.user.findMany({
+          where: { id: { in: actorIds } },
+          select: { id: true, firstName: true, lastName: true }
+        })
+        : []
+      const counts = new Map(actorRows.map(row => [row.actorId, row._count._all]))
+
       return sendItem(res, {
+        actors: users
+          .map(user => ({
+            value: user.id,
+            label: `${user.firstName} ${user.lastName}`.trim(),
+            count: counts.get(user.id) ?? 0
+          }))
+          .sort((a, b) => a.label.localeCompare(b.label)),
         actions: actions
           .map(row => ({ value: row.action, count: row._count._all }))
           .sort((a, b) => a.value.localeCompare(b.value)),

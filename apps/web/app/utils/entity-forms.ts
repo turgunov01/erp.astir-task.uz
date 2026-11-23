@@ -142,7 +142,10 @@ const ASSET_FORM = form('/api/assets', 'asset', [
 ])
 
 const DOCUMENT_FORM = form('/api/files', 'document', [
-  { key: 'name', label: 'name', type: 'text', required: true },
+  // The file is the document: uploaded with the fields below as its metadata.
+  { key: 'file', label: 'file', type: 'files', isRecord: true, createOnly: true, wide: true, hint: 'documentFile' },
+  // Blank on create: the server names the document after the file.
+  { key: 'name', label: 'name', type: 'text', notNull: true },
   { key: 'type', label: 'type', type: 'select', required: true, options: DOCUMENT_TYPE_LABEL },
   { key: 'projectId', label: 'project', type: 'select', source: PROJECT_SOURCE },
   { key: 'clientId', label: 'client', type: 'select', source: CLIENT_SOURCE }

@@ -122,7 +122,9 @@
       "uploadError": "error",
       "uploadFailed": "The record is saved, but these files did not upload: {files}",
       "uploading": "Uploading: {name}",
-      "yes": "Yes"
+      "yes": "Yes",
+      "fileRequired": "Choose a file",
+      "pickFile": "Choose a file"
     },
     "episodes": {
       "columns": {
@@ -251,7 +253,8 @@
         "vendor": "Counterparty",
         "version": "Version",
         "weeklyHours": "Hours per week",
-        "newPassword": "New password"
+        "newPassword": "New password",
+        "file": "File"
       },
       "hints": {
         "budgetProject": "A project has one budget: saving over an existing one updates it.",
@@ -272,7 +275,8 @@
         "reviewVersion": "The material put up for discussion",
         "newPassword": "Leave blank to keep it. Tell the employee the password — they replace it with their own at sign-in",
         "employeeRole": "The role name becomes the employee’s position; the permissions come from the role’s settings. When editing, leaving it empty keeps the current role",
-        "noRolesYet": "No roles yet — create them first:"
+        "noRolesYet": "No roles yet — create them first:",
+        "documentFile": "The file that becomes the document. Without a name the document takes the file name."
       },
       "invoice": {
         "createTitle": "New invoice",

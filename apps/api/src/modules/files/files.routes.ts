@@ -1,4 +1,5 @@
-import { Router } from 'express'
+import { Router, type Request } from 'express'
+import type { Prisma } from '@prisma/client'
 import multer from 'multer'
 import { z } from 'zod'
 import { idParamSchema, listQuerySchema, uuidSchema } from '@astir/validation'
@@ -33,6 +34,25 @@ const listSchema = listQuerySchema.extend({
   type: z.enum(DOCUMENT_TYPES).optional()
 })
 
+/** Matches nothing: a portal account not linked to a client sees no files. */
+const NO_CLIENT = '00000000-0000-0000-0000-000000000000'
+
+/**
+ * A portal user (role CLIENT) sees only what belongs to their own client:
+ * files filed under the client itself or under one of its projects. Without
+ * this the document library listed every file in the studio to any client.
+ *
+ * Wrapped in AND so it composes with the media-only OR below instead of
+ * being overwritten by it.
+ */
+function clientFileScope(user: Request['user']): Prisma.DocumentWhereInput {
+  if (user?.role !== 'CLIENT') return {}
+  const clientId = user.clientId ?? NO_CLIENT
+  return {
+    AND: [{ OR: [{ clientId }, { project: { clientId, deletedAt: null } }] }]
+  }
+}
+
 export const filesRouter = Router()
 
 filesRouter.use(authenticate)
@@ -48,6 +68,7 @@ filesRouter.get(
 
       const where = {
         deletedAt: null,
+        ...clientFileScope(req.user),
         ...(query.projectId ? { projectId: query.projectId } : {}),
         ...(query.clientId ? { clientId: query.clientId } : {}),
         ...Object.fromEntries(

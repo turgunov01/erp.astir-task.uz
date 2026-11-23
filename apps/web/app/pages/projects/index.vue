@@ -22,6 +22,9 @@ const status = ref(String(route.query.status ?? ''))
 const archivedView = ref(false)
 
 const canManage = computed(() => auth.can(PERMISSION.PROJECT_UPDATE))
+// Archive, restore and the list's delete (which also archives) are guarded
+// by project:archive on the server, not by project:update.
+const canArchive = computed(() => auth.can(PERMISSION.PROJECT_ARCHIVE))
 
 const filters = computed(() => ({
   page: page.value,
@@ -177,6 +180,8 @@ function isOverdue(deadline: string | null, progress: number) {
           :name="row.name"
           :archived="archivedView"
           :can-manage="canManage"
+          :can-archive="canArchive"
+          :can-delete="canArchive"
           :busy="crud.busyId === row.id"
           @edit="navigateTo('/projects/' + row.id + '/edit')"
           @archive="crud.archive(row)"

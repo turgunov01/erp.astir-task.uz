@@ -111,7 +111,9 @@ const columns = computed<Column[]>(() => [
       <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
         <i18n-t keypath="finance.budgets.intro" tag="p" scope="global" class="max-w-2xl text-sm text-muted-foreground">
           <template #link>
-            <NuxtLink to="/finance" class="text-foreground underline underline-offset-4">{{ t('finance.budgets.introLink') }}</NuxtLink>
+            <!-- budget:view does not imply finance:view (a producer): no link into a 403. -->
+            <NuxtLink v-if="auth.can(PERMISSION.FINANCE_VIEW)" to="/finance" class="text-foreground underline underline-offset-4">{{ t('finance.budgets.introLink') }}</NuxtLink>
+            <span v-else>{{ t('finance.budgets.introLink') }}</span>
           </template>
         </i18n-t>
         <EntityToolbar :crud="crud" :create-label="t('finance.budgets.create')" :can-manage="canManage" />

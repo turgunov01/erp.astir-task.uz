@@ -122,7 +122,9 @@
       "uploadError": "xato",
       "uploadFailed": "Yozuv saqlandi, lekin fayllar yuklanmadi: {files}",
       "uploading": "Yuklanmoqda: {name}",
-      "yes": "Ha"
+      "yes": "Ha",
+      "fileRequired": "Faylni tanlang",
+      "pickFile": "Faylni tanlash"
     },
     "episodes": {
       "columns": {
@@ -251,7 +253,8 @@
         "vendor": "Kontragent",
         "version": "Versiya",
         "weeklyHours": "Haftasiga soat",
-        "newPassword": "Yangi parol"
+        "newPassword": "Yangi parol",
+        "file": "Fayl"
       },
       "hints": {
         "budgetProject": "Loyihaning bitta byudjeti bor: mavjudining ustidan saqlash uni yangilaydi.",
@@ -272,7 +275,8 @@
         "reviewVersion": "Muhokamaga chiqariladigan material",
         "newPassword": "O‘zgartirmaslik uchun bo‘sh qoldiring. Parolni xodimga ayting — u kirishda uni o‘z paroliga almashtiradi",
         "employeeRole": "Rol nomi xodimning lavozimi bo‘ladi, huquqlar esa rol sozlamalaridan olinadi. Tahrirlashda bo‘sh qoldirilsa, joriy rol o‘zgarmaydi",
-        "noRolesYet": "Hozircha rollar yo‘q — avval ularni yarating:"
+        "noRolesYet": "Hozircha rollar yo‘q — avval ularni yarating:",
+        "documentFile": "Hujjatga aylanadigan fayl. Nom berilmasa, hujjat fayl nomini oladi."
       },
       "invoice": {
         "createTitle": "Yangi hisob-faktura",

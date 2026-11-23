@@ -29,7 +29,7 @@
       "lead": "Quyidagi amallar butun loyiha va uning ma’lumotlariga ta’sir qiladi.",
       "archived": "Loyiha arxivda",
       "archiveTitle": "Loyihani arxivlash",
-      "archiveHint": "Loyiha faol ro‘yxatlardan yashiriladi, ammo barcha ma’lumotlar, fayllar va tarix saqlanib qoladi. Amalni qaytarish mumkin — holatni yuqoridagi shaklda qayta o‘zgartiring.",
+      "archiveHint": "Loyiha faol ro‘yxatlardan olinib, loyihalar ro‘yxatidagi «Arxiv»ga o‘tadi; barcha ma’lumotlar, fayllar va tarix saqlanadi. Uni o‘sha yerdan «Arxivdan qaytarish» orqali qaytarish mumkin.",
       "archiving": "Arxivlanmoqda...",
       "archive": "Arxivlash",
       "archiveFailed": "Loyihani arxivlab bo‘lmadi",

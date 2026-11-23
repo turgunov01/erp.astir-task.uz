@@ -2,6 +2,7 @@
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
 import MyMonthCard from '~/components/finance/MyMonthCard.vue'
+import { canOpenPath } from '~/utils/route-access'
 
 const { t } = useI18n()
 
@@ -63,9 +64,17 @@ const kpis = computed(() => {
   ].map(item => ({
     ...item,
     label: t('projects.dashboard.kpi.' + item.key + '.label'),
-    hint: t('projects.dashboard.kpi.' + item.key + '.hint')
+    hint: t('projects.dashboard.kpi.' + item.key + '.hint'),
+    // A tile whose page this role cannot open is shown, but is not a link.
+    open: canOpen(item.to)
   }))
 })
+
+function canOpen(path: string) {
+  return canOpenPath(path, permission => auth.can(permission))
+}
+
+const NuxtLink = resolveComponent('NuxtLink')
 
 const maxPipeline = computed(() =>
   Math.max(1, ...(stats.value?.pipeline ?? []).map(item => item.count))
@@ -109,11 +118,13 @@ function formatDate(value: string | null) {
         :aria-label="t('projects.dashboard.kpiLabel')"
         class="grid grid-cols-2 gap-px overflow-hidden rounded-xl border bg-border lg:grid-cols-3"
       >
-        <NuxtLink
+        <component
+          :is="kpi.open ? NuxtLink : 'div'"
           v-for="kpi in kpis"
           :key="kpi.key"
-          :to="kpi.to"
-          class="bg-card px-4 py-3 hover:bg-secondary/40 sm:px-5 sm:py-4"
+          :to="kpi.open ? kpi.to : undefined"
+          class="bg-card px-4 py-3 sm:px-5 sm:py-4"
+          :class="{ 'hover:bg-secondary/40': kpi.open }"
         >
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
@@ -131,7 +142,7 @@ function formatDate(value: string | null) {
               <Icon :name="kpi.icon" class="size-4" />
             </span>
           </div>
-        </NuxtLink>
+        </component>
       </section>
 
       <div class="mt-6 grid gap-6 lg:grid-cols-3">
@@ -231,7 +242,7 @@ function formatDate(value: string | null) {
         <section class="rounded-xl border bg-card">
           <header class="flex items-center justify-between border-b px-5 py-3.5">
             <h2 class="text-sm font-medium">{{ t('projects.dashboard.activity') }}</h2>
-            <NuxtLink to="/activity" class="text-xs text-muted-foreground hover:text-foreground">
+            <NuxtLink v-if="canOpen('/activity')" to="/activity" class="text-xs text-muted-foreground hover:text-foreground">
               {{ t('projects.dashboard.allActivity') }}
             </NuxtLink>
           </header>

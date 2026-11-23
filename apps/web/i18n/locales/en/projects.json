@@ -29,7 +29,7 @@
       "lead": "The actions below affect the whole project and its data.",
       "archived": "The project is archived",
       "archiveTitle": "Archive the project",
-      "archiveHint": "The project disappears from active lists, but all data, files and history are kept. This can be undone — change the status back in the form above.",
+      "archiveHint": "The project leaves the active lists and moves to the Archive view of the project list; all data, files and history are kept. Restore it from there with “Restore from archive”.",
       "archiving": "Archiving...",
       "archive": "Archive",
       "archiveFailed": "Could not archive the project",
