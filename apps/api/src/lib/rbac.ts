@@ -1,5 +1,6 @@
 import {
   ALL_PERMISSIONS,
+  PERMISSION,
   ROLE,
   ROLE_CEILING,
   ROLE_PERMISSIONS,
@@ -106,11 +107,25 @@ export async function rolePermissions(role: Role): Promise<readonly Permission[]
  * key leaves behind anyway.
  */
 export async function effectivePermissions(subject: PermissionSubject): Promise<readonly Permission[]> {
+  return withShift(subject.role, await listedPermissions(subject))
+}
+
+async function listedPermissions(subject: PermissionSubject): Promise<readonly Permission[]> {
   if (subject.role !== ROLE.OWNER && subject.customRoleId) {
     const custom = (await loadCustomRoles()).get(subject.customRoleId)
     if (custom) return custom.permissions
   }
   return rolePermissions(subject.role)
+}
+
+/**
+ * Every staff member marks a shift: the working day starts behind
+ * «Начать смену» for everyone, so no role, built-in or the studio's own, can
+ * leave that out. Only client accounts have no shift.
+ */
+function withShift(role: Role, permissions: readonly Permission[]): readonly Permission[] {
+  if (role === ROLE.CLIENT || permissions.includes(PERMISSION.ATTENDANCE_SELF)) return permissions
+  return [...permissions, PERMISSION.ATTENDANCE_SELF]
 }
 
 export async function hasPermission(subject: PermissionSubject, permission: Permission): Promise<boolean> {
