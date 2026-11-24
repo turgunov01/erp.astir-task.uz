@@ -62,7 +62,9 @@
         "type": "Type",
         "reason": "Reason",
         "hours": "Hours: worked / norm",
-        "earned": "Earned"
+        "earned": "Earned",
+        "paid": "Paid",
+        "remaining": "Left to pay"
       },
       "typeTotals": {
         "ADVANCE": "Advances",
@@ -92,7 +94,10 @@
         "saveFailed": "Couldn’t save the salary",
         "editAria": "Change salary: {name}",
         "notSet": "not set",
-        "clear": "Remove salary"
+        "clear": "Remove salary",
+        "editAll": "Set salaries",
+        "saveAll": "Save salaries",
+        "invalidFor": "Salary for “{name}” must be a number of zero or more, or leave it empty"
       },
       "title": "Payroll",
       "entity": "entry",
@@ -187,6 +192,33 @@
           "total": "Total"
         },
         "monthSalary": "monthly salary"
+      },
+      "warnings": {
+        "noSalary": "{n} employee has no salary set — their hours earn nothing. | {n} employees have no salary set — their hours earn nothing.",
+        "latenessFree": "There are late arrivals this month, but the fine rates are zero, so lateness costs nothing.",
+        "setRates": "Set rates in the schedule"
+      },
+      "payout": {
+        "pay": "Pay out",
+        "payAll": "Pay everyone",
+        "settled": "paid",
+        "failed": "Could not record the payout",
+        "allDone": "Paid: {n}",
+        "skipped": "Skipped:",
+        "confirmTitle": "Record a salary payout?",
+        "confirmOne": "{name}: {amount} to pay for this month.",
+        "confirmAll": "Employees to pay: {n}, {amount} in total.",
+        "confirmDetail": "The month’s approved entries become “Paid”. If the calculation changes later, the difference can be paid on top; a payout made by mistake can be undone."
+      },
+      "payouts": {
+        "title": "Payouts this month",
+        "hint": "What was handed out and when. Undoing returns the sum to “Left to pay” and the entries to “Approved”.",
+        "when": "{date}",
+        "hours": "hours {worked} of {norm}",
+        "undo": "Undo payout",
+        "undoTitle": "Undo this payout?",
+        "undoMessage": "{name}: the {amount} payout will be removed and the sum will be owed again.",
+        "undoFailed": "Could not undo the payout"
       }
     },
     "overview": {

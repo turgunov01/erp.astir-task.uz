@@ -89,6 +89,11 @@ export default {
     externalIdTaken: 'An entry with this external ID already exists',
     onlyDraftEditable: 'Only a draft can be edited. Return the “{status}” entry to draft first.',
     transitionNotAllowed: 'An entry cannot move from “{from}” to “{to}”',
-    deleteOnlyDraft: 'Only a draft or a cancelled entry can be deleted. Cancel an approved one first.'
+    deleteOnlyDraft: 'Only a draft or a cancelled entry can be deleted. Cancel an approved one first.',
+    payout: {
+      futureMonth: 'Only a month that has started can be paid out',
+      nothingToPay: 'Nothing to pay: this month has been paid in full',
+      draftsOpen: 'Approve or cancel this month’s drafts first ({count})'
+    }
   }
 } satisfies Messages<typeof ru>

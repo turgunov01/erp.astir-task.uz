@@ -15,6 +15,7 @@ import { monthInline, monthTitle as formatMonthTitle } from '~/utils/finance-per
 import { PERMISSION } from '@astir/types'
 import { useAuthStore } from '~/stores/auth'
 import MyMonthCard from '~/components/finance/MyMonthCard.vue'
+import PayrollPayouts from '~/components/finance/PayrollPayouts.vue'
 
 /**
  * Employee pay adjustments (client item 7): advances, penalties incl.
@@ -129,8 +130,15 @@ watch([period, employeeId, type, status], () => { page.value = 1 })
 
 const summaryRef = ref<{ refresh: () => Promise<unknown> } | null>(null)
 
+const payoutsRef = ref<{ refresh: () => Promise<unknown> } | null>(null)
+
+/** A payout moves entries to «Выплачено», so the entries list changes too. */
+async function refreshPayouts() {
+  await Promise.all([refresh(), payoutsRef.value?.refresh()])
+}
+
 async function refreshAll() {
-  await Promise.all([refresh(), summaryRef.value?.refresh()])
+  await Promise.all([refresh(), summaryRef.value?.refresh(), payoutsRef.value?.refresh()])
 }
 
 const crud = useEntityCrud({
@@ -286,6 +294,16 @@ const SELECT = 'h-9 rounded-md border bg-background px-2.5 text-sm outline-none 
       :can-manage="canManage"
       :own-only="ownOnly"
       @open-days="openDays"
+      @paid="refreshPayouts"
+    />
+
+    <PayrollPayouts
+      v-if="tab === 'summary'"
+      ref="payoutsRef"
+      :period="period"
+      :can-manage="canManage"
+      :own-only="ownOnly"
+      @changed="refreshAll"
     />
 
     <FinancePayrollDays

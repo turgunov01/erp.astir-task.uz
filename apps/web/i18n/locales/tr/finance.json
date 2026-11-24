@@ -62,7 +62,9 @@
         "type": "Tür",
         "reason": "Neden",
         "hours": "Saat: fiili / norm",
-        "earned": "Kazanılan"
+        "earned": "Kazanılan",
+        "paid": "Ödendi",
+        "remaining": "Kalan"
       },
       "typeTotals": {
         "ADVANCE": "Avanslar",
@@ -92,7 +94,10 @@
         "saveFailed": "Maaş kaydedilemedi",
         "editAria": "Maaşı değiştir: {name}",
         "notSet": "belirlenmedi",
-        "clear": "Maaşı kaldır"
+        "clear": "Maaşı kaldır",
+        "editAll": "Maaşları belirle",
+        "saveAll": "Maaşları kaydet",
+        "invalidFor": "“{name}” için maaş sıfır veya daha büyük bir sayı olmalı ya da alanı boş bırakın"
       },
       "title": "Maaş",
       "entity": "kayıt",
@@ -187,6 +192,33 @@
           "total": "Toplam"
         },
         "monthSalary": "aylık maaş"
+      },
+      "warnings": {
+        "noSalary": "{n} çalışanın maaşı belirlenmemiş — saatleri hiçbir şey kazandırmıyor.",
+        "latenessFree": "Bu ay gecikmeler var ama ceza oranları sıfır — gecikmenin bir bedeli yok.",
+        "setRates": "Çalışma programında oranları belirle"
+      },
+      "payout": {
+        "pay": "Öde",
+        "payAll": "Herkese öde",
+        "settled": "ödendi",
+        "failed": "Ödeme kaydedilemedi",
+        "allDone": "Ödendi: {n}",
+        "skipped": "Atlananlar:",
+        "confirmTitle": "Maaş ödemesi kaydedilsin mi?",
+        "confirmOne": "{name}: bu ay için ödenecek {amount}.",
+        "confirmAll": "Ödenecek çalışan: {n}, toplam {amount}.",
+        "confirmDetail": "Ayın onaylı kayıtları “Ödendi” olur. Hesap sonradan değişirse fark ek olarak ödenebilir; yanlışlıkla yapılan ödeme geri alınabilir."
+      },
+      "payouts": {
+        "title": "Bu ayın ödemeleri",
+        "hint": "Ne zaman ne kadar verildiği. Geri almak tutarı “Kalan”a, kayıtları “Onaylandı”ya döndürür.",
+        "when": "{date}",
+        "hours": "saat {worked} / {norm}",
+        "undo": "Ödemeyi geri al",
+        "undoTitle": "Ödeme geri alınsın mı?",
+        "undoMessage": "{name}: {amount} ödemesi silinecek ve tutar yeniden ödenecek olacak.",
+        "undoFailed": "Ödeme geri alınamadı"
       }
     },
     "overview": {

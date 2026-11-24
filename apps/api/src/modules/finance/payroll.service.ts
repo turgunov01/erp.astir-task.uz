@@ -283,6 +283,35 @@ export async function setSalary(
   })
 }
 
+/** Several salaries in one go; all are saved or none. */
+export async function setSalaries(
+  items: { employeeId: string, amount: number | null, currency?: string }[],
+  actorId: string | undefined
+) {
+  const ids = [...new Set(items.map(item => item.employeeId))]
+  const known = await prisma.employee.count({ where: { id: { in: ids }, deletedAt: null } })
+  if (known !== ids.length) throw badRequest(t('finance.payroll.employeeMissing'))
+  const fallback = (await studioSettings()).currency
+  return prisma.$transaction(async tx => {
+    const saved: { employeeId: string, salary: { amount: Prisma.Decimal, currency: string } | null }[] = []
+    for (const item of items) {
+      if (item.amount === null) {
+        await tx.employeeSalary.deleteMany({ where: { employeeId: item.employeeId } })
+        saved.push({ employeeId: item.employeeId, salary: null })
+        continue
+      }
+      const currency = item.currency ?? fallback
+      const salary = await tx.employeeSalary.upsert({
+        where: { employeeId: item.employeeId },
+        create: { employeeId: item.employeeId, amount: item.amount, currency, updatedById: actorId ?? null },
+        update: { amount: item.amount, currency, updatedById: actorId ?? null }
+      })
+      saved.push({ employeeId: item.employeeId, salary })
+    }
+    return saved
+  })
+}
+
 export interface SummaryRow {
   employee: { id: string, name: string, position: string }
   currency: string
@@ -302,6 +331,10 @@ export interface SummaryRow {
   accrued: number
   withheld: number
   net: number
+  /** Handed out so far by payouts for this month. */
+  paid: number
+  /** net − paid: what a payout would hand out now. */
+  remaining: number
   drafts: number
 }
 
@@ -316,7 +349,7 @@ function emptyRow(employee: SummaryRow['employee'], currency: string): SummaryRo
     employee, currency, salary: null,
     bonuses: 0, otherAccruals: 0, advances: 0, penalties: 0, lateness: 0,
     lateMinutes: 0, latenessCount: 0, deductions: 0, workedMinutes: 0, earned: null,
-    accrued: 0, withheld: 0, net: 0, drafts: 0
+    accrued: 0, withheld: 0, net: 0, paid: 0, remaining: 0, drafts: 0
   }
 }
 
@@ -348,7 +381,7 @@ export async function summary(period: string, scope: PayrollScope, employeeId?: 
     ...(employeeFilter ? { employeeId: employeeFilter } : {})
   }
 
-  const [entries, salaries, attendance] = await Promise.all([
+  const [entries, salaries, attendance, payouts] = await Promise.all([
     prisma.payrollEntry.findMany({
       where: entryWhere,
       select: {
@@ -363,14 +396,20 @@ export async function summary(period: string, scope: PayrollScope, employeeId?: 
       },
       select: { employeeId: true, amount: true, currency: true }
     }),
-    attendanceMonth(period, employeeFilter)
+    attendanceMonth(period, employeeFilter),
+    prisma.payrollPayout.groupBy({
+      by: ['employeeId', 'currency'],
+      where: { period, ...(employeeFilter ? { employeeId: employeeFilter } : {}) },
+      _sum: { amount: true }
+    })
   ])
 
   const employeeIds = [...new Set([
     ...entries.map(entry => entry.employeeId),
     ...salaries.map(salary => salary.employeeId),
     // Someone who has since left still has a name on the days they worked.
-    ...attendance.byEmployee.keys()
+    ...attendance.byEmployee.keys(),
+    ...payouts.map(payout => payout.employeeId)
   ])]
   /*
    * Everyone still working is listed even with nothing on file, so a salary
@@ -429,6 +468,10 @@ export async function summary(period: string, scope: PayrollScope, employeeId?: 
     }
   }
 
+  for (const payout of payouts) {
+    rowFor(payout.employeeId, payout.currency).paid += Number(payout._sum.amount ?? 0)
+  }
+
   const listed = new Set([...rows.values()].map(row => row.employee.id))
   for (const person of people.values()) {
     if (!listed.has(person.id)) rowFor(person.id, settings.currency)
@@ -457,12 +500,15 @@ export async function summary(period: string, scope: PayrollScope, employeeId?: 
     const earned = earnedPay(row.salary, row.workedMinutes, attendance.norm.normMinutes)
     const accrued = (earned ?? 0) + row.bonuses + row.otherAccruals
     const withheld = row.penalties + row.lateness + row.deductions
+    const net = cents(accrued - withheld - row.advances)
     return {
       ...row,
       earned,
       accrued: cents(accrued),
       withheld: cents(withheld),
-      net: cents(accrued - withheld - row.advances)
+      net,
+      paid: cents(row.paid),
+      remaining: cents(net - row.paid)
     }
   }).sort((a, b) => a.employee.name.localeCompare(b.employee.name, 'ru') || a.currency.localeCompare(b.currency))
 
@@ -471,13 +517,14 @@ export async function summary(period: string, scope: PayrollScope, employeeId?: 
     const total = totals.get(row.currency) ?? {
       currency: row.currency, salary: 0, bonuses: 0, otherAccruals: 0, advances: 0,
       penalties: 0, lateness: 0, lateMinutes: 0, latenessCount: 0, deductions: 0,
-      workedMinutes: 0, earned: 0, accrued: 0, withheld: 0, net: 0, drafts: 0
+      workedMinutes: 0, earned: 0, accrued: 0, withheld: 0, net: 0, paid: 0, remaining: 0, drafts: 0
     }
     total.salary += row.salary ?? 0
     total.earned += row.earned ?? 0
     for (const key of [
       'bonuses', 'otherAccruals', 'advances', 'penalties', 'lateness', 'lateMinutes',
-      'latenessCount', 'deductions', 'workedMinutes', 'accrued', 'withheld', 'net', 'drafts'
+      'latenessCount', 'deductions', 'workedMinutes', 'accrued', 'withheld', 'net', 'paid',
+      'remaining', 'drafts'
     ] as const) {
       total[key] += row[key]
     }
@@ -495,7 +542,9 @@ export async function summary(period: string, scope: PayrollScope, employeeId?: 
       earned: cents(total.earned),
       accrued: cents(total.accrued),
       withheld: cents(total.withheld),
-      net: cents(total.net)
+      net: cents(total.net),
+      paid: cents(total.paid),
+      remaining: cents(total.remaining)
     }))
   }
 }

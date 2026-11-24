@@ -89,6 +89,11 @@ export default {
     externalIdTaken: 'Bu tashqi identifikatorli yozuv allaqachon bor',
     onlyDraftEditable: 'Faqat qoralamani o‘zgartirish mumkin. «{status}» yozuvini avval qoralamaga qaytaring.',
     transitionNotAllowed: 'Yozuvni «{from}» holatidan «{to}» holatiga o‘tkazib bo‘lmaydi',
-    deleteOnlyDraft: 'Faqat qoralama yoki bekor qilingan yozuvni o‘chirish mumkin. Tasdiqlanganini avval bekor qiling.'
+    deleteOnlyDraft: 'Faqat qoralama yoki bekor qilingan yozuvni o‘chirish mumkin. Tasdiqlanganini avval bekor qiling.',
+    payout: {
+      futureMonth: 'Faqat boshlangan oy uchun toʻlash mumkin',
+      nothingToPay: 'Toʻlanadigan summa yoʻq: bu oy uchun hammasi toʻlangan',
+      draftsOpen: 'Avval bu oyning qoralamalarini tasdiqlang yoki bekor qiling ({count})'
+    }
   }
 } satisfies Messages<typeof ru>

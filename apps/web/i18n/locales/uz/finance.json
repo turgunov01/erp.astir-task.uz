@@ -62,7 +62,9 @@
         "type": "Turi",
         "reason": "Sabab",
         "hours": "Soatlar: fakt / norma",
-        "earned": "Ishlab topildi"
+        "earned": "Ishlab topildi",
+        "paid": "Toʻlandi",
+        "remaining": "Qoldi"
       },
       "typeTotals": {
         "ADVANCE": "Bo‘naklar",
@@ -92,7 +94,10 @@
         "saveFailed": "Maoshni saqlab bo‘lmadi",
         "editAria": "Maoshni o‘zgartirish: {name}",
         "notSet": "belgilanmagan",
-        "clear": "Maoshni olib tashlash"
+        "clear": "Maoshni olib tashlash",
+        "editAll": "Maoshlarni belgilash",
+        "saveAll": "Maoshlarni saqlash",
+        "invalidFor": "«{name}» uchun maosh noldan kichik boʻlmagan son boʻlishi kerak yoki maydonni boʻsh qoldiring"
       },
       "title": "Ish haqi",
       "entity": "yozuv",
@@ -187,6 +192,33 @@
           "total": "Jami"
         },
         "monthSalary": "oylik maosh"
+      },
+      "warnings": {
+        "noSalary": "{n} ta xodimga maosh belgilanmagan — ularning soatlari hech narsa keltirmaydi.",
+        "latenessFree": "Bu oyda kechikishlar bor, lekin jarima stavkalari nolga teng — kechikish hech narsaga tushmaydi.",
+        "setRates": "Ish jadvalida stavkalarni belgilash"
+      },
+      "payout": {
+        "pay": "Toʻlash",
+        "payAll": "Hammaga toʻlash",
+        "settled": "toʻlangan",
+        "failed": "Toʻlovni yozib boʻlmadi",
+        "allDone": "Toʻlandi: {n}",
+        "skipped": "Oʻtkazib yuborildi:",
+        "confirmTitle": "Maosh toʻlovini yozasizmi?",
+        "confirmOne": "{name}: bu oy uchun {amount} toʻlanadi.",
+        "confirmAll": "Toʻlanadigan xodimlar: {n}, jami {amount}.",
+        "confirmDetail": "Oyning tasdiqlangan yozuvlari «Toʻlangan» boʻladi. Keyin hisob oʻzgarsa, farqni qoʻshimcha toʻlash mumkin; xato toʻlovni bekor qilish mumkin."
+      },
+      "payouts": {
+        "title": "Oy davomidagi toʻlovlar",
+        "hint": "Qancha va qachon berilgani. Bekor qilish summani «Qoldi»ga, yozuvlarni esa «Tasdiqlangan»ga qaytaradi.",
+        "when": "{date}",
+        "hours": "soatlar {worked} / {norm}",
+        "undo": "Toʻlovni bekor qilish",
+        "undoTitle": "Toʻlov bekor qilinsinmi?",
+        "undoMessage": "{name}: {amount} toʻlov oʻchiriladi va summa yana toʻlanishi kerak boʻladi.",
+        "undoFailed": "Toʻlovni bekor qilib boʻlmadi"
       }
     },
     "overview": {

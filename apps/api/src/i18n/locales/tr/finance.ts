@@ -89,6 +89,11 @@ export default {
     externalIdTaken: 'Bu harici kimliğe sahip bir kayıt zaten var',
     onlyDraftEditable: 'Yalnızca taslak düzenlenebilir. “{status}” durumundaki kaydı önce taslağa geri alın.',
     transitionNotAllowed: 'Kayıt “{from}” durumundan “{to}” durumuna geçirilemez',
-    deleteOnlyDraft: 'Yalnızca taslak veya iptal edilmiş bir kayıt silinebilir. Onaylanmış kaydı önce iptal edin.'
+    deleteOnlyDraft: 'Yalnızca taslak veya iptal edilmiş bir kayıt silinebilir. Onaylanmış kaydı önce iptal edin.',
+    payout: {
+      futureMonth: 'Yalnızca başlamış bir ay ödenebilir',
+      nothingToPay: 'Ödenecek bir şey yok: bu ayın tamamı ödendi',
+      draftsOpen: 'Önce bu ayın taslaklarını onaylayın veya iptal edin ({count})'
+    }
   }
 } satisfies Messages<typeof ru>

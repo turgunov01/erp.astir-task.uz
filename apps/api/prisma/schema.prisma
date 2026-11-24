@@ -295,41 +295,41 @@ enum NotificationChannel {
 // ---------------------------------------------------------------- identity
 
 model User {
-  id           String    @id @default(uuid()) @db.Uuid
-  email        String    @unique
-  passwordHash String
-  firstName    String
-  lastName     String
-  role         Role      @default(ARTIST)
+  id                 String      @id @default(uuid()) @db.Uuid
+  email              String      @unique
+  passwordHash       String
+  firstName          String
+  lastName           String
+  role               Role        @default(ARTIST)
   /// A studio-defined role on top of the base one. Set, its permission list
   /// replaces the base role's; `role` then always equals its base role, so
   /// every check written against the enum (owner, client portal) still holds.
-  customRoleId String?     @db.Uuid
-  customRole   CustomRole? @relation(fields: [customRoleId], references: [id], onDelete: SetNull)
-  avatarUrl    String?
-  phone        String?
-  isActive     Boolean   @default(true)
+  customRoleId       String?     @db.Uuid
+  customRole         CustomRole? @relation(fields: [customRoleId], references: [id], onDelete: SetNull)
+  avatarUrl          String?
+  phone              String?
+  isActive           Boolean     @default(true)
   /// Set when the address was proven by entering an emailed code.
-  emailVerifiedAt DateTime?
-  lastLoginAt  DateTime?
+  emailVerifiedAt    DateTime?
+  lastLoginAt        DateTime?
   /// Access tokens issued before this moment are refused. Set when a password
   /// is reset, so a session stolen before the reset dies at once instead of
   /// living out its 15 minutes.
-  sessionsRevokedAt DateTime?
+  sessionsRevokedAt  DateTime?
   /// An administrator set this password, so the person must replace it with
   /// one only they know before the session lets them do anything else.
-  mustChangePassword Boolean @default(false)
+  mustChangePassword Boolean     @default(false)
   /// Hash of the screen-lock PIN (4–6 digits). Null until the person sets one.
-  pinHash        String?
+  pinHash            String?
   /// The screen was locked (lock icon or «Пауза»); only the PIN or the
   /// account password opens it again, on any device.
-  screenLockedAt DateTime?
+  screenLockedAt     DateTime?
   /// When an administrator moved the login to a new address. Set until the
   /// person proves the new address with the emailed code at their next login.
-  emailChangedAt DateTime?
+  emailChangedAt     DateTime?
   /// The language this person reads the interface, letters and exports in.
   /// Empty means the studio default (StudioSettings.defaultLocale).
-  locale       Locale?
+  locale             Locale?
 
   // Set only for Role.CLIENT — scopes the client portal to one client (spec 36).
   clientId String? @db.Uuid
@@ -367,9 +367,10 @@ model User {
   documentsUploaded   Document[]
   renderJobsSubmitted RenderJob[]
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  deletedAt      DateTime?
+  payrollPayouts PayrollPayout[]
 
   @@index([role])
   @@index([customRoleId])
@@ -446,7 +447,8 @@ model Employee {
   archivedAt DateTime?
 
   /// Files attached to this record.
-  documents Document[]
+  documents      Document[]
+  payrollPayouts PayrollPayout[]
 
   @@index([departmentId])
   @@index([status])
@@ -1173,9 +1175,9 @@ model Payment {
   currency String        @default("USD")
   status   PaymentStatus @default(PENDING)
 
-  dueDate  DateTime?
-  paidDate DateTime?
-  method   PaymentMethod?
+  dueDate   DateTime?
+  paidDate  DateTime?
+  method    PaymentMethod?
   /// Bank transaction / payment order number, to match the bank statement.
   reference String?
   /// Bank or acquiring commission withheld from this payment.
@@ -1294,6 +1296,42 @@ model EmployeeSalary {
   @@map("employee_salaries")
 }
 
+/// Salary handed out for one employee's month in one currency.
+///
+/// What was left to pay at that moment, with the figures it was worked out
+/// from, so the payslip can be shown later even if attendance or the salary
+/// changes afterwards. A month can be paid more than once: a later top-up pays
+/// whatever has been added since. The approved entries settled by the payout
+/// are listed so undoing it puts exactly them back.
+model PayrollPayout {
+  id         String   @id @default(uuid()) @db.Uuid
+  employeeId String   @db.Uuid
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  period   String  @db.VarChar(7)
+  currency String
+  amount   Decimal @db.Decimal(14, 2)
+
+  /// The month as it stood when paid.
+  salary        Decimal? @db.Decimal(14, 2)
+  earned        Decimal? @db.Decimal(14, 2)
+  workedMinutes Int
+  normMinutes   Int
+  net           Decimal  @db.Decimal(14, 2)
+
+  /// Entries this payout moved from approved to paid.
+  entryIds String[] @db.Uuid
+  note     String?
+
+  paidById String?  @db.Uuid
+  paidBy   User?    @relation(fields: [paidById], references: [id], onDelete: SetNull)
+  paidAt   DateTime @default(now())
+
+  @@index([employeeId, period])
+  @@index([period])
+  @@map("payroll_payouts")
+}
+
 /// One employee's working day (Verifix-style attendance control).
 ///
 /// Keyed by the studio-local calendar date. firstSeenAt/lastSeenAt are what
@@ -1312,8 +1350,8 @@ model AttendanceDay {
   firstSeenAt DateTime?
   lastSeenAt  DateTime?
 
-  checkInAt  DateTime?
-  checkOutAt DateTime?
+  checkInAt      DateTime?
+  checkOutAt     DateTime?
   /// BUTTON once the employee pressed «Я приехал»; AUTO while the arrival is
   /// only the first activity of the day. Lateness counts from checkInAt
   /// either way, and the board flags AUTO days as «без отметки».
@@ -1651,12 +1689,12 @@ model StudioSettings {
   defaultLocale Locale @default(ru)
 
   /// Work schedule for attendance control, in studio-local time (HH:MM).
-  workDayStart     String @default("09:00")
-  workDayEnd       String @default("18:00")
+  workDayStart         String  @default("09:00")
+  workDayEnd           String  @default("18:00")
   /// Arriving within this many minutes after the start is not late.
-  lateGraceMinutes Int    @default(10)
+  lateGraceMinutes     Int     @default(10)
   /// ISO weekdays that are working days: 1 = Monday ... 7 = Sunday.
-  workWeekdays     Int[]  @default([1, 2, 3, 4, 5])
+  workWeekdays         Int[]   @default([1, 2, 3, 4, 5])
   /// Lateness fine in the studio currency: per late day plus per late minute.
   /// Both zero means fines are not calculated.
   latePenaltyPerDay    Decimal @default(0) @db.Decimal(14, 2)
@@ -1721,10 +1759,10 @@ model PipelineTemplate {
 /// the defaults compiled into @astir/types. The whole list is stored rather
 /// than a diff, so reading a role's rights is one lookup with no merging.
 model RolePermission {
-  templateDeleted Boolean @default(false)
-  templateName String?
-  role        Role     @id
-  permissions String[]
+  templateDeleted Boolean  @default(false)
+  templateName    String?
+  role            Role     @id
+  permissions     String[]
 
   updatedAt DateTime @updatedAt
 
@@ -1738,18 +1776,18 @@ model RolePermission {
 /// permission list in full. The owner is never a base: the owner's rights are
 /// not something a role can be built from.
 model CustomRole {
-  id          String   @id @default(uuid()) @db.Uuid
-  name        String   @unique
-  description String?
-  baseRole    Role
-  permissions String[]
-  isTemplate  Boolean  @default(false)
-  baseTemplateId String? @db.Uuid
-  baseTemplate CustomRole? @relation("RoleTemplate", fields: [baseTemplateId], references: [id], onDelete: SetNull)
-  derivedRoles CustomRole[] @relation("RoleTemplate")
-  baseRoles Role[] @default([])
-  sources CustomRoleSource[] @relation("SourceRole")
-  usedBy CustomRoleSource[] @relation("SourceTemplate")
+  id             String             @id @default(uuid()) @db.Uuid
+  name           String             @unique
+  description    String?
+  baseRole       Role
+  permissions    String[]
+  isTemplate     Boolean            @default(false)
+  baseTemplateId String?            @db.Uuid
+  baseTemplate   CustomRole?        @relation("RoleTemplate", fields: [baseTemplateId], references: [id], onDelete: SetNull)
+  derivedRoles   CustomRole[]       @relation("RoleTemplate")
+  baseRoles      Role[]             @default([])
+  sources        CustomRoleSource[] @relation("SourceRole")
+  usedBy         CustomRoleSource[] @relation("SourceTemplate")
 
   users User[]
 
@@ -1760,10 +1798,11 @@ model CustomRole {
 }
 
 model CustomRoleSource {
-  roleId String @db.Uuid
-  templateId String @db.Uuid
-  role CustomRole @relation("SourceRole", fields: [roleId], references: [id], onDelete: Cascade)
-  template CustomRole @relation("SourceTemplate", fields: [templateId], references: [id], onDelete: Cascade)
+  roleId     String     @db.Uuid
+  templateId String     @db.Uuid
+  role       CustomRole @relation("SourceRole", fields: [roleId], references: [id], onDelete: Cascade)
+  template   CustomRole @relation("SourceTemplate", fields: [templateId], references: [id], onDelete: Cascade)
+
   @@id([roleId, templateId])
   @@index([templateId])
   @@map("custom_role_sources")

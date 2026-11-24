@@ -10,6 +10,7 @@ import { recordAudit } from '../../lib/activity'
 import { t } from '../../i18n'
 import * as service from './payroll.service'
 import { payrollDays } from './payroll.days'
+import * as payouts from './payroll.payouts'
 
 /**
  * /api/finance/payroll — advances, penalties, bonuses and deductions on
@@ -217,6 +218,128 @@ payrollRouter.put(
         metadata: salary ? { amount: String(salary.amount), currency: salary.currency } : {}
       })
       return sendItem(res, salary)
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+/** Several salaries at once, from the «Оклады» editing mode of the table. */
+const salariesBulkSchema = z.object({
+  items: z.array(salarySchema.extend({ employeeId: uuidSchema })).min(1).max(500)
+})
+
+payrollRouter.put(
+  '/salaries',
+  requirePermission(PERMISSION.PAYROLL_MANAGE),
+  validate(salariesBulkSchema),
+  async (req, res, next) => {
+    try {
+      const items = (req.body as z.infer<typeof salariesBulkSchema>).items
+      const saved = await service.setSalaries(items, req.user?.id)
+      for (const item of saved) {
+        await recordAudit({
+          actorId: req.user?.id,
+          action: item.salary ? 'finance.salary_set' : 'finance.salary_cleared',
+          entityType: 'Employee',
+          entityId: item.employeeId,
+          ipAddress: req.ip,
+          metadata: item.salary ? { amount: String(item.salary.amount), currency: item.salary.currency } : {}
+        })
+      }
+      return sendItem(res, { saved: saved.length })
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+const payoutSchema = z.object({
+  period: periodSchema,
+  employeeId: uuidSchema,
+  currency: currencyCode,
+  note: z.string().trim().max(1000).optional().nullable()
+})
+
+payrollRouter.get(
+  '/payouts',
+  requirePermission(PERMISSION.PAYROLL_VIEW_OWN),
+  validate(summarySchema.pick({ period: true }), 'query'),
+  async (req, res, next) => {
+    try {
+      const query = validatedQuery<{ period?: string }>(req)
+      const scope = await service.scopeFor(req.user)
+      const items = await payouts.listPayouts(query.period ?? currentPeriod(), scope)
+      return sendList(res, items, { page: 1, limit: items.length, total: items.length, pages: 1 })
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+payrollRouter.post(
+  '/payouts',
+  requirePermission(PERMISSION.PAYROLL_MANAGE),
+  validate(payoutSchema),
+  async (req, res, next) => {
+    try {
+      const body = req.body as z.infer<typeof payoutSchema>
+      const payout = await payouts.payOut(body.period, body.employeeId, body.currency, req.user?.id, body.note)
+      await recordAudit({
+        actorId: req.user?.id,
+        action: 'finance.payroll_paid_out',
+        entityType: 'Employee',
+        entityId: payout.employeeId,
+        ipAddress: req.ip,
+        metadata: { period: payout.period, amount: String(payout.amount), currency: payout.currency }
+      })
+      return sendItem(res, payout, 201)
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+payrollRouter.post(
+  '/payouts/all',
+  requirePermission(PERMISSION.PAYROLL_MANAGE),
+  validate(payoutSchema.pick({ period: true })),
+  async (req, res, next) => {
+    try {
+      const result = await payouts.payAll((req.body as { period: string }).period, req.user?.id)
+      for (const payout of result.paid) {
+        await recordAudit({
+          actorId: req.user?.id,
+          action: 'finance.payroll_paid_out',
+          entityType: 'Employee',
+          entityId: payout.employeeId,
+          ipAddress: req.ip,
+          metadata: { period: payout.period, amount: String(payout.amount), currency: payout.currency }
+        })
+      }
+      return sendItem(res, { paid: result.paid.length, skipped: result.skipped })
+    } catch (err) {
+      next(err)
+    }
+  }
+)
+
+payrollRouter.delete(
+  '/payouts/:id',
+  requirePermission(PERMISSION.PAYROLL_MANAGE),
+  validate(idParamSchema, 'params'),
+  async (req, res, next) => {
+    try {
+      const removed = await payouts.undoPayout(req.params.id as string)
+      await recordAudit({
+        actorId: req.user?.id,
+        action: 'finance.payroll_payout_undone',
+        entityType: 'Employee',
+        entityId: removed.employeeId,
+        ipAddress: req.ip,
+        metadata: { period: removed.period, amount: String(removed.amount), currency: removed.currency }
+      })
+      return sendNoContent(res)
     } catch (err) {
       next(err)
     }
