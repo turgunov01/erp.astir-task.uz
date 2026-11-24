@@ -61,7 +61,7 @@ async function save() {
   if (lockAfter) await lock()
 }
 
-const INPUT = 'h-10 w-full rounded-md border bg-background px-3 text-sm tracking-[0.4em] tabular-nums outline-none focus:border-ring'
+const INPUT = 'h-10 w-full rounded-md border bg-background px-3 text-sm tracking-[0.4em] tabular-nums outline-none focus:border-ring [-webkit-text-security:disc]'
 </script>
 
 <template>
@@ -95,9 +95,13 @@ const INPUT = 'h-10 w-full rounded-md border bg-background px-3 text-sm tracking
             <span class="mb-1.5 block text-xs text-muted-foreground">{{ t('shell.lock.newPin') }}</span>
             <input
               :value="pin"
-              type="password"
+              type="text"
               inputmode="numeric"
-              autocomplete="new-password"
+              autocomplete="off"
+              data-1p-ignore
+              data-lpignore="true"
+              data-bwignore
+              data-form-type="other"
               :maxlength="PIN_LENGTH_MAX"
               :class="INPUT"
               autofocus
@@ -108,9 +112,13 @@ const INPUT = 'h-10 w-full rounded-md border bg-background px-3 text-sm tracking
             <span class="mb-1.5 block text-xs text-muted-foreground">{{ t('shell.lock.confirmPin') }}</span>
             <input
               :value="confirm"
-              type="password"
+              type="text"
               inputmode="numeric"
-              autocomplete="new-password"
+              autocomplete="off"
+              data-1p-ignore
+              data-lpignore="true"
+              data-bwignore
+              data-form-type="other"
               :maxlength="PIN_LENGTH_MAX"
               :class="INPUT"
               @input="confirm = digitsOf($event)"

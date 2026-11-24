@@ -107,8 +107,21 @@ watch(pinLocked, value => {
   nextTick(() => pinInput.value?.focus())
 }, { immediate: true })
 
+/**
+ * Only digits the person types or pastes count. A browser or password manager
+ * that fills the field on its own (no inputType, or a replacement) is undone,
+ * otherwise a saved PIN would open the screen the moment it locks.
+ */
+const TYPED_INPUT = /^(insert(Text|FromPaste|CompositionText)|delete)/
+
 function onPinInput(event: Event) {
-  pin.value = (event.target as HTMLInputElement).value.replace(/\D/g, '').slice(0, PIN_LENGTH_MAX)
+  const field = event.target as HTMLInputElement
+  const inputType = (event as InputEvent).inputType
+  if (!inputType || !TYPED_INPUT.test(inputType)) {
+    field.value = pin.value
+    return
+  }
+  pin.value = field.value.replace(/\D/g, '').slice(0, PIN_LENGTH_MAX)
   formError.value = ''
   // The fourth digit opens the screen, no extra press needed.
   if (pin.value.length === PIN_LENGTH_MAX) submit()
@@ -210,11 +223,19 @@ function switchToPassword(on: boolean) {
               id="screen-lock-pin"
               ref="pinInput"
               :value="pin"
-              type="password"
+              type="text"
+              name="screen-lock-code"
               inputmode="numeric"
               autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+              data-1p-ignore
+              data-lpignore="true"
+              data-bwignore
+              data-form-type="other"
               :maxlength="PIN_LENGTH_MAX"
-              class="absolute inset-0 w-full cursor-text opacity-0"
+              class="absolute inset-0 w-full cursor-text opacity-0 [-webkit-text-security:disc]"
               @input="onPinInput"
             >
           </div>
