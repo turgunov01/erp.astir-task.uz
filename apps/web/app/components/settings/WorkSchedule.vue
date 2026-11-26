@@ -3,7 +3,8 @@ import { apiErrorMessage, apiRequest } from '~/composables/useApi'
 
 /**
  * Настройки → Рабочий график: the schedule attendance control measures
- * against (start, end, grace, working weekdays) and the lateness fine rates.
+ * against (start, end, grace, working weekdays), the open window around it
+ * (when work may start and when the app closes) and the lateness fine rates.
  */
 
 const props = defineProps<{ canManage: boolean }>()
@@ -13,6 +14,8 @@ interface ScheduleSettings {
   currency: string
   workDayStart: string
   workDayEnd: string
+  workOpenFrom: string
+  workOpenUntil: string
   lateGraceMinutes: number
   workWeekdays: number[]
   /** Decimals arrive as strings. */
@@ -28,6 +31,8 @@ const { data, refresh } = useFetch<{ data: ScheduleSettings }>('/api/settings', 
 const form = reactive({
   workDayStart: '09:00',
   workDayEnd: '18:00',
+  workOpenFrom: '08:00',
+  workOpenUntil: '00:00',
   lateGraceMinutes: 10,
   workWeekdays: [1, 2, 3, 4, 5] as number[],
   latePenaltyPerDay: 0,
@@ -39,6 +44,8 @@ watchEffect(() => {
   if (!loaded) return
   form.workDayStart = loaded.workDayStart
   form.workDayEnd = loaded.workDayEnd
+  form.workOpenFrom = loaded.workOpenFrom
+  form.workOpenUntil = loaded.workOpenUntil
   form.lateGraceMinutes = loaded.lateGraceMinutes
   form.workWeekdays = [...loaded.workWeekdays]
   form.latePenaltyPerDay = Number(loaded.latePenaltyPerDay)
@@ -137,6 +144,20 @@ const inputClass = 'mt-1.5 h-9 w-full rounded-md border bg-background px-2.5 tex
           </button>
         </div>
       </fieldset>
+    </div>
+
+    <div class="grid gap-4 rounded-xl border bg-card p-5 sm:grid-cols-2">
+      <label class="block">
+        <span class="text-sm font-medium">{{ t('team.schedule.openFrom') }}</span>
+        <input v-model="form.workOpenFrom" type="time" :disabled="!props.canManage" :class="inputClass">
+      </label>
+      <label class="block">
+        <span class="text-sm font-medium">{{ t('team.schedule.openUntil') }}</span>
+        <input v-model="form.workOpenUntil" type="time" :disabled="!props.canManage" :class="inputClass">
+      </label>
+      <p class="text-xs text-muted-foreground sm:col-span-2">
+        {{ t('team.schedule.openHint', { start: form.workDayStart, end: form.workDayEnd }) }}
+      </p>
     </div>
 
     <div class="grid gap-4 rounded-xl border bg-card p-5 sm:grid-cols-2">

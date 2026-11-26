@@ -30,6 +30,8 @@ export default {
   },
   settings: {
     workDayEndBeforeStart: 'İş günü başladıktan sonra bitmeli',
+    openFromAfterStart: 'Sistem en geç iş günü başladığında açılmalı',
+    openUntilBeforeEnd: 'Sistem en erken iş günü bittiğinde kapanmalı',
     pickWorkday: 'En az bir iş günü seçin',
     noEmail: 'Mevcut hesabın e-posta adresi yok',
     mailTestSubject: '{studio} — e-posta testi',

@@ -103,6 +103,17 @@ export function parseClock(value: string | null | undefined): number | null {
   return Number(match[1]) * 60 + Number(match[2])
 }
 
+/**
+ * A closing time: like parseClock, except "00:00" (and "24:00") is midnight
+ * at the end of the day, 1440, so a window can stay open until midnight.
+ */
+export function parseClosingClock(value: string | null | undefined): number | null {
+  if (value?.trim() === '24:00') return 24 * 60
+  const minutes = parseClock(value)
+  if (minutes === null) return null
+  return minutes === 0 ? 24 * 60 : minutes
+}
+
 /** A Date for a calendar day as Prisma stores @db.Date (UTC midnight). */
 export function dayValue(date: string): Date {
   return new Date(date + 'T00:00:00.000Z')

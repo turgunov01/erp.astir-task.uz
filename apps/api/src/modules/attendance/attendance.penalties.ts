@@ -3,8 +3,8 @@ import { AppError, badRequest } from '../../lib/errors'
 import { recipientLocale, t, translatorFor } from '../../i18n'
 import { dayKey, dayValue, localParts } from '../../lib/studio-time'
 import * as payroll from '../finance/payroll.service'
-import { isWorkingDay, penaltyFor, workSchedule } from './attendance.schedule'
-import { assertRange, isMarked } from './attendance.service'
+import { isWorkingDay, penaltyFor, unworkedLateMinutes, workSchedule } from './attendance.schedule'
+import { assertRange, isMarked, today } from './attendance.service'
 
 /**
  * Lateness -> payroll: one LATENESS draft per late day.
@@ -19,6 +19,9 @@ import { assertRange, isMarked } from './attendance.service'
  * without pressing is not let off: its lateness counts from the first
  * activity of the day, and the entry says so (team.attendance.penaltyUnmarked), so the
  * accountant can tell an inferred arrival from a marked one.
+ *
+ * Staying past the working day's end works lateness off minute for minute
+ * (unworkedLateMinutes): only what is left is fined.
  */
 
 const PAYROLL_SOURCE = 'TIMESHEET' as const
@@ -54,7 +57,15 @@ export async function createLatenessPenalties(from: string, to: string, actorId:
     },
     orderBy: [{ date: 'asc' }]
   })
-  const late = days.filter(day => isWorkingDay(dayKey(day.date), schedule))
+  /*
+   * Today is not over: whoever came late may still stay late and work it
+   * off, so its fine waits for the next run. Days already worked off drop out.
+   */
+  const todayDate = today(schedule)
+  const late = days
+    .filter(day => dayKey(day.date) < todayDate && isWorkingDay(dayKey(day.date), schedule))
+    .map(day => ({ ...day, lateMinutes: unworkedLateMinutes(dayKey(day.date), day.lateMinutes, day.checkOutAt, schedule) }))
+    .filter(day => day.lateMinutes > 0)
 
   const ids = late.map(day => latenessExternalId(day.employeeId, dayKey(day.date)))
   const existing = await prisma.payrollEntry.findMany({

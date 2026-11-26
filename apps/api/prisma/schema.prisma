@@ -1691,6 +1691,12 @@ model StudioSettings {
   /// Work schedule for attendance control, in studio-local time (HH:MM).
   workDayStart         String  @default("09:00")
   workDayEnd           String  @default("18:00")
+  /// When the app is open for work and worked time counts (HH:MM). Wider
+  /// than the working day: someone may start early or stay late, and the
+  /// hours count. "00:00" as the close means midnight, the end of the day.
+  /// Lateness and the month's norm still follow workDayStart / workDayEnd.
+  workOpenFrom         String  @default("08:00")
+  workOpenUntil        String  @default("00:00")
   /// Arriving within this many minutes after the start is not late.
   lateGraceMinutes     Int     @default(10)
   /// ISO weekdays that are working days: 1 = Monday ... 7 = Sunday.

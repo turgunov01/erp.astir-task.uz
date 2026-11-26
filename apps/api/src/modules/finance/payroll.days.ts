@@ -2,7 +2,7 @@ import type { PayrollEntryType } from '@prisma/client'
 import { prisma } from '../../lib/prisma'
 import { notFound } from '../../lib/errors'
 import { dayKey, dayValue, daysInRange, localParts } from '../../lib/studio-time'
-import { isWorkingDay, penaltyFor, workSchedule } from '../attendance/attendance.schedule'
+import { isWorkingDay, penaltyFor, unworkedLateMinutes, workSchedule } from '../attendance/attendance.schedule'
 import { latenessExternalId } from '../attendance/attendance.penalties'
 
 /**
@@ -108,7 +108,8 @@ export async function payrollDays(period: string, employeeId: string, now = new 
     const record = byDate.get(date)
     const working = isWorkingDay(date, schedule)
     const worked = record?.workedMinutes ?? 0
-    const late = record?.lateMinutes ?? 0
+    // Lateness worked off by staying late carries no fine.
+    const late = record ? unworkedLateMinutes(date, record.lateMinutes, record.checkOutAt, schedule) : 0
     const earned = salary !== null && normMinutes > 0 ? salary * worked / normMinutes : 0
 
     let bonuses = 0

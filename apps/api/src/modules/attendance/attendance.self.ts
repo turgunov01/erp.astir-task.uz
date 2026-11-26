@@ -6,10 +6,10 @@ import { dayValue } from '../../lib/studio-time'
 import {
   hasShiftWindow,
   isWorkingDay,
+  openWindow,
   pauseMinutes,
   shiftFiguresFor,
   shiftNow,
-  shiftWindow,
   workSchedule,
   type ShiftState,
   type WorkSchedule
@@ -215,21 +215,21 @@ async function markExisting(day: AttendanceDay, date: string, schedule: WorkSche
 }
 
 /**
- * Where a pause stops counting: now, or the shift's end if that came first.
- * Worked time is clamped to the shift, so a pause running past the end must
- * not take minutes off the hours inside it.
+ * Where a pause stops counting: now, or the window's close if that came
+ * first. Worked time is clamped to the open window, so a pause running past
+ * its close must not take minutes off the hours inside it.
  */
 function pauseEnd(date: string, schedule: WorkSchedule, now: Date): Date {
   if (!hasShiftWindow(schedule) || !isWorkingDay(date, schedule)) return now
-  const { endAt } = shiftWindow(date, schedule)
-  return now > endAt ? endAt : now
+  const { closeAt } = openWindow(date, schedule)
+  return now > closeAt ? closeAt : now
 }
 
-/** A shift can only begin inside the schedule's hours on a working day. */
+/** A shift can only begin inside the open window on a working day. */
 function assertShiftOpen(schedule: WorkSchedule, state: ShiftState) {
   if (state === 'OPEN') return
-  if (state === 'BEFORE') throw badRequest(t('team.attendance.shiftNotStarted', { start: schedule.startLabel }))
-  if (state === 'AFTER') throw badRequest(t('team.attendance.shiftOver', { end: schedule.endLabel }))
+  if (state === 'BEFORE') throw badRequest(t('team.attendance.shiftNotStarted', { start: schedule.openFromLabel }))
+  if (state === 'AFTER') throw badRequest(t('team.attendance.shiftOver', { end: schedule.openUntilLabel }))
   throw badRequest(t('team.attendance.shiftDayOff'))
 }
 

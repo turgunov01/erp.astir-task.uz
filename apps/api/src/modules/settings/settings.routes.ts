@@ -19,6 +19,7 @@ import { prisma } from '../../lib/prisma'
 import { recordAudit } from '../../lib/activity'
 import { t } from '../../i18n'
 import { sendMail } from '../../lib/mailer'
+import { parseClock, parseClosingClock } from '../../lib/studio-time'
 import { publicStudioSettings, saveStudioSettings, studioSettings } from '../../lib/settings'
 import {
   createCustomRole,
@@ -83,6 +84,9 @@ const updateSettingsSchema = z.object({
   // Work schedule for attendance control (HH:MM, studio-local time).
   workDayStart: clockSchema.optional(),
   workDayEnd: clockSchema.optional(),
+  /** The open window around it: work may start from / the app closes at ("00:00" = midnight). */
+  workOpenFrom: clockSchema.optional(),
+  workOpenUntil: clockSchema.optional(),
   lateGraceMinutes: z.coerce.number().int().min(0).max(240).optional(),
   workWeekdays: z.array(z.coerce.number().int().min(1).max(7))
     .min(1, { error: () => t('team.settings.pickWorkday') })
@@ -130,11 +134,19 @@ settingsRouter.patch(
       else if (patch.smtpPassword === '') patch.smtpPassword = null
 
       // The working day has to end after it starts, whichever half was sent.
-      if (patch.workDayStart !== undefined || patch.workDayEnd !== undefined) {
+      // The open window has to hold the whole working day.
+      if (
+        patch.workDayStart !== undefined || patch.workDayEnd !== undefined ||
+        patch.workOpenFrom !== undefined || patch.workOpenUntil !== undefined
+      ) {
         const current = await studioSettings()
-        const start = patch.workDayStart ?? current.workDayStart
-        const end = patch.workDayEnd ?? current.workDayEnd
+        const start = parseClock(patch.workDayStart ?? current.workDayStart) ?? 0
+        const end = parseClock(patch.workDayEnd ?? current.workDayEnd) ?? 0
+        const openFrom = parseClock(patch.workOpenFrom ?? current.workOpenFrom) ?? 0
+        const openUntil = parseClosingClock(patch.workOpenUntil ?? current.workOpenUntil) ?? 24 * 60
         if (end <= start) throw badRequest(t('team.settings.workDayEndBeforeStart'))
+        if (openFrom > start) throw badRequest(t('team.settings.openFromAfterStart'))
+        if (openUntil < end) throw badRequest(t('team.settings.openUntilBeforeEnd'))
       }
 
       const saved = await saveStudioSettings(patch)

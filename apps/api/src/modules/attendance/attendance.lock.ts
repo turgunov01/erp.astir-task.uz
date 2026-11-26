@@ -16,7 +16,7 @@ import * as self from './attendance.self'
  * lives on the user row, so reloading the page or opening another device
  * does not get around it.
  *
- * Outside the scheduled shift (before it, after it, on a day off, or once
+ * Outside the open window (before it, after it, on a day off, or once
  * «Закончить смену» was pressed) the app is closed for the employee until
  * the next shift opens. People who run attendance (attendance:manage — the
  * owner and administrators) are exempt from that window, not from the PIN.
@@ -91,8 +91,9 @@ export async function decorate(
     windowExempt: exempt,
     shift: {
       state: window.state,
-      start: schedule.startLabel,
-      end: schedule.endLabel,
+      // The open window: when work may begin and when the app closes.
+      start: schedule.openFromLabel,
+      end: schedule.openUntilLabel,
       endsAt: window.endsAt,
       opensAt: window.opensAt
     }

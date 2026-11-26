@@ -30,6 +30,8 @@ export default {
   },
   settings: {
     workDayEndBeforeStart: 'The working day must end after it starts',
+    openFromAfterStart: 'Work must open no later than the working day starts',
+    openUntilBeforeEnd: 'Work must close no earlier than the working day ends',
     pickWorkday: 'Choose at least one working day',
     noEmail: 'The current account has no email address',
     mailTestSubject: '{studio} — mail test',

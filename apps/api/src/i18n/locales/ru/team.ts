@@ -29,6 +29,8 @@ export default {
   },
   settings: {
     workDayEndBeforeStart: 'Конец рабочего дня должен быть позже начала',
+    openFromAfterStart: 'Система должна открываться не позже начала рабочего дня',
+    openUntilBeforeEnd: 'Система должна закрываться не раньше конца рабочего дня',
     pickWorkday: 'Выберите хотя бы один рабочий день',
     noEmail: 'У текущей учётной записи нет почты',
     mailTestSubject: '{studio} — проверка почты',

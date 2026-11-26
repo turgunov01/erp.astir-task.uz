@@ -30,6 +30,8 @@ export default {
   },
   settings: {
     workDayEndBeforeStart: 'Ish kunining oxiri boshlanishidan keyin bo‘lishi kerak',
+    openFromAfterStart: 'Tizim ish kuni boshlanishidan kechiktirmay ochilishi kerak',
+    openUntilBeforeEnd: 'Tizim ish kuni tugashidan oldin yopilmasligi kerak',
     pickWorkday: 'Kamida bitta ish kunini tanlang',
     noEmail: 'Joriy hisobda pochta yo‘q',
     mailTestSubject: '{studio} — pochtani tekshirish',

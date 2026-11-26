@@ -4,6 +4,7 @@ import {
   isWorkingDay,
   penaltyFor,
   shiftWindow,
+  unworkedLateMinutes,
   workSchedule,
   type WorkSchedule
 } from '../attendance/attendance.schedule'
@@ -14,9 +15,10 @@ import { latenessExternalId } from '../attendance/attendance.penalties'
  * empty until somebody types entries by hand:
  *
  * - the month's norm: working days by schedule × shift length;
- * - each employee's worked time (pauses and time outside the shift already
- *   taken off by attendance);
- * - lateness fines at the configured rates, counted automatically.
+ * - each employee's worked time inside the open window, early and late hours
+ *   included (pauses already taken off by attendance);
+ * - lateness fines at the configured rates, counted automatically, less
+ *   whatever was worked off by staying late.
  *
  * A lateness fine follows its payroll entry once one exists for that day
  * (made by «Штрафы за опоздания» on the attendance page): approved or paid
@@ -108,10 +110,14 @@ export async function attendanceMonth(
       employee: { deletedAt: null },
       ...(employeeId ? { employeeId } : {})
     },
-    select: { employeeId: true, date: true, workedMinutes: true, lateMinutes: true }
+    select: { employeeId: true, date: true, workedMinutes: true, lateMinutes: true, checkOutAt: true }
   })
 
-  const late = days.filter(day => day.lateMinutes > 0 && isWorkingDay(dayKey(day.date), schedule))
+  // Lateness worked off by staying late is neither fined nor counted.
+  const late = days
+    .filter(day => isWorkingDay(dayKey(day.date), schedule))
+    .map(day => ({ ...day, lateMinutes: unworkedLateMinutes(dayKey(day.date), day.lateMinutes, day.checkOutAt, schedule) }))
+    .filter(day => day.lateMinutes > 0)
   const entries = late.length === 0
     ? []
     : await prisma.payrollEntry.findMany({
@@ -152,12 +158,12 @@ export async function attendanceMonth(
 }
 
 /**
- * The part of the monthly salary earned by the time worked: salary × worked
- * ÷ norm, never above the full salary. Null when no salary is on file.
+ * The salary earned by the time worked: salary × worked ÷ norm. Hours past
+ * the norm (coming early, staying late) are paid at the same rate, so more
+ * work brings more money. Null when no salary is on file.
  */
 export function earnedPay(salary: number | null, workedMinutes: number, normMinutes: number): number | null {
   if (salary === null) return null
   if (normMinutes <= 0) return salary
-  const share = Math.min(1, workedMinutes / normMinutes)
-  return Math.round(salary * share * 100) / 100
+  return Math.round(salary * (workedMinutes / normMinutes) * 100) / 100
 }
